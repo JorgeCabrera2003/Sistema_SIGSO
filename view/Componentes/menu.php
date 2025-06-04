@@ -13,6 +13,7 @@
   <div class="sidebar-content">
     <nav class="sidebar-menu">
       <ul>
+        <!-- Menú común para todos los usuarios -->
         <li class="menu-item <?php echo ($page == "home") ? "active" : "" ?>" title="Dashboard">
           <a href="?page=home">
             <i class="fas fa-home"></i>
@@ -26,259 +27,298 @@
           </a>
         </li>
 
-        <?php if ($datos["rol"] == "SUPERUSUARIO" or $datos["rol"] == "ADMINISTRADOR") { ?>
+        <?php if ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "ADMINISTRADOR") { ?>
+          <!-- CATEGORÍA: SERVICIOS -->
+          <li class="menu-title">
+            <span>Servicios</span>
+          </li>
+          
           <li class="menu-item <?php echo ($page == "servicios") ? "active" : "" ?>" title="Servicios">
             <a href="?page=servicios">
               <i class="fa-solid fa-clipboard-check"></i>
               <span class="ms-2 me-2 menu-text">Servicios</span>
             </a>
           </li>
-        <?php } ?>
-
-        <?php if ($datos["rol"] == "SUPERUSUARIO" or $datos["rol"] == "ADMINISTRADOR") { ?>
-
+          
           <li class="menu-item <?php echo ($page == "solicitudes") ? "active" : "" ?>" title="Solicitudes">
             <a href="?page=solicitud">
               <i class="fa-solid fa-clipboard-list"></i>
               <span class="ms-2 me-2 menu-text">Solicitudes</span>
             </a>
           </li>
-
-          <ul>
-            <li class="menu-item <?php echo ($page == "gestion_equipos" || $page == "Configuracion") ? "active" : "" ?>"
-              title="Gestión de Equipos">
-              <a class="nav-link collapsed" data-bs-target="#icons-nava" data-bs-toggle="collapse" href="#">
+          
+          <!-- CATEGORÍA: EQUIPOS -->
+          <li class="menu-title">
+            <span>Equipos</span>
+          </li>
+          
+          <li class="menu-item <?php echo ($page == "gestion_equipos" || $page == "Configuracion") ? "active" : "" ?>"
+            title="Gestión de Equipos">
+            <a class="nav-link collapsed" data-bs-target="#equipos-submenu" data-bs-toggle="collapse" href="#">
+              <i class="fas fa-laptop"></i>
+              <span class="ms-2 me-2 menu-text">Gestión de Equipos</span>
+              <i class="fa-solid fa-angle-right"></i>
+            </a>
+          </li>
+          
+          <ul id="equipos-submenu" style="margin-left: 1em;"
+            class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
+            data-bs-parent="#sidebar-nav">
+            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
+              title="Equipos">
+              <a href="?page=equipo">
+                <i class="fa-solid fa-computer"></i>
+                <span class="ms-2 me-2 menu-text">Equipos</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
+              title="Bienes">
+              <a href="?page=bien">
+                <i class="fas fa-box"></i>
+                <span class="ms-2 me-2 menu-text">Bienes</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo ($page == "material") ? "active" : "" ?>"
+              title="Gestión de Materiales">
+              <a href="?page=material">
+                <i class="fa-solid fa-toolbox"></i>
+                <span class="ms-2 me-2 menu-text">Materiales</span>
+              </a>
+            </li>
+          </ul>
+          
+          <!-- CATEGORÍA: INFRAESTRUCTURA -->
+          <li class="menu-title">
+            <span>Infraestructura</span>
+          </li>
+          
+          <li class="menu-item <?php echo ($page == "gestion_redes" || $page == "Configuracion") ? "active" : "" ?>"
+            title="Gestión de Redes">
+            <a class="nav-link collapsed" data-bs-target="#redes-submenu" data-bs-toggle="collapse" href="#">
+              <i class="fas fa-network-wired"></i>
+              <span class="ms-2 me-2 menu-text">Redes</span>
+              <i class="fa-solid fa-angle-right"></i>
+            </a>
+          </li>
+          
+          <ul id="redes-submenu" style="margin-left: 1em"
+            class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
+            data-bs-parent="#sidebar-nav">
+            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
+              title="Gestión de Switches">
+              <a href="?page=Switch_">
+                <i class="fa-solid fa-server"></i>
+                <span class="ms-2 me-2 menu-text">Switches</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
+              title="Gestión de Interconexiones">
+              <a href="?page=interconexion">
+                <i class="fa-solid fa-network-wired"></i>
+                <span class="ms-2 me-2 menu-text">Interconexiones</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
+              title="Gestión de Patch Panel">
+              <a href="?page=patch_panel">
+                <i class="fa-solid fa-plug"></i>
+                <span class="ms-2 me-2 menu-text">Patch Panels</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
+              title="Gestión de Puntos de Conexión">
+              <a href="?page=punto_conexion">
+                <i class="fa-solid fa-ethernet"></i>
+                <span class="ms-2 me-2 menu-text">Puntos de Conexión</span>
+              </a>
+            </li>
+          </ul>
+          
+          <li class="menu-item <?php echo ($page == "infraestructura" || $page == "Configuracion") ? "active" : "" ?>"
+            title="Edificios y Oficinas">
+            <a class="nav-link collapsed" data-bs-target="#edificios-submenu" data-bs-toggle="collapse" href="#">
+              <i class="fas fa-building"></i>
+              <span class="ms-2 me-2 menu-text">Edificios</span>
+              <i class="fa-solid fa-angle-right"></i>
+            </a>
+          </li>
+          
+          <ul id="edificios-submenu" style="margin-left: 1em"
+            class="nav-content <?php echo ($page == "infraestructura") ? "" : "collapse" ?>"
+            data-bs-parent="#sidebar-nav">
+            <li class="menu-item <?php echo ($page == "piso") ? "active" : "" ?>" title="Gestión de Pisos">
+              <a href="?page=piso">
+                <i class="fa-solid fa-stairs"></i>
+                <span class="ms-2 me-2 menu-text">Pisos</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo ($page == "oficina") ? "active" : "" ?>">
+              <a href="?page=oficina">
+                <i class="fa-solid fa-building-user"></i>
+                <span class="ms-2 me-2 menu-text">Oficinas</span>
+              </a>
+            </li>
+          </ul>
+          
+          <!-- CATEGORÍA: PERSONAL -->
+          <li class="menu-title">
+            <span>Personal</span>
+          </li>
+          
+          <li class="menu-item <?php echo ($page == "empleados" || $page == "Configuracion") ? "active" : "" ?>"
+            title="Gestión de Personal">
+            <a class="nav-link collapsed" data-bs-target="#personal-submenu" data-bs-toggle="collapse" href="#">
+              <i class="fas fa-users"></i>
+              <span class="ms-2 me-2 menu-text">Personal</span>
+              <i class="fa-solid fa-angle-right"></i>
+            </a>
+          </li>
+          
+          <ul id="personal-submenu" style="margin-left: 1em"
+            class="nav-content <?php echo ($page == "empleados") ? "" : "collapse" ?>"
+            data-bs-parent="#sidebar-nav">
+            <li class="menu-item <?php echo ($page == "empleado") ? "active" : "" ?>" title="Gestión de Empleados">
+              <a href="?page=empleado">
+                <i class="fa-solid fa-user-tie"></i>
+                <span class="ms-2 me-2 menu-text">Empleados</span>
+              </a>
+            </li>
+            <li class="menu-item <?php echo ($page == "tecnico") ? "active" : "" ?>" title="Gestión de Técnicos">
+              <a href="?page=tecnico">
+                <i class="fa-solid fa-user-gear"></i>
+                <span class="ms-2 me-2 menu-text">Técnicos</span>
+              </a>
+            </li>
+          </ul>
+          
+          <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
+          <?php if ($datos["rol"] == "ADMINISTRADOR" || $datos["rol"] == "SUPERUSUARIO") { ?>
+            <li class="menu-title">
+              <span>Configuración</span>
+            </li>
+            
+            <li class="menu-item <?php echo ($page == "configuracion" || $page == "Configuracion") ? "active" : "" ?>"
+              title="Configuración General">
+              <a class="nav-link collapsed" data-bs-target="#config-submenu" data-bs-toggle="collapse" href="#">
                 <i class="fas fa-cog"></i>
-                <span class="ms-2 me-2 menu-text">Gestion de Equipos</span>
+                <span class="ms-2 me-2 menu-text">Configuración</span>
                 <i class="fa-solid fa-angle-right"></i>
               </a>
             </li>
-
-            <ul id="icons-nava" style="margin-left: 1em;"
-              class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
-              data-bs-parent="#sidebar-nav">
-
+            
+            <ul id="config-submenu" style="margin-left: 1em"
+              class="nav-content <?php echo ($page == "Configuracion") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
               <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
-                title="Equipos">
-                <a href="?page=equipo">
-                  <i class="fa-solid fa-computer"></i>
-                  <span class="ms-2 me-2 menu-text">Equipos</span>
+                title="Unidad">
+                <a href="?page=unidad">
+                  <i class="fa-solid fa-sitemap"></i>
+                  <span class="ms-2 me-2 menu-text">Unidades</span>
                 </a>
               </li>
-              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
-                title="Bienes">
-                <a href="?page=bien">
-                  <i class="fas fa-cog"></i>
-                  <span class="ms-2 me-2 menu-text">Bienes</span>
+              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "dependencia") ? "active" : "" ?>"
+                title="Dependencia">
+                <a href="?page=dependencia">
+                  <i class="fa-solid fa-diagram-project"></i>
+                  <span class="ms-2 me-2 menu-text">Dependencias</span>
+                </a>
+              </li>
+              <li class="menu-item <?php echo ($page == "ente") ? "active" : "" ?>">
+                <a href="?page=ente">
+                  <i class="fa-solid fa-building"></i>
+                  <span class="ms-2 me-2 menu-text">Entes</span>
+                </a>
+              </li>
+              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "marca") ? "active" : "" ?>"
+                title="Marca">
+                <a href="?page=marca">
+                  <i class="fa-solid fa-trademark"></i>
+                  <span class="ms-2 me-2 menu-text">Marcas</span>
+                </a>
+              </li>
+              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "tipo_servicio") ? "active" : "" ?>"
+                title="Tipo de Servicio">
+                <a href="?page=tipo_servicio">
+                  <i class="fa-solid fa-screwdriver-wrench"></i>
+                  <span class="ms-2 me-2 menu-text">Tipos de Servicio</span>
+                </a>
+              </li>
+              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "cargo") ? "active" : "" ?>"
+                title="Cargo">
+                <a href="?page=cargo">
+                  <i class="fa-solid fa-id-badge"></i>
+                  <span class="ms-2 me-2 menu-text">Cargos</span>
+                </a>
+              </li>
+              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "tipo_bien") ? "active" : "" ?>"
+                title="Tipo de Bien">
+                <a href="?page=tipo_bien">
+                  <i class="fa-solid fa-tag"></i>
+                  <span class="ms-2 me-2 menu-text">Tipos de Bien</span>
                 </a>
               </li>
             </ul>
-            <ul>
-              <li class="menu-item <?php echo ($page == "gestion_equipos" || $page == "Configuracion") ? "active" : "" ?>"
-                title="Gestión de Redes">
-                <a class="nav-link collapsed" data-bs-target="#icons-network" data-bs-toggle="collapse" href="#">
-                  <i class="fas fa-cog"></i>
-                  <span class="ms-2 me-2 menu-text">Gestion de Redes</span>
-                  <i class="fa-solid fa-angle-right"></i>
+            
+            <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
+            <li class="menu-title">
+              <span>Seguridad</span>
+            </li>
+            
+            <li class="menu-item <?php echo ($page == "seguridad" || $page == "Configuracion") ? "active" : "" ?>"
+              title="Módulo de Seguridad">
+              <a class="nav-link collapsed" data-bs-target="#seguridad-submenu" data-bs-toggle="collapse" href="#">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span class="ms-2 me-2 menu-text">Seguridad</span>
+                <i class="fa-solid fa-angle-right"></i>
+              </a>
+            </li>
+            
+            <ul id="seguridad-submenu" style="margin-left: 1em;"
+              class="nav-content <?php echo ($page == "seguridad") ? "" : "collapse" ?>"
+              data-bs-parent="#sidebar-nav">
+              <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Gestión de Usuarios">
+                <a href="?page=usuario">
+                  <i class="fa-solid fa-user-shield"></i>
+                  <span class="ms-2 me-2 menu-text">Usuarios</span>
                 </a>
               </li>
-
-              <ul id="icons-network" style="margin-left: 1em"
-                class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
-                data-bs-parent="#sidebar-nav">
-
-                <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
-                  title="Gestión de Switches">
-                  <a href="?page=Switch_">
-                    <i class="fa-solid fa-server"></i>
-                    <span class="ms-2 me-2 menu-text">Gestión de Switches</span>
-                  </a>
-                </li>
-                <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
-                  title="Gestión de Interconexiones">
-                  <a href="?page=interconexion">
-                    <i class="fa-solid fa-network-wired"></i>
-                    <span class="ms-2 me-2 menu-text">Gestión de Interconexiones</span>
-                  </a>
-                </li>
-                <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
-                  title="Gestión de Patch Panel">
-                  <a href="?page=patch_panel">
-                    <i class="fa-solid fa-server"></i>
-                    <span class="ms-2 me-2 menu-text">Gestión de Patch Panel</span>
-                  </a>
-                </li>
-                <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
-                  title="Gestión de Puntos de Conexión">
-                  <a href="?page=punto_conexion">
-                    <i class="fa-solid fa-ethernet"></i>
-                    <span class="ms-2 me-2 menu-text">Gestión de Puntos de Conexión</span>
-                  </a>
-                </li>
-
-              </ul>
-
-              <li class="menu-item <?php echo ($page == "solicitantes") ? "active" : "" ?>" title="Gestión de Empleados">
-                <a href="?page=empleado">
-                  <i class="fa-solid fa-id-card"></i>
-                  <span class="ms-2 me-2 menu-text">Gestión de Empleados</span>
+              <li class="menu-item <?php echo ($page == "rol") ? "active" : "" ?>" title="Roles y Permisos">
+                <a href="?page=rol">
+                  <i class="fa-solid fa-user-lock"></i>
+                  <span class="ms-2 me-2 menu-text">Roles y Permisos</span>
                 </a>
               </li>
-              <li class="menu-item <?php echo ($page == "solicitantes") ? "active" : "" ?>" title="Gestión de Técnicos">
-                <a href="?page=tecnico">
-                  <i class="fa-solid fa-id-card"></i>
-                  <span class="ms-2 me-2 menu-text">Gestión de Técnicos</span>
+              <li class="menu-item <?php echo ($page == "bitacora") ? "active" : "" ?>" title="Bitácora">
+                <a href="?page=bitacora">
+                  <i class="fa-solid fa-clipboard-list"></i>
+                  <span class="ms-2 me-2 menu-text">Bitácora</span>
                 </a>
               </li>
-
-              <li class="menu-item <?php echo ($page == "solicitantes") ? "active" : "" ?>"
-                title="Gestionar de Materiales">
-                <a href="?page=material">
-                  <i class="fa-solid fa-toolbox"></i>
-                  <span class="ms-2 me-2 menu-text">Gestión de Materiales</span>
+              <li class="menu-item <?php echo ($page == "backup") ? "active" : "" ?>" title="BackUp">
+                <a href="?page=backup">
+                  <i class="fa-solid fa-database"></i>
+                  <span class="ms-2 me-2 menu-text">Backups</span>
                 </a>
               </li>
-              <li class="menu-item <?php echo ($page == "solicitantes") ? "active" : "" ?>" title="Gestión de Pisos">
-                <a href="?page=piso">
-                  <i class="fa-solid fa-stairs"></i>
-                  <span class="ms-2 me-2 menu-text">Gestión de Pisos</span>
-                </a>
-              </li>
-              <li class="menu-item <?php echo ($page == "solicitantes") ? "active" : "" ?>">
-                <a href="?page=oficina">
-                  <i class="fa-solid fa-building-user"></i>
-                  <span class="ms-2 me-2 menu-text">Gestión de Oficinas</span>
-                </a>
-              </li>
-
-              <ul>
-                <?php if ($datos["rol"] == "ADMINISTRADOR" || $datos["rol"] == "SUPERUSUARIO") { ?>
-                  <li class="menu-item <?php echo ($page == "Mantenimiento") ? "active" : "" ?>"
-                    title="Gestión de Seguridad">
-                    <a class="nav-link collapsed" data-bs-target="#icons-nave" data-bs-toggle="collapse" href="#">
-                      <i class="fa-solid fa-shield-halved"></i>
-                      <span class="ms-2 me-2 menu-text">Mòdulo de Seguridad</span>
-                      <i class="fa-solid fa-angle-right"></i>
-                    </a>
-                  </li>
-
-                  <ul id="icons-nave" style="margin-left: 1em;"
-                    class="nav-content <?php echo ($page == "Mantenimiento") ? "" : "collapse" ?>"
-                    data-bs-parent="#sidebar-nav">
-
-                    <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "backup") ? "active" : "" ?>"
-                      title="BackUp">
-                      <a href="?page=backup">
-                        <i class="fa-solid fa-database"></i>
-                        <span class="ms-2 me-2 menu-text">BackUp</span>
-                      </a>
-                    </li>
-                    <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Bitácora">
-                      <a href="?page=bitacora">
-                        <i class="fa-solid fa-user-clock"></i>
-                        <span class="ms-2 me-2 menu-text">Bitácora</span>
-                      </a>
-                    </li>
-                    <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Gestión de Usuarios">
-                      <a href="?page=usuario">
-                        <i class="fa-solid fa-users-rectangle"></i>
-                        <span class="ms-2 me-2 menu-text">Gestión de Usuarios</span>
-                      </a>
-                    </li>
-                    <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Roles y Permisos">
-                      <a href="?page=rol">
-                        <i class="fa-solid fa-users-rectangle"></i>
-                        <span class="ms-2 me-2 menu-text">Roles y Permisos</span>
-                      </a>
-                    </li>
-                  </ul>
-
-                <?php } ?>
-
-              </ul>
-
-            <?php } ?>
             </ul>
+          <?php } ?>
+        <?php } ?>
+      </ul>
     </nav>
   </div>
 
   <div class="sidebar-footer">
     <ul>
-
-      <?php if ($datos["rol"] == "ADMINISTRADOR" || $datos["rol"] == "SUPERUSUARIO") { ?>
-
-        <li class="menu-item <?php echo ($page == "Configuracion") ? "active" : "" ?>" title="Configuración">
-          <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
-            <i class="fas fa-cog"></i>
-            <span class="ms-2 me-2 menu-text">Configuración</span>
-            <i class="fa-solid fa-angle-right"></i>
-          </a>
-        </li>
-
-        <ul id="icons-nav" style="margin-left: 1em"
-          class="nav-content <?php echo ($page == "Configuracion") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
-
-          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
-            title="Unidad">
-            <a href="?page=unidad">
-              <i class="fa-solid fa-users-gear"></i>
-              <span class="ms-2 me-2 menu-text">Unidades</span>
-            </a>
-          </li>
-          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "dependencia") ? "active" : "" ?>"
-            title="Dependencia">
-            <a href="?page=dependencia">
-              <i class="fa-solid fa-users-gear"></i>
-              <span class="ms-2 me-2 menu-text">Dependencias</span>
-            </a>
-          </li>
-          <li class="menu-item <?php echo ($page == "solicitantes") ? "active" : "" ?>">
-            <a href="?page=ente">
-              <i class="fa-solid fa-building"></i>
-              <span class="ms-2 me-2 menu-text">Entes</span>
-            </a>
-          </li>
-          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "marca") ? "active" : "" ?>"
-            title="Marca">
-            <a href="?page=marca">
-              <i class="fa-solid fa-trademark"></i>
-              <span class="ms-2 me-2 menu-text">Marca</span>
-            </a>
-          </li>
-          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "tipo_servicio") ? "active" : "" ?>"
-            title="Tipo de Servicio">
-            <a href="?page=tipo_servicio">
-              <i class="fa-solid fa-screwdriver-wrench"></i>
-              <span class="ms-2 me-2 menu-text">Tipo de Servicio</span>
-            </a>
-          </li>
-          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "cargo") ? "active" : "" ?>"
-            title="Cargo">
-            <a href="?page=cargo">
-              <i class="fa-solid fa-screwdriver-wrench"></i>
-              <span class="ms-2 me-2 menu-text">Cargo</span>
-            </a>
-          </li>
-          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "tipo_bien") ? "active" : "" ?>"
-            title="Tipo de Bien">
-            <a href="?page=tipo_bien">
-              <i class="fa-solid fa-screwdriver-wrench"></i>
-              <span class="ms-2 me-2 menu-text">Tipo de Bien</span>
-            </a>
-          </li>
-        </ul>
-      <?php } ?>
-
       <li class="menu-item <?php echo ($page == "ayuda") ? "active" : "" ?>" title="Ayuda">
         <a href="?page=ayuda">
           <i class="fas fa-question-circle"></i>
           <span class="ms-2 me-2 menu-text">Ayuda</span>
         </a>
       </li>
-
     </ul>
   </div>
 </aside>
+
+<!-- Resto del código permanece igual -->
 
 <!-- Main Content -->
 <div class="main-content">
