@@ -96,7 +96,7 @@ function enviaAjax(datos) {
 				mensajes("error", null, "Error en JSON Tipo: " + e.name + "\n" +
 					"Mensaje: " + e.message + "\n" +
 					"Posición: " + e.lineNumber);
-					console.log(respuesta);
+				console.log(respuesta);
 			}
 		},
 		error: function (request, status, err) {
@@ -204,8 +204,7 @@ function rellenar(pos, accion) {
 
 	$("#id_oficina").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());
-
-	buscarSelectTexto("#id_piso", $(linea).find("td:eq(2)").text())
+	buscarSelect("#id_piso", $(linea).find("td:eq(2)").text(), "text")
 
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Oficina")
