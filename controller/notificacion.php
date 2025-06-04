@@ -23,12 +23,12 @@ if (is_file("view/".$page.".php")) {
         $hora = date('H:i:s');
         $fecha = date('Y-m-d');
     
-        $notificacion->set_usuario($_SESSION['user']['nombre_usuario']);
-        $notificacion->set_modulo("Notificaciones");
-        $notificacion->set_mensaje($msg);
-        $notificacion->set_fecha($fecha);
-        $notificacion->set_hora($hora);
-        $notificacion->Transaccion($peticion);
+        $bitacora->set_usuario($_SESSION['user']['nombre_usuario']);
+        $bitacora->set_modulo("Notificaciones");
+        $bitacora->set_accion($msg);
+        $bitacora->set_fecha($fecha);
+        $bitacora->set_hora($hora);
+        $bitacora->Transaccion($peticion);
         exit;
     }
 
