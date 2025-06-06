@@ -323,6 +323,8 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
             $query = "UPDATE usuario SET clave= :clave WHERE cedula = :cedula";
 
             $stm = $this->conex->prepare($query);
@@ -348,6 +350,8 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT
             usuario.nombre_usuario,
                 usuario.cedula,
@@ -382,6 +386,8 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
             $query = "UPDATE usuario SET foto=? WHERE cedula = ?";
 
             $stm = $this->conex->prepare($query);
