@@ -15,22 +15,13 @@
         </ol>
       </nav>
     </div><!-- End Page Title -->
-    <?php 
-      if (isset($confirmacion)) {
-    ?>
-      <div class="alert alert-<?php echo $color; ?> alert-dismissible fade show" role="alert">
-         <strong><?php echo $confirmacion; ?></strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    <?php 
-      }
-     ?>
+
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
           <div class="card">
             <div class="card-body table-responsive py-3">
-            <button class="btn btn-primary mb-4" data-bs-toggle="modal" id="#btn_enviar">Crear usuario</button>
+            <button class="btn btn-primary mb-4"  id="btn-registrar">Registrar Usuario</button>
 
             <div class="table-responsive">
                 <table class="table display" id="tabla1">

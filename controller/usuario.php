@@ -7,8 +7,10 @@ ob_start();
 
 require_once "controller/utileria.php";
 require_once "model/usuario.php";
+require_once "model/rol.php";
 
 $usuario = new Usuario();
+$rol = new Rol();
 
 $peticion = [];
 $peticion['peticion'] = "permiso";
@@ -31,13 +33,19 @@ if (is_file("view/" . $page . ".php")) {
 	$datos = $_SESSION['user'];
 	$datos = $datos + $usuario->Transaccion(['peticion' => 'perfil']);
 
+	if (isset($_POST['entrada'])) {
+		$json['resultado'] = "entrada";
+		echo json_encode($json);
+		exit;
+	}
+
 	if (isset($_POST["registrar"])) {
 		$usuario->set_cedula($_POST["cedula"]);
 		$usuario->set_nombres($_POST["nombre"]);
 		$usuario->set_apellidos($_POST["apellido"]);
 		$usuario->set_telefono($_POST["telefono"]);
 		$usuario->set_correo($_POST["correo"]);
-		$usuario->set_id_rol($_POST["rol"]);
+		$usuario->set_rol($_POST["rol"]);
 		$peticion["peticion"] = "registrar";
 		$json = $usuario->Transaccion($peticion);
 		echo json_encode($json);
@@ -64,7 +72,7 @@ if (is_file("view/" . $page . ".php")) {
 		$usuario->set_apellidos($_POST["apellido"]);
 		$usuario->set_telefono($_POST["telefono"]);
 		$usuario->set_correo($_POST["correo"]);
-		$usuario->set_id_rol($_POST["rol"]);
+		$usuario->set_rol($_POST["rol"]);
 		$peticion["peticion"] = "actualizar";
 		$json = $usuario->Transaccion($peticion);
 		echo json_encode($json);
@@ -94,8 +102,7 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST['cargar_rol'])) {
-		$peticion["peticion"] = "filtrar";
-		$rol->set_id_dependencia($_POST['id_dependencia']);
+		$peticion["peticion"] = "consultar";
 		$json = $rol->Transaccion($peticion);
 		$json["resultado"] = "cargar_rol";
 		echo json_encode($json);

@@ -17,7 +17,7 @@ $(document).ready(function () {
 					datos.append('telefono', $("#telefono").val());
 					datos.append('correo', $("#correo").val());
 					datos.append('unidad', $("#unidad").val());
-					datos.append('cargo', $("#cargo").val());
+					datos.append('rol', $("#rol").val());
 					enviaAjax(datos);
 				}
 				break;
@@ -31,7 +31,7 @@ $(document).ready(function () {
 					datos.append('telefono', $("#telefono").val());
 					datos.append('correo', $("#correo").val());
 					datos.append('unidad', $("#unidad").val());
-					datos.append('cargo', $("#cargo").val());
+					datos.append('rol', $("#rol").val());
 					enviaAjax(datos);
 				}
 				break;
@@ -52,8 +52,7 @@ $(document).ready(function () {
 
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
 		limpia();
-		$("#idEmpleado").remove();
-		$("#modalTitleId").text("Registrar Empleado");
+		$("#modalTitleId").text("Registrar Usuario");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
@@ -123,6 +122,68 @@ async function enviaAjax(datos) {
 	});
 }
 
+function capaValidar() {
+
+
+	$("#cedula").on("keypress", function (e) {
+		validarKeyPress(/^[-0-9V\B]*$/, e);
+	});
+	$("#cedula").on("keyup", function () {
+		validarKeyUp(
+			/^[V]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
+			"Cédula no válida, el formato es: V-**********"
+		);
+	});
+
+	$("#nombre").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ\b]*$/, e);
+	});
+	$("#nombre").on("keyup", function () {
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/, $(this), $("#snombre"),
+			"El nombre debe tener de 4 a 45 carácteres"
+		);
+	});
+
+	$("#apellido").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ\b]*$/, e);
+	});
+	$("#apellido").on("keyup", function () {
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/, $(this), $("#sapellido"),
+			"El apellido debe tener de 4 a 45 carácteres"
+		);
+	});
+
+	$("#correo").on("keypress", function (e) {
+		validarKeyPress(/^[-0-9a-z_.@\b]*$/, e);
+	});
+	$("#correo").on("keyup", function () {
+		validarKeyUp(
+			/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
+			"El formato del correo electrónico es: usuario@servidor.com"
+		);
+	});
+
+	$("#telefono").on("keypress", function (e) {
+		validarKeyPress(/^[-0-9\b]*$/, e);
+	});
+	$("#telefono").on("keyup", function () {
+		validarKeyUp(
+			/^[0-9]{4}[-]{1}[0-9]{10}$/, $(this), $("#stelefono"),
+			"El numero de teléfono debe tener el siguiente formato: ****-*******"
+		);
+	});
+
+	$("#rol").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#srol", "Debe seleccionar un rol", 0);
+		} else {
+			estadoSelect(this, "#srol", "", 1);
+		}
+	});
+
+}
 
 function validarenvio() {
 	//OJO TAREA, AGREGAR LA VALIDACION DEL nro	
@@ -134,20 +195,20 @@ function validarenvio() {
 	return true;
 }
 
-function selectCargo(arreglo) {
-	$("#cargo").empty();
+function selectRol(arreglo) {
+	$("#rol").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
 
-		$("#cargo").append(
-			new Option('Seleccione un Cargo', 'default')
+		$("#rol").append(
+			new Option('Seleccione un rol', 'default')
 		);
 		arreglo.forEach(item => {
-			$("#cargo").append(
-				new Option(item.nombre_cargo, item.id_cargo)
+			$("#rol").append(
+				new Option(item.nombre_rol, item.id_rol)
 			);
 		});
 	} else {
-		$("#cargo").append(
+		$("#rol").append(
 			new Option('No Hay Cargos', 'default')
 		);
 	}

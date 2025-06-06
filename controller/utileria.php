@@ -15,7 +15,8 @@ $notificacion = new Notificacion();
 
 $usuario->set_cedula($_SESSION['user']['cedula']);
 $datos = $_SESSION['user'];
-$datos = $datos + $usuario->Transaccion(['peticion' => 'perfil']);
+$perfil = $usuario->Transaccion(['peticion' => 'perfil']);
+$datos = $datos + $perfil['datos'];
 
 if (is_file($foto = $datos['foto'])) {
     $foto = $datos['foto'];

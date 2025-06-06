@@ -40,6 +40,8 @@ class Rol extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT * FROM rol WHERE id = :id";
 
@@ -71,6 +73,8 @@ class Rol extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conex = new Conexion("usuario");
+                $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
                 $query = "INSERT INTO rol (id, nombre) VALUES (NULL, :nombre)";
 
@@ -102,6 +106,8 @@ class Rol extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "UPDATE rol SET nombre= :nombre WHERE id = :id";
 
@@ -130,6 +136,8 @@ class Rol extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex = new Conexion("usuario");
+                $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
                 $query = "UPDATE rol SET estatus = 0 WHERE id = :id";
 
@@ -160,6 +168,8 @@ class Rol extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT * FROM rol";
 
