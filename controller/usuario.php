@@ -22,7 +22,7 @@ if ($permiso == 0) {
 	echo '<script>window.location="?page=404"</script>';
 }
 
-$cabecera = array("Nombre de Usuario", "Cedula", "Nombre", "Apellido", "Rol", "Modificar/Eliminar");
+$cabecera = array("Nombre de Usuario", "Rol", "Cedula", "Nombre", "Apellido", "Teléfono", "Correo", "Modificar/Eliminar");
 
 if (is_file("view/" . $page . ".php")) {
 	$titulo = "Usuarios";
@@ -41,6 +41,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["registrar"])) {
 		$usuario->set_cedula($_POST["cedula"]);
+		$usuario->set_nombre_usuario($_POST["nombre_usuario"]);
 		$usuario->set_nombres($_POST["nombre"]);
 		$usuario->set_apellidos($_POST["apellido"]);
 		$usuario->set_telefono($_POST["telefono"]);
@@ -68,6 +69,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		$usuario->set_cedula($_POST["cedula"]);
+		$usuario->set_nombre_usuario($_POST["nombre_usuario"]);
 		$usuario->set_nombres($_POST["nombre"]);
 		$usuario->set_apellidos($_POST["apellido"]);
 		$usuario->set_telefono($_POST["telefono"]);

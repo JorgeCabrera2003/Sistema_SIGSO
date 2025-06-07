@@ -11,12 +11,13 @@ $(document).ready(function () {
 				if (validarenvio()) {
 					var datos = new FormData();
 					datos.append('registrar', 'registrar');
+					datos.append('nombre_usuario', $("#nombre_usuario").val());
 					datos.append('cedula', $("#cedula").val());
 					datos.append('nombre', $("#nombre").val());
 					datos.append('apellido', $("#apellido").val());
 					datos.append('telefono', $("#telefono").val());
 					datos.append('correo', $("#correo").val());
-					datos.append('unidad', $("#unidad").val());
+					datos.append('clave', $("#clave").val());
 					datos.append('rol', $("#rol").val());
 					enviaAjax(datos);
 				}
@@ -25,12 +26,13 @@ $(document).ready(function () {
 				if (validarenvio()) {
 					var datos = new FormData();
 					datos.append('modificar', 'modificar');
+					datos.append('nombre_usuario', $("#nombre_usuario").val());
 					datos.append('cedula', $("#cedula").val());
 					datos.append('nombre', $("#nombre").val());
 					datos.append('apellido', $("#apellido").val());
 					datos.append('telefono', $("#telefono").val());
 					datos.append('correo', $("#correo").val());
-					datos.append('unidad', $("#unidad").val());
+					datos.append('clave', $("#clave").val());
 					datos.append('rol', $("#rol").val());
 					enviaAjax(datos);
 				}
@@ -50,7 +52,7 @@ $(document).ready(function () {
 		$('#enviar').prop('disabled', true);
 	});
 
-	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
+	$("#btn-registrar").on("click", function () {
 		limpia();
 		$("#modalTitleId").text("Registrar Usuario");
 		$("#enviar").text("Registrar");
@@ -124,6 +126,15 @@ async function enviaAjax(datos) {
 
 function capaValidar() {
 
+	$("#nombre_usuario").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ_\b]*$/, e);
+	});
+	$("#nombre_usuario").on("keyup", function () {
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ_]{4,45}$/, $(this), $("#snombre_usuario"),
+			"El nombre de usuario debe tener de 4 a 45 carácteres"
+		);
+	});
 
 	$("#cedula").on("keypress", function (e) {
 		validarKeyPress(/^[-0-9V\B]*$/, e);
@@ -159,8 +170,7 @@ function capaValidar() {
 		validarKeyPress(/^[-0-9a-z_.@\b]*$/, e);
 	});
 	$("#correo").on("keyup", function () {
-		validarKeyUp(
-			/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
+		validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
 			"El formato del correo electrónico es: usuario@servidor.com"
 		);
 	});
@@ -169,8 +179,7 @@ function capaValidar() {
 		validarKeyPress(/^[-0-9\b]*$/, e);
 	});
 	$("#telefono").on("keyup", function () {
-		validarKeyUp(
-			/^[0-9]{4}[-]{1}[0-9]{10}$/, $(this), $("#stelefono"),
+		validarKeyUp(/^[0-9]{4}[-]{1}[0-9]{7}$/, $(this), $("#stelefono"),
 			"El numero de teléfono debe tener el siguiente formato: ****-*******"
 		);
 	});
@@ -183,14 +192,89 @@ function capaValidar() {
 		}
 	});
 
+	$("#clave").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,\b]*$/, e);
+	});
+	$("#clave").on("keyup", function () {
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/, $(this), $("#sclave"),
+			"La clave debe tener mínimo 8 caracteres"
+		);
+	});
+
+	$("#rclave").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,\b]*$/, e);
+	});
+
+	$("#rclave").on("keyup", function () {
+
+		if ($(this).val() == $("#clave").val()) {
+
+			$(this).addClass("is-valid");
+			$(this).removeClass("is-invalid");
+			$("#srclave").text("");
+			$("#srclave").addClass("valid-feedback");
+			$("#srclave").removeClass("invalid-feedback");
+
+		} else {
+
+			$(this).addClass("is-invalid");
+			$(this).removeClass("is-valid");
+			$("#srclave").text('La clave no coincide');
+			$("#srclave").removeClass("valid-feedback");
+			$("#srclave").addClass("invalid-feedback");
+		}
+	});
+
 }
 
 function validarenvio() {
 	//OJO TAREA, AGREGAR LA VALIDACION DEL nro	
-	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/, $("#motivo"),
-		$("#smotivo"), "El motivo debe de tener 3 letras minimo") == 0) {
-		mensajes("error", 10000, "Verifica", "El motivo debe tener entre 3 y 30 caracteres");
+	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ_]{4,45}$/, $("#nombre_usuario"), $("#snombre_usuario"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "El nombre de usuario debe tener de 4 a 45 carácteres");
 		return false;
+
+	} else if (validarKeyUp(
+		/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
+		return false;
+
+	} else if (validarKeyUp(
+		/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/, $("#nombre"), $("#snombre"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "El nombre debe tener de 4 a 45 carácteres");
+		return false;
+
+	} else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/, $("#apellido"), $("#sapellido"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
+		return false;
+
+	} else if (validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
+		return false;
+
+	} else if (validarKeyUp(/^[0-9]{4}[-]{1}[0-9]{7}$/, $("#telefono"), $("#stelefono"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "El numero de teléfono debe tener el siguiente formato: ****-*******");
+		return false;
+
+	} else if ($("#rol").val() == "default") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un rol");
+		return false;
+
+	} else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/, $("#clave"), $("#sclave"),
+		"") == 0) {
+		mensajes("error", 10000, "Verifica", "La clave debe tener mínimo 8 caracteres");
+		return false;
+
+	} else if ($("#rclave").val() != $("#clave").val()) {
+		mensajes("error", 10000, "Verifica", "La clave no coincide");
+		return false;
+
 	}
 	return true;
 }
@@ -214,48 +298,76 @@ function selectRol(arreglo) {
 	}
 }
 
-var tabla;
-
-function iniciarTabla(arreglo) {
-	if (tabla == null) {
-		crearDataTable(arreglo);
-	} else {
-		tabla.destroy();
-		crearDataTable(arreglo);
-	}
-};
-
 function crearDataTable(arreglo) {
 
-	console.log(arreglo);
-	tabla = $('#tabla1').DataTable({
+	if ($.fn.DataTable.isDataTable('#tabla1')) {
+		$('#tabla1').DataTable().destroy();
+	}
+
+	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
 			{ data: 'nombre_usuario' },
+			{ data: 'rol' },
 			{ data: 'cedula' },
 			{ data: 'nombres' },
 			{ data: 'apellidos' },
-			{ data: 'rol' },
+			{ data: 'telefono' },
+			{ data: 'correo' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" title="Modificar" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" title="Eliminar" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}
-		]
+		],
+		language: {
+			url: idiomaTabla,
+		}
 	});
 
 }
 
-z
 function limpia() {
-	$("#motivo").last().removeClass("is-valid");
-	$("#motivo").last().removeClass("is-invalid");
-	$("#motivo").val("");
-}
+	$("#nombre_usuario").removeClass("is-valid is-invalid");
+	$("#nombre_usuario").val("");
 
-/*
-function habilitarBotonRegistrar1() {
-	$(".registrar").prop("disabled", $("#motivo").val().trim() === "" || $("#motivo").val().length <= 2 );
-  } */
+	$("#cedula").removeClass("is-valid is-invalid");
+	$("#cedula").val("");
+
+	$("#nombre").removeClass("is-valid is-invalid");
+	$("#nombre").val("");
+
+	$("#apellido").removeClass("is-valid is-invalid");
+	$("#apellido").val("");
+	
+	$("#correo").removeClass("is-valid is-invalid");
+	$("#correo").val("");
+	
+	$("#telefono").removeClass("is-valid is-invalid");
+	$("#telefono").val("");
+
+}
+async function rellenar(pos, accion) {
+
+	linea = $(pos).closest('tr');
+	$("#nombre_usuario").val($(linea).find("td:eq(0)").text());
+	buscarSelect('#rol', $(linea).find("td:eq(1)").text(), 'text');
+	$("#cedula").val($(linea).find("td:eq(2)").text());
+	$("#nombre").val($(linea).find("td:eq(3)").text());
+	$("#apellido").val($(linea).find("td:eq(4)").text());
+	$("#telefono").val($(linea).find("td:eq(5)").text());
+	$("#correo").val($(linea).find("td:eq(6)").text());
+
+	if (accion == 0) {
+		$("#modalTitleId").text("Modificar Usuario")
+		$("#enviar").text("Modificar");
+	}
+	else {
+		$("#modalTitleId").text("Eliminar Usuario")
+		$("#enviar").text("Eliminar");
+	}
+	$('#enviar').prop('disabled', false);
+	$("#modal1").modal("show");
+}

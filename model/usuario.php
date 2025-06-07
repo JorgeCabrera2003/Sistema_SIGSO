@@ -122,15 +122,18 @@ class Usuario extends Conexion
             $this->conex = new Conexion("usuario");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "INSERT INTO usuario(cedula, clave, rol) VALUES (:cedula,:clave,:rol)";
+            $query = "INSERT INTO usuario(nombre_usuario, cedula, id_rol, nombres, apellidos, telefono, correo, clave)
+            VALUES (:nombre_usuario, :cedula, :rol, :nombres, :apellidos, :telefono, :correo, :clave)";
 
             $stm = $this->conex->prepare($query);
-            $stm->bindParam(':cedula', $this->cedula);
             $stm->bindParam(':nombre_usuario', $this->nombre_usuario);
+            $stm->bindParam(':cedula', $this->cedula);
+            $stm->bindParam(':rol', $this->rol);
             $stm->bindParam(':nombres', $this->nombres);
             $stm->bindParam(':apellidos', $this->apellidos);
-            $stm->bindParam(':correo', $this->correo);
             $stm->bindParam(':telefono', $this->telefono);
+            $stm->bindParam(':correo', $this->correo);
+            $stm->bindParam(':clave', $this->clave);
 
             $stm->execute();
             $this->conex->commit();
@@ -155,19 +158,20 @@ class Usuario extends Conexion
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "UPDATE usuario SET 
-                nombres = :nombres,
-                apellidos = :apellidos,
-                correo = :correo,
-                telefono = :telefono 
+                nombre_usuario = nombre_usuario, cedula = :cedula, id_rol = :rol,
+                nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
+                correo = :correo, clave = :clave
                 WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
 
             $stm = $this->conex->prepare($query);
-            $stm->bindParam(':cedula', $this->cedula);
             $stm->bindParam(':nombre_usuario', $this->nombre_usuario);
+            $stm->bindParam(':cedula', $this->cedula);
+            $stm->bindParam(':rol', $this->rol);
             $stm->bindParam(':nombres', $this->nombres);
             $stm->bindParam(':apellidos', $this->apellidos);
-            $stm->bindParam(':correo', $this->correo);
             $stm->bindParam(':telefono', $this->telefono);
+            $stm->bindParam(':correo', $this->correo);
+            $stm->bindParam(':clave', $this->clave);
 
             $stm->execute();
             $this->conex->commit();
@@ -198,7 +202,7 @@ class Usuario extends Conexion
             $this->conex = new Conexion("usuario");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $stm = $this->conex->prepare("SELECT * FROM usuario WHERE cedula= :cedula");
+            $stm = $this->conex->prepare("SELECT * FROM usuario WHERE cedula = :cedula");
             $stm->bindParam(":cedula", $this->cedula);
             $stm->execute();
 
