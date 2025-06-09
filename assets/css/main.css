@@ -1248,3 +1248,40 @@ input[type=number]::-webkit-outer-spin-button {
 .icon-spin:hover {
   animation: spin 1s linear infinite;
 }
+
+  .permissions-section {
+    padding: 15px;
+  }
+
+  .permission-group {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+  }
+
+  .permission-group legend.group-header {
+    width: auto;
+    padding: 0 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+
+  .permission-options {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 4px;
+  }
+
+  .form-check-inline .form-check-input {
+    margin-right: 8px;
+  }
+
+  .group-checkbox {
+    transform: scale(1.2);
+    margin-right: 8px;
+  }
