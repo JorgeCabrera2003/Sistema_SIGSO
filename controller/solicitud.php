@@ -27,45 +27,45 @@ if (is_file("view/" . $page . ".php")) {
 
     // Manejo de acciones AJAX
     if (isset($_POST["action"])) {
-        switch ($_POST["action"]) {
-            case "load_equipos":
-                $peticion = [
-                    "peticion" => "equipos",
-                    "dependencia_id" => $_POST["dependencia_id"]
-                ];
-                $equipo_datos = $equipo->Transaccion($peticion);
-                echo json_encode($equipo_datos);
-                break;
-                
-            case "load_solicitantes":
-				$peticion = [
-                    "peticion" => "equipos",
-                    "dependenciaId" => $_POST["dependencia_id"]
-                ];
-                $solicitantes = $empleado->Transaccion($peticion);
-                echo json_encode($solicitantes);
-                break;
-                
-            case "load_dependencias":
-                $peticion = ["peticion" => "consultar"];
-                $dependencias = $dependencia->Transaccion($peticion);
-                echo json_encode($dependencias);
-                break;
-                
-            case "consultar_por_id":
-                $peticion = [
-                    "peticion" => "consultar_por_id",
-                    "id" => $_POST["id"]
-                ];
-                $datosSolicitud = $solicitud->Transaccion($peticion);
-                echo json_encode($datosSolicitud);
-                break;
-                
-            default:
-                echo json_encode(["resultado" => "error", "mensaje" => "Acción no reconocida"]);
-        }
-        exit;
+    switch ($_POST["action"]) {
+        case "load_equipos":
+            $peticion = [
+                "peticion" => "equipos_por_dependencia",
+                "dependencia_id" => $_POST["dependencia_id"]
+            ];
+            $equipo_datos = $equipo->Transaccion($peticion);
+            echo json_encode($equipo_datos);
+            break;
+            
+        case "load_solicitantes":
+            $peticion = [
+                "peticion" => "empleados_por_dependencia",
+                "dependencia_id" => $_POST["dependencia_id"]
+            ];
+            $solicitantes = $empleado->Transaccion($peticion);
+            echo json_encode($solicitantes);
+            break;
+            
+        case "load_dependencias":
+            $peticion = ["peticion" => "consultar"];
+            $dependencias = $dependencia->Transaccion($peticion);
+            echo json_encode($dependencias);
+            break;
+            
+        case "consultar_por_id":
+            $peticion = [
+                "peticion" => "consultar_por_id",
+                "id" => $_POST["id"]
+            ];
+            $datosSolicitud = $solicitud->Transaccion($peticion);
+            echo json_encode($datosSolicitud);
+            break;
+            
+        default:
+            echo json_encode(["resultado" => "error", "mensaje" => "Acción no reconocida"]);
     }
+    exit;
+}
 
     // Registro de entrada al módulo
     if (isset($_POST["entrada"])) {

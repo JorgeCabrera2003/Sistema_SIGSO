@@ -8,7 +8,7 @@
 
 
     actualizarContadorMenu();
-    setInterval(actualizarContadorMenu, 3000); // Cada 30 segundos
+    setInterval(actualizarContadorMenu, 30000000); // Cada 30 segundos
 });
 
 function cargarNotificacionesMenu() {

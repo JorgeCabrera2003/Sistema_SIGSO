@@ -14,11 +14,11 @@ $(document).ready(function () {
         if (esEdicion) {
             cargarDatosSolicitud(button.data('id'));
             modal.find('.modal-title').text('Editar Solicitud');
-            $("#enviar2").text("Modificar");
+            $("#enviar2").text("Modificar").attr('name', 'modificar');
         } else {
             limpiarFormularioModal();
             modal.find('.modal-title').text('Nueva Solicitud');
-            $("#enviar2").text("Registrar");
+            $("#enviar2").text("Registrar").attr('name', 'registrar');
         }
     });
 });
@@ -26,23 +26,17 @@ $(document).ready(function () {
 // Función para inicializar eventos
 function inicializarEventos() {
     // Evento para el botón de enviar en el modal
-    $("#enviar2").on("click", function () {
-        const accion = $(this).text();
+    $("#enviar2").on("click", function (e) {
+        e.preventDefault();
+        const accion = $(this).attr('name');
         const formularioValido = validarFormularioModal();
 
         if (formularioValido) {
-            const datos = new FormData();
-            datos.append(accion.toLowerCase(), accion.toLowerCase());
-
-            // Datos comunes
-            datos.append('motivo', $("#motivo2").val());
-            datos.append('area', $("#area2").val());
-            datos.append('cedula', $("#solicitante2").val());
-            datos.append('serial', $("#equipo2").val());
-            datos.append('dependencia', $("#dependencia2").val());
-
+            const datos = new FormData($('#solicitud form')[0]);
+            datos.append(accion, accion);
+            
             // Datos específicos para modificación
-            if (accion === "Modificar") {
+            if (accion === "modificar") {
                 datos.append('nrosol', $("#nro").val());
             }
 
@@ -61,14 +55,6 @@ function inicializarEventos() {
             $("#solicitante2").empty().append('<option value="" selected hidden>Seleccionar solicitante</option>');
         }
         habilitarBotonEnviar();
-    });
-
-    // Evento para el botón de registrar en la vista principal
-    $("#btn-registrar").on("click", function () {
-        limpiarFormularioPrincipal();
-        $("#modalTitleId").text("Registrar Solicitud");
-        $("#enviar").text("Registrar");
-        $("#solicitud").modal("show");
     });
 }
 
@@ -100,24 +86,27 @@ function cargarDatosSolicitud(id) {
                 // Llenar campos básicos
                 $("#nro").val(solicitud.nro_solicitud);
                 $("#motivo2").val(solicitud.motivo);
-                $("#sol").val(solicitud.nombre_solicitante);
                 
                 // Seleccionar área
                 $("#area2").val(solicitud.id_area);
                 
-                // Cargar y seleccionar dependencia
-                cargarDependenciasModal(solicitud.id_dependencia);
-                
-                // Cargar equipos y solicitantes después de seleccionar dependencia
-                setTimeout(() => {
+                // Cargar dependencia y luego los selects dependientes
+                cargarDependencias().then(() => {
                     if (solicitud.id_dependencia) {
-                        cargarEquiposPorDependencia(solicitud.id_dependencia, solicitud.serial_equipo);
-                        cargarSolicitantesPorDependencia(solicitud.id_dependencia, solicitud.cedula_solicitante);
+                        $("#dependencia2").val(solicitud.id_dependencia).trigger('change');
+                        
+                        // Esperar a que se carguen los selects dependientes
+                        setTimeout(() => {
+                            if (solicitud.cedula_solicitante) {
+                                $("#solicitante2").val(solicitud.cedula_solicitante);
+                            }
+                            if (solicitud.serial_equipo) {
+                                $("#equipo2").val(solicitud.serial_equipo);
+                            }
+                            habilitarBotonEnviar();
+                        }, 500);
                     }
-                }, 300);
-                
-                // Habilitar botón
-                $('#enviar2').prop('disabled', false);
+                });
             } else {
                 mensajes("error", null, "Error al cargar datos", response.mensaje);
             }
@@ -128,9 +117,9 @@ function cargarDatosSolicitud(id) {
     });
 }
 
-// Función para cargar dependencias en el modal
-function cargarDependenciasModal(dependenciaSeleccionada = '') {
-    $.ajax({
+// Función para cargar dependencias
+function cargarDependencias() {
+    return $.ajax({
         url: '',
         type: 'POST',
         data: { action: 'load_dependencias' },
@@ -139,10 +128,13 @@ function cargarDependenciasModal(dependenciaSeleccionada = '') {
             const $select = $('#dependencia2');
             $select.empty().append('<option value="" selected hidden>Seleccionar</option>');
             
-            response.forEach(dep => {
-                const selected = dep.id == dependenciaSeleccionada ? 'selected' : '';
-                $select.append(`<option value="${dep.id}" ${selected}>${dep.nombre}</option>`);
-            });
+            if (response && response.length > 0) {
+                response.forEach(dep => {
+                    $select.append(`<option value="${dep.id}">${dep.nombre}</option>`);
+                });
+            } else {
+                $select.append('<option value="" selected hidden>No hay dependencias registradas</option>');
+            }
         },
         error: function() {
             mensajes('error', null, 'Error al cargar dependencias');
@@ -152,6 +144,8 @@ function cargarDependenciasModal(dependenciaSeleccionada = '') {
 
 // Función para cargar equipos por dependencia
 function cargarEquiposPorDependencia(dependenciaId, equipoSeleccionado = '') {
+    if (!dependenciaId) return;
+
     $.ajax({
         url: '',
         type: 'POST',
@@ -161,10 +155,14 @@ function cargarEquiposPorDependencia(dependenciaId, equipoSeleccionado = '') {
             const $select = $('#equipo2');
             $select.empty().append('<option value="" selected>Seleccionar</option>');
             
-            response.forEach(equipo => {
-                const selected = equipo.serial == equipoSeleccionado ? 'selected' : '';
-                $select.append(`<option value="${equipo.serial}" ${selected}>${equipo.serial} - ${equipo.tipo}</option>`);
-            });
+            if (response && response.length > 0) {
+                response.forEach(equipo => {
+                    const selected = equipo.serial == equipoSeleccionado ? 'selected' : '';
+                    $select.append(`<option value="${equipo.serial}" ${selected}>${equipo.serial} - ${equipo.tipo}</option>`);
+                });
+            } else {
+                $select.append('<option value="" selected>No hay equipos registrados</option>');
+            }
         },
         error: function() {
             mensajes('error', null, 'Error al cargar equipos');
@@ -174,6 +172,8 @@ function cargarEquiposPorDependencia(dependenciaId, equipoSeleccionado = '') {
 
 // Función para cargar solicitantes por dependencia
 function cargarSolicitantesPorDependencia(dependenciaId, solicitanteSeleccionado = '') {
+    if (!dependenciaId) return;
+
     $.ajax({
         url: '',
         type: 'POST',
@@ -183,10 +183,21 @@ function cargarSolicitantesPorDependencia(dependenciaId, solicitanteSeleccionado
             const $select = $('#solicitante2');
             $select.empty().append('<option value="" selected hidden>Seleccionar solicitante</option>');
             
-            response.forEach(solicitante => {
-                const selected = solicitante.cedula == solicitanteSeleccionado ? 'selected' : '';
-                $select.append(`<option value="${solicitante.cedula}" ${selected}>${solicitante.nombre} - ${solicitante.cedula}</option>`);
-            });
+            if (response && response.length > 0) {
+                response.forEach(solicitante => {
+                    const selected = solicitante.cedula == solicitanteSeleccionado ? 'selected' : '';
+                    $select.append(`<option value="${solicitante.cedula}" ${selected}>${solicitante.nombre} - ${solicitante.cedula}</option>`);
+                });
+            } else {
+                $select.append('<option value="" selected hidden>No hay solicitantes registrados</option>');
+            }
+            
+            // Validar si hay un solicitante seleccionado previamente
+            if (solicitanteSeleccionado && $select.find(`option[value="${solicitanteSeleccionado}"]`).length > 0) {
+                $select.val(solicitanteSeleccionado);
+            }
+            
+            habilitarBotonEnviar();
         },
         error: function() {
             mensajes('error', null, 'Error al cargar solicitantes');
@@ -212,35 +223,47 @@ function capaValidar() {
     });
     
     // Validación para los selects en el modal
-    $("#area2, #dependencia2, #equipo2, #solicitante2").on("change", function() {
+    $("#area2, #dependencia2, #solicitante2").on("change", function() {
+        $(this).removeClass('is-invalid');
         habilitarBotonEnviar();
     });
 }
 
 // Función para validar el formulario del modal
 function validarFormularioModal() {
+    let valido = true;
+    
+    // Validar motivo
     if (validarKeyUp(
         /^[0-9 a-zA-ZáéíóúüñÑçÇ -.,]{3,200}$/, 
         $("#motivo2"), 
         $("#smotivo2"), 
         ""
     ) == 0) {
-        mensajes("error", 10000, "Verifica", "El motivo debe tener entre 3 y 200 caracteres");
-        return false;
+        $("#motivo2").addClass('is-invalid');
+        valido = false;
     }
     
+    // Validar área
     if ($("#area2").val() === "") {
-        mensajes("error", 10000, "Verifica", "Debe seleccionar un área");
-        return false;
+        $("#area2").addClass('is-invalid');
+        valido = false;
     }
     
+    // Validar dependencia
     if ($("#dependencia2").val() === "") {
-        mensajes("error", 10000, "Verifica", "Debe seleccionar una dependencia");
-        return false;
+        $("#dependencia2").addClass('is-invalid');
+        valido = false;
     }
     
+    // Validar solicitante
     if ($("#solicitante2").val() === "") {
-        mensajes("error", 10000, "Verifica", "Debe seleccionar un solicitante");
+        $("#solicitante2").addClass('is-invalid');
+        valido = false;
+    }
+    
+    if (!valido) {
+        mensajes("error", 10000, "Verifica", "Complete todos los campos requeridos");
         return false;
     }
     
@@ -322,7 +345,7 @@ function enviaAjax(datos) {
     });
 }
 
-// Función para crear la tabla DataTable
+// Función para crear la tabla DataTable (sin modificaciones)
 function crearDataTable(datos) {
     if ($.fn.DataTable.isDataTable('#tabla1')) {
         $('#tabla1').DataTable().destroy();
@@ -395,7 +418,6 @@ async function confirmarEliminacion(id) {
 function limpiarFormularioModal() {
     $("#nro").val("");
     $("#motivo2").val("").removeClass("is-valid is-invalid");
-    $("#sol").val("");
     $("#area2").val("").removeClass("is-valid is-invalid");
     $("#dependencia2").val("").removeClass("is-valid is-invalid");
     $("#equipo2").empty().append('<option value="" selected>Seleccionar</option>');
@@ -403,7 +425,61 @@ function limpiarFormularioModal() {
     $("#enviar2").prop("disabled", true);
 }
 
-// Función para limpiar el formulario principal
-function limpiarFormularioPrincipal() {
-    // Implementar si es necesario
+// Funciones auxiliares de validación
+function validarKeyPress(expresion, e) {
+    const key = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+    if (!expresion.test(key)) {
+        e.preventDefault();
+        return false;
+    }
+}
+
+function validarKeyUp(expresion, campo, span, mensaje) {
+    const valor = campo.val().trim();
+    if (expresion.test(valor)) {
+        campo.removeClass("is-invalid").addClass("is-valid");
+        span.text("");
+        return 1;
+    } else {
+        campo.removeClass("is-valid").addClass("is-invalid");
+        span.text(mensaje);
+        return 0;
+    }
+}
+
+// Función para mostrar mensajes al usuario
+function mensajes(tipo, tiempo, titulo, mensaje) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: tiempo || 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+    
+    Toast.fire({
+        icon: tipo,
+        title: titulo,
+        text: mensaje || ''
+    });
+}
+
+// Función para confirmar acciones
+async function confirmarAccion(titulo, texto, icono) {
+    const result = await Swal.fire({
+        title: titulo,
+        text: texto,
+        icon: icono,
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    return result.isConfirmed;
 }

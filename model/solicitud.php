@@ -4,7 +4,7 @@ require_once('model/conexion.php');
 
 class Solicitud extends Conexion
 {
-// Atributos
+    // Atributos
     private $nro_solicitud;
     private $cedula_solicitante;
     private $id_equipo;
@@ -133,7 +133,6 @@ class Solicitud extends Conexion
             $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
             $datos['resultado'] = 'consultar';
             $this->conex->commit();
-
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $datos['resultado'] = 'error';
@@ -164,7 +163,6 @@ class Solicitud extends Conexion
         }
         $this->Cerrar_Conexion($none, $stm);
         return $datos;
-
     }
 
     private function ActualizarSolicitud()
@@ -261,7 +259,6 @@ class Solicitud extends Conexion
         $datos = $stm->fetchAll(PDO::FETCH_ASSOC);
         $this->Cerrar_Conexion($this->conex, $stm);
         return $datos;
-
     }
 
     private function UltimaSolicitud()
@@ -302,6 +299,7 @@ class Solicitud extends Conexion
         FROM solicitud AS o
         LEFT JOIN empleado AS s1 ON o.cedula_solicitante = s1.cedula_empleado
         LEFT JOIN equipo AS e ON o.id_equipo = e.id_equipo
+        WHERE o.estatus = 1
         ORDER BY Inicio DESC;";
 
             $stm = $this->conex->prepare($query);
@@ -344,7 +342,6 @@ class Solicitud extends Conexion
         $stm->execute();
 
         return $stm->fetchAll(PDO::FETCH_ASSOC);
-
     }
 
     public function Transaccion($peticion)
@@ -373,8 +370,5 @@ class Solicitud extends Conexion
                 $error = "Operación no Válida";
                 return $error;
         }
-
     }
-
 }
-?>

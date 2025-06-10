@@ -63,7 +63,6 @@ class Dependencia extends Conexion
                 $dato['bool'] = 0;
             }
             $this->conex->commit();
-
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $dato['error'] = $e->getMessage();
@@ -169,11 +168,11 @@ class Dependencia extends Conexion
         $dato = [];
 
         try {
-            $query = "SELECT dependencia.id, dependencia.id_ente,
+            $query = "SELECT dep.id, dep.id_ente,
             dependencia.nombre, ente.nombre AS ente
-            FROM dependencia
-            INNER JOIN ente ON dependencia.id_ente = ente.id
-            WHERE dependencia.estatus = 1";
+            FROM dependencia dep
+            INNER JOIN ente ON dep.id_ente = ente.id
+            WHERE dep.estatus = 1";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -211,9 +210,6 @@ class Dependencia extends Conexion
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
-
         }
-
     }
 }
-?>
