@@ -10,11 +10,46 @@ $(document).ready(function () {
 
 			case "Registrar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se registrará una Unidad", "¿Está seguro de realizar la acción?", "question");
+					confirmacion = await confirmarAccion("Se registrará un Rol", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
+
+						const permisos_modulos = [];
+
+						$('[data-modulo-string]').each(function () {
+							const modulo = $(this);
+							const moduloString = modulo.data('moduloString');
+							const permisos = [];
+
+							// Obtener todos los checkboxes dentro del módulo
+							modulo.find('.form-check-input').each(function () {
+								const checkbox = $(this);
+								var bool;
+								if (checkbox.prop('checked')) {
+									bool = 1;
+								} else {
+									bool = 0;
+								}
+								permisos.push({
+									accion: checkbox.val(),
+									estado: bool
+								});
+							});
+
+							if (permisos.length > 0) {
+								permisos_modulos.push({
+									modulo: moduloString,
+									permisos: permisos
+								});
+							}
+						});
+						console.log(datos);
+
 						datos.append('registrar', 'registrar');
 						datos.append('nombre', $("#nombre").val());
+						datos.append('cargar_permiso', 'cargar_permiso');
+						datos.append('datos', JSON.stringify(permisos_modulos));
+
 						enviaAjax(datos);
 						envio = true;
 					}
@@ -22,12 +57,47 @@ $(document).ready(function () {
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se modificará una Unidad", "¿Está seguro de realizar la acción?", "question");
+					confirmacion = await confirmarAccion("Se modificará un Rol", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
+
+						const permisos_modulos = [];
+
+						$('[data-modulo-string]').each(function () {
+							const modulo = $(this);
+							const moduloString = modulo.data('moduloString');
+							const permisos = [];
+
+							// Obtener todos los checkboxes dentro del módulo
+							modulo.find('.form-check-input').each(function () {
+								const checkbox = $(this);
+								var bool;
+								if (checkbox.prop('checked')) {
+									bool = 1;
+								} else {
+									bool = 0;
+								}
+								permisos.push({
+									accion: checkbox.val(),
+									estado: bool
+								});
+							});
+
+							if (permisos.length > 0) {
+								permisos_modulos.push({
+									modulo: moduloString,
+									permisos: permisos
+								});
+							}
+						});
+						console.log(datos);
+
 						datos.append('modificar', 'modificar');
 						datos.append('id_rol', $("#id_rol").val());
 						datos.append('nombre', $("#nombre").val());
+						datos.append('cargar_permiso', 'cargar_permiso');
+						datos.append('datos', JSON.stringify(permisos_modulos));
+
 						enviaAjax(datos);
 						envio = true;
 					}
@@ -35,7 +105,7 @@ $(document).ready(function () {
 				break;
 			case "Eliminar":
 				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_rol"), $("#sid_rol"), "") == 1) {
-					confirmacion = await confirmarAccion("Se eliminará una Unidad", "¿Está seguro de realizar la acción?", "warning");
+					confirmacion = await confirmarAccion("Se eliminará un Rol", "¿Está seguro de realizar la acción?", "warning");
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
@@ -62,10 +132,79 @@ $(document).ready(function () {
 		}
 	});
 
+	$("#permisos").on("click", async function () {
+
+		var confirmacion = false;
+		var envio = false;
+
+		switch ($(this).text()) {
+
+			case "Guardar":
+
+				confirmacion = await confirmarAccion("Se subirán los permisos", "¿Está seguro de realizar la acción?", "question");
+
+				if (confirmacion) {
+					var formulario = new FormData();
+					const datos = [];
+
+					// Seleccionar todos los divs que contienen módulos
+					$('[data-modulo-string]').each(function () {
+						const modulo = $(this);
+						const moduloString = modulo.data('moduloString');
+						const permisos = [];
+
+						// Obtener todos los checkboxes dentro del módulo
+						modulo.find('.form-check-input').each(function () {
+							const checkbox = $(this);
+							var bool;
+							if (checkbox.prop('checked')) {
+								bool = 1;
+							} else {
+								bool = 0;
+							}
+							permisos.push({
+								accion: checkbox.val(),
+								estado: bool
+							});
+						});
+
+						if (permisos.length > 0) {
+							datos.push({
+								modulo: moduloString,
+								permisos: permisos
+							});
+						}
+					});
+					console.log(datos);
+					formulario.append('id_rol', $('#Pid_rol').val());
+					formulario.append('cargar_permiso', 'cargar_permiso');
+					formulario.append('datos', JSON.stringify(datos));
+					enviaAjax(formulario);
+					envio = true;
+				}
+				break;
+
+			default:
+				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
+		}
+		cargarPermisos($('#Pid_rol').val());
+		if (envio) {
+			$('#enviar').prop('disabled', true);
+		} else {
+			$('#enviar').prop('disabled', false);
+		}
+
+		if (!confirmacion) {
+			$('#enviar').prop('disabled', false);
+		} else {
+			$('#enviar').prop('disabled', true);
+		}
+	});
+
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
 		limpia();
 		$("#idRol").remove();
-		$("#modalTitleId").text("Registrar Unidad");
+		$("#modalTitleId").text("Registrar Rol");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
@@ -109,6 +248,11 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
+				} else if (lee.resultado == "cargar_permiso") {
+
+				} else if (lee.resultado == "consultar_permiso") {
+					ColocarPermiso(lee.datos);
+
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -136,11 +280,19 @@ function capaValidar() {
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
 			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#snombre"),
-			"El nombre de la unidad debe tener de 4 a 45 carácteres"
+			"El nombre del rol debe tener de 4 a 45 carácteres"
 		);
 	});
 }
 
+function validarenvio() {
+	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+		mensajes("error", 10000, "Verifica", "El nombre del rol debe tener de 4 a 45 carácteres");
+		return false;
+
+	}
+	return true;
+}
 
 function crearDataTable(arreglo) {
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
@@ -171,11 +323,11 @@ function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
 
-	$("#id_dependencia").removeClass("is-valid is-invalid");
-	$("#id_dependencia").val("default");
+	$("#id_rol").removeClass("is-valid is-invalid");
+	$("#id_rol").val("default");
 
 	$("#nombre").prop('readOnly', false);
-	$("#id_dependencia").prop('disabled', false);
+	$("#id_rol").prop('disabled', false);
 	$('#enviar').prop('disabled', false);
 }
 
@@ -185,59 +337,28 @@ function rellenar(pos, accion) {
 	linea = $(pos).closest('tr');
 
 	$("#idRol").remove();
-	$("#Fila1").prepend(`<div class="col-4" id="idRol">
-            <div class="form-floating mb-3 mt-4">
+	$("#Fila1").prepend(`<div class="col-md-4" id="idRol">
+            <div class="form-floating">
               <input placeholder="" class="form-control" name="id_rol" type="text" id="id_rol" readOnly>
               <span id="sid_rol"></span>
-              <label for="id_rol" class="form-label">ID de la Unidad</label>
+              <label for="id_rol" class="form-label">ID de la Rol</label>
             </div>`);
 
 	$("#id_rol").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());
 
 	if (accion == 0) {
+		$("#id_rol").prop('readOnly', true);
+		$("#id_rol").val($(linea).find("td:eq(0)").text());
+		$("#nombre").val($(linea).find("td:eq(1)").text());
 
-    const datos = [];
-    
-    // Seleccionar todos los divs que contienen módulos
-    $('[data-modulo-string]').each(function() {
-        const modulo = $(this);
-        const moduloString = modulo.data('moduloString');
-        const permisos = [];
-        
-        // Obtener todos los checkboxes dentro del módulo
-        modulo.find('.form-check-input').each(function() {
-            const checkbox = $(this);
-			var bool;
-            if (checkbox.prop('checked')) {
-                bool = 1;
-            } else {
-				bool = 0;
-			}
-			permisos.push({
-                    accion: checkbox.val(),
-                    estado: bool
-                });
-        });
-        
-        if (permisos.length > 0) {
-            datos.push({
-                modulo: moduloString,
-                permisos: permisos
-            });
-        }
-    });
-
-
-		console.log(datos);
-
-		$("#modalTitleIdPermiso").text("Permisos");
-		$("#modalPermiso").modal("show");
-		$("#enviar_permiso").text("Guardar");
+		$("#modalTitleId").text("Modificar Rol");
+		$("#enviar").text("Modificar");
+		$("#modal1").modal("show");
 	} else {
 		$("#nombre").prop('readOnly', true);
-		$("#id_dependencia").prop('disabled', true);
-		$("#modalTitleId").text("Eliminar Unidad");
+		$("#id_rol").prop('disabled', true);
+		$("#modalTitleId").text("Eliminar Rol");
 		$("#enviar").text("Eliminar");
 	}
 	$('#enviar').prop('disabled', false);

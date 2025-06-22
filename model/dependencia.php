@@ -169,7 +169,7 @@ class Dependencia extends Conexion
 
         try {
             $query = "SELECT dep.id, dep.id_ente,
-            dependencia.nombre, ente.nombre AS ente
+            dep.nombre, ente.nombre AS ente
             FROM dependencia dep
             INNER JOIN ente ON dep.id_ente = ente.id
             WHERE dep.estatus = 1";

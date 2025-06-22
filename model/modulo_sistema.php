@@ -10,9 +10,8 @@ class Modulo_Sistema extends Conexion
 
     public function __construct()
     {
-
-        $this->conex = new Conexion("usuario");
-        $this->conex = $this->conex->Conex();
+        $this->id = 0;
+        $this->modulo = "";
     }
 
     public function set_id($id)
@@ -36,21 +35,103 @@ class Modulo_Sistema extends Conexion
     }
 
 
-    private function Establecer_Modulos()
-    {
-        $this->set_modulo(modulos);
-    }
-
-    private function Validar()
+    private function Comprobar_Modulos()
     {
         $dato = [];
 
         try {
-            $query = "SELECT * FROM tipo_servicio WHERE id = :id";
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT * FROM modulo";
+
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $this->conex->commit();
+            $dato['resultado'] = "comprobacion";
+
+            if ($stm->rowCount() == count(modulos)) {
+                $dato['bool'] = true;
+            } else {
+                $dato['mensaje'] = "Error al comprobar módulos";
+                $dato['bool'] = false;
+            }
+
+        } catch (PDOException $e) {
+            $dato['bool'] = false;
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
+    private function Reestablecer_Modulos()
+    {
+        $dato = [];
+
+        $stmR = NULL;
+        $stmM = NULL;
+
+
+        try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
+
+            foreach (modulos as $key) {
+                $this->set_id($key['id']);
+                $this->set_modulo($key['modulo']);
+                $busqueda = $this->Validar(true);
+
+                if ($busqueda['bool'] == 0) {
+                    $queryRegistrar = "INSERT INTO modulo (id_modulo, nombre_modulo) VALUES (:id, :modulo)";
+
+                    $stmR = $this->conex->prepare($queryRegistrar);
+                    $stmR->bindParam(":id", $this->id);
+                    $stmR->bindParam(":modulo", $this->modulo);
+                    $stmR->execute();
+                } else {
+                    $queryModificar = "UPDATE modulo SET nombre_modulo = :modulo WHERE id_modulo = :id";
+
+                    $stmM = $this->conex->prepare($queryModificar);
+                    $stmM->bindParam(":id", $this->id);
+                    $stmM->bindParam(":modulo", $this->modulo);
+                    $stmM->execute();
+                }
+            }
+
+            $this->conex->commit();
+            $dato['resultado'] = "cargar";
+            $dato['estado'] = 1;
+
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+            $dato['estado'] = -1;
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
+    private function Validar($transaccionActiva = false)
+    {
+        $dato = [];
+
+        try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT * FROM modulo WHERE id_modulo = :id";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
+            if (!$transaccionActiva) {
+                $this->conex->commit();
+            }
 
             if ($stm->rowCount() > 0) {
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
@@ -60,9 +141,12 @@ class Modulo_Sistema extends Conexion
             }
 
         } catch (PDOException $e) {
-            $dato['error'] = $e->getMessage();
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($none, $stm);
+        $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
 
@@ -73,16 +157,21 @@ class Modulo_Sistema extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $query = "INSERT INTO tipo_servicio (id, modulo) VALUES 
+                $this->conex = new Conexion("usuario");
+                $this->conex = $this->conex->Conex();
+                $this->conex->beginTransaction();
+                $query = "INSERT INTO modulo (id, modulo) VALUES 
             (NULL, :modulo)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":modulo", $this->modulo);
                 $stm->execute();
+                $this->conex->commit();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró la servicio exitosamente";
+                $dato['mensaje'] = "Se registró el módulo exitosamente";
             } catch (PDOException $e) {
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -101,7 +190,10 @@ class Modulo_Sistema extends Conexion
         $dato = [];
 
         try {
-            $query = "UPDATE tipo_servicio SET modulo= :modulo WHERE id = :id";
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "UPDATE modulo SET modulo= :modulo WHERE id = :id";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -109,8 +201,9 @@ class Modulo_Sistema extends Conexion
             $stm->execute();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos del servicio con éxito";
+            $dato['mensaje'] = "Se modificaron los datos del módulo con éxito";
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -126,20 +219,26 @@ class Modulo_Sistema extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $query = "UPDATE tipo_servicio SET estatus = 0 WHERE id = :id";
+                $this->conex = new Conexion("usuario");
+                $this->conex = $this->conex->Conex();
+                $this->conex->beginTransaction();
+                $query = "UPDATE modulo SET estatus = 0 WHERE id = :id";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
+                $this->conex->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el servicio exitosamente";
+                $dato['mensaje'] = "Se eliminó el módulo exitosamente";
             } catch (PDOException $e) {
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
@@ -153,13 +252,18 @@ class Modulo_Sistema extends Conexion
         $dato = [];
 
         try {
-            $query = "SELECT * FROM tipo_servicio WHERE estatus = 1";
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT * FROM modulo";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
+            $this->conex->commit();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -183,6 +287,12 @@ class Modulo_Sistema extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
+
+            case 'comprobar':
+                return $this->Comprobar_Modulos();
+
+            case 'cargar':
+                return $this->Reestablecer_Modulos();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

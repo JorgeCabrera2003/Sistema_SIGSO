@@ -32,26 +32,26 @@
           <li class="menu-title">
             <span>Servicios</span>
           </li>
-          
+
           <li class="menu-item <?php echo ($page == "servicios") ? "active" : "" ?>" title="Servicios">
             <a href="?page=servicios">
               <i class="fa-solid fa-clipboard-check"></i>
               <span class="ms-2 me-2 menu-text">Servicios</span>
             </a>
           </li>
-          
+
           <li class="menu-item <?php echo ($page == "solicitudes") ? "active" : "" ?>" title="Solicitudes">
             <a href="?page=solicitud">
               <i class="fa-solid fa-clipboard-list"></i>
               <span class="ms-2 me-2 menu-text">Solicitudes</span>
             </a>
           </li>
-          
+
           <!-- CATEGORÍA: EQUIPOS -->
           <li class="menu-title">
             <span>Equipos</span>
           </li>
-          
+
           <li class="menu-item <?php echo ($page == "gestion_equipos" || $page == "Configuracion") ? "active" : "" ?>"
             title="Gestión de Equipos">
             <a class="nav-link collapsed" data-bs-target="#equipos-submenu" data-bs-toggle="collapse" href="#">
@@ -60,7 +60,7 @@
               <i class="fa-solid fa-angle-right"></i>
             </a>
           </li>
-          
+
           <ul id="equipos-submenu" style="margin-left: 1em;"
             class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
             data-bs-parent="#sidebar-nav">
@@ -78,20 +78,19 @@
                 <span class="ms-2 me-2 menu-text">Bienes</span>
               </a>
             </li>
-            <li class="menu-item <?php echo ($page == "material") ? "active" : "" ?>"
-              title="Gestión de Materiales">
+            <li class="menu-item <?php echo ($page == "material") ? "active" : "" ?>" title="Gestión de Materiales">
               <a href="?page=material">
                 <i class="fa-solid fa-toolbox"></i>
                 <span class="ms-2 me-2 menu-text">Materiales</span>
               </a>
             </li>
           </ul>
-          
+
           <!-- CATEGORÍA: INFRAESTRUCTURA -->
           <li class="menu-title">
             <span>Infraestructura</span>
           </li>
-          
+
           <li class="menu-item <?php echo ($page == "gestion_redes" || $page == "Configuracion") ? "active" : "" ?>"
             title="Gestión de Redes">
             <a class="nav-link collapsed" data-bs-target="#redes-submenu" data-bs-toggle="collapse" href="#">
@@ -100,7 +99,7 @@
               <i class="fa-solid fa-angle-right"></i>
             </a>
           </li>
-          
+
           <ul id="redes-submenu" style="margin-left: 1em"
             class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
             data-bs-parent="#sidebar-nav">
@@ -133,7 +132,7 @@
               </a>
             </li>
           </ul>
-          
+
           <li class="menu-item <?php echo ($page == "infraestructura" || $page == "Configuracion") ? "active" : "" ?>"
             title="Edificios y Oficinas">
             <a class="nav-link collapsed" data-bs-target="#edificios-submenu" data-bs-toggle="collapse" href="#">
@@ -142,7 +141,7 @@
               <i class="fa-solid fa-angle-right"></i>
             </a>
           </li>
-          
+
           <ul id="edificios-submenu" style="margin-left: 1em"
             class="nav-content <?php echo ($page == "infraestructura") ? "" : "collapse" ?>"
             data-bs-parent="#sidebar-nav">
@@ -159,12 +158,12 @@
               </a>
             </li>
           </ul>
-          
+
           <!-- CATEGORÍA: PERSONAL -->
           <li class="menu-title">
             <span>Personal</span>
           </li>
-          
+
           <li class="menu-item <?php echo ($page == "empleados" || $page == "Configuracion") ? "active" : "" ?>"
             title="Gestión de Personal">
             <a class="nav-link collapsed" data-bs-target="#personal-submenu" data-bs-toggle="collapse" href="#">
@@ -173,10 +172,9 @@
               <i class="fa-solid fa-angle-right"></i>
             </a>
           </li>
-          
+
           <ul id="personal-submenu" style="margin-left: 1em"
-            class="nav-content <?php echo ($page == "empleados") ? "" : "collapse" ?>"
-            data-bs-parent="#sidebar-nav">
+            class="nav-content <?php echo ($page == "empleados") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
             <li class="menu-item <?php echo ($page == "empleado") ? "active" : "" ?>" title="Gestión de Empleados">
               <a href="?page=empleado">
                 <i class="fa-solid fa-user-tie"></i>
@@ -190,13 +188,13 @@
               </a>
             </li>
           </ul>
-          
+
           <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
           <?php if ($datos["rol"] == "ADMINISTRADOR" || $datos["rol"] == "SUPERUSUARIO") { ?>
             <li class="menu-title">
               <span>Configuración</span>
             </li>
-            
+
             <li class="menu-item <?php echo ($page == "configuracion" || $page == "Configuracion") ? "active" : "" ?>"
               title="Configuración General">
               <a class="nav-link collapsed" data-bs-target="#config-submenu" data-bs-toggle="collapse" href="#">
@@ -205,7 +203,7 @@
                 <i class="fa-solid fa-angle-right"></i>
               </a>
             </li>
-            
+
             <ul id="config-submenu" style="margin-left: 1em"
               class="nav-content <?php echo ($page == "Configuracion") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
               <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
@@ -257,12 +255,12 @@
                 </a>
               </li>
             </ul>
-            
+
             <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
             <li class="menu-title">
               <span>Seguridad</span>
             </li>
-            
+
             <li class="menu-item <?php echo ($page == "seguridad" || $page == "Configuracion") ? "active" : "" ?>"
               title="Módulo de Seguridad">
               <a class="nav-link collapsed" data-bs-target="#seguridad-submenu" data-bs-toggle="collapse" href="#">
@@ -271,10 +269,9 @@
                 <i class="fa-solid fa-angle-right"></i>
               </a>
             </li>
-            
+
             <ul id="seguridad-submenu" style="margin-left: 1em;"
-              class="nav-content <?php echo ($page == "seguridad") ? "" : "collapse" ?>"
-              data-bs-parent="#sidebar-nav">
+              class="nav-content <?php echo ($page == "seguridad") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
               <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Gestión de Usuarios">
                 <a href="?page=usuario">
                   <i class="fa-solid fa-user-shield"></i>
@@ -285,6 +282,12 @@
                 <a href="?page=rol">
                   <i class="fa-solid fa-user-lock"></i>
                   <span class="ms-2 me-2 menu-text">Roles y Permisos</span>
+                </a>
+              </li>
+              <li class="menu-item <?php echo ($page == "rol") ? "active" : "" ?>" title="Módulos del Sistema">
+                <a href="?page=modulo_sistema">
+                  <i class="fa-solid fa-microchip"></i>
+                  <span class="ms-2 me-2 menu-text">Módulos del Sistema</span>
                 </a>
               </li>
               <li class="menu-item <?php echo ($page == "bitacora") ? "active" : "" ?>" title="Bitácora">
@@ -356,7 +359,7 @@
                   </button>
                 </div>
                 <div class="dropdown-body" id="notificaciones-container">
-                  
+
                   <div class="text-center py-3">
                     <div class="spinner-border text-primary" role="status">
                       <span class="visually-hidden">Cargando...</span>
@@ -422,4 +425,3 @@
     <link rel="icon" href="assets/img/favicon.ico">
 
     <head>
-      

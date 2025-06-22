@@ -1,17 +1,19 @@
 <?php
 require_once "model/conexion.php";
+
 class Rol extends Conexion
 {
 
     private $id;
     private $nombre;
 
+    private $permiso;
 
     public function __construct()
     {
 
-        $this->conex = new Conexion("usuario");
-        $this->conex = $this->conex->Conex();
+        $this->id = 0;
+        $this->nombre = "";
     }
 
     public function set_id($id)
@@ -34,6 +36,15 @@ class Rol extends Conexion
         return $this->nombre;
     }
 
+    public function ObjPermiso(Permiso $permiso)
+    {
+        $this->permiso = $permiso;
+    }
+
+        private function FiltrarPermiso()
+    {
+        $this->permiso->set_id_rol($this->get_id());
+    }
 
     private function Validar()
     {
@@ -66,7 +77,7 @@ class Rol extends Conexion
         return $dato;
     }
 
-    private function Registrar()
+    private function Registrar($permisos_rol)
     {
         $dato = [];
         $bool = $this->Validar();
@@ -76,23 +87,34 @@ class Rol extends Conexion
                 $this->conex = new Conexion("usuario");
                 $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
-                $query = "INSERT INTO rol (id, nombre) VALUES (NULL, :nombre)";
+                $query = "INSERT INTO rol (id_rol, nombre_rol) VALUES (NULL, :nombre)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
-                $dato['resultado'] = "registrar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró la servicio exitosamente";
-                $this->conex->commit();
+
+                $this->permiso->Transaccion(['peticion' => 'cargar_permiso', 'permisos' => $permisos_rol]);
+
+                if ($bool['estado'] == 1) {
+                    $this->conex->commit();
+                    $dato['resultado'] = "registrar";
+                    $dato['estado'] = 1;
+                    $dato['mensaje'] = "Se registró el rol exitosamente";
+                } else {
+                    $this->conex->rollBack();
+                    $dato['estado'] = -1;
+                    $dato['resultado'] = "error";
+                    $dato['mensaje'] = 'Error al completar la transacción';
+                }
+
             } catch (PDOException $e) {
-                $this->rollBack();
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->rollBack();
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
@@ -101,7 +123,7 @@ class Rol extends Conexion
         return $dato;
     }
 
-    private function Actualizar()
+    private function Actualizar($permisos_rol)
     {
         $dato = [];
 
@@ -109,18 +131,29 @@ class Rol extends Conexion
             $this->conex = new Conexion("usuario");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "UPDATE rol SET nombre= :nombre WHERE id = :id";
+            $query = "UPDATE rol SET nombre_rol = :nombre WHERE id_rol = :id";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
-            $this->commit();
-            $dato['resultado'] = "modificar";
-            $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos del servicio con éxito";
+            $this->FiltrarPermiso();
+            $bool = $this->permiso->Transaccion(['peticion' => 'cargar_permiso', 'permisos' => $permisos_rol]);
+
+            if ($bool['estado'] == 1) {
+                $this->conex->commit();
+                $dato['resultado'] = "modificar";
+                $dato['estado'] = 1;
+                $dato['mensaje'] = "Se modificaron los datos del rol con éxito";
+            } else {
+                $this->conex->rollBack();
+                $dato['estado'] = -1;
+                $dato['resultado'] = "error";
+                $dato['mensaje'] = 'Error al completar la transacción';
+            }
+
         } catch (PDOException $e) {
-            $this->rollBack();
+            $this->conex->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -147,7 +180,7 @@ class Rol extends Conexion
                 $this->conex->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el servicio exitosamente";
+                $dato['mensaje'] = "Se eliminó el rol exitosamente";
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
@@ -193,13 +226,16 @@ class Rol extends Conexion
         switch ($peticion['peticion']) {
 
             case 'registrar':
-                return $this->Registrar();
+                return $this->Registrar($peticion["permisos"]);
 
             case 'consultar':
                 return $this->Consultar();
 
+            case 'filtrar_permiso':
+                return $this->FiltrarPermiso();
+
             case 'actualizar':
-                return $this->Actualizar();
+                return $this->Actualizar($peticion["permisos"]);
 
             case 'eliminar':
                 return $this->Eliminar();
