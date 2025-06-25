@@ -270,6 +270,7 @@ class Usuario extends Conexion
             $stm = $this->conex->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->execute();
+            
             if ($stm->rowCount() > 0) {
                 $dato['datos'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $dato['bool'] = 1;

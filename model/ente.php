@@ -13,8 +13,7 @@ class Ente extends Conexion
     public function __construct()
     {
 
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+
     }
 
     public function set_id($id)
@@ -81,7 +80,8 @@ class Ente extends Conexion
         $dato = [];
 
         try {
-
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT * FROM ente WHERE id = :id";
 
@@ -106,6 +106,9 @@ class Ente extends Conexion
 
     private function Registrar()
     {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
@@ -146,6 +149,8 @@ class Ente extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "UPDATE ente SET nombre= :nombre, direccion= :direccion, telefono = :telefono, nombre_responsable = :responsable
             WHERE id = :id";
@@ -173,6 +178,8 @@ class Ente extends Conexion
 
     private function Eliminar()
     {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
         $dato = [];
         $bool = $this->Validar();
 
@@ -202,6 +209,8 @@ class Ente extends Conexion
 
     private function Consultar()
     {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
         $dato = [];
 
         try {

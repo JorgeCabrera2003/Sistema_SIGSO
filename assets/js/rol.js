@@ -60,7 +60,7 @@ $(document).ready(function () {
 					confirmacion = await confirmarAccion("Se modificará un Rol", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
-
+						var dataID;
 						const permisos_modulos = [];
 
 						$('[data-modulo-string]').each(function () {
@@ -71,6 +71,7 @@ $(document).ready(function () {
 							// Obtener todos los checkboxes dentro del módulo
 							modulo.find('.form-check-input').each(function () {
 								const checkbox = $(this);
+								dataID = checkbox.data('idPermiso');
 								var bool;
 								if (checkbox.prop('checked')) {
 									bool = 1;
@@ -79,16 +80,19 @@ $(document).ready(function () {
 								}
 								permisos.push({
 									accion: checkbox.val(),
-									estado: bool
+									estado: bool,
+									id: checkbox.attr('data-id-permiso') || null
 								});
+								console.log(dataID);
+								checkbox.attr('data-id-permiso', '');
 							});
-
 							if (permisos.length > 0) {
 								permisos_modulos.push({
 									modulo: moduloString,
 									permisos: permisos
 								});
 							}
+							
 						});
 						console.log(datos);
 
@@ -187,7 +191,6 @@ $(document).ready(function () {
 			default:
 				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
 		}
-		cargarPermisos($('#Pid_rol').val());
 		if (envio) {
 			$('#enviar').prop('disabled', true);
 		} else {
@@ -210,7 +213,16 @@ $(document).ready(function () {
 	}); //<----Fin Evento del Boton Registrar
 });
 
-function enviaAjax(datos) {
+async function TraerPermiso(id) {
+	var data = new FormData();
+	data.append("filtrar_permiso", "filtrar_permiso");
+	data.append("parametro", "modulo_id");
+	data.append("id_rol", id);
+
+	await enviaAjax(data);
+}
+
+async function enviaAjax(datos) {
 	$.ajax({
 		async: true,
 		url: "",
@@ -220,7 +232,7 @@ function enviaAjax(datos) {
 		processData: false,
 		cache: false,
 		beforeSend: function () { },
-		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
+
 		success: function (respuesta) {
 			console.log(respuesta);
 			try {
@@ -233,8 +245,8 @@ function enviaAjax(datos) {
 				} else if (lee.resultado == "consultar") {
 					crearDataTable(lee.datos);
 
-				} else if (lee.resultado == "consultar_dependencia") {
-					selectDependencia(lee.datos);
+				} else if (lee.resultado == "traer_permiso") {
+					ColocarPermisos(lee.permiso);
 
 				} else if (lee.resultado == "modificar") {
 					$("#modal1").modal("hide");
@@ -247,11 +259,6 @@ function enviaAjax(datos) {
 					consultar();
 
 				} else if (lee.resultado == "entrada") {
-
-				} else if (lee.resultado == "cargar_permiso") {
-
-				} else if (lee.resultado == "consultar_permiso") {
-					ColocarPermiso(lee.datos);
 
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
@@ -294,6 +301,49 @@ function validarenvio() {
 	return true;
 }
 
+function ColocarPermisos(Arraypermisos) {
+
+	console.log(Arraypermisos);
+
+	$('[data-modulo-string]').each(function () {
+		const modulo = $(this);
+		const moduloString = modulo.data('moduloString');
+		const permisos = [];
+
+		const permisosModulo = Arraypermisos[moduloString] || {}
+		console.log(permisosModulo);
+		modulo.find('.form-check-input').each(function () {
+			const checkbox = $(this);
+			const accion = checkbox.val();  // Variable intermedia
+			console.log(permisosModulo[accion]);
+
+			if (permisosModulo[accion]) {
+				if (permisosModulo[accion].estado == 1) {
+					checkbox.prop('checked', true);
+					checkbox.attr('data-id-permiso', permisosModulo[accion].id);
+
+				} else {
+					checkbox.prop('checked', false);
+					checkbox.attr('data-id-permiso', permisosModulo[accion].id);
+				}
+				console.log("Encontrado");
+			} else {
+				checkbox.prop('checked', false);
+				checkbox.attr('data-id-permiso', '');
+				console.log("Perdido");
+			}
+			console.log(checkbox.attr('data-id-permiso'));
+		});
+
+		if (permisos.length > 0) {
+			permisos_modulos.push({
+				modulo: moduloString,
+				permisos: permisos
+			});
+		}
+	});
+}
+
 function crearDataTable(arreglo) {
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
@@ -332,7 +382,7 @@ function limpia() {
 }
 
 
-function rellenar(pos, accion) {
+async function rellenar(pos, accion) {
 	limpia();
 	linea = $(pos).closest('tr');
 
@@ -348,6 +398,8 @@ function rellenar(pos, accion) {
 	$("#nombre").val($(linea).find("td:eq(1)").text());
 
 	if (accion == 0) {
+
+		await TraerPermiso($(linea).find("td:eq(0)").text());
 		$("#id_rol").prop('readOnly', true);
 		$("#id_rol").val($(linea).find("td:eq(0)").text());
 		$("#nombre").val($(linea).find("td:eq(1)").text());

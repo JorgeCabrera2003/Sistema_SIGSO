@@ -101,6 +101,55 @@ class Permiso extends Conexion
     }
 
 
+    private function FiltrarPermiso($filtro = "modulo_nombre")
+    {
+        if ($filtro == "modulo_nombre") {
+            $columna = "nombre_modulo";
+        } else {
+            $columna = "id_modulo";
+        }
+        $dato = [];
+
+        try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT p.id_permiso, p.id_rol, p.id_modulo, p.accion_permiso, p.estado, m.nombre_modulo
+            FROM permiso AS p 
+            INNER JOIN modulo AS m ON p.id_modulo = m.id_modulo
+            WHERE p.id_rol = :rol";
+
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(':rol', $this->id_rol);
+            $stm->execute();
+            $this->conex->commit();
+            $resultadoQuery = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $permisos = [];
+
+            foreach ($resultadoQuery as $fila) {
+                $modulo = $fila[$columna];
+                $accion = $fila['accion_permiso'];
+                $estado = $fila['estado'];
+
+                if (!isset($permisos[$modulo])) {
+                    $permisos[$modulo] = [];
+                }
+                $permisos[$modulo][$accion] = [
+                    'estado' => $estado,
+                    'id' => $fila['id_permiso']
+                ];
+            }
+            $dato['resultado'] = "traer_permiso";
+            $dato['permiso'] = $permisos;
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
     private function CargarPermiso($datos)
     {
         $dato = [];
@@ -108,54 +157,48 @@ class Permiso extends Conexion
         $this->Instancia_ModuloSistema();
         $boolPermiso = $this->modulo_sistema->Transaccion(['peticion' => 'comprobar']);
 
+        $query = "INSERT INTO permiso (id_permiso, id_rol, id_modulo, accion_permiso, estado)
+                VALUES (:id_permiso, :rol, :modulo, :accion, :estado)
+                ON DUPLICATE KEY UPDATE estado = VALUES(estado)";
+
         print_r($permisos);
-        if ($boolPermiso['bool']) {
+        $this->conex->beginTransaction();
+        if ($boolPermiso['bool'] == true) {
             try {
-                $this->conex->beginTransaction();
+                $stm = $this->conex->prepare($query);
                 foreach ($permisos as $key) {
-                    $query = "SELECT * FROM permiso WHERE (id_rol = :rol AND id_modulo = :modulo) AND accion_permiso = :accion";
-                    $this->set_modulo($key['modulo']);
-                    $stm = $this->conex->prepare($query);
-                    $stm->bindParam(":rol", $this->id_rol);
-                    $stm->bindParam(":modulo", $this->modulo);
                     foreach ($key['permisos'] as $accion) {
-                        $this->set_accion($accion['accion']);
-                        $this->set_estado($accion['estado']);
-
-                        $stm->bindParam(":accion", $this->accion);
-                        $stm->execute();
-                        if ($stm->rowCount() == 0) {
-                            $sqlR = "INSERT INTO permiso(id_permiso, id_rol, id_modulo, accion_permiso, estado) VALUES (NULL, :rol, :modulo, :accion, :estado)";
-
-                            $registrar = $this->conex->prepare($sqlR);
-                            $registrar->bindParam(":rol", $this->id_rol);
-                            $registrar->bindParam(":modulo", $this->modulo);
-                            $registrar->bindParam(":accion", $this->accion);
-                            $registrar->bindParam(":estado", $this->estado);
-                            $registrar->execute();
-                        } else {
-                            $sqlM = "UPDATE permiso SET estado = :estado WHERE (id_rol = :rol AND id_modulo = :modulo) AND accion_permiso = :accion";
-                            $modificar = $this->conex->prepare($sqlM);
-
-                            $modificar->bindParam(":rol", $this->id_rol);
-                            $modificar->bindParam(":modulo", $this->modulo);
-                            $modificar->bindParam(":accion", $this->accion);
-                            $modificar->bindParam(":estado", $this->estado);
-                            $modificar->execute();
-                        }
+                        $params[] = [
+                            'id_permiso' => $accion['id'],
+                            'rol' => $this->id_rol,
+                            'modulo' => $key['modulo'],
+                            'accion' => $accion['accion'],
+                            'estado' => $accion['estado']
+                        ];
                     }
                 }
-                $dato['estado'] = 1;
+
+                foreach ($params as $param) {
+                    $stm->bindParam(":id_permiso", $param['id_permiso']);
+                    $stm->bindParam(":rol", $param['rol']);
+                    $stm->bindParam(":modulo", $param['modulo']);
+                    $stm->bindParam(":accion", $param['accion']);
+                    $stm->bindParam(":estado", $param['estado']);
+                    $stm->execute();
+                }
                 $this->conex->commit();
+                $dato['mensaje'] = 'Se modifico el permiso';
+                $dato['resultado'] = 'modificar';
+                $dato['estado'] = 1;
             } catch (PDOException $e) {
                 $this->conex->rollBack();
-                $dato['resultado'] = 'error';
+                $dato['resultado'] = 'error_permiso';
                 $dato['mensaje'] = $e->getMessage();
                 $dato['estado'] = -1;
-
             }
         } else {
-            $dato['resultado'] = 'error';
+            $this->conex->rollBack();
+            $dato['resultado'] = 'error_modulo';
             $dato['mensaje'] = $boolPermiso['mensaje'];
             $dato['estado'] = -1;
         }
@@ -332,6 +375,9 @@ class Permiso extends Conexion
 
             case 'cargar_permiso':
                 return $this->CargarPermiso($peticion["permisos"]);
+
+            case 'filtrar_permiso':
+                return $this->FiltrarPermiso($peticion["parametro"]);
 
             case 'actualizar':
                 return $this->Actualizar();

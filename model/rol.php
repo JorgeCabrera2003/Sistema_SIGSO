@@ -36,14 +36,16 @@ class Rol extends Conexion
         return $this->nombre;
     }
 
-    public function ObjPermiso(Permiso $permiso)
+    public function ObjPermiso(Permiso &$permiso)
     {
         $this->permiso = $permiso;
     }
 
-        private function FiltrarPermiso()
+    private function FiltrarPermiso($parametro = "nombre_modulo")
     {
         $this->permiso->set_id_rol($this->get_id());
+
+        return $this->permiso->Transaccion(['peticion' => 'filtrar_permiso', 'parametro' => $parametro]);
     }
 
     private function Validar()
@@ -81,7 +83,7 @@ class Rol extends Conexion
     {
         $dato = [];
         $bool = $this->Validar();
-
+        echo "entre aquí";
         if ($bool['bool'] == 0) {
             try {
                 $this->conex = new Conexion("usuario");
@@ -123,7 +125,7 @@ class Rol extends Conexion
         return $dato;
     }
 
-    private function Actualizar($permisos_rol)
+    private function Actualizar()
     {
         $dato = [];
 
@@ -137,20 +139,11 @@ class Rol extends Conexion
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
-            $this->FiltrarPermiso();
-            $bool = $this->permiso->Transaccion(['peticion' => 'cargar_permiso', 'permisos' => $permisos_rol]);
 
-            if ($bool['estado'] == 1) {
-                $this->conex->commit();
-                $dato['resultado'] = "modificar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se modificaron los datos del rol con éxito";
-            } else {
-                $this->conex->rollBack();
-                $dato['estado'] = -1;
-                $dato['resultado'] = "error";
-                $dato['mensaje'] = 'Error al completar la transacción';
-            }
+            $this->conex->commit();
+            $dato['resultado'] = "modificar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Se modificaron los datos del rol con éxito";
 
         } catch (PDOException $e) {
             $this->conex->rollBack();
@@ -232,10 +225,10 @@ class Rol extends Conexion
                 return $this->Consultar();
 
             case 'filtrar_permiso':
-                return $this->FiltrarPermiso();
+                return $this->FiltrarPermiso($peticion['parametro']);
 
             case 'actualizar':
-                return $this->Actualizar($peticion["permisos"]);
+                return $this->Actualizar();
 
             case 'eliminar':
                 return $this->Eliminar();

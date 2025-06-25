@@ -2,8 +2,7 @@
 
 <body>
 <?php require_once("Componentes/menu.php");
-      require_once("Componentes/modal_rol.php");
-      require_once("Componentes/modal_permiso.php");?>
+      require_once("Componentes/modal_rol.php");?>
       
 
   <main id="main" class="main">
