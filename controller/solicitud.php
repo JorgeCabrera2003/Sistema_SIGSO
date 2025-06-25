@@ -92,7 +92,7 @@ if (is_file("view/" . $page . ".php")) {
 
     // Registro de nueva solicitud
     if (isset($_POST["registrar"])) {
-        header('Content-Type: application/json');
+        //header('Content-Type: application/json');
         
         try {
             $solicitud->set_motivo($_POST["motivo"]);
@@ -105,7 +105,7 @@ if (is_file("view/" . $page . ".php")) {
                 // Crear hoja de servicio asociada
                 $hojaServicio->set_nro_solicitud($resultado['datos']);
                 $hojaServicio->set_id_tipo_servicio($_POST["area"]);
-                $hojaServicio->NuevaHojaServicio();
+                //$hojaServicio->NuevaHojaServicio();
                 
                 $response = [
                     "resultado" => "success",

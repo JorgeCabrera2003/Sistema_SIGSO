@@ -86,10 +86,10 @@ function inicializarComponentes() {
                 data: 'ID',
                 render: function (data, type, row) {
                     return `<div class="btn-group">
-            <button class="btn btn-sm btn-warning" onclick="rellenarSolicitud(this, 0)">
+            <button class="btn btn-sm btn-warning" onclick="rellenarSolicitud(this, 0)" title="Editar solicitud">
                 <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <button class="btn btn-sm btn-danger" onclick="rellenarSolicitud(this, 1)">
+            <button class="btn btn-sm btn-danger" onclick="rellenarSolicitud(this, 1)" title="Eliminar solicitud">
                 <i class="fa-solid fa-trash"></i>
             </button>
         </div>`;
@@ -357,6 +357,13 @@ async function cargarAreas() {
     }
 }
 
+    $('#btn-nueva-solicitud').on('click', function () {
+        limpiarFormulario();
+        $('#modalSolicitud').modal('show');
+        $('#modalSolicitudLabel').text('Nueva Solicitud');
+        $('#btnGuardar').text('Guardar').attr('name', 'registrar');
+    });
+
 function enviarFormulario() {
     if (validarFormulario()) {
         const formData = new FormData($('#formSolicitud')[0]);
@@ -375,6 +382,7 @@ function enviarFormulario() {
             },
             success: function (response) {
                 if (response.resultado === 'success') {
+                    console.log('Solicitud procesada:', response);
                     $('#modalSolicitud').modal('hide');
                     mostrarExito(response.mensaje);
                     recargarTabla();

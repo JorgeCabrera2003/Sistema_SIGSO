@@ -25,7 +25,7 @@
               <?php require_once "Componentes/modal_solicitud.php"; ?>
               
               <div class="d-flex justify-content-between mb-4">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSolicitud">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSolicitud" id="btn-nueva-solicitud" title="Nueva Solicitud">
                   <i class="bi bi-plus-circle me-1"></i> Nueva Solicitud
                 </button>
                 
