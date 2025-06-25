@@ -7,11 +7,21 @@ class Equipo extends Conexion
     private $serial;
     private $codigo_bien;
     private $id_unidad;
+    private $id_dependencia;
 
     public function __construct()
     {
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
+    }
+
+    public function set_id_dependencia($id_dependencia)
+    {
+        $this->id_dependencia = $id_dependencia;
+    }
+    public function get_id_dependencia()
+    {
+        return $this->id_dependencia;
     }
 
     public function set_id_equipo($id_equipo)
@@ -270,6 +280,34 @@ class Equipo extends Conexion
         return $dato;
     }
 
+    public function equiposPorDependencia($idDependencia) {
+    $datos = [];
+    
+    try {
+        $this->conex->beginTransaction();
+        $query = "SELECT e.id_equipo, e.serial, e.tipo_equipo 
+                 FROM equipo e
+                 JOIN unidad u ON e.id_unidad = u.id_unidad
+                 WHERE u.id_dependencia = :idDependencia
+                 AND e.estatus = 1";
+                 
+        $stm = $this->conex->prepare($query);
+        $stm->bindParam(':idDependencia', $idDependencia);
+        $stm->execute();
+        
+        $datos['resultado'] = 'consultar_equipos';
+        $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        $this->conex->commit();
+    } catch (PDOException $e) {
+        $this->conex->rollBack();
+        $datos['resultado'] = 'error';
+        $datos['mensaje'] = $e->getMessage();
+    }
+    
+    $this->Cerrar_Conexion($this->conex, $stm);
+    return $datos;
+}
+
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -289,6 +327,9 @@ class Equipo extends Conexion
                 return $this->Eliminar();
 
             case 'restaurar':
+                return $this->Restaurar();
+
+            case 'equipos_por_dependencia':
                 return $this->Restaurar();
 
             default:

@@ -12,6 +12,7 @@ class Empleado extends Conexion
     private $id_unidad;
     private $telefono;
     private $correo;
+    private $id_dependencia;
 
     public function __construct()
     {
@@ -20,6 +21,14 @@ class Empleado extends Conexion
     }
 
     // Setters y Getters
+    public function set_id_dependencia($id_dependencia)
+    {
+        $this->id_dependencia = $id_dependencia;
+    }
+    public function get_id_dependencia()
+    {
+        return $this->id_dependencia;
+    }
     public function set_cedula($cedula)
     {
         $this->cedula = $cedula;
@@ -173,7 +182,7 @@ class Empleado extends Conexion
         $this->Cerrar_Conexion($this->conex, $stm);
         return $datos;
     }
-
+    //No quiero reemplazar todavia este metodo, ya que es usado en el controlador de solicitud
     private function Empleados_dependencia($dependenciaId)
     {
         $datos = [];
@@ -199,6 +208,36 @@ class Empleado extends Conexion
         }
         return $datos;
     }
+
+    //Aqui voy usar otro metodo simillar pero va a cumplir otra funcion
+    public function empleadosPorDependencia($idDependencia) {
+    $datos = [];
+    
+    try {
+        $this->conex->beginTransaction();
+        $query = "SELECT e.cedula_empleado, e.nombre_empleado, e.apellido_empleado 
+                 FROM empleado e
+                 JOIN unidad u ON e.id_unidad = u.id_unidad
+                 WHERE u.id_dependencia = :idDependencia
+                 AND e.cedula_empleado IS NOT NULL";
+                 
+        $stm = $this->conex->prepare($query);
+        $stm->bindParam(':idDependencia', $idDependencia);
+        $stm->execute();
+        
+        $datos['resultado'] = 'consultar_solicitantes';
+        $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        $this->conex->commit();
+    } catch (PDOException $e) {
+        $this->conex->rollBack();
+        $datos['resultado'] = 'error';
+        $datos['mensaje'] = $e->getMessage();
+    }
+    
+    $this->Cerrar_Conexion($this->conex, $stm);
+    return $datos;
+}
+    //Este metodo es para validar si existe y traiga los empleados de una dependencia
 
     private function Validar()
     {

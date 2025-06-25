@@ -8,6 +8,7 @@ class Material extends Conexion
     private $stock;
     private $estatus;
 
+
     public function __construct()
     {
         $this->conex = new Conexion("sistema");
@@ -94,7 +95,7 @@ class Material extends Conexion
     private function Registrar()
     {
         $dato = [];
-        $bool = $this->Validar();
+        $bool = $this->Validar(); 
 
         if ($bool['bool'] == 0) {
             try {
@@ -257,9 +258,9 @@ class Material extends Conexion
 
         try {
             $query = "SELECT m.*, o.nombre_oficina 
-                 FROM material m 
-                 LEFT JOIN oficina o ON m.ubicacion = o.id_oficina 
-                 WHERE m.estatus = 1 ";
+                      FROM material m 
+                      LEFT JOIN oficina o ON m.ubicacion = o.id_oficina 
+                      WHERE m.estatus = 1 ";
                 // --  AND DATE(m.fecha_registro) BETWEEN :fechaInicio AND :fechaFin
                 // --  ORDER BY m.fecha_registro DESC;
 
