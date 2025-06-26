@@ -274,7 +274,7 @@ if (is_file("view/" . $page . ".php")) {
     // Listar tipos de servicio
     if (isset($_POST['listar_tipos'])) {
         try {
-            $datos = $tipoServicio->Transaccion(['peticion' => 'listar']);
+            $datos = $tipoServicio->Transaccion(['peticion' => 'consultar']);
             echo json_encode($datos);
         } catch (Exception $e) {
             echo json_encode(['resultado' => 'error', 'mensaje' => $e->getMessage()]);

@@ -1,8 +1,15 @@
 <?php require_once("Componentes/head.php"); ?>
 
 <body>
-    <?php require_once("Componentes/menu.php");
-    require_once("Componentes/modal_hoja.php"); ?>
+    <?php
+    require_once("Componentes/menu.php");
+    // Obtener tipos de servicio para los selects
+    require_once("model/tipo_servicio.php");
+    $tipoServicio = new TipoServicio();
+    $tipos_servicio = $tipoServicio->Transaccion(['peticion' => 'consultar']);
+    $tipos_servicio = isset($tipos_servicio['datos']) ? $tipos_servicio['datos'] : [];
+    require_once("Componentes/modal_hoja.php");
+    ?>
 
     <div class="pagetitle">
         <h1>Gestión de Hojas de Servicio</h1>
@@ -37,7 +44,9 @@
                                 <select id="filtroTipo" class="form-select">
                                     <option value="">Todos</option>
                                     <?php foreach ($tipos_servicio as $tipo): ?>
-                                        <option value="<?= $tipo['id_tipo_servicio'] ?>"><?= $tipo['nombre_tipo_servicio'] ?></option>
+                                        <option value="<?= $tipo['id_tipo_servicio'] ?>">
+                                            <?= $tipo['nombre_tipo_servicio'] ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -57,8 +66,8 @@
                                 <button type="button" class="btn btn-outline-secondary" id="btn-refrescar">
                                     <i class="bi bi-arrow-clockwise"></i> Refrescar
                                 </button>
-                                <button type="button" class="btn btn-outline-primary" id="btn-exportar-excel">
-                                    <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                                <button type="button" class="btn btn-outline-primary" id="btn-exportar-PDF">
+                                    <i class="bi bi-file-earmark-PDF"></i> Exportar PDF
                                 </button>
                             </div>
                             
@@ -260,10 +269,7 @@
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     
-    <!-- Scripts adicionales -->
-    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="assets/vendor/pdfmake/pdfmake.min.js"></script>
-    <script src="assets/vendor/pdfmake/vfs_fonts.js"></script>
+
     <script defer src="assets/js/servicio.js"></script>
 </body>
 </html>

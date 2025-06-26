@@ -10,6 +10,9 @@ $(document).ready(function () {
     
     // Cargar tipos de servicio para el modal
     cargarTiposServicio();
+
+    // Cargar tipos de servicio para el filtro
+    cargarTiposServicioFiltro();
 });
 
 function inicializarTablaServicios() {
@@ -18,19 +21,46 @@ function inicializarTablaServicios() {
             url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
         },
         ajax: {
-            url: '',
+            url: '?page=servicios',
             type: 'POST',
-            data: { 
-                listar: 'listar',
-                usuario: JSON.stringify({
-                    nombre_usuario: '<?= $_SESSION["user"]["nombre_usuario"] ?>',
-                    cedula: '<?= $_SESSION["user"]["cedula"] ?>',
-                    id_rol: '<?= $_SESSION["user"]["id_rol"] ?>'
-                })
+            data: function (d) {
+                // Enviar filtros además de los datos base
+                return $.extend({}, d, {
+                    listar: 'listar',
+                    usuario: JSON.stringify({
+                        nombre_usuario: '<?= $_SESSION["user"]["nombre_usuario"] ?>',
+                        cedula: '<?= $_SESSION["user"]["cedula"] ?>',
+                        id_rol: '<?= $_SESSION["user"]["id_rol"] ?>'
+                    }),
+                    filtroEstado: $('#filtroEstado').val(),
+                    filtroTipo: $('#filtroTipo').val(),
+                    filtroFechaInicio: $('#filtroFechaInicio').val(),
+                    filtroFechaFin: $('#filtroFechaFin').val()
+                });
             },
             dataSrc: function (json) {
                 if (json.resultado === 'success') {
-                    return json.datos;
+                    let datos = json.datos;
+                    // Filtro por estado
+                    const estado = $('#filtroEstado').val();
+                    if (estado) {
+                        datos = datos.filter(row => row.estatus === estado);
+                    }
+                    // Filtro por tipo de servicio (comparar por id_tipo_servicio)
+                    const tipo = $('#filtroTipo').val();
+                    if (tipo) {
+                        datos = datos.filter(row => String(row.id_tipo_servicio) === String(tipo));
+                    }
+                    // Filtro por fechas
+                    const fechaInicio = $('#filtroFechaInicio').val();
+                    const fechaFin = $('#filtroFechaFin').val();
+                    if (fechaInicio) {
+                        datos = datos.filter(row => row.fecha_solicitud && row.fecha_solicitud.substr(0, 10) >= fechaInicio);
+                    }
+                    if (fechaFin) {
+                        datos = datos.filter(row => row.fecha_solicitud && row.fecha_solicitud.substr(0, 10) <= fechaFin);
+                    }
+                    return datos;
                 } else {
                     console.error('Error al cargar hojas:', json.mensaje);
                     mostrarError(json.mensaje || 'Error al cargar hojas de servicio');
@@ -117,18 +147,18 @@ function inicializarTablaServicios() {
                     
                     // Botón ver detalles (todos pueden ver)
                     botones += `<button onclick="verDetalles(${row.codigo_hoja_servicio})" class="btn btn-info btn-sm" title="Ver Detalles">
-                        <i class="bi bi-eye"></i>
+                        <i class="fa-solid fa-eye"></i>
                     </button>`;
                     
                     // Botones según permisos
                     if ("<?= $_SESSION['user']['id_rol'] == 5 ? 'true' : 'false' ?>") {
                         // Superusuario puede editar y eliminar
                         botones += `<button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm" title="Editar">
-                            <i class="bi bi-pencil"></i>
+                            <i class="fa-solid fa-pencil"></i>
                         </button>`;
                         
                         botones += `<button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm" title="Eliminar">
-                            <i class="bi bi-trash"></i>
+                            <i class="fa-solid fa-trash"></i>
                         </button>`;
                     } else if (row.estatus === 'A' && (!row.cedula_tecnico || row.cedula_tecnico === "<?= $_SESSION['user']['cedula'] ?>")) {
                         // Técnico puede tomar o finalizar hojas de su área
@@ -153,7 +183,35 @@ function inicializarTablaServicios() {
         processing: true,
         serverSide: false
     });
+
+    // Llenar el select de tipo de servicio en los filtros
+    cargarTiposServicioFiltro();
 }
+
+function cargarTiposServicioFiltro() {
+    $.ajax({
+        url: '?page=servicios',
+        type: 'POST',
+        data: { listar_tipos: 'listar_tipos' },
+        dataType: 'json',
+        success: function(response) {
+            if (response.resultado === 'success') {
+                const $select = $('#filtroTipo');
+                $select.empty().append('<option value="">Todos</option>');
+                response.datos.forEach(function(tipo) {
+                    $select.append(`<option value="${tipo.id_tipo_servicio}">${tipo.nombre_tipo_servicio}</option>`);
+                });
+            }
+        }
+    });
+}
+
+// Eventos para filtros
+$(document).on('change', '#filtroEstado, #filtroTipo, #filtroFechaInicio, #filtroFechaFin', function() {
+    if (window.tablaServicios) {
+        tablaServicios.ajax.reload();
+    }
+});
 
 function configurarEventos() {
     // Evento para el botón de nueva hoja de servicio
@@ -165,20 +223,93 @@ function configurarEventos() {
     $('#btn-refrescar').on('click', function() {
         refrescarTabla();
     });
+    
+    // Evento para agregar nuevos detalles técnicos
+    $('#btn-agregar-detalle').on('click', function() {
+        $('#tablaDetallesModal tbody').append(`
+            <tr>
+                <td><input type="text" class="form-control componente" placeholder="Componente"></td>
+                <td><input type="text" class="form-control detalle" placeholder="Detalle"></td>
+                <td><button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle"><i class="bi bi-trash"></i></button></td>
+            </tr>
+        `);
+    });
+    
+    // Evento delegado para eliminar detalles
+    $(document).on('click', '.btn-eliminar-detalle', function() {
+        $(this).closest('tr').remove();
+    });
+    
+    // Evento para guardar los cambios en el modal
+    $('#enviar').on('click', function() {
+        const accion = $(this).attr('name');
+        const datos = new FormData();
+        
+        datos.append(accion, accion);
+        datos.append('codigo_hoja_servicio', $('#codigo_hoja_servicio').val());
+        
+        if (accion === 'registrar') {
+            datos.append('nro_solicitud', $('#nro_solicitud').val());
+            datos.append('id_tipo_servicio', $('#id_tipo_servicio').val());
+        } else if (accion === 'actualizar') {
+            datos.append('resultado_hoja_servicio', $('#resultado_hoja_servicio').val());
+            datos.append('observacion', $('#observacion').val());
+            
+            // Recoger detalles técnicos
+            const detalles = [];
+            $('#tablaDetallesModal tbody tr').each(function() {
+                detalles.push({
+                    componente: $(this).find('.componente').val(),
+                    detalle: $(this).find('.detalle').val()
+                });
+            });
+            
+            datos.append('detalles', JSON.stringify(detalles));
+        }
+        
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: datos,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#enviar').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
+            },
+            success: function(response) {
+                if (response.resultado === 'success') {
+                    mostrarExito(response.mensaje);
+                    $('#modal1').modal('hide');
+                    tablaServicios.ajax.reload(null, false);
+                } else {
+                    mostrarError(response.mensaje);
+                }
+            },
+            error: function(xhr, status, error) {
+                mostrarError('Error al procesar la solicitud: ' + error);
+            },
+            complete: function() {
+                $('#enviar').prop('disabled', false).text(
+                    accion === 'registrar' ? 'Registrar' : 'Actualizar'
+                );
+            }
+        });
+    });
 }
 
 function abrirModalRegistro() {
     // Limpiar el modal
-    $('#modalHoja')[0].reset();
+    $('#modal1')[0].reset();
     $('#codigo_hoja_servicio').val('');
-    $('#modalHojaLabel').text('Nueva Hoja de Servicio');
-    $('#btnGuardar').text('Registrar').attr('name', 'registrar');
+    $('#modalTitleId').text('Nueva Hoja de Servicio');
+    $('#enviar').text('Registrar').attr('name', 'registrar');
     
     // Mostrar campos según acción
     $('#fila-resultado, #fila-observacion, #fila-detalles').hide();
     
     // Mostrar el modal
-    $('#modalHoja').modal('show');
+    $('#modal1').modal('show');
 }
 
 function verDetalles(codigo) {
@@ -197,12 +328,31 @@ function verDetalles(codigo) {
             if (response.resultado === 'success') {
                 // Llenar los datos en el modal de detalles
                 $('#detalle-solicitante').text(response.datos.nombre_solicitante);
-                $('#detalle-equipo').text(
-                    `${response.datos.tipo_equipo || 'N/A'} - ${response.datos.nombre_marca || ''} (${response.datos.serial || 'N/A'})`
+                $('#detalle-dependencia').text(response.datos.nombre_dependencia || 'N/A');
+                $('#detalle-unidad').text(response.datos.nombre_unidad || 'N/A');
+                $('#detalle-contacto').text(
+                    (response.datos.telefono_empleado || 'Sin teléfono') + ' | ' + 
+                    (response.datos.correo_empleado || 'Sin correo')
                 );
-                $('#detalle-motivo').text(response.datos.motivo);
+                
+                $('#detalle-tecnico').text(response.datos.tecnico || 'Sin asignar');
+                $('#detalle-tipo-servicio').text(response.datos.nombre_tipo_servicio || 'N/A');
+                $('#detalle-estado').text(
+                    response.datos.estatus === 'A' ? 'Activo' : 
+                    (response.datos.estatus === 'I' ? 'Finalizado' : 'Eliminado')
+                );
+                $('#detalle-fecha-resultado').text(
+                    response.datos.fecha_resultado ? new Date(response.datos.fecha_resultado).toLocaleString() : 'N/A'
+                );
+                
+                $('#detalle-tipo-equipo').text(response.datos.tipo_equipo || 'N/A');
+                $('#detalle-marca').text(response.datos.nombre_marca || 'N/A');
+                $('#detalle-serial').text(response.datos.serial || 'N/A');
+                $('#detalle-codigo-bien').text(response.datos.codigo_bien || 'N/A');
+                
+                $('#detalle-motivo').text(response.datos.motivo || 'No especificado');
                 $('#detalle-fecha-solicitud').text(
-                    new Date(response.datos.fecha_solicitud).toLocaleString()
+                    response.datos.fecha_solicitud ? new Date(response.datos.fecha_solicitud).toLocaleString() : 'N/A'
                 );
                 $('#detalle-resultado').text(response.datos.resultado_hoja_servicio || 'No especificado');
                 $('#detalle-observacion').text(response.datos.observacion || 'No especificado');
@@ -210,18 +360,20 @@ function verDetalles(codigo) {
                 // Limpiar y llenar la tabla de detalles
                 $('#tablaDetalles tbody').empty();
                 if (response.datos.detalles && response.datos.detalles.length > 0) {
-                    response.datos.detalles.forEach(function(detalle) {
+                    response.datos.detalles.forEach(function(detalle, index) {
                         $('#tablaDetalles tbody').append(`
                             <tr>
+                                <td>${index + 1}</td>
                                 <td>${detalle.componente || ''}</td>
                                 <td>${detalle.detalle || ''}</td>
+                                <td>${detalle.id_movimiento_material ? 'Material #' + detalle.id_movimiento_material : 'N/A'}</td>
                             </tr>
                         `);
                     });
                 } else {
                     $('#tablaDetalles tbody').append(`
                         <tr>
-                            <td colspan="2" class="text-center">No hay detalles registrados</td>
+                            <td colspan="4" class="text-center">No hay detalles registrados</td>
                         </tr>
                     `);
                 }
@@ -257,8 +409,8 @@ function editarHoja(codigo) {
                 $('#observacion').val(response.datos.observacion || '');
                 
                 // Configurar el modal
-                $('#modalHojaLabel').text('Editar Hoja de Servicio');
-                $('#btnGuardar').text('Actualizar').attr('name', 'actualizar');
+                $('#modalTitleId').text('Editar Hoja de Servicio');
+                $('#enviar').text('Actualizar').attr('name', 'actualizar');
                 
                 // Mostrar campos adicionales
                 $('#fila-resultado, #fila-observacion, #fila-detalles').show();
@@ -267,7 +419,7 @@ function editarHoja(codigo) {
                 cargarDetallesHoja(codigo);
                 
                 // Mostrar el modal
-                $('#modalHoja').modal('show');
+                $('#modal1').modal('show');
             } else {
                 mostrarError(response.mensaje || 'Error al cargar los datos para editar');
             }
@@ -383,9 +535,9 @@ function finalizarHoja(codigo) {
                 url: '',
                 type: 'POST',
                 data: {
-                    finalizar_hoja: 'finalizar_hoja',
+                    finalizar: 'finalizar',
                     codigo_hoja_servicio: codigo,
-                    resultado: resultado,
+                    resultado_hoja_servicio: resultado,
                     observacion: observacion
                 },
                 dataType: 'json',
@@ -421,7 +573,7 @@ function eliminarHoja(codigo) {
                 url: '',
                 type: 'POST',
                 data: {
-                    eliminar_hoja: 'eliminar_hoja',
+                    eliminar: 'eliminar',
                     codigo_hoja_servicio: codigo
                 },
                 dataType: 'json',
@@ -443,7 +595,7 @@ function eliminarHoja(codigo) {
 
 function cargarTiposServicio() {
     $.ajax({
-        url: '',
+        url: '?page=servicios',
         type: 'POST',
         data: {
             listar_tipos: 'listar_tipos'
@@ -503,76 +655,3 @@ function mostrarError(mensaje) {
         timer: 5000
     });
 }
-
-// Evento para agregar nuevos detalles técnicos
-$('#btn-agregar-detalle').on('click', function() {
-    $('#tablaDetallesModal tbody').append(`
-        <tr>
-            <td><input type="text" class="form-control componente" placeholder="Componente"></td>
-            <td><input type="text" class="form-control detalle" placeholder="Detalle"></td>
-            <td><button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle"><i class="bi bi-trash"></i></button></td>
-        </tr>
-    `);
-});
-
-// Evento delegado para eliminar detalles
-$(document).on('click', '.btn-eliminar-detalle', function() {
-    $(this).closest('tr').remove();
-});
-
-// Evento para guardar los cambios en el modal
-$('#btnGuardar').on('click', function() {
-    const accion = $(this).attr('name');
-    const datos = new FormData();
-    
-    datos.append(accion, accion);
-    datos.append('codigo_hoja_servicio', $('#codigo_hoja_servicio').val());
-    
-    if (accion === 'registrar') {
-        datos.append('nro_solicitud', $('#nro_solicitud').val());
-        datos.append('id_tipo_servicio', $('#id_tipo_servicio').val());
-    } else if (accion === 'actualizar') {
-        datos.append('resultado_hoja_servicio', $('#resultado_hoja_servicio').val());
-        datos.append('observacion', $('#observacion').val());
-        
-        // Recoger detalles técnicos
-        const detalles = [];
-        $('#tablaDetallesModal tbody tr').each(function() {
-            detalles.push({
-                componente: $(this).find('.componente').val(),
-                detalle: $(this).find('.detalle').val()
-            });
-        });
-        
-        datos.append('detalles', JSON.stringify(detalles));
-    }
-    
-    $.ajax({
-        url: '',
-        type: 'POST',
-        data: datos,
-        processData: false,
-        contentType: false,
-        dataType: 'json',
-        beforeSend: function() {
-            $('#btnGuardar').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
-        },
-        success: function(response) {
-            if (response.resultado === 'success') {
-                mostrarExito(response.mensaje);
-                $('#modalHoja').modal('hide');
-                tablaServicios.ajax.reload(null, false);
-            } else {
-                mostrarError(response.mensaje);
-            }
-        },
-        error: function(xhr, status, error) {
-            mostrarError('Error al procesar la solicitud: ' + error);
-        },
-        complete: function() {
-            $('#btnGuardar').prop('disabled', false).text(
-                accion === 'registrar' ? 'Registrar' : 'Actualizar'
-            );
-        }
-    });
-});

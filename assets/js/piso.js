@@ -1,291 +1,142 @@
-$(document).ready(function () {
-	consultar();
-	registrarEntrada();
-	capaValidar();
-
-	$("#enviar").on("click", async function () {
-
-		$('#enviar').prop('disabled', false);
-		let confirmacion = false;
-
-		switch ($(this).text()) {
-			case "Registrar":
-				if (validarenvio()) {
-
-					confirmacion = await confirmarAccion("Se registrará un Piso", "¿Está seguro?", "question");
-
-					if (confirmacion) {
-						var datos = new FormData();
-						datos.append('registrar', 'registrar');
-						datos.append('tipo_piso', $("#tipo_piso").val());
-						datos.append('nro_piso', $("#nro_piso").val());
-						enviaAjax(datos);
-					}
-				}
-				break;
-			case "Modificar":
-				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se modificará un Piso", "¿Está seguro?", "question");
-					if (confirmacion) {
-						var datos = new FormData();
-						datos.append('modificar', 'modificar');
-						datos.append('id_piso', $("#id_piso").val());
-						datos.append('tipo_piso', $("#tipo_piso").val());
-						datos.append('nro_piso', $("#nro_piso").val());
-						enviaAjax(datos);
-					}
-				}
-				break;
-			case "Eliminar":
-				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se eliminará un Piso", "¿Está seguro?", "warning");
-					if (confirmacion) {
-						var datos = new FormData();
-						datos.append('eliminar', 'eliminar');
-						datos.append('id_piso', $("#id_piso").val());
-						enviaAjax(datos);
-					}
-				}
-				break;
-
-			default:
-				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
-		}
-		if (!validarenvio()) {
-			$('#enviar').prop('disabled', false);
-		} else {
-			$('#enviar').prop('disabled', true)
-		};
-
-		if (!confirmacion) {
-			$('#enviar').prop('disabled', false);
-		}
-	});
-
-	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
-		limpia();
-		$("#modalTitleId").text("Registrar Piso");
-		$("#enviar").text("Registrar");
-		$("#modal1").modal("show");
-	}); //<----Fin Evento del Boton Registrar
-});
-
-
-function enviaAjax(datos) {
-	$.ajax({
-		async: true,
-		url: "",
-		type: "POST",
-		contentType: false,
-		data: datos,
-		processData: false,
-		cache: false,
-		beforeSend: function () { },
-		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
-		success: function (respuesta) {
-			console.log(respuesta);
-			try {
-				var lee = JSON.parse(respuesta);
-				if (lee.resultado == "registrar") {
-					$("#modal1").modal("hide");
-					mensajes("success", 10000, lee.mensaje, null);
-					consultar();
-
-				} else if (lee.resultado == "consultar") {
-					crearDataTable(lee.datos);
-
-				} else if (lee.resultado == "modificar") {
-					$("#modal1").modal("hide");
-					mensajes("success", 10000, lee.mensaje, null);
-					consultar();
-
-				} else if (lee.resultado == "eliminar") {
-					$("#modal1").modal("hide");
-					mensajes("success", 10000, lee.mensaje, null);
-					consultar();
-
-				} else if (lee.resultado == "entrada") {
-
-				} else if (lee.resultado == "error") {
-					mensajes("error", null, lee.mensaje, null);
-				}
-			} catch (e) {
-				mensajes("error", null, "Error en JSON Tipo: " + e.name + "\n" +
-					"Mensaje: " + e.message + "\n" +
-					"Posición: " + e.lineNumber);
-			}
-		},
-		error: function (request, status, err) {
-			if (status == "timeout") {
-				mensajes("error", null, "Servidor ocupado", "Intente de nuevo");
-			} else {
-				mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
-			}
-		},
-		complete: function () { },
-	});
-}
-
-
-function capaValidar() {
-
-	$('#tipo_piso').on('change blur input focusout mouseleave', function () {
-
-		const obj = validarSelect();
-
-		if (obj.bool === 0) { }
-	});
-
-	$('#nro_piso').on('change blur input focusout mouseleave', function () {
-
-		const obj = validarSelect();
-
-		if (obj.bool === 0) { }
-	});
-}
-
-function validarSelect() {
-
-	let bool = null;
-	let mensaje = "";
-
-	const validar = { bool, mensaje };
-
-	if ($('#tipo_piso').val() === 'default') {
-
-		estadoSelect('#tipo_piso', '#stipo_piso', "Seleccione un tipo de Piso", 0);
-		estadoSelect('#nro_piso', '#snro_piso', "", 0);
-		validar.bool = 0;
-		validar.mensaje = "Seleccione un tipo de Piso";
-
-	} else if ($('#nro_piso').val() === 'default') {
-
-		estadoSelect('#nro_piso', '#snro_piso', "Seleccione un número de Piso", 0);
-		validar.bool = 0;
-		validar.mensaje = "Seleccione un número de Piso";
-	}
-
-	else if ($('#nro_piso').val() === '0' && $('#tipo_piso').val() != 'Planta Baja') {
-
-		estadoSelect('#nro_piso', '#snro_piso', "", 0);
-		estadoSelect('#tipo_piso', '#stipo_piso', "Solo Planta Baja empieza en 0", 0);
-
-		validar.bool = 0;
-		validar.mensaje = "Solo Planta Baja empieza en 0";
-
-	} else if ($(nro_piso).val() != '0' && $('#tipo_piso').val() === 'Planta Baja') {
-
-		estadoSelect('#nro_piso', '#snro_piso', "", 0);
-		estadoSelect('#tipo_piso', '#stipo_piso', "Solo Planta Baja empieza en 0", 0);
-
-		validar.bool = 0;
-		validar.mensaje = "Solo Planta Baja empieza en 0";
-
-	} else {
-
-		estadoSelect('#nro_piso', '#snro_piso', "", 1);
-		estadoSelect('#tipo_piso', '#stipo_piso', "", 1);
-
-		validar.bool = 1;
-		validar.mensaje = "";
-
-	}
-
-	return validar;
-}
-
-function validarenvio() {
-
-	const obj = validarSelect();
-
-	if (obj.bool == 0) {
-		mensajes("error", 10000, "Verifica", obj.mensaje);
-		return false;
-	}
-	return true;
-}
-
-function crearDataTable(arreglo) {
-
-	console.log(arreglo);
-	if ($.fn.DataTable.isDataTable('#tabla1')) {
-		$('#tabla1').DataTable().destroy();
-	}
-	$('#tabla1').DataTable({
-		data: arreglo,
-		columns: [
-			{ data: 'id_piso' },
-			{ data: 'tipo_piso' },
-			{ data: 'nro_piso' },
-			{
-				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
-					return botones;
-				}
-			}],
-		order: [
-			[1, 'asc'],
-			[2, 'asc']
-		],
-		language: {
-			url: idiomaTabla,
-		}
-	});
-}
-
-
-function limpia() {
-	$("#idPiso").remove();
-
-	$("#tipo_piso").removeClass("is-valid is-invalid");
-	$("#tipo_piso option:first-child").prop('selected', true);
-	$("#stipo_piso").val("");
-
-	$("#nro_piso").removeClass("is-valid is-invalid");
-	$("#nro_piso option:first-child").prop('selected', true);
-	$("#snro_piso").val("");
-
-
-	$('#tipo_piso').prop('disabled', false);
-	$('#nro_piso').prop('disabled', false);
-	$('#enviar').prop('disabled', false);
-}
-
-
-function rellenar(pos, accion) {
-	limpia();
-
-	linea = $(pos).closest('tr');
-
-	$("#idPiso").remove();
-	$("#Fila1").prepend(`<div class="col-4" id="idPiso">
-            <div class="form-floating mb-3">
-              <input placeholder="" class="form-control" name="id_piso" type="text" id="id_piso" readOnly>
-              <span id="sid_piso"></span>
-              <label for="id_piso" class="form-label">ID del Piso</label>
-            </div>`);
-
-
-	$("#id_piso").val($(linea).find("td:eq(0)").text());
-
-	buscarSelect('#tipo_piso', $(linea).find("td:eq(1)").text(), "value");
-	buscarSelect('#nro_piso', $(linea).find("td:eq(2)").text(), "value");
-
-
-	if (accion == 0) {
-		$('#tipo_piso').prop('disabled', false);
-		$('#nro_piso').prop('disabled', false);
-		$("#modalTitleId").text("Modificar Piso")
-		$("#enviar").text("Modificar");
-	}
-	else {
-
-		$('#tipo_piso').prop('disabled', true);
-		$('#nro_piso').prop('disabled', true);
-		$("#modalTitleId").text("Eliminar Piso")
-		$("#enviar").text("Eliminar");
-	}
-	$('#enviar').prop('disabled', false);
-	$("#modal1").modal("show");
+function inicializarTablaServicios() {
+    window.tablaServicios = $('#tablaServicios').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
+        },
+        ajax: {
+            url: '',
+            type: 'POST',
+            data: { 
+                listar: 'listar',
+                usuario: JSON.stringify({
+                    nombre_usuario: '<?= $_SESSION["user"]["nombre_usuario"] ?>',
+                    cedula: '<?= $_SESSION["user"]["cedula"] ?>',
+                    id_rol: '<?= $_SESSION["user"]["id_rol"] ?>'
+                })
+            },
+            dataSrc: function (json) {
+                if (json.resultado === 'success') {
+                    return json.datos;
+                } else {
+                    console.error('Error al cargar hojas:', json.mensaje);
+                    mostrarError(json.mensaje || 'Error al cargar hojas de servicio');
+                    return [];
+                }
+            }
+        },
+        columns: [
+            { 
+                data: null, 
+                render: function (data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
+            { data: 'nro_solicitud' },
+            { data: 'nombre_tipo_servicio' },
+            { 
+                data: 'solicitante',
+                render: function(data, type, row) {
+                    return data || 'N/A';
+                }
+            },
+            { 
+                data: 'tipo_equipo',
+                render: function(data) {
+                    return data || 'N/A';
+                }
+            },
+            { 
+                data: 'nombre_marca',
+                render: function(data) {
+                    return data || 'N/A';
+                }
+            },
+            { 
+                data: 'serial',
+                render: function(data) {
+                    return data || 'N/A';
+                }
+            },
+            { 
+                data: 'codigo_bien',
+                render: function(data) {
+                    return data || 'N/A';
+                }
+            },
+            { data: 'motivo' },
+            { 
+                data: 'fecha_solicitud', 
+                render: function(data) {
+                    return data ? new Date(data).toLocaleString() : 'N/A';
+                }
+            },
+            { 
+                data: 'tecnico',
+                render: function(data) {
+                    return data || 'Sin asignar';
+                }
+            },
+            { 
+                data: 'estatus', 
+                render: function(data) {
+                    let badgeClass = 'secondary';
+                    let text = 'Desconocido';
+                    
+                    if (data === 'A') {
+                        badgeClass = 'info';
+                        text = 'Activo';
+                    } else if (data === 'I') {
+                        badgeClass = 'success';
+                        text = 'Finalizado';
+                    } else if (data === 'E') {
+                        badgeClass = 'danger';
+                        text = 'Eliminado';
+                    }
+                    
+                    return `<span class="badge bg-${badgeClass}">${text}</span>`;
+                }
+            },
+            { 
+                data: null, 
+                render: function(data, type, row) {
+                    let botones = '';
+                    
+                    // Botón ver detalles (todos pueden ver)
+                    botones += `<button onclick="verDetalles(${row.codigo_hoja_servicio})" class="btn btn-info btn-sm" title="Ver Detalles">
+                        <i class="bi bi-eye"></i>
+                    </button>`;
+                    
+                    // Botones según permisos
+                    if ("<?= $_SESSION['user']['id_rol'] == 5 ? 'true' : 'false' ?>") {
+                        // Superusuario puede editar y eliminar
+                        botones += `<button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>`;
+                        
+                        botones += `<button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>`;
+                    } else if (row.estatus === 'A' && (!row.cedula_tecnico || row.cedula_tecnico === "<?= $_SESSION['user']['cedula'] ?>")) {
+                        // Técnico puede tomar o finalizar hojas de su área
+                        if (!row.cedula_tecnico) {
+                            botones += `<button onclick="tomarHoja(${row.codigo_hoja_servicio})" class="btn btn-primary btn-sm" title="Tomar Servicio">
+                                <i class="bi bi-hand-index-thumb"></i>
+                            </button>`;
+                        } else {
+                            botones += `<button onclick="finalizarHoja(${row.codigo_hoja_servicio})" class="btn btn-success btn-sm" title="Finalizar">
+                                <i class="bi bi-check-circle"></i>
+                            </button>`;
+                        }
+                    }
+                    
+                    return `<div class="btn-group">${botones}</div>`;
+                }
+            }
+        ],
+        responsive: true,
+        order: [[1, 'desc']],
+        dom: '<"top"lf>rt<"bottom"ip><"clear">',
+        processing: true,
+        serverSide: false
+    });
 }
