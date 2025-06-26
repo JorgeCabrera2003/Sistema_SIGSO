@@ -628,6 +628,9 @@ class HojaServicio extends Conexion
                     'mensaje' => $this->registrarDetalles() ? 'Detalles registrados' : 'Error al registrar detalles'
                 ];
 
+            case 'actualizar':
+                return $this->actualizarHojaServicio($peticion['usuario']);
+
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }

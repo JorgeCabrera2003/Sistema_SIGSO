@@ -60,9 +60,11 @@ if (is_file("view/" . $page . ".php")) {
                     break;
                     
                 case "consultar_por_id":
+                    // Retorna datos de la solicitud y el tipo de servicio asociado
                     $solicitud->set_nro_solicitud($_POST["id"]);
-                    $response = $solicitud->Transaccion(["peticion" => "consultar"]);
-                    break;
+                    $datosSolicitud = $solicitud->Transaccion(["peticion" => "consultar_por_id"]);
+                    echo json_encode($datosSolicitud);
+                    exit;
                     
                 default:
                     $response = ["resultado" => "error", "mensaje" => "Acción no reconocida"];

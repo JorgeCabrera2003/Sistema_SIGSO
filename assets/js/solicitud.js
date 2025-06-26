@@ -140,17 +140,23 @@ function configurarEventos() {
 
 async function rellenarSolicitud(pos, accion) {
     try {
-        // Obtener la fila del registro
         const linea = $(pos).closest('tr');
-        
-        // Obtener los datos de la fila
         const idSolicitud = linea.find("td:eq(0)").text();
-        const cedulaSolicitante = linea.find("td:eq(2)").text();
-        const motivo = linea.find("td:eq(5)").text();
-        const estado = linea.find("td:eq(6)").text();
-        const dependencia = linea.find("td:eq(3)").text();
-        const equipo = linea.find("td:eq(4)").text();
-        const resultado = linea.find("td:eq(8)").text();
+
+        // Consultar datos completos de la solicitud y hoja de servicio
+        const response = await $.ajax({
+            url: '',
+            type: 'POST',
+            data: { action: 'consultar_por_id', id: idSolicitud },
+            dataType: 'json'
+        });
+
+        if (!response || !response.datos) {
+            mostrarError("No se encontraron datos de la solicitud.");
+            return;
+        }
+
+        const datos = response.datos;
 
         // Configurar el modal según la acción
         if (accion === 0) { // Editar
@@ -161,53 +167,34 @@ async function rellenarSolicitud(pos, accion) {
             $("#btnGuardar").text("Eliminar").attr("name", "eliminar");
         }
 
-        // Limpiar y cargar datos básicos
         limpiarFormulario();
-        $("#nroSolicitud").val(idSolicitud);
-        $("#motivo").val(motivo);
 
-        // Cargar áreas de servicio
-        await cargarAreas();
-        
-        // Cargar dependencias y seleccionar la correcta
+        // Cargar dependencias y seleccionar la correspondiente
         await cargarDependencias();
-        
-        if (dependencia) {
-            // Buscar y seleccionar la dependencia
-            const dependenciaId = buscarSelect("#dependencia", dependencia, "text");
-            
-            if (dependenciaId) {
-                // Cargar solicitantes para la dependencia seleccionada
-                await cargarSolicitantes(dependenciaId);
-                
-                // Seleccionar el solicitante si existe
-                if (cedulaSolicitante) {
-                    buscarSelect("#solicitante", cedulaSolicitante, "value");
-                }
-
-                // Cargar equipos para la dependencia
-                await cargarEquipos(dependenciaId);
-                
-                // Seleccionar el equipo si existe
-                if (equipo && equipo !== "N/A") {
-                    const equipoId = equipo.split(" - ")[0];
-                    buscarSelect("#equipo", equipoId, "text");
-                }
-            }
+        if (datos.id_dependencia) {
+            $('#dependencia').val(datos.id_dependencia).trigger('change');
+            // Cargar solicitantes y equipos para la dependencia
+            await cargarSolicitantes(datos.id_dependencia);
+            await cargarEquipos(datos.id_dependencia);
         }
 
-        // Seleccionar el área de servicio basado en el estado o resultado
-        if (estado.includes("Proceso")) {
-            $("#area").val("1"); // Soporte técnico
-        } else if (estado.includes("Finalizado")) {
-            if (resultado.includes("Redes")) {
-                $("#area").val("2"); // Redes
-            } else if (resultado.includes("Telefonía")) {
-                $("#area").val("3"); // Telefonía
-            } else {
-                $("#area").val("4"); // Electrónica
-            }
+        // Seleccionar solicitante y equipo si existen
+        if (datos.cedula_solicitante) {
+            $('#solicitante').val(datos.cedula_solicitante);
         }
+        if (datos.id_equipo) {
+            $('#equipo').val(datos.id_equipo);
+        }
+
+        // Cargar áreas y seleccionar la correspondiente
+        await cargarAreas();
+        if (datos.id_tipo_servicio) {
+            $('#area').val(datos.id_tipo_servicio);
+        }
+
+        // Rellenar otros campos
+        $("#nroSolicitud").val(datos.nro_solicitud);
+        $("#motivo").val(datos.motivo);
 
         // Mostrar el modal
         $("#modalSolicitud").modal("show");

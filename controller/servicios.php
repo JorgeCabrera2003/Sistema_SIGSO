@@ -282,6 +282,36 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    // Modificar hoja de servicio (superusuario o técnico asignado)
+    if (isset($_POST["actualizar"])) {
+        try {
+            $hojaServicio->set_codigo_hoja_servicio($_POST["codigo_hoja_servicio"]);
+            // Solo superusuario puede cambiar tipo de servicio
+            if ($_SESSION['user']['id_rol'] == 5 && isset($_POST["id_tipo_servicio"])) {
+                $hojaServicio->set_id_tipo_servicio($_POST["id_tipo_servicio"]);
+            }
+            if (isset($_POST["resultado_hoja_servicio"])) {
+                $hojaServicio->set_resultado_hoja_servicio($_POST["resultado_hoja_servicio"]);
+            }
+            if (isset($_POST["observacion"])) {
+                $hojaServicio->set_observacion($_POST["observacion"]);
+            }
+            // Detalles técnicos (opcional)
+            if (isset($_POST["detalles"])) {
+                $detalles = json_decode($_POST["detalles"], true);
+                $hojaServicio->set_detalles($detalles);
+            }
+            $datos = $hojaServicio->Transaccion([
+                'peticion' => 'actualizar',
+                'usuario' => $_SESSION['user']
+            ]);
+            echo json_encode($datos);
+        } catch (Exception $e) {
+            echo json_encode(['resultado' => 'error', 'mensaje' => $e->getMessage()]);
+        }
+        exit;
+    }
+
     // Cargar vista principal
     require_once "view/" . $page . ".php";
 } else {

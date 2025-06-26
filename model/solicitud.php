@@ -274,23 +274,25 @@ class Solicitud extends Conexion
     
     try {
         $sql = "SELECT 
-                s.nro_solicitud AS ID,
-                CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Solicitante,
-                s.cedula_solicitante AS Cedula,
-                d.nombre AS Dependencia,
-                IFNULL(eq.tipo_equipo, 'N/A') AS Equipo,
-                s.motivo AS Motivo,
-                s.estado_solicitud AS Estado,
-                s.fecha_solicitud AS Inicio,
-                IFNULL(hs.resultado_hoja_servicio, IFNULL(s.resultado_solicitud, 'N/A')) AS Resultado
-            FROM solicitud s
-            LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
-            LEFT JOIN equipo eq ON s.id_equipo = eq.id_equipo
-            LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
-            LEFT JOIN dependencia d ON u.id_dependencia = d.id
-            LEFT JOIN hoja_servicio hs ON hs.nro_solicitud = s.nro_solicitud AND hs.estatus = 'I'
-            WHERE s.estatus = 1
-            ORDER BY s.fecha_solicitud DESC";
+    s.nro_solicitud AS ID,
+    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Solicitante,
+    s.cedula_solicitante AS Cedula,
+    d.nombre AS Dependencia,
+    IFNULL(eq.tipo_equipo, 'N/A') AS Equipo,
+    s.motivo AS Motivo,
+    s.estado_solicitud AS Estado,
+    s.fecha_solicitud AS Inicio,
+    IFNULL(hs.resultado_hoja_servicio, IFNULL(s.resultado_solicitud, 'N/A')) AS Resultado,
+    ts.id_tipo_servicio AS tipo_servicio
+FROM solicitud s
+LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
+LEFT JOIN equipo eq ON s.id_equipo = eq.id_equipo
+LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
+LEFT JOIN dependencia d ON u.id_dependencia = d.id
+LEFT JOIN hoja_servicio hs ON hs.nro_solicitud = s.nro_solicitud AND hs.estatus = 'I'
+LEFT JOIN tipo_servicio ts ON ts.id_tipo_servicio = hs.id_tipo_servicio
+WHERE s.estatus = 1
+ORDER BY s.fecha_solicitud DESC";
 
         $stmt = $this->conex->query($sql);
         $datos['resultado'] = 'consultar';
@@ -430,6 +432,45 @@ class Solicitud extends Conexion
     }
 
     /**
+     * Obtiene una solicitud por ID junto al tipo de servicio de la hoja asociada
+     */
+    private function obtenerSolicitudPorId()
+    {
+        $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => null];
+
+        try {
+            $sql = "SELECT 
+                        s.nro_solicitud,
+                        s.cedula_solicitante,
+                        s.motivo,
+                        s.id_equipo,
+                        s.estado_solicitud,
+                        s.resultado_solicitud,
+                        s.fecha_solicitud,
+                        e.id_unidad,
+                        u.id_dependencia,
+                        hs.id_tipo_servicio
+                    FROM solicitud s
+                    LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
+                    LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
+                    LEFT JOIN hoja_servicio hs ON hs.nro_solicitud = s.nro_solicitud
+                    WHERE s.nro_solicitud = :nro_solicitud
+                    LIMIT 1";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':nro_solicitud', $this->nro_solicitud);
+            $stmt->execute();
+
+            $datos['resultado'] = 'consultar_por_id';
+            $datos['datos'] = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $datos['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conex, $stmt);
+        return $datos;
+    }
+
+    /**
      * Maneja las transacciones del modelo
      */
     public function Transaccion($peticion)
@@ -461,6 +502,9 @@ class Solicitud extends Conexion
                 
             case "consultar_equipos":
                 return $this->obtenerEquiposPorDependencia();
+                
+            case "consultar_por_id":
+                return $this->obtenerSolicitudPorId();
                 
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];

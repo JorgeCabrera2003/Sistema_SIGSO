@@ -244,17 +244,18 @@ function configurarEventos() {
     $('#enviar').on('click', function() {
         const accion = $(this).attr('name');
         const datos = new FormData();
-        
+
         datos.append(accion, accion);
         datos.append('codigo_hoja_servicio', $('#codigo_hoja_servicio').val());
-        
+
         if (accion === 'registrar') {
             datos.append('nro_solicitud', $('#nro_solicitud').val());
             datos.append('id_tipo_servicio', $('#id_tipo_servicio').val());
         } else if (accion === 'actualizar') {
+            datos.append('id_tipo_servicio', $('#id_tipo_servicio').val());
             datos.append('resultado_hoja_servicio', $('#resultado_hoja_servicio').val());
             datos.append('observacion', $('#observacion').val());
-            
+
             // Recoger detalles técnicos
             const detalles = [];
             $('#tablaDetallesModal tbody tr').each(function() {
@@ -263,10 +264,10 @@ function configurarEventos() {
                     detalle: $(this).find('.detalle').val()
                 });
             });
-            
+
             datos.append('detalles', JSON.stringify(detalles));
         }
-        
+
         $.ajax({
             url: '',
             type: 'POST',
