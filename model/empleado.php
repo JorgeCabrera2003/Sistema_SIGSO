@@ -1,5 +1,4 @@
 <?php
-
 require_once('model/conexion.php');
 
 class Empleado extends Conexion
@@ -182,7 +181,7 @@ class Empleado extends Conexion
         $this->Cerrar_Conexion($this->conex, $stm);
         return $datos;
     }
-    //No quiero reemplazar todavia este metodo, ya que es usado en el controlador de solicitud
+
     private function Empleados_dependencia($dependenciaId)
     {
         $datos = [];
@@ -202,42 +201,39 @@ class Empleado extends Conexion
             $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
             $this->conex->commit();
         } catch (PDOException $e) {
-
             $datos['resultado'] = "error";
             $datos['mensaje'] = $e->getMessage();
         }
         return $datos;
     }
 
-    //Aqui voy usar otro metodo simillar pero va a cumplir otra funcion
     public function empleadosPorDependencia($idDependencia) {
-    $datos = [];
-    
-    try {
-        $this->conex->beginTransaction();
-        $query = "SELECT e.cedula_empleado, e.nombre_empleado, e.apellido_empleado 
-                 FROM empleado e
-                 JOIN unidad u ON e.id_unidad = u.id_unidad
-                 WHERE u.id_dependencia = :idDependencia
-                 AND e.cedula_empleado IS NOT NULL";
-                 
-        $stm = $this->conex->prepare($query);
-        $stm->bindParam(':idDependencia', $idDependencia);
-        $stm->execute();
+        $datos = [];
         
-        $datos['resultado'] = 'consultar_solicitantes';
-        $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-        $this->conex->commit();
-    } catch (PDOException $e) {
-        $this->conex->rollBack();
-        $datos['resultado'] = 'error';
-        $datos['mensaje'] = $e->getMessage();
+        try {
+            $this->conex->beginTransaction();
+            $query = "SELECT e.cedula_empleado, e.nombre_empleado, e.apellido_empleado 
+                     FROM empleado e
+                     JOIN unidad u ON e.id_unidad = u.id_unidad
+                     WHERE u.id_dependencia = :idDependencia
+                     AND e.cedula_empleado IS NOT NULL";
+                     
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(':idDependencia', $idDependencia);
+            $stm->execute();
+            
+            $datos['resultado'] = 'consultar_solicitantes';
+            $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $datos['resultado'] = 'error';
+            $datos['mensaje'] = $e->getMessage();
+        }
+        
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $datos;
     }
-    
-    $this->Cerrar_Conexion($this->conex, $stm);
-    return $datos;
-}
-    //Este metodo es para validar si existe y traiga los empleados de una dependencia
 
     private function Validar()
     {
@@ -373,6 +369,56 @@ class Empleado extends Conexion
         }
     }
 
+    // Nuevo método para obtener información de técnicos por área
+    private function listar_tecnicos()
+    {
+        try {
+            $query = "SELECT 
+                e.cedula_empleado, 
+                CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre_completo,
+                ts.nombre_tipo_servicio
+            FROM empleado e
+            JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
+            WHERE e.id_cargo = 1"; // 1 = Técnico
+
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            
+            return ['resultado' => 'success', 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)];
+        } catch (PDOException $e) {
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+        }
+    }
+
+    // Nuevo método para obtener información de un técnico específico
+    private function obtener_tecnico()
+    {
+        try {
+            $query = "SELECT 
+                e.*, 
+                ts.nombre_tipo_servicio,
+                c.nombre_cargo
+            FROM empleado e
+            LEFT JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
+            LEFT JOIN cargo c ON e.id_cargo = c.id_cargo
+            WHERE e.cedula_empleado = :cedula";
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(':cedula', $this->cedula);
+            $stm->execute();
+            
+            $datos = $stm->fetch(PDO::FETCH_ASSOC);
+            
+            if ($datos) {
+                return ['resultado' => 'success', 'datos' => $datos];
+            } else {
+                return ['resultado' => 'error', 'mensaje' => 'Técnico no encontrado'];
+            }
+        } catch (PDOException $e) {
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+        }
+    }
+
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -392,6 +438,11 @@ class Empleado extends Conexion
                 return $this->Empleados_dependencia($peticion['dependenciaId']);
             case 'mis_servicios':
                 return $this->mis_servicios();
+            case 'listar_tecnicos':
+                return $this->listar_tecnicos();
+            case 'obtener_tecnico':
+                $this->set_cedula($peticion['cedula']);
+                return $this->obtener_tecnico();
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }

@@ -282,12 +282,13 @@ class Solicitud extends Conexion
                 s.motivo AS Motivo,
                 s.estado_solicitud AS Estado,
                 s.fecha_solicitud AS Inicio,
-                IFNULL(s.resultado_solicitud, 'N/A') AS Resultado
+                IFNULL(hs.resultado_hoja_servicio, IFNULL(s.resultado_solicitud, 'N/A')) AS Resultado
             FROM solicitud s
             LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
             LEFT JOIN equipo eq ON s.id_equipo = eq.id_equipo
             LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
             LEFT JOIN dependencia d ON u.id_dependencia = d.id
+            LEFT JOIN hoja_servicio hs ON hs.nro_solicitud = s.nro_solicitud AND hs.estatus = 'I'
             WHERE s.estatus = 1
             ORDER BY s.fecha_solicitud DESC";
 

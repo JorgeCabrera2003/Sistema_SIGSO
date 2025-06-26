@@ -9,7 +9,7 @@ if (is_file("view/" . $page . ".php")) {
     require_once "controller/utileria.php";
     require_once "model/solicitud.php";
     require_once "model/empleado.php";
-    require_once "model/hoja_servicio.php";
+    require_once "model/Hoja_servicio.php";
     require_once "model/equipo.php";
     require_once "model/dependencia.php";
 
@@ -90,38 +90,39 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Registro de nueva solicitud
     if (isset($_POST["registrar"])) {
-        //header('Content-Type: application/json');
+    try {
+        $solicitud->set_motivo($_POST["motivo"]);
+        $solicitud->set_cedula_solicitante($_POST["cedula"]);
+        $solicitud->set_id_equipo($_POST["serial"] ?: null);
         
-        try {
-            $solicitud->set_motivo($_POST["motivo"]);
-            $solicitud->set_cedula_solicitante($_POST["cedula"]);
-            $solicitud->set_id_equipo($_POST["serial"] ?: null);
+        $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
+        
+        if ($resultado['bool']) {
+            // Crear hoja de servicio asociada
+            $hojaServicio->set_nro_solicitud($resultado['datos']);
+            $hojaServicio->set_id_tipo_servicio($_POST["area"]);
+            $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
             
-            $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
-            
-            if ($resultado['bool']) {
-                // Crear hoja de servicio asociada
-                $hojaServicio->set_nro_solicitud($resultado['datos']);
-                $hojaServicio->set_id_tipo_servicio($_POST["area"]);
-                //$hojaServicio->NuevaHojaServicio();
-                
-                $response = [
-                    "resultado" => "success",
-                    "mensaje" => "Solicitud registrada correctamente",
-                    "nro_solicitud" => $resultado['datos']
-                ];
-            } else {
-                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+            if ($resultHoja['resultado'] !== 'success') {
+                throw new Exception("Error al crear hoja de servicio: ".$resultHoja['mensaje']);
             }
-        } catch (Exception $e) {
-            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
+            
+            $response = [
+                "resultado" => "success",
+                "mensaje" => "Solicitud y hoja de servicio registradas correctamente",
+                "nro_solicitud" => $resultado['datos']
+            ];
+        } else {
+            $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
         }
-        
-        echo json_encode($response);
-        exit;
+    } catch (Exception $e) {
+        $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
     }
+    
+    echo json_encode($response);
+    exit;
+}
 
     // Actualización de solicitud existente
     if (isset($_POST["modificar"])) {
@@ -139,7 +140,7 @@ if (is_file("view/" . $page . ".php")) {
                 // Actualizar hoja de servicio
                 $hojaServicio->set_nro_solicitud($_POST["nrosol"]);
                 $hojaServicio->set_id_tipo_servicio($_POST["area"]);
-                $hojaServicio->NuevaHojaServicio();
+                $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
                 
                 $response = ["resultado" => "success", "mensaje" => "Solicitud actualizada correctamente"];
             } else {
