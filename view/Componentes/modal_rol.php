@@ -34,30 +34,37 @@
             <div class="row permission-options" data-modulo-string="1">
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="usuario-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="usuario-registrar">
                   <label class="form-check-label" for="usuario-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="usuario-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="usuario-ver">
                   <label class="form-check-label" for="usuario-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="usuario-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="usuario-modificar">
                   <label class="form-check-label" for="usuario-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="usuario-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="usuario-eliminar">
                   <label class="form-check-label" for="usuario-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="usuario-restaurar">
+                  <label class="form-check-label" for="usuario-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -74,30 +81,37 @@
             <div class="row permission-options" data-modulo-string="2">
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="rol-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="rol-registrar">
                   <label class="form-check-label" for="rol-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="rol-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="rol-ver">
                   <label class="form-check-label" for="rol-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="rol-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="rol-modificar">
                   <label class="form-check-label" for="rol-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="rol-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="rol-eliminar">
                   <label class="form-check-label" for="rol-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="rol-restaurar">
+                  <label class="form-check-label" for="rol-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -114,8 +128,8 @@
             <div class="row permission-options" data-modulo-string="3">
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="bitacora-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="bitacora-ver">
                   <label class="form-check-label" for="bitacora-ver">Ver</label>
                 </div>
               </div>
@@ -133,29 +147,29 @@
             <div class="row permission-options" data-modulo-string="4">
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="mantenimiento-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="mantenimiento-ver">
                   <label class="form-check-label" for="mantenimiento-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="exportar"
-                    id="mantenimiento-exportar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="exportar" id="mantenimiento-exportar">
                   <label class="form-check-label" for="mantenimiento-exportar">Exportar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="importar"
-                    id="mantenimiento-importar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="importar" id="mantenimiento-importar">
                   <label class="form-check-label" for="mantenimiento-importar">Importar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="mantenimiento-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="mantenimiento-eliminar">
                   <label class="form-check-label" for="mantenimiento-eliminar">Eliminar</label>
                 </div>
               </div>
@@ -173,30 +187,37 @@
             <div class="row permission-options" data-modulo-string="5">
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="empleado-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="empleado-registrar">
                   <label class="form-check-label" for="empleado-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="empleado-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="empleado-ver">
                   <label class="form-check-label" for="empleado-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="empleado-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="empleado-modificar">
                   <label class="form-check-label" for="empleado-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="empleado-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="empleado-eliminar">
                   <label class="form-check-label" for="empleado-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="empleado-restaurar">
+                  <label class="form-check-label" for="empleado-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -214,30 +235,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="tecnico-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="tecnico-registrar">
                   <label class="form-check-label" for="tecnico-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="tecnico-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="tecnico-ver">
                   <label class="form-check-label" for="tecnico-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="tecnico-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="tecnico-modificar">
                   <label class="form-check-label" for="tecnico-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="tecnico-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="tecnico-eliminar">
                   <label class="form-check-label" for="tecnico-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="tecnico-restaurar">
+                  <label class="form-check-label" for="tecnico-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -255,8 +283,8 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-12">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="solicitud-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="solicitud-registrar">
                   <label class="form-check-label" for="solicitud-registrar">Registrar</label>
                 </div>
               </div>
@@ -276,16 +304,23 @@
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="solicitud-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="solicitud-modificar">
                   <label class="form-check-label" for="solicitud-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="solicitud-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="solicitud-eliminar">
                   <label class="form-check-label" for="solicitud-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="solicitud-restaurar">
+                  <label class="form-check-label" for="solicitud-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -303,30 +338,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="hoja_servicio-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="hoja_servicio-registrar">
                   <label class="form-check-label" for="hoja_servicio-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="hoja_servicio-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="hoja_servicio-ver">
                   <label class="form-check-label" for="hoja_servicio-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="hoja_servicio-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="hoja_servicio-modificar">
                   <label class="form-check-label" for="hoja_servicio-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="hoja_servicio-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="hoja_servicio-eliminar">
                   <label class="form-check-label" for="hoja_servicio-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="hoja_servicio-restaurar">
+                  <label class="form-check-label" for="hoja_servicio-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -344,30 +386,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="ente-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="ente-registrar">
                   <label class="form-check-label" for="ente-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="ente-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="ente-ver">
                   <label class="form-check-label" for="ente-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="ente-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="ente-modificar">
                   <label class="form-check-label" for="ente-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="ente-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="ente-eliminar">
                   <label class="form-check-label" for="ente-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="ente-restaurar">
+                  <label class="form-check-label" for="ente-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -385,30 +434,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="dependencia-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="dependencia-registrar">
                   <label class="form-check-label" for="dependencia-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="dependencia-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="dependencia-ver">
                   <label class="form-check-label" for="dependencia-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="dependencia-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="dependencia-modificar">
                   <label class="form-check-label" for="dependencia-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="dependencia-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="dependencia-eliminar">
                   <label class="form-check-label" for="dependencia-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="dependencia-restaurar">
+                  <label class="form-check-label" for="dependencia-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -426,30 +482,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="unidad-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="unidad-registrar">
                   <label class="form-check-label" for="unidad-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="unidad-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="unidad-ver">
                   <label class="form-check-label" for="unidad-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="unidad-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="unidad-modificar">
                   <label class="form-check-label" for="unidad-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="unidad-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="unidad-eliminar">
                   <label class="form-check-label" for="unidad-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="unidad-restaurar">
+                  <label class="form-check-label" for="unidad-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -467,30 +530,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="cargo-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="cargo-registrar">
                   <label class="form-check-label" for="cargo-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="cargo-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="cargo-ver">
                   <label class="form-check-label" for="cargo-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="cargo-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="cargo-modificar">
                   <label class="form-check-label" for="cargo-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="cargo-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="cargo-eliminar">
                   <label class="form-check-label" for="cargo-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="cargo-restaurar">
+                  <label class="form-check-label" for="cargo-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -509,30 +579,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="tipo_servicio-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="tipo_servicio-registrar">
                   <label class="form-check-label" for="tipo_servicio-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="tipo_servicio-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="tipo_servicio-ver">
                   <label class="form-check-label" for="tipo_servicio-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="tipo_servicio-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="tipo_servicio-modificar">
                   <label class="form-check-label" for="tipo_servicio-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="tipo_servicio-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="tipo_servicio-eliminar">
                   <label class="form-check-label" for="tipo_servicio-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="cargo-restaurar">
+                  <label class="form-check-label" for="cargo-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -550,30 +627,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="bien-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="bien-registrar">
                   <label class="form-check-label" for="bien-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="bien-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="bien-ver">
                   <label class="form-check-label" for="bien-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="bien-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="bien-modificar">
                   <label class="form-check-label" for="bien-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="bien-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="bien-eliminar">
                   <label class="form-check-label" for="bien-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="bien-restaurar">
+                  <label class="form-check-label" for="bien-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -591,30 +675,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="tipo_bien-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="tipo_bien-registrar">
                   <label class="form-check-label" for="tipo_bien-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="tipo_bien-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="tipo_bien-ver">
                   <label class="form-check-label" for="tipo_bien-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="tipo_bien-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="tipo_bien-modificar">
                   <label class="form-check-label" for="tipo_bien-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="tipo_bien-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="tipo_bien-eliminar">
                   <label class="form-check-label" for="tipo_bien-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="tipo_bien-restaurar">
+                  <label class="form-check-label" for="tipo_bien-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -632,30 +723,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="marca-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="marca-registrar">
                   <label class="form-check-label" for="marca-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="marca-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="marca-ver">
                   <label class="form-check-label" for="marca-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="marca-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="marca-modificar">
                   <label class="form-check-label" for="marca-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="marca-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="marca-eliminar">
                   <label class="form-check-label" for="marca-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="marca-restaurar">
+                  <label class="form-check-label" for="marca-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -673,30 +771,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="equipo-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="equipo-registrar">
                   <label class="form-check-label" for="equipo-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="equipo-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="equipo-ver">
                   <label class="form-check-label" for="equipo-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="equipo-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="equipo-modificar">
                   <label class="form-check-label" for="equipo-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="equipo-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="equipo-eliminar">
                   <label class="form-check-label" for="equipo-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="equipo-restaurar">
+                  <label class="form-check-label" for="equipo-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -714,30 +819,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="switch-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="switch-registrar">
                   <label class="form-check-label" for="switch-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="switch-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="switch-ver">
                   <label class="form-check-label" for="switch-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="switch-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="switch-modificar">
                   <label class="form-check-label" for="switch-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="switch-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="switch-eliminar">
                   <label class="form-check-label" for="switch-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="switch-restaurar">
+                  <label class="form-check-label" for="switch-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -755,30 +867,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="patch_panel-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="patch_panel-registrar">
                   <label class="form-check-label" for="patch_panel-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="patch_panel-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="patch_panel-ver">
                   <label class="form-check-label" for="patch_panel-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="patch_panel-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="patch_panel-modificar">
                   <label class="form-check-label" for="patch_panel-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="patch_panel-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="patch_panel-eliminar">
                   <label class="form-check-label" for="patch_panel-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="patch_panel-restaurar">
+                  <label class="form-check-label" for="patch_panel-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -797,29 +916,29 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="interconexion-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="interconexion-registrar">
                   <label class="form-check-label" for="interconexion-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="interconexion-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="interconexion-ver">
                   <label class="form-check-label" for="interconexion-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="interconexion-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="interconexion-modificar">
                   <label class="form-check-label" for="interconexion-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="interconexion-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="interconexion-eliminar">
                   <label class="form-check-label" for="interconexion-eliminar">Eliminar</label>
                 </div>
               </div>
@@ -839,29 +958,29 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="punto_conexion-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="punto_conexion-registrar">
                   <label class="form-check-label" for="punto_conexion-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="punto_conexion-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="punto_conexion-ver">
                   <label class="form-check-label" for="punto_conexion-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="punto_conexion-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="punto_conexion-modificar">
                   <label class="form-check-label" for="punto_conexion-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="punto_conexion-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="punto_conexion-eliminar">
                   <label class="form-check-label" for="punto_conexion-eliminar">Eliminar</label>
                 </div>
               </div>
@@ -880,30 +999,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="piso-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="piso-registrar">
                   <label class="form-check-label" for="piso-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="piso-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="piso-ver">
                   <label class="form-check-label" for="piso-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="piso-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="piso-modificar">
                   <label class="form-check-label" for="piso-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="piso-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="piso-eliminar">
                   <label class="form-check-label" for="piso-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="piso-restaurar">
+                  <label class="form-check-label" for="piso-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -921,30 +1047,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="oficina-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="oficina-registrar">
                   <label class="form-check-label" for="oficina-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="oficina-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="oficina-ver">
                   <label class="form-check-label" for="oficina-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="oficina-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="oficina-modificar">
                   <label class="form-check-label" for="oficina-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="oficina-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="oficina-eliminar">
                   <label class="form-check-label" for="oficina-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="oficina-restaurar">
+                  <label class="form-check-label" for="oficina-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>
@@ -962,30 +1095,37 @@
               <!-- Opciones de permisos -->
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="registrar"
-                    id="material-registrar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="registrar" id="material-registrar">
                   <label class="form-check-label" for="material-registrar">Registrar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="ver"
-                    id="material-ver">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="ver" id="material-ver">
                   <label class="form-check-label" for="material-ver">Ver</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="modificar"
-                    id="material-modificar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="modificar" id="material-modificar">
                   <label class="form-check-label" for="material-modificar">Modificar</label>
                 </div>
               </div>
               <div class="col-lg-6">
                 <div class="form-check form-switch">
-                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch" value="eliminar"
-                    id="material-eliminar">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="eliminar" id="material-eliminar">
                   <label class="form-check-label" for="material-eliminar">Eliminar</label>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox" role="switch"
+                    value="restaurar" id="material-restaurar">
+                  <label class="form-check-label" for="material-restaurar">Restaurar</label>
                 </div>
               </div>
             </div>

@@ -56,7 +56,7 @@ class Rol extends Conexion
             $this->conex = new Conexion("usuario");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "SELECT * FROM rol WHERE id = :id";
+            $query = "SELECT * FROM rol WHERE id_rol = :id";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -79,12 +79,36 @@ class Rol extends Conexion
         return $dato;
     }
 
-    private function Registrar($permisos_rol)
+    private function UltimoID()
     {
         $dato = [];
-        $bool = $this->Validar();
-        echo "entre aquí";
-        if ($bool['bool'] == 0) {
+
+        try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT MAX(id_rol) AS ultimo_id FROM rol";
+
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $fila = $stm->fetch(PDO::FETCH_ASSOC);
+            $dato['id_rol'] = $fila['ultimo_id'];
+            $dato['estado'] = 1;
+            $this->conex->commit();
+
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['error'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($none, $stm);
+        return $dato;
+    }
+
+    private function Registrar()
+    {
+        $dato = [];
+        $validar = $this->Validar();
+        if ($validar['bool'] == 0) {
             try {
                 $this->conex = new Conexion("usuario");
                 $this->conex = $this->conex->Conex();
@@ -95,20 +119,11 @@ class Rol extends Conexion
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
 
-                $this->permiso->Transaccion(['peticion' => 'cargar_permiso', 'permisos' => $permisos_rol]);
-
-                if ($bool['estado'] == 1) {
-                    $this->conex->commit();
-                    $dato['resultado'] = "registrar";
-                    $dato['estado'] = 1;
-                    $dato['mensaje'] = "Se registró el rol exitosamente";
-                } else {
-                    $this->conex->rollBack();
-                    $dato['estado'] = -1;
-                    $dato['resultado'] = "error";
-                    $dato['mensaje'] = 'Error al completar la transacción';
-                }
-
+                $this->conex->commit();
+                $dato['resultado'] = "registrar";
+                $dato['estado'] = 1;
+                $dato['id_rol'] = $this->conex->lastInsertId();
+                $dato['mensaje'] = "Se registró el rol exitosamente";
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
@@ -139,7 +154,6 @@ class Rol extends Conexion
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
-
             $this->conex->commit();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
@@ -219,10 +233,13 @@ class Rol extends Conexion
         switch ($peticion['peticion']) {
 
             case 'registrar':
-                return $this->Registrar($peticion["permisos"]);
+                return $this->Registrar();
 
             case 'consultar':
                 return $this->Consultar();
+
+            case 'ultimo_id':
+                return $this->UltimoID();
 
             case 'filtrar_permiso':
                 return $this->FiltrarPermiso($peticion['parametro']);

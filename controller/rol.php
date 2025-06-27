@@ -10,9 +10,8 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "model/permiso.php";
 	require_once "model/rol.php";
 
-
 	$titulo = "Gestionar Roles y Permisos";
-	$cabecera = array('#', "Nombre", "Permisos");
+	$cabecera = array('#', "Nombre", "Modificar/Eliminar");
 
 	$rol = new Rol();
 	$permiso = new Permiso();
@@ -31,22 +30,34 @@ if (is_file("view/" . $page . ".php")) {
 		$rol->ObjPermiso($permiso);
 		$peticion["peticion"] = "registrar";
 		$peticion["permisos"] = json_decode($_POST['datos']);
-		$json = $rol->Transaccion($peticion);
-		echo json_encode($json);
+		$json_rol = $rol->Transaccion($peticion);
 
 
-		if ($json['estado'] == 1) {
-
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo rol";
+		if ($json_rol['estado'] == 1) {
 			$peticion["permisos"] = json_decode($_POST['datos']);
 			$peticion["peticion"] = "cargar_permiso";
-			$permiso->set_id_rol($_POST["id_rol"]);
-			$permiso->Transaccion($peticion);
+			$id_fila = $rol->Transaccion(['peticion' => 'ultimo_id']);
+			$permiso->set_id_rol($id_fila['id_rol']);
+			$json = $permiso->Transaccion($peticion);
+			if ($json['estado'] == 1) {
+				$json['icon'] = "success";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo rol";
+				$json['mensaje'] = "Se registró un nuevo rol";
+
+
+			} else {
+				$json['icon'] = "warning";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo rol, (error en los permisos)";
+				$json['mensaje'] = "Se registró un nuevo rol, (error en los permisos)";
+			}
+			$json['resultado'] = "registrar";
 
 		} else {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registró rol";
 		}
+		echo json_encode($json);
 		Bitacora($msg, "Rol y Permiso");
+		exit;
 	}
 
 
@@ -57,7 +68,7 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
-	
+
 	if (isset($_POST['filtrar_permiso'])) {
 		$peticion["peticion"] = "filtrar_permiso";
 		$peticion['parametro'] = $_POST['parametro'];
@@ -72,19 +83,30 @@ if (is_file("view/" . $page . ".php")) {
 		$rol->set_id($_POST["id_rol"]);
 		$rol->set_nombre($_POST["nombre"]);
 		$peticion["peticion"] = "actualizar";
-		$json = $rol->Transaccion($peticion);
-		echo json_encode($json);
-
-
-		if ($json['estado'] == 1) {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del rol";
+		$json_rol = $rol->Transaccion($peticion);
+		
+		if ($json_rol['estado'] == 1) {
 			$peticion["permisos"] = json_decode($_POST['datos']);
 			$peticion["peticion"] = "cargar_permiso";
 			$permiso->set_id_rol($_POST["id_rol"]);
-			$permiso->Transaccion($peticion);
+			$json = $permiso->Transaccion($peticion);
+			if ($json['estado'] == 1) {
+				$json['icon'] = "success";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó un rol";
+				$json['mensaje'] = "Se modificó un nuevo rol";
+				
+				
+			} else {
+				$json['icon'] = "warning";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó un rol, (error en los permisos)";
+				$json['mensaje'] = "Se modificó rol, (error en los permisos)";
+			}
+			$json['resultado'] = "modificar";
+			
 		} else {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar rol";
 		}
+		echo json_encode($json);
 		Bitacora($msg, "Rol y Permiso");
 		exit;
 	}

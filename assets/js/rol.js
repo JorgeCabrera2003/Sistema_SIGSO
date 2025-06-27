@@ -25,6 +25,7 @@ $(document).ready(function () {
 							modulo.find('.form-check-input').each(function () {
 								const checkbox = $(this);
 								var bool;
+								checkbox.attr('data-id-permiso', '');
 								if (checkbox.prop('checked')) {
 									bool = 1;
 								} else {
@@ -32,16 +33,19 @@ $(document).ready(function () {
 								}
 								permisos.push({
 									accion: checkbox.val(),
-									estado: bool
+									estado: bool,
+									id: checkbox.attr('data-id-permiso') || null
 								});
-							});
 
+								checkbox.attr('data-id-permiso', '');
+							});
 							if (permisos.length > 0) {
 								permisos_modulos.push({
 									modulo: moduloString,
 									permisos: permisos
 								});
 							}
+
 						});
 						console.log(datos);
 
@@ -60,7 +64,7 @@ $(document).ready(function () {
 					confirmacion = await confirmarAccion("Se modificará un Rol", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
-						var dataID;
+
 						const permisos_modulos = [];
 
 						$('[data-modulo-string]').each(function () {
@@ -71,7 +75,6 @@ $(document).ready(function () {
 							// Obtener todos los checkboxes dentro del módulo
 							modulo.find('.form-check-input').each(function () {
 								const checkbox = $(this);
-								dataID = checkbox.data('idPermiso');
 								var bool;
 								if (checkbox.prop('checked')) {
 									bool = 1;
@@ -83,7 +86,6 @@ $(document).ready(function () {
 									estado: bool,
 									id: checkbox.attr('data-id-permiso') || null
 								});
-								console.log(dataID);
 								checkbox.attr('data-id-permiso', '');
 							});
 							if (permisos.length > 0) {
@@ -92,7 +94,7 @@ $(document).ready(function () {
 									permisos: permisos
 								});
 							}
-							
+
 						});
 						console.log(datos);
 
@@ -239,7 +241,7 @@ async function enviaAjax(datos) {
 				var lee = JSON.parse(respuesta);
 				if (lee.resultado == "registrar") {
 					$("#modal1").modal("hide");
-					mensajes("success", 10000, lee.mensaje, null);
+					mensajes(lee.icon, 10000, lee.mensaje, null);
 					consultar();
 
 				} else if (lee.resultado == "consultar") {
@@ -357,7 +359,8 @@ function crearDataTable(arreglo) {
 			{ data: 'nombre_rol' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}
@@ -379,6 +382,18 @@ function limpia() {
 	$("#nombre").prop('readOnly', false);
 	$("#id_rol").prop('disabled', false);
 	$('#enviar').prop('disabled', false);
+	var datos = new FormData();
+
+	$('[data-modulo-string]').each(function () {
+		const modulo = $(this);
+
+		modulo.find('.form-check-input').each(function () {
+			const checkbox = $(this);
+			checkbox.attr('data-id-permiso', '');
+			checkbox.prop('checked', false);
+			checkbox.prop('disabled', false);
+		});
+	});
 }
 
 
@@ -407,11 +422,26 @@ async function rellenar(pos, accion) {
 		$("#modalTitleId").text("Modificar Rol");
 		$("#enviar").text("Modificar");
 		$("#modal1").modal("show");
+
 	} else {
+		await TraerPermiso($(linea).find("td:eq(0)").text());
 		$("#nombre").prop('readOnly', true);
 		$("#id_rol").prop('disabled', true);
+		$("#id_rol").val($(linea).find("td:eq(0)").text());
+		$("#nombre").val($(linea).find("td:eq(1)").text());
+
 		$("#modalTitleId").text("Eliminar Rol");
 		$("#enviar").text("Eliminar");
+		$("#modal1").modal("show");
+
+		$('[data-modulo-string]').each(function () {
+			const modulo = $(this);
+
+			modulo.find('.form-check-input').each(function () {
+				const checkbox = $(this);
+				checkbox.prop('disabled', true);
+			});
+		});
 	}
 	$('#enviar').prop('disabled', false);
 }

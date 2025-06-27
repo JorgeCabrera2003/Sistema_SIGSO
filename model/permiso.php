@@ -161,7 +161,6 @@ class Permiso extends Conexion
                 VALUES (:id_permiso, :rol, :modulo, :accion, :estado)
                 ON DUPLICATE KEY UPDATE estado = VALUES(estado)";
 
-        print_r($permisos);
         $this->conex->beginTransaction();
         if ($boolPermiso['bool'] == true) {
             try {
@@ -187,8 +186,8 @@ class Permiso extends Conexion
                     $stm->execute();
                 }
                 $this->conex->commit();
-                $dato['mensaje'] = 'Se modifico el permiso';
-                $dato['resultado'] = 'modificar';
+                $dato['mensaje'] = 'Se cargaron los permisos';
+                $dato['resultado'] = 'permiso';
                 $dato['estado'] = 1;
             } catch (PDOException $e) {
                 $this->conex->rollBack();
@@ -202,8 +201,6 @@ class Permiso extends Conexion
             $dato['mensaje'] = $boolPermiso['mensaje'];
             $dato['estado'] = -1;
         }
-        print_r($this->get_id_rol());
-        print_r($dato);
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
