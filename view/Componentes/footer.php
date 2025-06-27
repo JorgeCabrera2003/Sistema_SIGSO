@@ -131,7 +131,7 @@ function getModuleLink(modulo) {
       &copy; Copyright <strong><span>OFITIC</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-      Designed by <a href="#">J. Cabrera, L. Torrealba & W. Rodríguez</a>
+      Designed by <a href="#">J. Cabrera, L. Torrealba & M. Bokor</a>
     </div>
 
 </footer>
