@@ -65,6 +65,28 @@ class Material extends Conexion
         return $this->estatus;
     }
 
+    public function listarDisponibles() {
+    $dato = [];
+    
+    try {
+        $query = "SELECT id_material, nombre_material, stock 
+                 FROM material 
+                 WHERE estatus = 1 AND stock > 0
+                 ORDER BY nombre_material";
+                 
+        $stm = $this->conex->prepare($query);
+        $stm->execute();
+        
+        $dato['resultado'] = "success";
+        $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $dato['resultado'] = "error";
+        $dato['mensaje'] = $e->getMessage();
+    }
+    
+    return $dato;
+}
+
     private function Validar()
     {
         $dato = [];

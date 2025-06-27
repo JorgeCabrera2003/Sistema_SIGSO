@@ -87,36 +87,6 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST['tomar_hoja'])) {
         try {
-            // Verificar que el usuario es un tecnico
-            if ($_SESSION['user']['id_rol'] != 2 && $_SESSION['user']['id_rol'] != 5) { // Asumiendo que 2 es el rol de TÉCNICO
-                echo json_encode(['resultado' => 'error', 'mensaje' => 'Solo los técnicos pueden tomar hojas de servicio']);
-                exit;
-            }
-
-            // Obtener información del técnico
-            $infoTecnico = $empleado->Transaccion([
-                'peticion' => 'obtener_tecnico',
-                'cedula' => $_SESSION['user']['cedula']
-            ]);
-            // if (!$infoTecnico || !$infoTecnico['id_servicio']) {
-            //     echo json_encode(['resultado' => 'error', 'mensaje' => 'No tiene un área de servicio asignada']);
-            //     exit;
-            // }
-
-            // Verificar que la hoja puede ser tomada por este técnico
-            $verificacion = $hojaServicio->Transaccion([
-                'peticion' => 'verificar_hoja_tomar',
-                'codigo_hoja_servicio' => $_POST['codigo_hoja_servicio'],
-
-            ]
-            );
-
-            if ($verificacion['resultado'] === 'error') {
-                echo json_encode($verificacion);
-                exit;
-            }
-
-            // Asignar la hoja al técnico
             $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
             $hojaServicio->set_cedula_tecnico($_SESSION['user']['cedula']);
 
@@ -293,9 +263,9 @@ if (is_file("view/" . $page . ".php")) {
     // Registrar detalles de la hoja
     if (isset($_POST['registrar_detalles'])) {
         try {
-            // Verificar permisos
+            // Verify permissions
             $sqlVerificar = "SELECT cedula_tecnico FROM hoja_servicio 
-                            WHERE codigo_hoja_servicio = :codigo";
+                        WHERE codigo_hoja_servicio = :codigo";
             $stmt = $hojaServicio->Conex()->prepare($sqlVerificar);
             $stmt->bindParam(':codigo', $_POST['codigo_hoja_servicio'], PDO::PARAM_INT);
             $stmt->execute();
@@ -307,7 +277,24 @@ if (is_file("view/" . $page . ".php")) {
             }
 
             $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
-            $hojaServicio->set_detalles($_POST['detalles']);
+
+            // Process details including materials
+            $detalles = [];
+            foreach ($_POST['detalles'] as $detalle) {
+                $item = [
+                    'componente' => $detalle['componente'],
+                    'detalle' => $detalle['detalle']
+                ];
+
+                if (isset($detalle['id_material']) && $detalle['id_material']) {
+                    $item['id_material'] = $detalle['id_material'];
+                    $item['cantidad'] = $detalle['cantidad'];
+                }
+
+                $detalles[] = $item;
+            }
+
+            $hojaServicio->set_detalles($detalles);
 
             $datos = $hojaServicio->Transaccion(['peticion' => 'registrar_detalles']);
             echo json_encode($datos);
@@ -348,7 +335,7 @@ if (is_file("view/" . $page . ".php")) {
     if (isset($_POST['generar_reporte'])) {
         require_once "vendor/autoload.php";
         $dompdf = new Dompdf\Dompdf();
-        
+
 
         // Filtros de fechas y tipo de servicio
         $fecha_inicio = $_POST['fecha_inicio'] ?? null;
@@ -404,4 +391,3 @@ if (is_file("view/" . $page . ".php")) {
 } else {
     require_once "view/404.php";
 }
-        

@@ -499,53 +499,61 @@ class HojaServicio extends Conexion
         try {
             $this->conex->beginTransaction();
 
-            // Primero eliminar detalles existentes
+            // Eliminar detalles existentes
             $sqlDelete = "DELETE FROM detalle_hoja WHERE codigo_hoja_servicio = :codigo";
             $stmtDelete = $this->conex->prepare($sqlDelete);
             $stmtDelete->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
             $stmtDelete->execute();
 
-            // Insertar nuevos detalles
+            // Insertar nuevos detalles y gestionar materiales
             $sqlInsert = "INSERT INTO detalle_hoja 
-                     (codigo_hoja_servicio, componente, detalle, id_movimiento_material, cantidad_material) 
-                     VALUES (:codigo, :componente, :detalle, :id_movimiento, :cantidad)";
+                     (codigo_hoja_servicio, componente, detalle, id_movimiento_material) 
+                     VALUES (:codigo, :componente, :detalle, :id_movimiento)";
+
+            $sqlMovimiento = "INSERT INTO movimiento_materiales 
+                         (id_material, accion, cantidad, descripcion)
+                         VALUES (:id_material, 'salida', :cantidad, :descripcion)";
 
             $stmtInsert = $this->conex->prepare($sqlInsert);
-            $stmtInsert->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+            $stmtMovimiento = $this->conex->prepare($sqlMovimiento);
 
             foreach ($this->detalles as $detalle) {
                 $idMovimiento = null;
-                $cantidad = null;
 
-                // Si es un material, registrar el movimiento y descontar del stock
-                if (!empty($detalle['id_material']) && !empty($detalle['cantidad_material'])) {
-                    // Registrar movimiento de material
-                    $sqlMovimiento = "INSERT INTO movimiento_materiales 
-                                 (id_material, accion, cantidad, descripcion) 
-                                 VALUES (:id_material, 'SALIDA', :cantidad, 
-                                 'Uso en servicio #{$this->codigo_hoja_servicio}')";
+                // Si hay material asociado, registrar el movimiento
+                if (!empty($detalle['id_material'])) {
+                    // Verificar stock disponible
+                    $sqlStock = "SELECT stock FROM material WHERE id_material = :id AND estatus = 1";
+                    $stmtStock = $this->conex->prepare($sqlStock);
+                    $stmtStock->bindParam(':id', $detalle['id_material'], PDO::PARAM_INT);
+                    $stmtStock->execute();
+                    $stock = $stmtStock->fetchColumn();
 
-                    $stmtMovimiento = $this->conex->prepare($sqlMovimiento);
-                    $stmtMovimiento->bindParam(':id_material', $detalle['id_material'], PDO::PARAM_INT);
-                    $stmtMovimiento->bindParam(':cantidad', $detalle['cantidad_material'], PDO::PARAM_INT);
+                    if ($stock < $detalle['cantidad']) {
+                        throw new Exception("Stock insuficiente para el material ID: " . $detalle['id_material']);
+                    }
+
+                    // Registrar movimiento
+                    $stmtMovimiento->bindValue(':id_material', $detalle['id_material'], PDO::PARAM_INT);
+                    $stmtMovimiento->bindValue(':cantidad', $detalle['cantidad'], PDO::PARAM_INT);
+                    $stmtMovimiento->bindValue(':descripcion', "Uso en servicio #" . $this->codigo_hoja_servicio);
                     $stmtMovimiento->execute();
-
                     $idMovimiento = $this->conex->lastInsertId();
-                    $cantidad = $detalle['cantidad_material'];
 
-                    // Actualizar stock del material
+                    // Actualizar stock
                     $sqlUpdateStock = "UPDATE material SET stock = stock - :cantidad 
-                                  WHERE id_material = :id_material";
+                                  WHERE id_material = :id AND estatus = 1";
                     $stmtUpdate = $this->conex->prepare($sqlUpdateStock);
-                    $stmtUpdate->bindParam(':cantidad', $detalle['cantidad_material'], PDO::PARAM_INT);
-                    $stmtUpdate->bindParam(':id_material', $detalle['id_material'], PDO::PARAM_INT);
+                    $stmtUpdate->bindValue(':cantidad', $detalle['cantidad'], PDO::PARAM_INT);
+                    $stmtUpdate->bindValue(':id', $detalle['id_material'], PDO::PARAM_INT);
                     $stmtUpdate->execute();
                 }
 
+                // Registrar detalle con referencia al movimiento
+                $stmtInsert->bindValue(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
                 $stmtInsert->bindValue(':componente', $detalle['componente']);
                 $stmtInsert->bindValue(':detalle', $detalle['detalle']);
                 $stmtInsert->bindValue(':id_movimiento', $idMovimiento, PDO::PARAM_INT);
-                $stmtInsert->bindValue(':cantidad', $cantidad, PDO::PARAM_INT);
                 $stmtInsert->execute();
             }
 
@@ -553,7 +561,6 @@ class HojaServicio extends Conexion
             return true;
         } catch (PDOException $e) {
             $this->conex->rollBack();
-            error_log("Error al registrar detalles: " . $e->getMessage());
             return false;
         }
     }
