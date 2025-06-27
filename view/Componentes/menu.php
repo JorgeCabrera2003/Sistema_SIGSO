@@ -26,19 +26,21 @@
             <span class="ms-2 me-2 menu-text">Mis Solicitudes</span>
           </a>
         </li>
-
-        <?php if ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "ADMINISTRADOR") { ?>
-          <!-- CATEGORÍA: SERVICIOS -->
-          <li class="menu-title">
-            <span>Servicios</span>
-          </li>
-
+        <span>Servicios</span>
+        <?php if ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "TECNICO") { ?>
           <li class="menu-item <?php echo ($page == "servicios") ? "active" : "" ?>" title="Servicios">
             <a href="?page=servicios">
               <i class="fa-solid fa-clipboard-check"></i>
               <span class="ms-2 me-2 menu-text">Servicios</span>
             </a>
           </li>
+          <?php } ?>
+        <?php if ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "ADMINISTRADOR") { ?>
+          <!-- CATEGORÍA: SERVICIOS -->
+          <li class="menu-title">
+          </li>
+          </li>
+
 
           <li class="menu-item <?php echo ($page == "solicitudes") ? "active" : "" ?>" title="Solicitudes">
             <a href="?page=solicitud">

@@ -10,8 +10,8 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Verificar permisos - Solo superusuario (5) y técnicos (1)
-$rolesPermitidos = [1, 5];
+// Verificar permisos - Solo superusuario (5) y técnicos (2)
+$rolesPermitidos = [2, 5];
 if (!in_array($_SESSION['user']['id_rol'], $rolesPermitidos)) {
     echo '<script>window.location="?page=inicio"</script>';
     $_SESSION['msg']['danger'] = "No tiene permisos para acceder a este módulo";
@@ -51,6 +51,8 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    
+
     // Registrar nueva hoja de servicio (solo superusuario)
     if (isset($_POST["registrar"])) {
         if ($_SESSION['user']['id_rol'] != 5) {
@@ -82,6 +84,41 @@ if (is_file("view/" . $page . ".php")) {
         }
         exit;
     }
+
+    // In the controlador servicios, add this case:
+if (isset($_POST['tomar_hoja'])) {
+    try {
+        // Verify user is a technician
+        if ($_SESSION['user']['id_rol'] != 1) { // Assuming 1 is TECNICO role
+            echo json_encode(['resultado' => 'error', 'mensaje' => 'Solo los técnicos pueden tomar servicios']);
+            exit;
+        }
+
+        $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
+        $hojaServicio->set_cedula_tecnico($_SESSION['user']['cedula']);
+        
+        $datos = $hojaServicio->Transaccion(['peticion' => 'tomar_hoja']);
+        
+        if ($datos['resultado'] === 'success') {
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Tomó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
+            Bitacora($msg, "Servicio");
+        }
+        
+        echo json_encode($datos);
+    } catch (Exception $e) {
+        echo json_encode(['resultado' => 'error', 'mensaje' => $e->getMessage()]);
+    }
+    exit;
+}
+
+if (isset($_POST['get_user_data'])) {
+    echo json_encode([
+        'rol' => $datos["rol"],
+        'cedula' => $datos["cedula"],
+        'isSuperUsuario' => ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "ADMINISTRADOR")
+    ]);
+    exit;
+}
 
     // Consultar hoja de servicio
     if (isset($_POST['consultar'])) {
@@ -175,7 +212,7 @@ if (is_file("view/" . $page . ".php")) {
 
     // Tomar una hoja de servicio (para técnicos)
     if (isset($_POST['tomar_hoja'])) {
-        if ($_SESSION['user']['id_rol'] != 1) {
+        if ($_SESSION['user']['id_rol'] != 2 || $_SESSION['user']['id_rol'] != 5) { // Assuming 1 is TECNICO role and 2 is another role
             echo json_encode(['resultado' => 'error', 'mensaje' => 'Solo los técnicos pueden tomar hojas de servicio']);
             exit;
         }

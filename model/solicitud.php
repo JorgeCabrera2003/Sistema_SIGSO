@@ -20,48 +20,59 @@ class Solicitud extends Conexion
     }
 
     // Setters
-    public function set_nro_solicitud($nro_solicitud) {
+    public function set_nro_solicitud($nro_solicitud)
+    {
         $this->nro_solicitud = $nro_solicitud;
     }
 
-    public function set_cedula_solicitante($cedula_solicitante) {
+    public function set_cedula_solicitante($cedula_solicitante)
+    {
         $this->cedula_solicitante = $cedula_solicitante;
     }
 
-    public function set_id_equipo($id_equipo) {
+    public function set_id_equipo($id_equipo)
+    {
         $this->id_equipo = $id_equipo;
     }
 
-    public function set_motivo($motivo) {
+    public function set_motivo($motivo)
+    {
         $this->motivo = $motivo;
     }
 
-    public function set_resultado($resultado) {
+    public function set_resultado($resultado)
+    {
         $this->resultado = $resultado;
     }
 
-    public function set_estado($estado) {
+    public function set_estado($estado)
+    {
         $this->estado = $estado;
     }
 
-    public function set_fecha_inicio($fecha_inicio) {
+    public function set_fecha_inicio($fecha_inicio)
+    {
         $this->fecha_inicio = $fecha_inicio;
     }
 
-    public function set_fecha_final($fecha_final) {
+    public function set_fecha_final($fecha_final)
+    {
         $this->fecha_final = $fecha_final;
     }
 
-    public function set_id_dependencia($id_dependencia) {
+    public function set_id_dependencia($id_dependencia)
+    {
         $this->id_dependencia = $id_dependencia;
     }
 
     // Getters
-    public function get_id_equipo() {
+    public function get_id_equipo()
+    {
         return $this->id_equipo;
     }
 
-    public function get_estado() {
+    public function get_estado()
+    {
         return $this->estado;
     }
 
@@ -84,9 +95,9 @@ class Solicitud extends Conexion
             $stmt->bindParam(':motivo', $this->motivo);
             $stmt->bindValue(':estatus', 1);
 
-              if ($stmt->execute()) {
+            if ($stmt->execute()) {
                 $nro = $this->conex->lastInsertId();
-                
+
                 $datos['resultado'] = 'registrar';
                 $datos['datos'] = $nro;
                 $datos['bool'] = 1;
@@ -173,16 +184,27 @@ class Solicitud extends Conexion
         try {
             $this->conex->beginTransaction();
 
+            // Verificar si existe hoja de servicio asociada
+            $sqlHoja = "SELECT COUNT(*) FROM hoja_servicio WHERE nro_solicitud = :nro";
+            $stmtHoja = $this->conex->prepare($sqlHoja);
+            $stmtHoja->bindParam(':nro', $this->nro_solicitud);
+            $stmtHoja->execute();
+            $tieneHoja = $stmtHoja->fetchColumn() > 0;
+
+            // Si tiene hoja asociada, el estado debe ser "En proceso", si no, "Pendiente"
+            $nuevoEstado = $tieneHoja ? 'En proceso' : 'Pendiente';
+
             $sql = "UPDATE solicitud 
                     SET motivo = :motivo, 
                         id_equipo = :equipo, 
-                        estado_solicitud = 'Pendiente'
+                        estado_solicitud = :estado
                     WHERE nro_solicitud = :nro";
 
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':nro', $this->nro_solicitud);
             $stmt->bindParam(':equipo', $this->id_equipo);
             $stmt->bindParam(':motivo', $this->motivo);
+            $stmt->bindParam(':estado', $nuevoEstado);
 
             if ($stmt->execute()) {
                 $datos['resultado'] = 'actualizar';
@@ -269,40 +291,41 @@ class Solicitud extends Conexion
     /**
      * Obtiene todas las solicitudes
      */
-    private function obtenerTodasSolicitudes() {
-    $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
-    
-    try {
-        $sql = "SELECT 
-    s.nro_solicitud AS ID,
-    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Solicitante,
-    s.cedula_solicitante AS Cedula,
-    d.nombre AS Dependencia,
-    IFNULL(eq.tipo_equipo, 'N/A') AS Equipo,
-    s.motivo AS Motivo,
-    s.estado_solicitud AS Estado,
-    s.fecha_solicitud AS Inicio,
-    IFNULL(hs.resultado_hoja_servicio, IFNULL(s.resultado_solicitud, 'N/A')) AS Resultado,
-    ts.id_tipo_servicio AS tipo_servicio
-FROM solicitud s
-LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
-LEFT JOIN equipo eq ON s.id_equipo = eq.id_equipo
-LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
-LEFT JOIN dependencia d ON u.id_dependencia = d.id
-LEFT JOIN hoja_servicio hs ON hs.nro_solicitud = s.nro_solicitud AND hs.estatus = 'I'
-LEFT JOIN tipo_servicio ts ON ts.id_tipo_servicio = hs.id_tipo_servicio
-WHERE s.estatus = 1
-ORDER BY s.fecha_solicitud DESC";
+    private function obtenerTodasSolicitudes()
+    {
+        $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
-        $stmt = $this->conex->query($sql);
-        $datos['resultado'] = 'consultar';
-        $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $datos['mensaje'] = $e->getMessage();
+        try {
+            $sql = "SELECT 
+                s.nro_solicitud AS ID,
+                CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Solicitante,
+                s.cedula_solicitante AS Cedula,
+                d.nombre AS Dependencia,
+                IFNULL(eq.tipo_equipo, 'N/A') AS Equipo,
+                s.motivo AS Motivo,
+                s.estado_solicitud AS Estado,
+                s.fecha_solicitud AS Inicio,
+                IFNULL(hs.resultado_hoja_servicio, IFNULL(s.resultado_solicitud, 'N/A')) AS Resultado,
+                ts.id_tipo_servicio AS tipo_servicio
+                    FROM solicitud s
+                    LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
+                    LEFT JOIN equipo eq ON s.id_equipo = eq.id_equipo
+                    LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
+                    LEFT JOIN dependencia d ON u.id_dependencia = d.id
+                    LEFT JOIN hoja_servicio hs ON hs.nro_solicitud = s.nro_solicitud AND hs.estatus = 'I'
+                    LEFT JOIN tipo_servicio ts ON ts.id_tipo_servicio = hs.id_tipo_servicio
+                    WHERE s.estatus = 1
+                    ORDER BY s.fecha_solicitud DESC";
+
+            $stmt = $this->conex->query($sql);
+            $datos['resultado'] = 'consultar';
+            $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $datos['mensaje'] = $e->getMessage();
+        }
+
+        return $datos;
     }
-
-    return $datos;
-}
 
     /**
      * Obtiene solicitudes para reporte por rango de fechas
@@ -478,34 +501,34 @@ ORDER BY s.fecha_solicitud DESC";
         switch ($peticion["peticion"]) {
             case "registrar":
                 return $this->registrarSolicitud();
-                
+
             case "consultar":
                 return $this->obtenerTodasSolicitudes();
-                
+
             case "solicitud_usuario":
                 return $this->obtenerSolicitudesUsuario();
-                
+
             case "actualizar":
                 return $this->actualizarSolicitud();
-                
+
             case "eliminar":
                 return $this->eliminarSolicitud();
-                
+
             case "finalizar":
                 return $this->finalizarSolicitud();
-                
+
             case "reporte":
                 return $this->obtenerSolicitudesReporte();
-                
+
             case "consultar_solicitantes":
                 return $this->obtenerEmpleadosPorDependencia();
-                
+
             case "consultar_equipos":
                 return $this->obtenerEquiposPorDependencia();
-                
+
             case "consultar_por_id":
                 return $this->obtenerSolicitudPorId();
-                
+
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }
