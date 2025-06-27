@@ -36,7 +36,12 @@
                 <div class="row justify-content-center" id="fila-resultado" style="display: none;">
                     <div class="col-md-12">
                         <div class="form-floating mb-3 mt-4">
-                            <input placeholder="" class="form-control" name="resultado_hoja_servicio" type="text" id="resultado_hoja_servicio">
+                            <select placeholder="" class="form-control" name="resultado_hoja_servicio" id="resultado_hoja_servicio">
+                                <option value="">Seleccione un resultado</option>
+                                <option value="Buen_funcionamiento">Buen funcionamiento</option>
+                                <option value="Operativo">Operativo</option>
+                                <option value="Sin_funcionar">Sin funcionar</option>
+                            </select>
                             <span id="sresultado_hoja_servicio"></span>
                             <label for="resultado_hoja_servicio" class="form-label">Resultado</label>
                         </div>

@@ -64,20 +64,20 @@
           </li>
 
           <ul id="equipos-submenu" style="margin-left: 1em;"
-            class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
-            data-bs-parent="#sidebar-nav">
+          class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
+          data-bs-parent="#sidebar-nav">
+          <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
+            title="Bienes">
+            <a href="?page=bien">
+              <i class="fas fa-box"></i>
+              <span class="ms-2 me-2 menu-text">Bienes</span>
+            </a>
+          </li>
             <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "unidad") ? "active" : "" ?>"
               title="Equipos">
               <a href="?page=equipo">
                 <i class="fa-solid fa-computer"></i>
                 <span class="ms-2 me-2 menu-text">Equipos</span>
-              </a>
-            </li>
-            <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
-              title="Bienes">
-              <a href="?page=bien">
-                <i class="fas fa-box"></i>
-                <span class="ms-2 me-2 menu-text">Bienes</span>
               </a>
             </li>
             <li class="menu-item <?php echo ($page == "material") ? "active" : "" ?>" title="Gestión de Materiales">

@@ -8,11 +8,11 @@ function loadUserData() {
             type: 'POST',
             data: { get_user_data: true },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 userData = response;
                 resolve();
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error al cargar datos del usuario:', error);
                 reject(error);
             }
@@ -23,7 +23,7 @@ function loadUserData() {
 $(document).ready(async function () {
 
     await loadUserData();
-        console.log('User Data:', userData);
+    console.log('User Data:', userData);
 
     // Inicialización de la tabla de servicios
     inicializarTablaServicios();
@@ -39,13 +39,36 @@ $(document).ready(async function () {
 
     // Cargar tipos de servicio para el filtro
     cargarTiposServicioFiltro();
+
+    // Evento para el formulario de reporte PDF
+    $('#formReporteServicio').on('submit', function (e) {
+        e.preventDefault();
+        // Abrir el reporte en una nueva pestaña
+        const form = this;
+        const win = window.open('', '_blank');
+        const formData = new FormData(form);
+        formData.append('generar_reporte', '1');
+        // Crear un formulario temporal para enviar por POST
+        const tempForm = document.createElement('form');
+        tempForm.action = '?page=servicios';
+        tempForm.method = 'POST';
+        tempForm.target = win.name;
+        for (const [key, value] of formData.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            tempForm.appendChild(input);
+        }
+        document.body.appendChild(tempForm);
+        tempForm.submit();
+        document.body.removeChild(tempForm);
+    });
 });
 
 function inicializarTablaServicios() {
     window.tablaServicios = $('#tablaServicios').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
-        },
+
         ajax: {
             url: '?page=servicios',
             type: 'POST',
@@ -101,8 +124,8 @@ function inicializarTablaServicios() {
                     return meta.row + 1;
                 }
             },
-            {data: 'nro_solicitud'},
-            {data: 'nombre_tipo_servicio'},
+            { data: 'nro_solicitud' },
+            { data: 'nombre_tipo_servicio' },
             {
                 data: 'solicitante',
                 render: function (data, type, row) {
@@ -133,7 +156,7 @@ function inicializarTablaServicios() {
                     return data || 'N/A';
                 }
             },
-            {data: 'motivo'},
+            { data: 'motivo' },
             {
                 data: 'fecha_solicitud',
                 render: function (data) {
@@ -166,49 +189,49 @@ function inicializarTablaServicios() {
                     return `<span class="badge bg-${badgeClass}">${text}</span>`;
                 }
             },
-            { 
-    data: null, 
-    render: function(data, type, row) {
-        let botones = '';
-        
-        botones += `<button onclick="verDetalles(${row.codigo_hoja_servicio})" class="btn btn-info btn-sm" title="Ver Detalles">
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let botones = '';
+
+                    botones += `<button onclick="verDetalles(${row.codigo_hoja_servicio})" class="btn btn-info btn-sm" title="Ver Detalles">
             <i class="fa-solid fa-eye"></i>
         </button>`;
 
-        // Get user data from PHP session
-        const userRol = userData.rol;
-        const userCedula = userData.cedula;
-        const isSuperUsuario = userData.isSuperUsuario;
-        console.log('User Role:', userRol);
+                    // Get user data from PHP session
+                    const userRol = userData.rol;
+                    const userCedula = userData.cedula;
+                    const isSuperUsuario = userData.isSuperUsuario;
+                    console.log('User Role:', userRol);
 
 
-        if ((userData.rol === 'TECNICO' || userData.rol === 'SUPERUSUARIO') && 
-            (!row.cedula_tecnico || row.cedula_tecnico === '') && 
-            row.estatus === 'A') {
-            botones += `<button onclick="tomarHoja(${row.codigo_hoja_servicio})" class="btn btn-primary btn-sm ms-1" title="Tomar Servicio">
+                    if ((userData.rol === 'TECNICO' || userData.rol === 'SUPERUSUARIO') &&
+                        (!row.cedula_tecnico || row.cedula_tecnico === '') &&
+                        row.estatus === 'A') {
+                        botones += `<button onclick="tomarHoja(${row.codigo_hoja_servicio})" class="btn btn-primary btn-sm ms-1" title="Tomar Servicio">
                 <i class="fa-solid fa-handshake-angle"></i>
             </button>`;
-        }
+                    }
 
-        // Super usuario ve todos los botones
-        if (isSuperUsuario) {
-            botones += `<button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm ms-1" title="Editar">
+                    // Super usuario ve todos los botones
+                    if (isSuperUsuario) {
+                        botones += `<button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm ms-1" title="Editar">
                 <i class="fa-solid fa-pencil"></i>
             </button>`;
-            
-            botones += `<button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm ms-1" title="Eliminar">
+
+                        botones += `<button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm ms-1" title="Eliminar">
                 <i class="fa-solid fa-trash"></i>
             </button>`;
-        } else if (row.cedula_tecnico === userCedula && row.estatus === 'A') {
-            // Técnico asignado puede finalizar
-            botones += `<button onclick="finalizarHoja(${row.codigo_hoja_servicio})" class="btn btn-success btn-sm ms-1" title="Finalizar">
+                    } else if (row.cedula_tecnico === userCedula && row.estatus === 'A') {
+                        // Técnico asignado puede finalizar
+                        botones += `<button onclick="finalizarHoja(${row.codigo_hoja_servicio})" class="btn btn-success btn-sm ms-1" title="Finalizar">
                 <i class="bi bi-check-circle"></i>
             </button>`;
-        }
-        
-        return `<div class="btn-group">${botones}</div>`;
-    }
-},
+                    }
+
+                    return `<div class="btn-group">${botones}</div>`;
+                }
+            },
         ],
         responsive: true,
         order: [[1, 'desc']],
@@ -242,10 +265,10 @@ function tomarHoja(codigo) {
                     codigo_hoja_servicio: codigo
                 },
                 dataType: 'json',
-                beforeSend: function() {
+                beforeSend: function () {
                     // Show loading indicator
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.resultado === 'success') {
                         mostrarExito(response.mensaje);
                         tablaServicios.ajax.reload(null, false);
@@ -253,7 +276,7 @@ function tomarHoja(codigo) {
                         mostrarError(response.mensaje);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     mostrarError('Error al tomar el servicio: ' + error);
                 }
             });
@@ -265,7 +288,7 @@ function cargarTiposServicioFiltro() {
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
-        data: {listar_tipos: 'listar_tipos'},
+        data: { listar_tipos: 'listar_tipos' },
         dataType: 'json',
         success: function (response) {
             if (response.resultado === 'success') {
@@ -307,6 +330,118 @@ function configurarEventos() {
             </tr>
         `);
     });
+
+    function agregarFilaDetalle(esMaterial = false, datos = null) {
+        const tbody = $('#tablaDetallesModal tbody');
+        const nuevaFila = `
+        <tr>
+            <td>
+                <input type="text" class="form-control componente" placeholder="Componente" 
+                       value="${datos?.componente || ''}">
+            </td>
+            <td>
+                <input type="text" class="form-control detalle" placeholder="Detalle" 
+                       value="${datos?.detalle || ''}">
+            </td>
+            <td>
+                <div class="form-check form-switch">
+                    <input class="form-check-input toggle-material" type="checkbox" 
+                           ${esMaterial ? 'checked' : ''}>
+                    <label class="form-check-label">Material</label>
+                </div>
+            </td>
+            <td class="material-fields" style="${esMaterial ? '' : 'display:none;'}">
+                <select class="form-select select-material">
+                    <option value="">Seleccione material</option>
+                    <!-- Opciones se cargarán dinámicamente -->
+                </select>
+                <input type="number" class="form-control cantidad-material mt-1" 
+                       placeholder="Cantidad" min="1" value="${datos?.cantidad || ''}">
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+
+        tbody.append(nuevaFila);
+
+        // Si es material, cargar los materiales disponibles
+        if (esMaterial) {
+            cargarMaterialesEnFila(tbody.find('tr:last-child'));
+        }
+
+        // Configurar evento para el toggle de material
+        tbody.find('tr:last-child .toggle-material').change(function () {
+            const fila = $(this).closest('tr');
+            const esMaterial = $(this).is(':checked');
+            fila.find('.material-fields').toggle(esMaterial);
+
+            if (esMaterial) {
+                cargarMaterialesEnFila(fila);
+            }
+        });
+    }
+
+    function cargarMaterialesEnFila(fila) {
+        $.ajax({
+            url: '?page=materiales',
+            type: 'POST',
+            data: { listar_materiales: true },
+            dataType: 'json',
+            success: function (response) {
+                if (response.resultado === 'success') {
+                    const select = fila.find('.select-material');
+                    select.empty().append('<option value="">Seleccione material</option>');
+
+                    response.datos.forEach(material => {
+                        select.append(`<option value="${material.id_material}" 
+                                 data-stock="${material.stock}">${material.nombre_material} 
+                                 (Stock: ${material.stock})</option>`);
+                    });
+
+                    // Si hay datos previos, seleccionar el material
+                    if (datos?.id_material) {
+                        select.val(datos.id_material);
+                    }
+                }
+            }
+        });
+    }
+
+    // Modificar la función para recolectar detalles
+    function recolectarDetalles() {
+        const detalles = [];
+
+        $('#tablaDetallesModal tbody tr').each(function () {
+            const esMaterial = $(this).find('.toggle-material').is(':checked');
+            const detalle = {
+                componente: $(this).find('.componente').val(),
+                detalle: $(this).find('.detalle').val()
+            };
+
+            if (esMaterial) {
+                detalle.id_material = $(this).find('.select-material').val();
+                detalle.cantidad_material = $(this).find('.cantidad-material').val();
+
+                // Validar material seleccionado
+                if (!detalle.id_material) {
+                    throw new Error('Debe seleccionar un material para los componentes marcados');
+                }
+
+                // Validar cantidad
+                const stock = parseInt($(this).find('.select-material option:selected').data('stock'));
+                if (parseInt(detalle.cantidad_material) > stock) {
+                    throw new Error('La cantidad no puede ser mayor al stock disponible');
+                }
+            }
+
+            detalles.push(detalle);
+        });
+
+        return detalles;
+    }
 
     // Evento delegado para eliminar detalles
     $(document).on('click', '.btn-eliminar-detalle', function () {
@@ -598,7 +733,7 @@ function finalizarHoja(codigo) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            const {resultado, observacion} = result.value;
+            const { resultado, observacion } = result.value;
 
             if (!resultado || resultado.trim() === '') {
                 mostrarError('El resultado es requerido');

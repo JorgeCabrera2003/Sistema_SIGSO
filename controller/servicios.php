@@ -344,6 +344,31 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    // Reporte PDF de hojas de servicio
+    if (isset($_POST['generar_reporte'])) {
+        require_once "vendor/autoload.php";
+        $dompdf = new Dompdf\Dompdf();
+        
+
+        // Filtros de fechas y tipo de servicio
+        $fecha_inicio = $_POST['fecha_inicio'] ?? null;
+        $fecha_fin = $_POST['fecha_fin'] ?? null;
+        $id_tipo_servicio = $_POST['id_tipo_servicio'] ?? null;
+
+        // Obtener datos desde el modelo
+        $datos = $hojaServicio->reporteHojasServicio($fecha_inicio, $fecha_fin, $id_tipo_servicio);
+
+        // HTML para el PDF
+        $html = "";
+        require_once "view/Dompdf/servicios.php";
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $dompdf->stream("reporte_hojas_servicio_" . date('Ymd') . ".pdf", array("Attachment" => false));
+        exit;
+    }
+
     // Modificar hoja de servicio (superusuario o técnico asignado)
     if (isset($_POST["actualizar"])) {
         try {
@@ -379,3 +404,4 @@ if (is_file("view/" . $page . ".php")) {
 } else {
     require_once "view/404.php";
 }
+        

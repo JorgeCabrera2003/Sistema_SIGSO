@@ -59,25 +59,8 @@
                                 <input type="date" id="filtroFechaFin" class="form-control">
                             </div>
                         </div>
-                        
-                        <!-- Botones de acción -->
-                        <div class="d-flex justify-content-between mb-4">
-                            <div>
-                                <button type="button" class="btn btn-outline-secondary" id="btn-refrescar">
-                                    <i class="bi bi-arrow-clockwise"></i> Refrescar
-                                </button>
-                                <button type="button" class="btn btn-outline-primary" id="btn-exportar-PDF">
-                                    <i class="bi bi-file-earmark-PDF"></i> Exportar PDF
-                                </button>
-                            </div>
-                            
-                            <?php if ($_SESSION['user']['id_rol'] == 5): ?>
-                                <button type="button" class="btn btn-primary" id="btn-registrar">
-                                    <i class="bi bi-plus-circle"></i> Nueva Hoja de Servicio
-                                </button>
-                            <?php endif; ?>
-                        </div>
 
+                        
                         <!-- Tabla principal -->
                         <div class="table-responsive">
                             <table class="table table-hover table-striped" id="tablaServicios">
@@ -94,11 +77,41 @@
                             </table>
                         </div>
                     </div>
+                    <!-- Formulario de reporte PDF -->
+                    <form id="formReporteServicio" method="post" target="_blank" class="mb-3">
+                        <div class="row g-2 align-items-end">
+                            <div class="ms-3 col-auto">
+                                <input type="date" name="fecha_inicio" class="form-control" id="fecha_inicio" required max="<?php echo date('Y-m-d'); ?>">
+                            </div>
+                            <div class="col-auto">
+                                <span class="input-group-text">a</span>
+                            </div>
+                            <div class="col-auto">
+                                <input type="date" name="fecha_fin" class="form-control" id="fecha_fin" required max="<?php echo date('Y-m-d'); ?>">
+                            </div>
+                            <div class="col-auto">
+                                <select name="id_tipo_servicio" class="form-select" id="reporte_tipo_servicio">
+                                    <option value="">Todos los tipos</option>
+                                    <?php foreach ($tipos_servicio as $tipo): ?>
+                                        <option value="<?= $tipo['id_tipo_servicio'] ?>">
+                                            <?= $tipo['nombre_tipo_servicio'] ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary" name="generar_reporte">
+                                    Reporte PDF <i class="fa-solid fa-file-pdf"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- Fin formulario reporte PDF -->
                 </div>
             </div>
         </div>
     </section>
-
+    
     <!-- Modal Detalles Completo -->
     <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesTitle" aria-hidden="true">
         <div class="modal-dialog modal-xl">
