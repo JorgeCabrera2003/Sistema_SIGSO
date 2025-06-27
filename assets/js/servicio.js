@@ -182,7 +182,7 @@ function inicializarTablaServicios() {
         console.log('User Role:', userRol);
 
 
-        if (userData.rol === 'TECNICO' || userData.isSuperUsuario && 
+        if ((userData.rol === 'TECNICO' || userData.rol === 'SUPERUSUARIO') && 
             (!row.cedula_tecnico || row.cedula_tecnico === '') && 
             row.estatus === 'A') {
             botones += `<button onclick="tomarHoja(${row.codigo_hoja_servicio})" class="btn btn-primary btn-sm ms-1" title="Tomar Servicio">
@@ -408,8 +408,8 @@ function verDetalles(codigo) {
                     (response.datos.telefono_empleado || 'Sin teléfono') + ' | ' +
                     (response.datos.correo_empleado || 'Sin correo')
                 );
-
-                $('#detalle-tecnico').text(response.datos.tecnico || 'Sin asignar');
+                console.log(response.datos)
+                $('#detalle-tecnico').text(response.datos.nombre_tecnico || 'Sin asignar');
                 $('#detalle-tipo-servicio').text(response.datos.nombre_tipo_servicio || 'N/A');
                 $('#detalle-estado').text(
                     response.datos.estatus === 'A' ? 'Activo' :

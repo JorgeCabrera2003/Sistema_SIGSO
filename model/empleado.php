@@ -207,9 +207,10 @@ class Empleado extends Conexion
         return $datos;
     }
 
-    public function empleadosPorDependencia($idDependencia) {
+    public function empleadosPorDependencia($idDependencia)
+    {
         $datos = [];
-        
+
         try {
             $this->conex->beginTransaction();
             $query = "SELECT e.cedula_empleado, e.nombre_empleado, e.apellido_empleado 
@@ -217,11 +218,11 @@ class Empleado extends Conexion
                      JOIN unidad u ON e.id_unidad = u.id_unidad
                      WHERE u.id_dependencia = :idDependencia
                      AND e.cedula_empleado IS NOT NULL";
-                     
+
             $stm = $this->conex->prepare($query);
             $stm->bindParam(':idDependencia', $idDependencia);
             $stm->execute();
-            
+
             $datos['resultado'] = 'consultar_solicitantes';
             $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
             $this->conex->commit();
@@ -230,7 +231,7 @@ class Empleado extends Conexion
             $datos['resultado'] = 'error';
             $datos['mensaje'] = $e->getMessage();
         }
-        
+
         $this->Cerrar_Conexion($this->conex, $stm);
         return $datos;
     }
@@ -249,7 +250,6 @@ class Empleado extends Conexion
             } else {
                 $datos['bool'] = 0;
             }
-
         } catch (PDOException $e) {
             $datos['error'] = $e->getMessage();
         }
@@ -323,7 +323,6 @@ class Empleado extends Conexion
                 $datos['mensaje'] = "Error: No se encontró el registro";
                 $datos['estado'] = -1;
             }
-
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $datos['resultado'] = "error";
@@ -383,7 +382,7 @@ class Empleado extends Conexion
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
-            
+
             return ['resultado' => 'success', 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)];
         } catch (PDOException $e) {
             return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
@@ -395,20 +394,28 @@ class Empleado extends Conexion
     {
         try {
             $query = "SELECT 
-                e.*, 
-                ts.nombre_tipo_servicio,
-                c.nombre_cargo
-            FROM empleado e
-            LEFT JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
-            LEFT JOIN cargo c ON e.id_cargo = c.id_cargo
-            WHERE e.cedula_empleado = :cedula";
+            e.cedula_empleado,
+            e.nombre_empleado,
+            e.apellido_empleado,
+            e.id_cargo,
+            e.id_servicio,
+            e.id_unidad,
+            e.telefono_empleado,
+            e.correo_empleado,
+            ts.nombre_tipo_servicio,
+            c.nombre_cargo
+        FROM empleado e
+        LEFT JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
+        LEFT JOIN cargo c ON e.id_cargo = c.id_cargo
+        WHERE e.cedula_empleado = :cedula
+        AND e.id_cargo = 1"; // 1 = ID de cargo Técnico
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->execute();
-            
+
             $datos = $stm->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($datos) {
                 return ['resultado' => 'success', 'datos' => $datos];
             } else {
@@ -418,6 +425,8 @@ class Empleado extends Conexion
             return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
     }
+
+
 
     public function Transaccion($peticion)
     {
@@ -448,4 +457,3 @@ class Empleado extends Conexion
         }
     }
 }
-?>

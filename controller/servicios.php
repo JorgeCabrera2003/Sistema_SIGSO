@@ -51,7 +51,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    
+
 
     // Registrar nueva hoja de servicio (solo superusuario)
     if (isset($_POST["registrar"])) {
@@ -63,20 +63,20 @@ if (is_file("view/" . $page . ".php")) {
         try {
             $hojaServicio->set_nro_solicitud($_POST["nro_solicitud"]);
             $hojaServicio->set_id_tipo_servicio($_POST["id_tipo_servicio"]);
-            
+
             $peticion = [
                 'peticion' => 'crear',
                 'detalles' => isset($_POST["detalles"]) ? $_POST["detalles"] : []
             ];
-            
+
             $datos = $hojaServicio->Transaccion($peticion);
-            
+
             if ($datos['resultado'] === 'success') {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Registró la hoja de servicio #" . $datos['codigo'];
             } else {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al registrar servicio: " . $datos['mensaje'];
             }
-            
+
             Bitacora($msg, "Servicio");
             echo json_encode($datos);
         } catch (Exception $e) {
@@ -85,65 +85,90 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // In the controlador servicios, add this case:
-if (isset($_POST['tomar_hoja'])) {
-    try {
-        // Verify user is a technician
-        if ($_SESSION['user']['id_rol'] != 1) { // Assuming 1 is TECNICO role
-            echo json_encode(['resultado' => 'error', 'mensaje' => 'Solo los técnicos pueden tomar servicios']);
-            exit;
-        }
+    if (isset($_POST['tomar_hoja'])) {
+        try {
+            // Verificar que el usuario es un tecnico
+            if ($_SESSION['user']['id_rol'] != 2 && $_SESSION['user']['id_rol'] != 5) { // Asumiendo que 2 es el rol de TÉCNICO
+                echo json_encode(['resultado' => 'error', 'mensaje' => 'Solo los técnicos pueden tomar hojas de servicio']);
+                exit;
+            }
 
-        $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
-        $hojaServicio->set_cedula_tecnico($_SESSION['user']['cedula']);
-        
-        $datos = $hojaServicio->Transaccion(['peticion' => 'tomar_hoja']);
-        
-        if ($datos['resultado'] === 'success') {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Tomó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
-            Bitacora($msg, "Servicio");
+            // Obtener información del técnico
+            $infoTecnico = $empleado->Transaccion([
+                'peticion' => 'obtener_tecnico',
+                'cedula' => $_SESSION['user']['cedula']
+            ]);
+            // if (!$infoTecnico || !$infoTecnico['id_servicio']) {
+            //     echo json_encode(['resultado' => 'error', 'mensaje' => 'No tiene un área de servicio asignada']);
+            //     exit;
+            // }
+
+            // Verificar que la hoja puede ser tomada por este técnico
+            $verificacion = $hojaServicio->Transaccion([
+                'peticion' => 'verificar_hoja_tomar',
+                'codigo_hoja_servicio' => $_POST['codigo_hoja_servicio'],
+
+            ]
+            );
+
+            if ($verificacion['resultado'] === 'error') {
+                echo json_encode($verificacion);
+                exit;
+            }
+
+            // Asignar la hoja al técnico
+            $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
+            $hojaServicio->set_cedula_tecnico($_SESSION['user']['cedula']);
+
+            $datos = $hojaServicio->Transaccion(['peticion' => 'tomar_hoja']);
+
+            if ($datos['resultado'] === 'success') {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Tomó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
+                Bitacora($msg, "Servicio");
+            }
+
+            echo json_encode($datos);
+        } catch (Exception $e) {
+            echo json_encode(['resultado' => 'error', 'mensaje' => $e->getMessage()]);
         }
-        
-        echo json_encode($datos);
-    } catch (Exception $e) {
-        echo json_encode(['resultado' => 'error', 'mensaje' => $e->getMessage()]);
+        exit;
     }
-    exit;
-}
 
-if (isset($_POST['get_user_data'])) {
-    echo json_encode([
-        'rol' => $datos["rol"],
-        'cedula' => $datos["cedula"],
-        'isSuperUsuario' => ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "ADMINISTRADOR")
-    ]);
-    exit;
-}
+    if (isset($_POST['get_user_data'])) {
+        echo json_encode([
+            'rol' => $datos["rol"],
+            'cedula' => $datos["cedula"],
+            'isSuperUsuario' => ($datos["rol"] == "SUPERUSUARIO" || $datos["rol"] == "ADMINISTRADOR")
+        ]);
+        exit;
+    }
 
     // Consultar hoja de servicio
     if (isset($_POST['consultar'])) {
         try {
             $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
             $datos = $hojaServicio->Transaccion(['peticion' => 'consultar']);
-            
+
             if ($datos['resultado'] === 'success') {
                 // Verificar permisos para ver esta hoja
                 $puedeVer = false;
-                
+
                 // Superusuario puede ver todo
                 if ($_SESSION['user']['id_rol'] == 5) {
                     $puedeVer = true;
-                } 
+                }
                 // Técnico puede ver si es de su área o la ha tomado
                 else {
                     $infoTecnico = $empleado->obtenerTecnico($_SESSION['user']['cedula']);
-                    if ($infoTecnico && 
-                        ($datos['datos']['id_tipo_servicio'] == $infoTecnico['id_servicio'] || 
-                         $datos['datos']['cedula_tecnico'] == $_SESSION['user']['cedula'])) {
+                    if (
+                        $infoTecnico &&
+                        ($datos['datos']['id_tipo_servicio'] == $infoTecnico['id_servicio'] ||
+                            $datos['datos']['cedula_tecnico'] == $_SESSION['user']['cedula'])
+                    ) {
                         $puedeVer = true;
                     }
                 }
-                
+
                 if ($puedeVer) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Consultó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
                     Bitacora($msg, "Servicio");
@@ -179,7 +204,7 @@ if (isset($_POST['get_user_data'])) {
             $hojaServicio->set_cedula_tecnico($_SESSION['user']['cedula']);
             $hojaServicio->set_resultado_hoja_servicio($_POST['resultado_hoja_servicio']);
             $hojaServicio->set_observacion($_POST['observacion']);
-            
+
             // Verificar que el técnico es el asignado a esta hoja
             $sqlVerificar = "SELECT cedula_tecnico FROM hoja_servicio 
                             WHERE codigo_hoja_servicio = :codigo";
@@ -187,21 +212,21 @@ if (isset($_POST['get_user_data'])) {
             $stmt->bindParam(':codigo', $_POST['codigo_hoja_servicio'], PDO::PARAM_INT);
             $stmt->execute();
             $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$hoja || ($hoja['cedula_tecnico'] != $_SESSION['user']['cedula'] && $_SESSION['user']['id_rol'] != 5)) {
                 echo json_encode(['resultado' => 'error', 'mensaje' => 'No tiene permisos para finalizar esta hoja']);
                 exit;
             }
-            
+
             $datos = $hojaServicio->Transaccion(['peticion' => 'finalizar']);
-            
+
             if ($datos['resultado'] === 'success') {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Finalizó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
                 Bitacora($msg, "Servicio");
             } else {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al finalizar servicio: " . $datos['mensaje'];
             }
-            
+
             Bitacora($msg, "Servicio");
             echo json_encode($datos);
         } catch (Exception $e) {
@@ -231,13 +256,13 @@ if (isset($_POST['get_user_data'])) {
                             WHERE hs.codigo_hoja_servicio = :codigo
                             AND (hs.cedula_tecnico IS NULL OR hs.cedula_tecnico = '')
                             AND ts.id_tipo_servicio = :id_servicio";
-            
+
             $stmt = $hojaServicio->Conex()->prepare($sqlVerificar);
             $stmt->bindParam(':codigo', $_POST['codigo_hoja_servicio'], PDO::PARAM_INT);
             $stmt->bindParam(':id_servicio', $infoTecnico['id_servicio'], PDO::PARAM_INT);
             $stmt->execute();
             $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$hoja) {
                 echo json_encode(['resultado' => 'error', 'mensaje' => 'No puede tomar esta hoja de servicio']);
                 exit;
@@ -247,11 +272,11 @@ if (isset($_POST['get_user_data'])) {
             $sql = "UPDATE hoja_servicio 
                     SET cedula_tecnico = :cedula 
                     WHERE codigo_hoja_servicio = :codigo";
-            
+
             $stmt = $hojaServicio->Conex()->prepare($sql);
             $stmt->bindParam(':cedula', $_SESSION['user']['cedula']);
             $stmt->bindParam(':codigo', $_POST['codigo_hoja_servicio'], PDO::PARAM_INT);
-            
+
             if ($stmt->execute()) {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Tomó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
                 Bitacora($msg, "Servicio");
@@ -275,7 +300,7 @@ if (isset($_POST['get_user_data'])) {
             $stmt->bindParam(':codigo', $_POST['codigo_hoja_servicio'], PDO::PARAM_INT);
             $stmt->execute();
             $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$hoja || ($hoja['cedula_tecnico'] != $_SESSION['user']['cedula'] && $_SESSION['user']['id_rol'] != 5)) {
                 echo json_encode(['resultado' => 'error', 'mensaje' => 'No tiene permisos para modificar esta hoja']);
                 exit;
@@ -283,7 +308,7 @@ if (isset($_POST['get_user_data'])) {
 
             $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
             $hojaServicio->set_detalles($_POST['detalles']);
-            
+
             $datos = $hojaServicio->Transaccion(['peticion' => 'registrar_detalles']);
             echo json_encode($datos);
         } catch (Exception $e) {
