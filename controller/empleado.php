@@ -65,8 +65,8 @@ if (is_file("view/" . $page . ".php")) {
 		$empleado->set_telefono($_POST["telefono"]);
 		$empleado->set_correo($_POST["correo"]);
 		$empleado->set_id_unidad($_POST["unidad"]);
-		$empleado->set_id_cargo($_POST["dependencia"]);
-		$peticion["peticion"] = "actualizar";
+		$empleado->set_id_cargo($_POST["cargo"]);
+		$peticion["peticion"] = "modificar";
 		$json = $empleado->Transaccion($peticion);
 		echo json_encode($json);
 

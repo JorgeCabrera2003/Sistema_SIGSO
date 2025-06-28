@@ -40,22 +40,73 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
-		$usuario->set_cedula($_POST["cedula"]);
-		$usuario->set_nombre_usuario($_POST["nombre_usuario"]);
-		$usuario->set_nombres($_POST["nombre"]);
-		$usuario->set_apellidos($_POST["apellido"]);
-		$usuario->set_telefono($_POST["telefono"]);
-		$usuario->set_correo($_POST["correo"]);
-		$usuario->set_rol($_POST["rol"]);
-		$peticion["peticion"] = "registrar";
-		$json = $usuario->Transaccion($peticion);
-		echo json_encode($json);
 
-		if ($json['estado'] == 1) {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo usuario";
+		if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ_]{4,45}$/", $_POST["nombre_usuario"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Nombre de Usuario no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Cédula no válida";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/", $_POST["nombre"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Nombre no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/", $_POST["apellido"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Apellido no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Correo no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9]{4}[-]{1}[0-9]{7}$/", $_POST["telefono"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Teléfono no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["rol"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Rol no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/", $_POST['clave']) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Clave no válida";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if ($_POST['clave'] != $_POST['rclave']) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Clave no coincide";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
 		} else {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo usuario";
+
+			$usuario->set_nombre_usuario($_POST["nombre_usuario"]);
+			$usuario->set_cedula($_POST["cedula"]);
+			$usuario->set_nombres($_POST["nombre"]);
+			$usuario->set_apellidos($_POST["apellido"]);
+			$usuario->set_correo($_POST["correo"]);
+			$usuario->set_telefono($_POST["telefono"]);
+			$usuario->set_rol($_POST["rol"]);
+			$clave = password_hash($_POST['clave'], PASSWORD_DEFAULT);
+			$usuario->set_clave($clave);
+			$peticion["peticion"] = "registrar";
+			$json = $usuario->Transaccion($peticion);
+
+			if ($json['estado'] == 1) {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo usuario";
+			} else {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo usuario";
+			}
 		}
+		echo json_encode($json);
 		Bitacora($msg, "Usuario");
 		exit;
 	}
@@ -68,22 +119,72 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["modificar"])) {
-		$usuario->set_cedula($_POST["cedula"]);
-		$usuario->set_nombre_usuario($_POST["nombre_usuario"]);
-		$usuario->set_nombres($_POST["nombre"]);
-		$usuario->set_apellidos($_POST["apellido"]);
-		$usuario->set_telefono($_POST["telefono"]);
-		$usuario->set_correo($_POST["correo"]);
-		$usuario->set_rol($_POST["rol"]);
-		$peticion["peticion"] = "actualizar";
-		$json = $usuario->Transaccion($peticion);
-		echo json_encode($json);
+		if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ_]{4,45}$/", $_POST["nombre_usuario"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Nombre de Usuario no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		if ($json['estado'] == 1) {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del usuario";
+		} else if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Cédula no válida";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/", $_POST["nombre"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Nombre no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/", $_POST["apellido"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Apellido no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Correo no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9]{4}[-]{1}[0-9]{7}$/", $_POST["telefono"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Teléfono no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["rol"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Rol no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/", $_POST['clave']) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Clave no válida";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
+		} else if ($_POST['clave'] != $_POST['rclave']) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Clave no coincide";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
 		} else {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar usuario";
+
+			$usuario->set_nombre_usuario($_POST["nombre_usuario"]);
+			$usuario->set_cedula($_POST["cedula"]);
+			$usuario->set_nombres($_POST["nombre"]);
+			$usuario->set_apellidos($_POST["apellido"]);
+			$usuario->set_correo($_POST["correo"]);
+			$usuario->set_telefono($_POST["telefono"]);
+			$usuario->set_rol($_POST["rol"]);
+			$clave = password_hash($_POST['clave'], PASSWORD_DEFAULT);
+			$usuario->set_clave($clave);
+			$peticion["peticion"] = "modificar";
+			$json = $usuario->Transaccion($peticion);
+
+			if ($json['estado'] == 1) {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del usuario";
+			} else {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar usuario";
+			}
 		}
+		echo json_encode($json);
 		Bitacora($msg, "Usuario");
 		exit;
 	}

@@ -4,52 +4,83 @@ $(document).ready(function () {
 	capaValidar();
 	cargarRol();
 
-	$("#enviar").on("click", function () {
+	$("#enviar").on("click", async function () {
+
+		var confirmacion = false;
+		var envio = false;
+
 		switch ($(this).text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('registrar', 'registrar');
-					datos.append('nombre_usuario', $("#nombre_usuario").val());
-					datos.append('cedula', $("#cedula").val());
-					datos.append('nombre', $("#nombre").val());
-					datos.append('apellido', $("#apellido").val());
-					datos.append('telefono', $("#telefono").val());
-					datos.append('correo', $("#correo").val());
-					datos.append('clave', $("#clave").val());
-					datos.append('rol', $("#rol").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('registrar', 'registrar');
+						datos.append('nombre_usuario', $("#nombre_usuario").val());
+						datos.append('cedula', $("#cedula").val());
+						datos.append('nombre', $("#nombre").val());
+						datos.append('apellido', $("#apellido").val());
+						datos.append('telefono', $("#telefono").val());
+						datos.append('correo', $("#correo").val());
+						datos.append('clave', $("#clave").val());
+						datos.append('rclave', $("#rclave").val());
+						datos.append('rol', $("#rol").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('modificar', 'modificar');
-					datos.append('nombre_usuario', $("#nombre_usuario").val());
-					datos.append('cedula', $("#cedula").val());
-					datos.append('nombre', $("#nombre").val());
-					datos.append('apellido', $("#apellido").val());
-					datos.append('telefono', $("#telefono").val());
-					datos.append('correo', $("#correo").val());
-					datos.append('clave', $("#clave").val());
-					datos.append('rol', $("#rol").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('modificar', 'modificar');
+						datos.append('nombre_usuario', $("#nombre_usuario").val());
+						datos.append('cedula', $("#cedula").val());
+						datos.append('nombre', $("#nombre").val());
+						datos.append('apellido', $("#apellido").val());
+						datos.append('telefono', $("#telefono").val());
+						datos.append('correo', $("#correo").val());
+						datos.append('clave', $("#clave").val());
+						datos.append('rclave', $("#rclave").val());
+						datos.append('rol', $("#rol").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 			case "Eliminar":
-				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('eliminar', 'eliminar');
-					datos.append('cedula', $("#cedula").val());
-					enviaAjax(datos);
+				if (validarKeyUp(
+					/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
+					"Cédula no válida, el formato es: V-**********"
+				)) {
+					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('eliminar', 'eliminar');
+						datos.append('cedula', $("#cedula").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 
 			default:
 				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
 		}
-		$('#enviar').prop('disabled', true);
+		if (envio) {
+			$('#enviar').prop('disabled', true);
+		} else {
+			$('#enviar').prop('disabled', false);
+		}
+
+		if (!confirmacion) {
+			$('#enviar').prop('disabled', false);
+		} else {
+			$('#enviar').prop('disabled', true);
+		}
 	});
 
 	$("#btn-registrar").on("click", function () {
@@ -229,7 +260,7 @@ function capaValidar() {
 }
 
 function validarenvio() {
-	//OJO TAREA, AGREGAR LA VALIDACION DEL nro	
+
 	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ_]{4,45}$/, $("#nombre_usuario"), $("#snombre_usuario"),
 		"") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre de usuario debe tener de 4 a 45 carácteres");
@@ -332,25 +363,39 @@ function crearDataTable(arreglo) {
 function limpia() {
 	$("#nombre_usuario").removeClass("is-valid is-invalid");
 	$("#nombre_usuario").val("");
+	$("#snombre_usuario").text("");
 
 	$("#cedula").removeClass("is-valid is-invalid");
 	$("#cedula").val("");
+	$("#scedula").text("");
 
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
+	$("#snombre").text("");
 
 	$("#apellido").removeClass("is-valid is-invalid");
 	$("#apellido").val("");
-	
+	$("#sapellido").text("");
+
 	$("#correo").removeClass("is-valid is-invalid");
 	$("#correo").val("");
-	
+	$("#scorreo").text("");
+
 	$("#telefono").removeClass("is-valid is-invalid");
 	$("#telefono").val("");
+	$("#stelefono").text("");
+
+	$("#clave").removeClass("is-valid is-invalid");
+	$("#clave").val("");
+	$("#sclave").text("");
+
+	$("#rclave").removeClass("is-valid is-invalid");
+	$("#rclave").val("");
+	$("#srclave").text("");
 
 }
 async function rellenar(pos, accion) {
-
+	limpia();
 	linea = $(pos).closest('tr');
 	$("#nombre_usuario").val($(linea).find("td:eq(0)").text());
 	buscarSelect('#rol', $(linea).find("td:eq(1)").text(), 'text');

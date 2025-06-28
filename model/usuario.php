@@ -158,7 +158,7 @@ class Usuario extends Conexion
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "UPDATE usuario SET 
-                nombre_usuario = nombre_usuario, cedula = :cedula, id_rol = :rol,
+                nombre_usuario = nombre_usuario, id_rol = :rol,
                 nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
                 correo = :correo, clave = :clave
                 WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
@@ -270,7 +270,7 @@ class Usuario extends Conexion
             $stm = $this->conex->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->execute();
-            
+
             if ($stm->rowCount() > 0) {
                 $dato['datos'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $dato['bool'] = 1;
@@ -311,6 +311,7 @@ class Usuario extends Conexion
                 $dato['bool'] = 0;
             }
             $dato['resultado'] = "eliminar";
+            $dato['mensaje'] = "Se eliminó un usuario exitosamente";
             $dato['estado'] = 1;
             $this->conex->commit();
 
@@ -368,7 +369,9 @@ class Usuario extends Conexion
                 rol.nombre_rol as rol
             FROM usuario
             INNER JOIN rol ON usuario.id_rol = rol.id_rol
-            ORDER BY usuario.cedula = :cedula";
+            WHERE usuario.estatus = 1
+            ORDER BY usuario.cedula = :cedula
+            ";
 
             $stm = $this->conex->prepare($query);
             $stm->bindValue(':cedula', $this->cedula);

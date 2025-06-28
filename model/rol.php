@@ -179,7 +179,7 @@ class Rol extends Conexion
                 $this->conex = new Conexion("usuario");
                 $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
-                $query = "UPDATE rol SET estatus = 0 WHERE id = :id";
+                $query = "UPDATE rol SET estatus = 0 WHERE id_rol = :id";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":id", $this->id);
@@ -211,7 +211,7 @@ class Rol extends Conexion
             $this->conex = new Conexion("usuario");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "SELECT * FROM rol";
+            $query = "SELECT * FROM rol WHERE estatus = 1";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();

@@ -37,7 +37,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarenvio()) {
+				if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
 					var datos = new FormData();
 					datos.append('eliminar', 'eliminar');
 					datos.append('cedula', $("#cedula").val());
@@ -255,7 +255,7 @@ function capaValidar() {
 	});
 	$("#telefono").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9]{4}[-]{1}[0-9]{10}$/, $(this), $("#stelefono"),
+			/^[0-9]{4}[-]{1}[0-9]{7}$/, $(this), $("#stelefono"),
 			"El numero de teléfono debe tener el siguiente formato: ****-*******"
 		);
 	});
@@ -290,7 +290,7 @@ function capaValidar() {
 }
 
 function validarenvio() {
-	//OJO TAREA, AGREGAR LA VALIDACION DEL nro	
+
 	if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
@@ -303,11 +303,11 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[0-9]{4}[-]{1}[0-9]{10}$/, $("#telefono"), $("#stelefono"), "") == 0) {
+	} else if (validarKeyUp(/^[0-9]{4}[-]{1}[0-9]{7}$/, $("#telefono"), $("#stelefono"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El numero de teléfono debe tener el siguiente formato: ****-*******");
 		return false;
 
-	} else if (validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $("correo"), $("#scorreo"), "") == 0) {
+	} else if (validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;
 
@@ -360,13 +360,39 @@ function crearDataTable(arreglo) {
 
 
 function limpia() {
+	$("#cedula").removeClass("is-valid is-invalid");
+	$("#cedula").val("");
+	$("#scedula").text("");
+
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
+	$("#snombre").text("");
 
-	$("#direccion").removeClass("is-valid is-invalid");
-	$("#direccion").val("");
+	$("#apellido").removeClass("is-valid is-invalid");
+	$("#apellido").val("");
+	$("#sapellido").text("");
 
-	$('#enviar').prop('disabled', false);
+	$("#correo").removeClass("is-valid is-invalid");
+	$("#correo").val("");
+	$("#scorreo").text("");
+
+	$("#telefono").removeClass("is-valid is-invalid");
+	$("#telefono").val("");
+	$("#stelefono").text("");
+
+	$("#dependencia").val('default').change();
+	$("#dependencia").removeClass("is-valid is-invalid")
+	$("#sdependencia").text("");
+
+	$("#unidad").val('default').change();
+	$("#unidad").removeClass("is-valid is-invalid")
+	$("#sunidad").text("");
+
+	$("#cargo").val('default').change();
+	$("#cargo").removeClass("is-valid is-invalid")
+	$("#scargo").text("");
+
+	$('#enviar').val('default').change();
 }
 
 async function rellenar(pos, accion) {
