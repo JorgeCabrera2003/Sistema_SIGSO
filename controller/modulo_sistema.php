@@ -28,14 +28,16 @@ if (is_file("view/" . $page . ".php")) {
 		$peticion["peticion"] = "cargar";
 
 		$json = $modulo_sistema->Transaccion($peticion);
-		echo json_encode($json);
 
 		if ($json['estado'] == 1) {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), cargó los módulos del sistema";
 		} else {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al realizar la carga";
 		}
+
+		echo json_encode($json);
 		Bitacora($msg, "Módulo Sistema");
+		exit;
 	}
 
 
@@ -50,13 +52,13 @@ if (is_file("view/" . $page . ".php")) {
 		$peticion["peticion"] = "comprobar";
 
 		$datos = $modulo_sistema->Transaccion($peticion);
-		echo json_encode($datos);
 
-		if ($datos['estado'] == 1) {
+		if ($datos['bool']) {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), comprobó los módulos del sistema";
 		} else {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al realizar la comprobación";
 		}
+		echo json_encode($datos);
 		Bitacora($msg, "Módulo Sistema");
 		exit;
 	}

@@ -1,5 +1,7 @@
 <?php
 require_once "model/usuario.php";
+require_once "model/rol.php";
+require_once "model/permiso.php";
 require_once "model/bitacora.php";
 require_once "model/notificacion.php";
 
@@ -8,6 +10,7 @@ $msg = "";
 
 $titulo = "";
 $cabecera = [];
+$permisos = [];
 
 $usuario = new Usuario();
 $bitacora = new Bitacora();
@@ -24,7 +27,20 @@ if (is_file($foto = $datos['foto'])) {
     $foto = "assets/img/foto-perfil/default.jpg";
 }
 
-function Bitacora($msg, $modulo) {
+function ObtenerPermisos()
+{   
+    $id_rol =  $_SESSION['user']['id_rol'];
+    $rol = new Rol();
+    $permiso = new Permiso();
+    $rol->set_id($id_rol);
+    $rol->ObjPermiso($permiso);
+
+    $permisos_rol = $rol->Transaccion(['peticion' => 'filtrar_permiso', 'parametro' => 'nombre_modulo']);
+
+    return $permisos_rol['permiso'];
+}
+function Bitacora($msg, $modulo)
+{
     global $bitacora;
     $peticion["peticion"] = "registrar";
     $hora = date('H:i:s');
@@ -38,7 +54,8 @@ function Bitacora($msg, $modulo) {
     $bitacora->Transaccion($peticion);
 }
 
-function Notificar($msg, $modulo, $usuarios = []) {
+function Notificar($msg, $modulo, $usuarios = [])
+{
     global $notificacion;
     $peticion["peticion"] = "registrar";
     $hora = date('H:i:s');
@@ -60,4 +77,6 @@ function Notificar($msg, $modulo, $usuarios = []) {
 
     return $resultados;
 }
+
+$permisos = ObtenerPermisos();
 ?>

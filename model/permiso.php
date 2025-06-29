@@ -101,9 +101,9 @@ class Permiso extends Conexion
     }
 
 
-    private function FiltrarPermiso($filtro = "modulo_nombre")
+    private function FiltrarPermiso($filtro = "nombre_modulo")
     {
-        if ($filtro == "modulo_nombre") {
+        if ($filtro == "nombre_modulo") {
             $columna = "nombre_modulo";
         } else {
             $columna = "id_modulo";

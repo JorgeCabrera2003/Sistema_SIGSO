@@ -48,12 +48,15 @@ class Modulo_Sistema extends Conexion
             $stm = $this->conex->prepare($query);
             $stm->execute();
             $this->conex->commit();
-            $dato['resultado'] = "comprobacion";
+            $dato['resultado'] = "comprobar";
 
             if ($stm->rowCount() == count(modulos)) {
+                $dato['mensaje'] = "Módulos cumplen con la validación";
+                $dato['icon'] = "success";
                 $dato['bool'] = true;
             } else {
                 $dato['mensaje'] = "Error al comprobar módulos";
+                $dato['icon'] = "warning";
                 $dato['bool'] = false;
             }
 
@@ -104,6 +107,7 @@ class Modulo_Sistema extends Conexion
 
             $this->conex->commit();
             $dato['resultado'] = "cargar";
+            $dato['mensaje'] = "Módulos cargados correctamente";
             $dato['estado'] = 1;
 
         } catch (PDOException $e) {

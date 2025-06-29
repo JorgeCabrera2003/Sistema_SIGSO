@@ -84,7 +84,7 @@ function enviaAjax(datos) {
 					crearDataTable(lee.datos);
 
 				} else if (lee.resultado == "comprobar") {
-					selectDependencia(lee.datos);
+					mensajes(lee.icon, 10000, lee.mensaje, null);
 
 				} else if (lee.resultado == "cargar") {
 					$("#modal1").modal("hide");

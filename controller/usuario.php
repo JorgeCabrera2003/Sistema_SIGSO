@@ -18,7 +18,7 @@ $peticion['user'] = $_SESSION['user']['rol'];
 $peticion['rol'] = 'ADMINISTRADOR';
 $permiso = $usuario->Transaccion($peticion);
 
-if ($permiso == 0) {
+if (isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] === "0") {
 	echo '<script>window.location="?page=404"</script>';
 }
 
