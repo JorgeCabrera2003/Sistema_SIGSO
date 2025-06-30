@@ -13,6 +13,12 @@ class Ente extends Conexion
     public function __construct()
     {
 
+        $this->id = 0;
+        $this->nombre = "";
+        $this->responsable = "";
+        $this->telefono = "";
+        $this->direccion = "";
+        $this->estatus = 0;
 
     }
 
@@ -98,6 +104,7 @@ class Ente extends Conexion
 
         } catch (PDOException $e) {
             $this->conex->rollBack();
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -240,7 +247,6 @@ class Ente extends Conexion
                 $array = $this->Validar();
                 $this->Cerrar_Conexion($this->conex, $none);
                 return $array;
-
 
             case 'consultar':
                 return $this->Consultar();

@@ -4082,7 +4082,7 @@ INSERT INTO `bitacora` (`id_bitacora`, `usuario`, `modulo`, `accion_bitacora`, `
 (4070, NULL, 'Login/Usuario', '(V-30266398), Usuario y/o contraseña incorrectos', '2025-05-30', '16:01:04'),
 (4071, NULL, 'Login/Usuario', '(V-30266398), Usuario y/o contraseña incorrectos', '2025-05-30', '16:04:48'),
 (4072, NULL, 'Login/Usuario', '(V-30266398), Usuario y/o contraseña incorrectos', '2025-05-30', '16:05:04'),
-(4073, NULL, 'Login/Usuario', '(V-\' OR 1=1; #), Usuario y/o contraseña incorrectos', '2025-05-31', '13:46:03'),
+(4073, NULL, 'Login/Usuario', '(V-\ OR 1=1; #), Usuario y/o contraseña incorrectos', '2025-05-31', '13:46:03'),
 (4074, 'lz2712', 'Login/Usuario', '(lz2712), Inició sesión, ingresa al perfil para cambiar contraseña', '2025-05-31', '13:47:19'),
 (4075, 'lz2712', 'Bitácora', '(lz2712), Ingresó al módulo de Bitácora', '2025-05-31', '13:47:31'),
 (4076, 'lz2712', 'Usuario', 'Cerró sesión', '2025-05-31', '13:48:34'),

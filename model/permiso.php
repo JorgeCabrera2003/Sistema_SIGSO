@@ -143,6 +143,7 @@ class Permiso extends Conexion
             $dato['resultado'] = "traer_permiso";
             $dato['permiso'] = $permisos;
         } catch (PDOException $e) {
+            $dato['permiso'] = [];
             $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();

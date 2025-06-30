@@ -17,6 +17,13 @@ if (is_file("view/" . $page . ".php")) {
 	$dependencia = new Dependencia();
 	$ente = new Ente();
 
+	if (!isset($permisos['dependencia']['ver']['estado']) || $permisos['dependencia']['ver']['estado'] !== "1") {
+		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Dependencia";
+		Bitacora($msg, "Ente");
+		echo '<script>window.location="?page=home"</script>';
+		exit;
+	}
+
 	if (isset($_POST['cargar_ente'])) {
 		$peticion["peticion"] = "consultar";
 		$json = $ente->Transaccion($peticion);
@@ -35,22 +42,18 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
+		if (isset($permisos['dependencia']['registrar']['estado']) && $permisos['dependencia']['registrar']['estado'] == "1") {
 
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["ente"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["ente"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Nombre no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else {
-			$peticion['peticion'] = "validar";
-			$ente->set_id($_POST["ente"]);
-			$validar = $ente->Transaccion($peticion);
-
-			if ($validar['bool'] == 1 && $validar['arreglo']['estatus'] == 1) {
+			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Nombre no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else {
 
 				$dependencia->set_nombre($_POST["nombre"]);
 				$dependencia->set_id_ente($_POST["ente"]);
@@ -62,15 +65,12 @@ if (is_file("view/" . $page . ".php")) {
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo Depedencia";
 				}
-
-			} else {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Ente no existe";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			}
-
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para registrar una Dependencia";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
 		}
-
 		echo json_encode($json);
 		Bitacora($msg, "Depedencia");
 		exit;
@@ -85,43 +85,48 @@ if (is_file("view/" . $page . ".php")) {
 
 
 	if (isset($_POST["modificar"])) {
-
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["ente"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Ente no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-
-		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Nombre no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else {
-			$peticion['peticion'] = "validar";
-			$ente->set_id($_POST["ente"]);
-			$validar = $ente->Transaccion($peticion);
-
-			if ($validar['bool'] === 1 && $validar['arreglo']['estatus'] === 1) {
-				$dependencia->set_id($_POST["id_dependencia"]);
-				$dependencia->set_nombre($_POST["nombre"]);
-				$dependencia->set_id_ente($_POST["ente"]);
-				$peticion["peticion"] = "actualizar";
-				$json = $dependencia->Transaccion($peticion);
-				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Depedencia";
-				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Depedencia";
-				}
-			} else {
+		if (isset($permisos['dependencia']['modificar']['estado']) && $permisos['dependencia']['modificar']['estado'] == "1") {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["ente"]) == 0) {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Ente no existe";
+				$json['mensaje'] = "Error, Ente no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			}
 
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Nombre no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else {
+				$peticion['peticion'] = "validar";
+				$ente->set_id($_POST["ente"]);
+				$validar = $ente->Transaccion($peticion);
+
+				if ($validar['bool'] === 1 && $validar['arreglo']['estatus'] === 1) {
+					$dependencia->set_id($_POST["id_dependencia"]);
+					$dependencia->set_nombre($_POST["nombre"]);
+					$dependencia->set_id_ente($_POST["ente"]);
+					$peticion["peticion"] = "actualizar";
+					$json = $dependencia->Transaccion($peticion);
+					if ($json['estado'] == 1) {
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó la dependencia con el id:" . $_POST["id_dependencia"];
+					} else {
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Depedencia";
+					}
+				} else {
+					$json['resultado'] = "error";
+					$json['mensaje'] = "Error, Ente no existe";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+				}
+
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para modificar una Dependencia";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
 		}
 
 		echo json_encode($json);
@@ -131,21 +136,27 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["eliminar"])) {
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+		if (isset($permisos['dependencia']['eliminar']['estado']) && $permisos['dependencia']['eliminar']['estado'] == "1") {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-		} else {
-			$dependencia->set_id($_POST["id_dependencia"]);
-			$peticion["peticion"] = "eliminar";
-			$json = $dependencia->Transaccion($peticion);
-
-			if ($json['estado'] == 1) {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Depedencia";
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Depedencia";
+				$dependencia->set_id($_POST["id_dependencia"]);
+				$peticion["peticion"] = "eliminar";
+				$json = $dependencia->Transaccion($peticion);
+
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó la dependencia con el id:" . $_POST["id_dependencia"];
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una Depedencia";
+				}
 			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para eliminar una Dependencia";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
 		}
 
 		echo json_encode($json);

@@ -1,17 +1,21 @@
 <?php
 require_once "model/conexion.php";
+require_once "model/ente.php";
 class Dependencia extends Conexion
 {
 
     private $id;
     private $nombre;
     private $id_ente;
+    private $ente;
 
     public function __construct()
     {
+        $this->id;
+        $this->nombre;
+        $this->id_ente;
+        $this->ente;
 
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
     }
 
     public function set_id($id)
@@ -45,11 +49,29 @@ class Dependencia extends Conexion
     }
 
 
+    private function LlamarEnte()
+    {
+        if ($this->ente == NULL) {
+
+            $this->ente = new Ente();
+
+        }
+
+        return $this->ente;
+    }
+
+    private function DestruirEnte()
+    {
+        $this->ente = NULL;
+    }
     private function Validar()
     {
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+
             $this->conex->beginTransaction();
             $query = "SELECT * FROM dependencia WHERE id = :id";
 
@@ -75,21 +97,37 @@ class Dependencia extends Conexion
     {
         $dato = [];
         $bool = $this->Validar();
+        $verificar_ente = NULL;
 
         if ($bool['bool'] == 0) {
             try {
+
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
+
                 $this->conex->beginTransaction();
-                $query = "INSERT INTO dependencia(id, id_ente, nombre)
+                $this->LlamarEnte()->set_id($this->get_id_ente());
+                $verificar_ente = $this->LlamarEnte()->Transaccion(['peticion' => 'validar']);
+
+                if ($verificar_ente['bool'] == 1 && $verificar_ente['arreglo']['estatus'] == 1) {
+
+                    $query = "INSERT INTO dependencia(id, id_ente, nombre)
                 VALUES (NULL, :id_ente, :nombre)";
 
-                $stm = $this->conex->prepare($query);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->bindParam(":id_ente", $this->id_ente);
-                $stm->execute();
-                $dato['resultado'] = "registrar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró la dependencia exitosamente";
-                $this->conex->commit();
+                    $stm = $this->conex->prepare($query);
+                    $stm->bindParam(":nombre", $this->nombre);
+                    $stm->bindParam(":id_ente", $this->id_ente);
+                    $stm->execute();
+                    $dato['resultado'] = "registrar";
+                    $dato['estado'] = 1;
+                    $dato['mensaje'] = "Se registró la dependencia exitosamente";
+                    $this->conex->commit();
+                } else {
+                    $this->conex->rollBack();
+                    $dato['resultado'] = "error";
+                    $dato['estado'] = -1;
+                    $dato['mensaje'] = "No existe el Ente seleccionado";
+                }
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
@@ -102,6 +140,7 @@ class Dependencia extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
+        $this->DestruirEnte();
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
@@ -111,7 +150,10 @@ class Dependencia extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
+
             $query = "UPDATE dependencia SET nombre = :nombre, id_ente = :id_ente
                 WHERE id = :id";
 
@@ -141,6 +183,9 @@ class Dependencia extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
+
                 $query = "UPDATE dependencia SET estatus = 0 WHERE id = :id";
 
                 $stm = $this->conex->prepare($query);
@@ -168,6 +213,8 @@ class Dependencia extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT dep.id, dep.id_ente,
             dep.nombre, ente.nombre AS ente
             FROM dependencia dep

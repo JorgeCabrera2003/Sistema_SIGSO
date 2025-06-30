@@ -95,18 +95,18 @@ $(document).ready(function () {
 
 function vistaPermiso(permisos = null) {
 
-if(Array.isArray(permisos) || Object.keys(permisos).length === 0 || permisos === null){
+if(Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null){
 
 	$('.modificar').remove();
 	$('.eliminar').remove();
 
 } else {
 
-	if (permisos['ente']['modificar']['estado'] === '0') {
+	if (permisos['ente']['modificar']['estado'] == '0') {
 		$('.modificar').remove();
 	}
 
-	if (permisos['ente']['eliminar']['estado'] === '0') {
+	if (permisos['ente']['eliminar']['estado'] == '0') {
 		$('.eliminar').remove();
 	}
 }
