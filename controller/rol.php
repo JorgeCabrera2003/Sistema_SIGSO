@@ -26,7 +26,7 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
-		if (isset($permisos['rol']['registrar']['estado']) && $permisos['rol']['registrar']['estado'] === "1") {
+		if (isset($permisos['rol']['registrar']['estado']) && $permisos['rol']['registrar']['estado'] == "1") {
 			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Rol no válido";
@@ -93,7 +93,7 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["modificar"])) {
-		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] === "1") {
+		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] == "1") {
 			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_rol"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
@@ -144,7 +144,7 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["eliminar"])) {
-		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] === "1") {
+		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] == "1") {
 			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
