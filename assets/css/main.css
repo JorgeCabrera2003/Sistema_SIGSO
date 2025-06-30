@@ -148,166 +148,166 @@ ul {
 
 /* Estilos para el menú de notificaciones */
 .notification-dropdown {
-    position: relative;
+  position: relative;
 }
 
 .notification-btn {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 1.25rem;
-    cursor: pointer;
-    position: relative;
-    padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  cursor: pointer;
+  position: relative;
+  padding: 0.5rem;
 }
 
 .notification-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background-color: var(--danger);
-    color: var(--card-foreground);
-    border-radius: 50%;
-    width: 1.25rem;
-    height: 1.25rem;
-    font-size: 0.65rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--danger);
+  color: var(--card-foreground);
+  border-radius: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  display: none;
 }
 
 .notification-menu {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    width: 350px;
-    max-height: 500px;
-    overflow-y: auto;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 350px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  display: none;
 }
 
 .notification-menu.show {
-    display: block;
+  display: block;
 }
 
 .dropdown-header {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .dropdown-header h6 {
-    margin: 0;
-    font-size: 1rem;
+  margin: 0;
+  font-size: 1rem;
 }
 
 .close-dropdown {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
 }
 
 .dropdown-body {
-    padding: 0;
+  padding: 0;
 }
 
 .notification-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: flex-start;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .notification-item.nueva {
-    background-color: rgba(var(--primary-rgb), 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
 }
 
 .notification-item:hover {
-    background-color: var(--hover-bg);
+  background-color: var(--hover-bg);
 }
 
 .notification-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
 }
 
 .notification-icon.info {
-    background-color: rgba(var(--info-rgb), 0.1);
-    color: var(--info);
+  background-color: rgba(var(--info-rgb), 0.1);
+  color: var(--info);
 }
 
 .notification-icon.warning {
-    background-color: rgba(var(--warning-rgb), 0.1);
-    color: var(--warning);
+  background-color: rgba(var(--warning-rgb), 0.1);
+  color: var(--warning);
 }
 
 .notification-icon.danger {
-    background-color: rgba(var(--danger-rgb), 0.1);
-    color: var(--danger);
+  background-color: rgba(var(--danger-rgb), 0.1);
+  color: var(--danger);
 }
 
 .notification-icon.primary {
-    background-color: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary);
+  background-color: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
 }
 
 .notification-content {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 .notification-title {
-    font-weight: 600;
-    margin: 0 0 0.25rem 0;
-    color: var(--heading-color);
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--heading-color);
 }
 
 .notification-text {
-    margin: 0 0 0.25rem 0;
-    color: var(--text-color);
-    font-size: 0.875rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--text-color);
+  font-size: 0.875rem;
 }
 
 .notification-time {
-    margin: 0;
-    font-size: 0.75rem;
-    color: var(--text-muted);
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .notification-empty {
-    padding: 1.5rem;
-    text-align: center;
-    color: var(--text-muted);
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
 }
 
 .dropdown-footer {
-    padding: 0.75rem;
-    border-top: 1px solid var(--border-color);
+  padding: 0.75rem;
+  border-top: 1px solid var(--border-color);
 }
 
 
 .nueva-notificacion {
-    background-color: rgba(var(--primary-rgb), 0.05);
+  background-color: rgba(var(--primary-rgb), 0.05);
 }
 
 .nueva-notificacion:hover {
-    background-color: rgba(var(--primary-rgb), 0.1) !important;
+  background-color: rgba(var(--primary-rgb), 0.1) !important;
 }
 
 .logo {
@@ -1249,39 +1249,39 @@ input[type=number]::-webkit-outer-spin-button {
   animation: spin 1s linear infinite;
 }
 
-  .permissions-section {
-    padding: 15px;
-  }
+.permissions-section {
+  padding: 15px;
+}
 
-  .permission-group {
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 20px;
-    background-color: #f8f9fa;
-  }
+.permission-group {
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+}
 
-  .permission-group legend.group-header {
-    width: auto;
-    padding: 0 10px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 0;
-    border-bottom: none;
-  }
+.permission-group legend.group-header {
+  width: auto;
+  padding: 0 10px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0;
+  border-bottom: none;
+}
 
-  .permission-options {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: white;
-    border-radius: 4px;
-  }
+.permission-options {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+}
 
-  .form-check-inline .form-check-input {
-    margin-right: 8px;
-  }
+.form-check-inline .form-check-input {
+  margin-right: 8px;
+}
 
-  .group-checkbox {
-    transform: scale(1.2);
-    margin-right: 8px;
-  }
+.group-checkbox {
+  transform: scale(1.2);
+  margin-right: 8px;
+}

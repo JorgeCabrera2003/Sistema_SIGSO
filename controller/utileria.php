@@ -28,8 +28,8 @@ if (is_file($foto = $datos['foto'])) {
 }
 
 function ObtenerPermisos()
-{   
-    $id_rol =  $_SESSION['user']['id_rol'];
+{
+    $id_rol = $_SESSION['user']['id_rol'];
     $rol = new Rol();
     $permiso = new Permiso();
     $rol->set_id($id_rol);
@@ -78,5 +78,15 @@ function Notificar($msg, $modulo, $usuarios = [])
     return $resultados;
 }
 
+if(isset($_POST['permisos']))
+{
+    $json['resultado'] = 'permisos_modulo';
+    $json['permisos'] = ObtenerPermisos();
+    echo json_encode($json);
+    exit;
+}
+
 $permisos = ObtenerPermisos();
+
+
 ?>

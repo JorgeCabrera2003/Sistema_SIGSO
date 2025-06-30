@@ -2,6 +2,7 @@ $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
+	ConsultarPermisos();
 
 	$("#enviar").on("click", async function () {
 
@@ -45,7 +46,7 @@ $(document).ready(function () {
 						enviaAjax(datos);
 						envio = true;
 					}
-				} else{
+				} else {
 					envio = false;
 				}
 				break;
@@ -77,7 +78,7 @@ $(document).ready(function () {
 
 		if (!confirmacion) {
 			$('#enviar').prop('disabled', false);
-		} else{
+		} else {
 			$('#enviar').prop('disabled', true);
 		}
 
@@ -91,6 +92,25 @@ $(document).ready(function () {
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
 });
+
+function vistaPermiso(permisos = null) {
+
+if(Array.isArray(permisos) || Object.keys(permisos).length === 0 || permisos === null){
+
+	$('.modificar').remove();
+	$('.eliminar').remove();
+
+} else {
+
+	if (permisos['ente']['modificar']['estado'] === '0') {
+		$('.modificar').remove();
+	}
+
+	if (permisos['ente']['eliminar']['estado'] === '0') {
+		$('.eliminar').remove();
+	}
+}
+};
 
 function enviaAjax(datos) {
 	$.ajax({
@@ -126,6 +146,9 @@ function enviaAjax(datos) {
 					consultar();
 
 				} else if (lee.resultado == "entrada") {
+
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
 
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
@@ -227,8 +250,8 @@ function crearDataTable(arreglo) {
 			{ data: 'direccion' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}],
@@ -236,7 +259,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-
+	ConsultarPermisos();
 }
 
 

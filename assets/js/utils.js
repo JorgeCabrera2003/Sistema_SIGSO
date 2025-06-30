@@ -110,6 +110,11 @@ function registrarEntrada() {
   enviaAjax(peticion);
 }
 
+function ConsultarPermisos() {
+  var peticion = new FormData();
+  peticion.append('permisos', 'permisos');
+  enviaAjax(peticion);
+}
 
 async function buscarSelect(id_select, valor, opcion) {
 
