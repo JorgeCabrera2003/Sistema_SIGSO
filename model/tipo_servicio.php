@@ -3,8 +3,8 @@ require_once "model/conexion.php";
 class TipoServicio extends Conexion
 {
 
-    private $codigo;
-    private $nombre;
+    private $id_tipo_servicio;
+    private $nombre_tipo_servicio;
 
 
     public function __construct()
@@ -16,22 +16,22 @@ class TipoServicio extends Conexion
 
     public function set_codigo($codigo)
     {
-        $this->codigo = $codigo;
+        $this->id_tipo_servicio = $codigo;
     }
 
     public function set_nombre($nombre)
     {
-        $this->nombre = $nombre;
+        $this->nombre_tipo_servicio = $nombre;
     }
 
     public function get_codigo()
     {
-        return $this->codigo;
+        return $this->id_tipo_servicio;
     }
 
     public function get_nombre()
     {
-        return $this->nombre;
+        return $this->nombre_tipo_servicio;
     }
 
 
@@ -40,10 +40,10 @@ class TipoServicio extends Conexion
         $dato = [];
 
         try {
-            $query = "SELECT * FROM tipo_servicio WHERE codigo = :codigo";
+            $query = "SELECT * FROM tipo_servicio WHERE id_tipo_servicio = :codigo";
 
             $stm = $this->conex->prepare($query);
-            $stm->bindParam(":codigo", $this->codigo);
+            $stm->bindParam(":codigo", $this->id_tipo_servicio);
             $stm->execute();
 
             if ($stm->rowCount() > 0) {
@@ -52,7 +52,6 @@ class TipoServicio extends Conexion
             } else {
                 $dato['bool'] = 0;
             }
-
         } catch (PDOException $e) {
             $dato['error'] = $e->getMessage();
         }
@@ -67,15 +66,14 @@ class TipoServicio extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $query = "INSERT INTO tipo_servicio (codigo, nombre) VALUES 
-            (NULL, :nombre)";
+                $query = "INSERT INTO tipo_servicio (nombre_tipo_servicio, estatus) VALUES (:nombre, 1)";
 
                 $stm = $this->conex->prepare($query);
-                $stm->bindParam(":nombre", $this->nombre);
+                $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró la servicio exitosamente";
+                $dato['mensaje'] = "Se registró el servicio exitosamente";
             } catch (PDOException $e) {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
@@ -94,21 +92,21 @@ class TipoServicio extends Conexion
     {
         $dato = [];
 
-            try {
-                $query = "UPDATE tipo_servicio SET nombre= :nombre WHERE codigo = :codigo";
+        try {
+            $query = "UPDATE tipo_servicio SET nombre_tipo_servicio = :nombre WHERE id_tipo_servicio = :codigo";
 
-                $stm = $this->conex->prepare($query);
-                $stm->bindParam(":codigo", $this->codigo);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->execute();
-                $dato['resultado'] = "modificar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se modificaron los datos del servicio con éxito";
-            } catch (PDOException $e) {
-                $dato['estado'] = -1;
-                $dato['resultado'] = "error";
-                $dato['mensaje'] = $e->getMessage();
-            }
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":codigo", $this->id_tipo_servicio);
+            $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
+            $stm->execute();
+            $dato['resultado'] = "modificar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Se modificaron los datos del servicio con éxito";
+        } catch (PDOException $e) {
+            $dato['estado'] = -1;
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
@@ -120,10 +118,10 @@ class TipoServicio extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $query = "UPDATE tipo_servicio SET estatus = 0 WHERE codigo = :codigo";
+                $query = "UPDATE tipo_servicio SET estatus = 0 WHERE id_tipo_servicio = :codigo";
 
                 $stm = $this->conex->prepare($query);
-                $stm->bindParam(":codigo", $this->codigo);
+                $stm->bindParam(":codigo", $this->id_tipo_servicio);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
@@ -143,23 +141,28 @@ class TipoServicio extends Conexion
     }
 
     private function Consultar()
-    {
-        $dato = [];
+{
+    $dato = [];
 
-        try {
-            $query = "SELECT * FROM tipo_servicio WHERE estatus = 1";
+    try {
+        $query = "SELECT id_tipo_servicio, nombre_tipo_servicio 
+                 FROM tipo_servicio 
+                 WHERE estatus = 1
+                 ORDER BY nombre_tipo_servicio";
 
-            $stm = $this->conex->prepare($query);
-            $stm->execute();
-            $dato['resultado'] = "consultar";
-            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            $dato['resultado'] = "error";
-            $dato['mensaje'] = $e->getMessage();
-        }
-        $this->Cerrar_Conexion($this->conex, $stm);
-        return $dato;
+        $stm = $this->conex->prepare($query);
+        $stm->execute();
+        
+        $dato['resultado'] = "consultar";
+        $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $dato['resultado'] = "error";
+        $dato['mensaje'] = $e->getMessage();
     }
+    
+    $this->Cerrar_Conexion($this->conex, $stm);
+    return $dato;
+}
 
     public function Transaccion($peticion)
     {
@@ -180,9 +183,6 @@ class TipoServicio extends Conexion
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
-
         }
-
     }
 }
-?>

@@ -21,11 +21,7 @@
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_tipo_servicio" id="id_tipo_servicio">
                                 <option value="">Seleccione un tipo</option>
-                                <?php foreach ($tipos_servicio as $tipo): ?>
-                                    <option value="<?= $tipo['id_tipo_servicio'] ?>">
-                                        <?= $tipo['nombre_tipo_servicio'] ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <!-- Opciones serán cargadas por JS -->
                             </select>
                             <span id="sid_tipo_servicio"></span>
                             <label for="id_tipo_servicio" class="form-label">Tipo de Servicio</label>
@@ -59,61 +55,39 @@
                 </div>
                 
                 <div class="row justify-content-center" id="fila-detalles" style="display: none;">
-                    <div class="col-md-12">
-                        <h5>Detalles Técnicos</h5>
-                        <div class="table-responsive">
-                            <table class="table" id="tablaDetallesModal">
-                                <thead>
-                                    <tr>
-                                        <th>Componente</th>
-                                        <th>Detalle</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Contenido dinámico -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-primary mt-2" id="btn-agregar-detalle">
-                            <i class="bi bi-plus-circle"></i> Agregar Detalle
-                        </button>
-                    </div>
-                </div>
+    <div class="col-md-12">
+        <h5>Detalles Técnicos</h5>
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Se han cargado detalles sugeridos según el tipo de servicio seleccionado.
+            Puede modificarlos o agregar nuevos según sea necesario.
+        </div>
+        <div class="table-responsive">
+            <table class="table" id="tablaDetallesModal">
+                <thead>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Detalle</th>
+                        <th class="text-center">¿Usa material?</th>
+                        <th>Material</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Contenido dinámico -->
+                </tbody>
+            </table>
+        </div>
+        <button type="button" class="btn btn-sm btn-primary mt-2" id="btn-agregar-detalle">
+            <i class="bi bi-plus-circle"></i> Agregar Detalle
+        </button>
+    </div>
+</div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button id="enviar" name="" class="btn btn-primary"></button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- In modal_hoja.php -->
-<div class="modal fade" id="modalMaterial" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Seleccionar Material</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Material</label>
-                    <select class="form-select" id="selectMaterial">
-                        <option value="">Seleccione un material</option>
-                        <!-- Options will be loaded dynamically -->
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Cantidad</label>
-                    <input type="number" class="form-control" id="cantidadMaterial" min="1" value="1">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnConfirmarMaterial">Confirmar</button>
             </div>
         </div>
     </div>

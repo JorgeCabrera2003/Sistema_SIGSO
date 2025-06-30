@@ -73,7 +73,9 @@ class HojaServicio extends Conexion
                 return [
                     'componente' => substr(htmlspecialchars(trim($item['componente'] ?? '')), 0, 100),
                     'detalle' => substr(htmlspecialchars(trim($item['detalle'] ?? '')), 0, 200),
-                    'id_movimiento_material' => filter_var($item['id_movimiento_material'] ?? null, FILTER_VALIDATE_INT)
+                    'id_movimiento_material' => filter_var($item['id_movimiento_material'] ?? null, FILTER_VALIDATE_INT),
+                    'id_material' => filter_var($item['id_material'] ?? null, FILTER_VALIDATE_INT),
+                    'cantidad' => filter_var($item['cantidad'] ?? null, FILTER_VALIDATE_INT)
                 ];
             }, $detalles));
         }
@@ -328,7 +330,6 @@ class HojaServicio extends Conexion
                 LEFT JOIN empleado tec ON hs.cedula_tecnico = tec.cedula_empleado
                 WHERE s.estatus = 1";
 
-
             if ($usuario['id_rol'] != 5) { // No es superusuario
                 // Obtener informacion del técnico
                 $sqlTecnico = "SELECT e.cedula_empleado, e.id_cargo, e.id_servicio 
@@ -371,9 +372,9 @@ class HojaServicio extends Conexion
      */
     private function tomarHojaServicio()
     {
-        // if (!$this->codigo_hoja_servicio || !$this->cedula_tecnico) {
-        //     return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para tomar hoja'];
-        // }
+        if (!$this->codigo_hoja_servicio || !$this->cedula_tecnico) {
+            return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para tomar hoja'];
+        }
 
         try {
             $this->conex->beginTransaction();
@@ -427,11 +428,6 @@ class HojaServicio extends Conexion
             return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
     }
-
-    /**
-     * Asigna una hoja de servicio a un técnico
-     */
-
 
     /**
      * Obtiene los tipos de servicio disponibles para una solicitud
@@ -489,15 +485,14 @@ class HojaServicio extends Conexion
     /**
      * Registra los detalles de una hoja de servicio
      */
-
     private function registrarDetalles()
     {
-        if (!$this->codigo_hoja_servicio || empty($this->detalles)) {
+        if (!$this->codigo_hoja_servicio) {
             return false;
         }
 
         try {
-            $this->conex->beginTransaction();
+            // Quitar beginTransaction y commit/rollBack aquí, la transacción ya está iniciada afuera
 
             // Eliminar detalles existentes
             $sqlDelete = "DELETE FROM detalle_hoja WHERE codigo_hoja_servicio = :codigo";
@@ -505,14 +500,20 @@ class HojaServicio extends Conexion
             $stmtDelete->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
             $stmtDelete->execute();
 
+            // Si no hay detalles, solo confirmar la transacción afuera
+            if (empty($this->detalles)) {
+                // No commit aquí
+                return true;
+            }
+
             // Insertar nuevos detalles y gestionar materiales
             $sqlInsert = "INSERT INTO detalle_hoja 
-                     (codigo_hoja_servicio, componente, detalle, id_movimiento_material) 
-                     VALUES (:codigo, :componente, :detalle, :id_movimiento)";
+                 (codigo_hoja_servicio, componente, detalle, id_movimiento_material) 
+                 VALUES (:codigo, :componente, :detalle, :id_movimiento)";
 
             $sqlMovimiento = "INSERT INTO movimiento_materiales 
-                         (id_material, accion, cantidad, descripcion)
-                         VALUES (:id_material, 'salida', :cantidad, :descripcion)";
+                     (id_material, accion, cantidad, descripcion)
+                     VALUES (:id_material, 'salida', :cantidad, :descripcion)";
 
             $stmtInsert = $this->conex->prepare($sqlInsert);
             $stmtMovimiento = $this->conex->prepare($sqlMovimiento);
@@ -521,7 +522,7 @@ class HojaServicio extends Conexion
                 $idMovimiento = null;
 
                 // Si hay material asociado, registrar el movimiento
-                if (!empty($detalle['id_material'])) {
+                if (!empty($detalle['id_material']) && !empty($detalle['cantidad'])) {
                     // Verificar stock disponible
                     $sqlStock = "SELECT stock FROM material WHERE id_material = :id AND estatus = 1";
                     $stmtStock = $this->conex->prepare($sqlStock);
@@ -542,25 +543,27 @@ class HojaServicio extends Conexion
 
                     // Actualizar stock
                     $sqlUpdateStock = "UPDATE material SET stock = stock - :cantidad 
-                                  WHERE id_material = :id AND estatus = 1";
+                              WHERE id_material = :id AND estatus = 1";
                     $stmtUpdate = $this->conex->prepare($sqlUpdateStock);
                     $stmtUpdate->bindValue(':cantidad', $detalle['cantidad'], PDO::PARAM_INT);
                     $stmtUpdate->bindValue(':id', $detalle['id_material'], PDO::PARAM_INT);
                     $stmtUpdate->execute();
                 }
 
-                // Registrar detalle con referencia al movimiento
-                $stmtInsert->bindValue(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-                $stmtInsert->bindValue(':componente', $detalle['componente']);
-                $stmtInsert->bindValue(':detalle', $detalle['detalle']);
-                $stmtInsert->bindValue(':id_movimiento', $idMovimiento, PDO::PARAM_INT);
-                $stmtInsert->execute();
+                // Registrar detalle con referencia al movimiento (siempre que tenga componente)
+                if (!empty($detalle['componente'])) {
+                    $stmtInsert->bindValue(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+                    $stmtInsert->bindValue(':componente', $detalle['componente']);
+                    $stmtInsert->bindValue(':detalle', $detalle['detalle'] ?? '');
+                    $stmtInsert->bindValue(':id_movimiento', $idMovimiento, PDO::PARAM_INT);
+                    $stmtInsert->execute();
+                }
             }
 
-            $this->conex->commit();
+            // No commit aquí, lo hace el método principal
             return true;
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            // No rollBack aquí, lo hace el método principal
             return false;
         }
     }
@@ -604,12 +607,14 @@ class HojaServicio extends Conexion
         }
     }
 
-    // Cambiar a private
-    private function verificarHojaParaTomar($codigoHoja)
+    /**
+     * Verifica si una hoja puede ser tomada por un técnico
+     */
+    private function verificarHojaParaTomar($codigoHoja, $idServicioTecnico)
     {
-        // if (!$codigoHoja || !$idServicioTecnico) {
-        //     return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para verificar hoja'];
-        // }
+        if (!$codigoHoja || !$idServicioTecnico) {
+            return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para verificar hoja'];
+        }
 
         try {
             $sql = "SELECT hs.codigo_hoja_servicio, ts.id_tipo_servicio 
@@ -617,11 +622,11 @@ class HojaServicio extends Conexion
                 JOIN tipo_servicio ts ON hs.id_tipo_servicio = ts.id_tipo_servicio
                 WHERE hs.codigo_hoja_servicio = :codigo
                 AND (hs.cedula_tecnico IS NULL OR hs.cedula_tecnico = '')
-                ";
+                AND ts.id_tipo_servicio = :id_servicio";
 
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':codigo', $codigoHoja, PDO::PARAM_INT);
-            // $stmt->bindParam(':id_servicio', $idServicioTecnico, PDO::PARAM_INT);
+            $stmt->bindParam(':id_servicio', $idServicioTecnico, PDO::PARAM_INT);
             $stmt->execute();
             $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -635,6 +640,9 @@ class HojaServicio extends Conexion
         }
     }
 
+    /**
+     * Actualiza una hoja de servicio existente
+     */
     private function actualizarHojaServicio($usuario)
     {
         if (!$this->codigo_hoja_servicio) {
@@ -667,7 +675,7 @@ class HojaServicio extends Conexion
 
             // Construir consulta dinámica
             $campos = [];
-            $params = [];
+            $params = [':codigo' => $this->codigo_hoja_servicio];
 
             // Solo superusuario puede cambiar tipo de servicio
             if ($esSuperusuario && $this->id_tipo_servicio) {
@@ -676,8 +684,8 @@ class HojaServicio extends Conexion
             }
 
             if ($this->resultado_hoja_servicio !== null) {
-                $campos[] = "resultado_hoja_servicio = :resultado_hoja_servicio";
-                $params[':resultado_hoja_servicio'] = $this->resultado_hoja_servicio;
+                $campos[] = "resultado_hoja_servicio = :resultado";
+                $params[':resultado'] = $this->resultado_hoja_servicio;
             }
 
             if ($this->observacion !== null) {
@@ -685,26 +693,29 @@ class HojaServicio extends Conexion
                 $params[':observacion'] = $this->observacion;
             }
 
-            if (empty($campos)) {
-                $this->conex->rollBack();
-                return ['resultado' => 'error', 'mensaje' => 'No hay datos para actualizar'];
+            // Si hay campos para actualizar
+            if (!empty($campos)) {
+                $sqlUpdate = "UPDATE hoja_servicio SET " . implode(', ', $campos) . " WHERE codigo_hoja_servicio = :codigo";
+                $stmtUpdate = $this->conex->prepare($sqlUpdate);
+                foreach ($params as $key => $value) {
+                    $stmtUpdate->bindValue($key, $value);
+                }
+                $stmtUpdate->execute();
             }
-
-            $sqlUpdate = "UPDATE hoja_servicio SET " . implode(', ', $campos) . " WHERE codigo_hoja_servicio = :codigo";
-            $stmtUpdate = $this->conex->prepare($sqlUpdate);
-            foreach ($params as $key => $value) {
-                $stmtUpdate->bindValue($key, $value);
-            }
-            $stmtUpdate->bindValue(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-
-            $stmtUpdate->execute();
 
             // Si hay detalles, actualizarlos
-            if (!empty($this->detalles)) {
+            $actualizarDetalles = !empty($this->detalles);
+            if ($actualizarDetalles) {
                 if (!$this->registrarDetalles()) {
                     $this->conex->rollBack();
                     return ['resultado' => 'error', 'mensaje' => 'Error al actualizar detalles técnicos'];
                 }
+            }
+
+            // Si no hay campos ni detalles, no hay nada que actualizar
+            if (empty($campos) && !$actualizarDetalles) {
+                $this->conex->rollBack();
+                return ['resultado' => 'error', 'mensaje' => 'No hay datos para actualizar'];
             }
 
             $this->conex->commit();
@@ -712,6 +723,84 @@ class HojaServicio extends Conexion
         } catch (PDOException $e) {
             $this->conex->rollBack();
             return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Consulta solo los detalles técnicos de una hoja
+     */
+    private function consultarSoloDetalles()
+    {
+        if (!$this->codigo_hoja_servicio) return [];
+        try {
+            $sql = "SELECT componente, detalle, id_movimiento_material, 
+                        (SELECT id_material FROM movimiento_materiales WHERE id_movimiento_material = dh.id_movimiento_material) AS id_material,
+                        (SELECT cantidad FROM movimiento_materiales WHERE id_movimiento_material = dh.id_movimiento_material) AS cantidad
+                    FROM detalle_hoja dh
+                    WHERE codigo_hoja_servicio = :codigo";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Genera datos para el reporte PDF de hojas de servicio
+     */
+    public function reporteHojasServicio($fecha_inicio = null, $fecha_fin = null, $id_tipo_servicio = null)
+    {
+        try {
+            $sql = "SELECT 
+                        hs.codigo_hoja_servicio,
+                        hs.nro_solicitud,
+                        ts.nombre_tipo_servicio,
+                        CONCAT(sol.nombre_empleado, ' ', sol.apellido_empleado) AS solicitante,
+                        e.tipo_equipo,
+                        m.nombre_marca,
+                        e.serial,
+                        b.codigo_bien,
+                        s.motivo,
+                        s.fecha_solicitud,
+                        hs.resultado_hoja_servicio,
+                        hs.observacion,
+                        hs.estatus
+                    FROM hoja_servicio hs
+                    JOIN solicitud s ON hs.nro_solicitud = s.nro_solicitud
+                    JOIN tipo_servicio ts ON hs.id_tipo_servicio = ts.id_tipo_servicio
+                    JOIN empleado sol ON s.cedula_solicitante = sol.cedula_empleado
+                    LEFT JOIN equipo e ON s.id_equipo = e.id_equipo
+                    LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
+                    LEFT JOIN marca m ON b.id_marca = m.id_marca
+                    WHERE 1=1";
+
+            $params = [];
+
+            if ($fecha_inicio) {
+                $sql .= " AND s.fecha_solicitud >= :fecha_inicio";
+                $params[':fecha_inicio'] = $fecha_inicio;
+            }
+            if ($fecha_fin) {
+                $sql .= " AND s.fecha_solicitud <= :fecha_fin";
+                $params[':fecha_fin'] = $fecha_fin;
+            }
+            if ($id_tipo_servicio) {
+                $sql .= " AND hs.id_tipo_servicio = :id_tipo_servicio";
+                $params[':id_tipo_servicio'] = $id_tipo_servicio;
+            }
+
+            $sql .= " ORDER BY hs.codigo_hoja_servicio DESC";
+
+            $stmt = $this->conex->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
         }
     }
 
@@ -778,12 +867,9 @@ class HojaServicio extends Conexion
                 return $this->tomarHojaServicio();
 
             case 'verificar_hoja_tomar':
-                // if (!isset($peticion['codigo_hoja_servicio']) || !isset($peticion['id_servicio'])) {
-                //     return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para verificar'];
-                // }
-                // Ahora se llama como método privado
                 return $this->verificarHojaParaTomar(
-                    $peticion['codigo_hoja_servicio']
+                    $peticion['codigo_hoja_servicio'],
+                    $peticion['id_servicio']
                 );
 
             case 'registrar_detalles':
@@ -795,62 +881,11 @@ class HojaServicio extends Conexion
             case 'actualizar':
                 return $this->actualizarHojaServicio($peticion['usuario']);
 
+            case 'consultar_detalles':
+                return $this->consultarSoloDetalles();
+
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
-        }
-    }
-
-    /**
-     * Devuelve los datos para el reporte PDF de hojas de servicio
-     */
-    public function reporteHojasServicio($fecha_inicio = null, $fecha_fin = null, $id_tipo_servicio = null)
-    {
-        try {
-            $sql = "SELECT 
-                        hs.codigo_hoja_servicio,
-                        hs.nro_solicitud,
-                        ts.nombre_tipo_servicio,
-                        CONCAT(sol.nombre_empleado, ' ', sol.apellido_empleado) AS solicitante,
-                        e.tipo_equipo,
-                        m.nombre_marca,
-                        e.serial,
-                        b.codigo_bien,
-                        s.motivo,
-                        s.fecha_solicitud,
-                        hs.resultado_hoja_servicio,
-                        hs.observacion,
-                        hs.estatus
-                    FROM hoja_servicio hs
-                    JOIN solicitud s ON hs.nro_solicitud = s.nro_solicitud
-                    JOIN tipo_servicio ts ON hs.id_tipo_servicio = ts.id_tipo_servicio
-                    JOIN empleado sol ON s.cedula_solicitante = sol.cedula_empleado
-                    LEFT JOIN equipo e ON s.id_equipo = e.id_equipo
-                    LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
-                    LEFT JOIN marca m ON b.id_marca = m.id_marca
-                    WHERE 1=1";
-            $params = [];
-            if ($fecha_inicio) {
-                $sql .= " AND s.fecha_solicitud >= :fecha_inicio";
-                $params[':fecha_inicio'] = $fecha_inicio;
-            }
-            if ($fecha_fin) {
-                $sql .= " AND s.fecha_solicitud <= :fecha_fin";
-                $params[':fecha_fin'] = $fecha_fin;
-            }
-            if ($id_tipo_servicio) {
-                $sql .= " AND hs.id_tipo_servicio = :id_tipo_servicio";
-                $params[':id_tipo_servicio'] = $id_tipo_servicio;
-            }
-            $sql .= " ORDER BY hs.codigo_hoja_servicio DESC";
-
-            $stmt = $this->conex->prepare($sql);
-            foreach ($params as $k => $v) {
-                $stmt->bindValue($k, $v);
-            }
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
         }
     }
 }
