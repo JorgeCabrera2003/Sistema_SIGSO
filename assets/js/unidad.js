@@ -120,6 +120,10 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
+
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -143,11 +147,11 @@ function enviaAjax(datos) {
 
 function capaValidar() {
 	$("#nombre").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#snombre"),
+			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#snombre"),
 			"El nombre de la unidad debe tener de 4 a 45 carácteres"
 		);
 	});
@@ -163,9 +167,28 @@ function capaValidar() {
 	});
 }
 
+function vistaPermiso(permisos = null) {
+
+if(Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null){
+
+	$('.modificar').remove();
+	$('.eliminar').remove();
+
+} else {
+
+	if (permisos['unidad']['modificar']['estado'] == '0') {
+		$('.modificar').remove();
+	}
+
+	if (permisos['unidad']['eliminar']['estado'] == '0') {
+		$('.eliminar').remove();
+	}
+}
+};
+
 function validarenvio() {
-	//OJO TAREA, AGREGAR LA VALIDACION DEL nro	
-	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+
+	if (validarKeyUp(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre de la Unidad debe tener de 4 a 45 carácteres");
 		return false;
 
@@ -208,9 +231,9 @@ function crearDataTable(arreglo) {
 			{ data: 'nombre_unidad' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update" title="Modificar">
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar">
 					<i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger" title="Eliminar">
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar" title="Eliminar">
 					<i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
@@ -219,7 +242,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-
+	ConsultarPermisos();
 }
 
 

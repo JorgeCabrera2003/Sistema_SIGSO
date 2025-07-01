@@ -15,10 +15,10 @@ if (is_file("view/" . $page . ".php")) {
 
 	$ente = new Ente();
 
-	if (!isset($permisos['ente']['ver']['estado']) && $permisos['ente']['ver']['estado'] !== "1") {
+	if (!isset($permisos['unidad']['ver']['estado']) || $permisos['unidad']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Ente";
 		Bitacora($msg, "Ente");
-		echo '<script>window.location="?page=home"</script>';
+		header('Location: ?page=home');
 		exit;
 	}
 
@@ -70,7 +70,6 @@ if (is_file("view/" . $page . ".php")) {
 				}
 			}
 		} else {
-
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, No tienes permiso para registrar un Ente";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
@@ -97,12 +96,12 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
+			} else if (preg_match("/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Ente no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{10,100}$/", $_POST["direccion"]) == 0) {
+			} else if (preg_match("/^[0-9a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\/\-.,# ]{10,100}$/", $_POST["direccion"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Dirección no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -112,7 +111,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Teléfono válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[a-zA-ZáéíóúüñÑçÇ -.]{4,65}$/", $_POST["responsable"]) == 0) {
+			} else if (preg_match("/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,65}$/", $_POST["responsable"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Responsable no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -128,7 +127,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $ente->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Ente";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó del ente con el id:" . $_POST["id_ente"];
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Ente";
 				}
@@ -161,7 +160,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $ente->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Ente";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un ente con el id:" . $_POST["id_ente"];
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Ente";
 				}

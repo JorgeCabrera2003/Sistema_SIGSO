@@ -173,21 +173,21 @@ function enviaAjax(datos) {
 
 function capaValidar() {
 	$("#nombre").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/, $(this), $("#snombre"),
+			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,90}$/, $(this), $("#snombre"),
 			"El nombre del ente debe tener de 4 a 90 carácteres"
 		);
 	});
 
 	$("#responsable").on("keypress", function (e) {
-		validarKeyPress(/^[a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+		validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
 	$("#responsable").on("keyup", function () {
 		validarKeyUp(
-			/^[a-zA-ZáéíóúüñÑçÇ -.]{4,65}$/, $(this), $("#sresponsable"),
+			/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,65}$/, $(this), $("#sresponsable"),
 			"El nombre del responsable debe tener de 4 a 65 carácteres"
 		);
 	});
@@ -203,10 +203,10 @@ function capaValidar() {
 	});
 
 	$("#direccion").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
 	$("#direccion").on("keyup", function () {
-		validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -./#]{10,100}$/, $(this), $("#sdireccion"),
+		validarKeyUp(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -./#]{10,100}$/, $(this), $("#sdireccion"),
 			"La dirección del Ente debe tener de 10 a 100 carácteres"
 		);
 	});
@@ -214,11 +214,11 @@ function capaValidar() {
 
 function validarenvio() {
 
-	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+	if (validarKeyUp(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre del Ente debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[a-zA-ZáéíóúüñÑçÇ -.]{4,65}$/, $("#responsable"), $("#sresponsable"), "") == 0) {
+	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,65}$/, $("#responsable"), $("#sresponsable"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre del responsable debe tener de 4 a 65 carácteres");
 		return false;
 

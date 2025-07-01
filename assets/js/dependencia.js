@@ -152,12 +152,12 @@ function enviaAjax(datos) {
 
 function capaValidar() {
 	$("#nombre").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/, $(this), $("#snombre"),
-			"El nombre del Dependencia debe tener de 4 a 90 carácteres"
+			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $(this), $("#snombre"),
+			"El nombre del Dependencia debe tener de 4 a 45 carácteres"
 		);
 	});
 
@@ -174,7 +174,7 @@ function capaValidar() {
 
 function validarenvio() {
 
-	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+	if (validarKeyUp(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre de la dependencia debe tener de 4 a 45 carácteres");
 		return false;
 

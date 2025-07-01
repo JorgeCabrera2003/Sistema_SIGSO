@@ -87,6 +87,7 @@ class Dependencia extends Conexion
             $this->conex->commit();
         } catch (PDOException $e) {
             $this->conex->rollBack();
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -153,19 +154,30 @@ class Dependencia extends Conexion
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-
-            $query = "UPDATE dependencia SET nombre = :nombre, id_ente = :id_ente
+            $this->LlamarEnte()->set_id($this->get_id_ente());
+            $verificar_ente = $this->LlamarEnte()->Transaccion(['peticion' => 'validar']);
+            if ($verificar_ente['bool'] == 1 && $verificar_ente['arreglo']['estatus'] == 1) {
+                $query = "UPDATE dependencia SET nombre = :nombre, id_ente = :id_ente
                 WHERE id = :id";
 
-            $stm = $this->conex->prepare($query);
-            $stm->bindParam(":id", $this->id);
-            $stm->bindParam(":nombre", $this->nombre);
-            $stm->bindParam(":id_ente", $this->id_ente);
-            $stm->execute();
-            $dato['resultado'] = "modificar";
-            $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos de la dependencia exitosamente";
-            $this->conex->commit();
+                $stm = $this->conex->prepare($query);
+                $stm->bindParam(":id", $this->id);
+                $stm->bindParam(":nombre", $this->nombre);
+                $stm->bindParam(":id_ente", $this->id_ente);
+                $stm->execute();
+                $dato['resultado'] = "modificar";
+                $dato['estado'] = 1;
+                $dato['mensaje'] = "Se modificaron los datos de la dependencia exitosamente";
+                $this->conex->commit();
+
+            } else {
+                $this->conex->rollBack();
+                $dato['resultado'] = "error";
+                $dato['estado'] = -1;
+                $dato['mensaje'] = "No existe el Ente seleccionado";
+
+            }
+
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $dato['estado'] = -1;

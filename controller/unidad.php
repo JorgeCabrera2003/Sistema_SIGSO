@@ -17,6 +17,13 @@ if (is_file("view/" . $page . ".php")) {
 	$unidad = new Unidad();
 	$dependencia = new Dependencia();
 
+	if (!isset($permisos['unidad']['ver']['estado']) || $permisos['unidad']['ver']['estado'] == "0") {
+		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Unidad";
+		Bitacora($msg, "Unidad");
+		header('Location: ?page=home');
+		exit;
+	}
+
 	if (isset($_POST["entrada"])) {
 		$json['resultado'] = "entrada";
 		echo json_encode($json);
@@ -27,22 +34,19 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
+		if (isset($permisos['unidad']['registrar']['estado']) && $permisos['unidad']['registrar']['estado'] == "1") {
+			if (preg_match("/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/", $_POST["nombre"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Nombre no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["nombre"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Nombre no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Dependencia no valida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Dependencia no valida";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+			} else {
 
-		} else {
-			$peticion['peticion'] = "validar";
-			$dependencia->set_id($_POST["id_dependencia"]);
-			$validar = $dependencia->Transaccion($peticion);
-			if ($validar['bool'] == 1 && $validar['arreglo']['estatus'] == 1) {
 				$unidad->set_nombre($_POST["nombre"]);
 				$unidad->set_id_dependencia($_POST["id_dependencia"]);
 				$peticion["peticion"] = "registrar";
@@ -53,12 +57,11 @@ if (is_file("view/" . $page . ".php")) {
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nueva unidad";
 				}
-			} else {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Dependencia no existe";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 			}
-
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para registrar una Unidad";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Unidad");
@@ -72,70 +75,71 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
-
 	if (isset($_POST["modificar"])) {
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no valido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+		if (isset($permisos['unidad']['modificar']['estado']) && $permisos['unidad']['modificar']['estado'] == "1") {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no valido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["nombre"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Nombre no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+			} else if (preg_match("/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/", $_POST["nombre"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Nombre no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Dependencia no valida";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Dependencia no valida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else {
-			$peticion['peticion'] = "validar";
-			$dependencia->set_id($_POST["id_dependencia"]);
-			$validar = $dependencia->Transaccion($peticion);
+			} else {
 
-			if ($validar['bool'] == 1 && $validar['arreglo']['estatus'] == 1) {
 				$unidad->set_id($_POST["id_unidad"]);
 				$unidad->set_nombre($_POST["nombre"]);
 				$unidad->set_id_dependencia($_POST["id_dependencia"]);
 				$peticion["peticion"] = "actualizar";
 				$json = $unidad->Transaccion($peticion);
-			} else {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Dependencia no existe";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
 			}
 
-		}
-
-		if ($json['estado'] == 1) {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la unidad, id:" . $_POST["id_unidad"];
+			if ($json['estado'] == 1) {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la unidad, id:" . $_POST["id_unidad"];
+			} else {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar unidad, id" . $_POST["id_unidad"];
+			}
 		} else {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar unidad, id" . $_POST["id_unidad"];
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para modificar una Unidad";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
 		}
-
 		echo json_encode($json);
 		Bitacora($msg, "Unidad");
 		exit;
 	}
 
 	if (isset($_POST["eliminar"])) {
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no valido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+		if (isset($permisos['unidad']['modificar']['estado']) && $permisos['unidad']['modificar']['estado'] == "1") {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no valido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else {
-			$unidad->set_id($_POST["id_unidad"]);
-			$peticion["peticion"] = "eliminar";
-			$json = $unidad->Transaccion($peticion);
-			echo json_encode($json);
-
-			if ($json['estado'] == 1) {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una unidad, id:" . $_POST["id_unidad"];
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una unidad, id:" . $_POST["id_unidad"];
+				$unidad->set_id($_POST["id_unidad"]);
+				$peticion["peticion"] = "eliminar";
+				$json = $unidad->Transaccion($peticion);
+				echo json_encode($json);
+
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una unidad, id:" . $_POST["id_unidad"];
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una unidad, id:" . $_POST["id_unidad"];
+				}
 			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para eliminar una Unidad";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
 		}
 
 		Bitacora($msg, "Unidad");
