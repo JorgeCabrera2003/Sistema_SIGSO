@@ -170,6 +170,11 @@ function inicializarTablaServicios() {
                             <i class="fa-solid fa-eye"></i>
                         </button>`;
 
+                        $(document).on('click', '.btn-detalles', function() {
+    const codigo = $(this).data('codigo');
+    cargarDetallesHoja(codigo);
+});
+
                     // Botón para tomar hoja (solo para técnicos y hojas no asignadas)
                     if ((userData.rol === 'TECNICO' || userData.rol === 'SUPERUSUARIO') &&
                         (!row.cedula_tecnico || row.cedula_tecnico === '') &&
@@ -439,113 +444,70 @@ function abrirModalRegistro() {
 
 function verDetalles(codigo) {
     $.ajax({
-        url: '?page=servicios',
+        url: '?page=servicios', // <-- Cambiado de 'controller/servicios.php' a '?page=servicios'
         type: 'POST',
-        data: {
-            consultar: 'consultar',
-            codigo_hoja_servicio: codigo
-        },
+        data: { consultar: true, codigo_hoja_servicio: codigo },
         dataType: 'json',
-        beforeSend: function () {
-            // Mostrar spinner de carga
-            $('#modalDetalles .modal-body').html(`
-                <div class="text-center my-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p>Cargando detalles...</p>
-                </div>
-            `);
+        beforeSend: function() {
+            // Puedes mostrar un spinner aquí si quieres, pero asegúrate de ocultarlo después
         },
-        success: function (response) {
-            if (response.resultado === 'success') {
-                // Llenar los datos en el modal de detalles
-                llenarModalDetalles(response.datos);
-                // Mostrar el modal de detalles
+        success: function(resp) {
+            if (resp.resultado === 'success' && resp.datos) {
+                llenarModalDetalles(resp.datos);
                 $('#modalDetalles').modal('show');
             } else {
-                mostrarError(response.mensaje || 'Error al cargar los detalles');
+                mostrarError(resp.mensaje || 'No se encontraron datos');
             }
         },
-        error: function (xhr, status, error) {
-            mostrarError('Error al consultar los detalles: ' + error);
+        error: function() {
+            mostrarError('Error al consultar detalles');
         }
     });
 }
 
 function llenarModalDetalles(datos) {
-    // Información del solicitante
-    $('#detalle-solicitante').text(datos.nombre_solicitante || 'N/A');
-    $('#detalle-dependencia').text(datos.nombre_dependencia || 'N/A');
-    $('#detalle-unidad').text(datos.nombre_unidad || 'N/A');
-    $('#detalle-contacto').text(
-        (datos.telefono_empleado || 'Sin teléfono') + ' | ' +
-        (datos.correo_empleado || 'Sin correo')
-    );
+    // Sección Solicitante
+    $('#detalle-solicitante').text(datos.nombre_solicitante || '');
+    $('#detalle-dependencia').text(datos.nombre_dependencia || '');
+    $('#detalle-unidad').text(datos.nombre_unidad || '');
+    $('#detalle-contacto').text((datos.telefono_empleado || '') + ' / ' + (datos.correo_empleado || ''));
 
-    // Información técnica
+    // Sección Técnico
     $('#detalle-tecnico').text(datos.nombre_tecnico || 'Sin asignar');
-    $('#detalle-tipo-servicio').text(datos.nombre_tipo_servicio || 'N/A');
+    $('#detalle-tipo-servicio').text(datos.nombre_tipo_servicio || '');
+    $('#detalle-estado').text(datos.estatus === 'A' ? 'Activa' : (datos.estatus === 'I' ? 'Finalizada' : 'Eliminada'));
+    $('#detalle-fecha-resultado').text(datos.fecha_resultado || '');
 
-    let estadoText = 'Desconocido';
-    let estadoClass = 'secondary';
-    if (datos.estatus === 'A') {
-        estadoText = 'Activo';
-        estadoClass = 'info';
-    } else if (datos.estatus === 'I') {
-        estadoText = 'Finalizado';
-        estadoClass = 'success';
-    } else if (datos.estatus === 'E') {
-        estadoText = 'Eliminado';
-        estadoClass = 'danger';
-    }
-    $('#detalle-estado').html(`<span class="badge bg-${estadoClass}">${estadoText}</span>`);
+    // Sección Equipo
+    $('#detalle-tipo-equipo').text(datos.tipo_equipo || '');
+    $('#detalle-marca').text(datos.nombre_marca || '');
+    $('#detalle-serial').text(datos.serial || '');
+    $('#detalle-codigo-bien').text(datos.codigo_bien || '');
 
-    $('#detalle-fecha-resultado').text(
-        datos.fecha_resultado ? new Date(datos.fecha_resultado).toLocaleString() : 'N/A'
-    );
+    // Sección Solicitud
+    $('#detalle-motivo').text(datos.motivo || '');
+    $('#detalle-fecha-solicitud').text(datos.fecha_solicitud || '');
+    $('#detalle-resultado').text(datos.resultado_hoja_servicio || '');
+    $('#detalle-observacion').text(datos.observacion || '');
 
-    // Información del equipo
-    $('#detalle-tipo-equipo').text(datos.tipo_equipo || 'N/A');
-    $('#detalle-marca').text(datos.nombre_marca || 'N/A');
-    $('#detalle-serial').text(datos.serial || 'N/A');
-    $('#detalle-codigo-bien').text(datos.codigo_bien || 'N/A');
-
-    // Detalles de la solicitud
-    $('#detalle-motivo').text(datos.motivo || 'No especificado');
-    $('#detalle-fecha-solicitud').text(
-        datos.fecha_solicitud ? new Date(datos.fecha_solicitud).toLocaleString() : 'N/A'
-    );
-    $('#detalle-resultado').text(datos.resultado_hoja_servicio || 'No especificado');
-    $('#detalle-observacion').text(datos.observacion || 'No especificado');
-
-    // Detalles técnicos
-    const $tbody = $('#tablaDetalles tbody').empty();
-    if (datos.detalles && datos.detalles.length > 0) {
-        datos.detalles.forEach(function (detalle, index) {
-            let materialInfo = 'N/A';
-            if (detalle.id_movimiento_material) {
-                materialInfo = `Material #${detalle.id_movimiento_material}`;
-                if (detalle.cantidad) {
-                    materialInfo += ` (Cantidad: ${detalle.cantidad})`;
-                }
-            }
-
-            $tbody.append(`
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${detalle.componente || ''}</td>
-                    <td>${detalle.detalle || ''}</td>
-                    <td>${materialInfo}</td>
-                </tr>
-            `);
+    // Sección Detalles Técnicos
+    let detalles = datos.detalles || [];
+    let tbody = $('#tablaDetalles tbody');
+    tbody.empty();
+    if (detalles.length > 0) {
+        detalles.forEach(function(det, idx) {
+            let material = det.id_material ? (det.material_info ? det.material_info.nombre + ' (' + det.cantidad + ')' : 'ID: ' + det.id_material + ' (' + det.cantidad + ')') : '';
+            tbody.append(
+                `<tr>
+                    <td>${idx + 1}</td>
+                    <td>${det.componente || ''}</td>
+                    <td>${det.detalle || ''}</td>
+                    <td>${material}</td>
+                </tr>`
+            );
         });
     } else {
-        $tbody.append(`
-            <tr>
-                <td colspan="4" class="text-center">No hay detalles registrados</td>
-            </tr>
-        `);
+        tbody.append('<tr><td colspan="4" class="text-center">Sin detalles técnicos</td></tr>');
     }
 }
 
@@ -676,65 +638,80 @@ function editarHoja(codigo) {
 
 function cargarDetallesHoja(codigo) {
     $.ajax({
-        url: '?page=servicios',
+        url: '?page=servicio',
         type: 'POST',
         data: {
-            consultar_detalles: 'consultar_detalles',
+            consultar: true,
             codigo_hoja_servicio: codigo
         },
         dataType: 'json',
-        success: function (response) {
-            const $tbody = $('#tablaDetallesModal tbody').empty();
-
-            if (response && response.length > 0) {
-                response.forEach(function (detalle) {
-                    const $row = $(`
-                        <tr>
-                            <td><input type="text" class="form-control componente" value="${detalle.componente || ''}"></td>
-                            <td><input type="text" class="form-control detalle" value="${detalle.detalle || ''}"></td>
-                            <td class="text-center">
-                                <input type="checkbox" class="form-check-input usar-material" ${detalle.id_material ? 'checked' : ''}>
-                            </td>
-                            <td>
-                                <select class="form-select material-select" ${detalle.id_material ? '' : 'disabled'}>
-                                    <option value="">Seleccione material</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control material-cantidad" min="1" value="${detalle.cantidad || 1}" ${detalle.id_material ? '' : 'disabled'}>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-
-                    // Cargar materiales disponibles
-                    cargarMaterialesDisponiblesParaFila($row.find('.material-select'), detalle.id_material);
-
-                    $tbody.append($row);
-                });
+        beforeSend: function() {
+            $('#modalDetalles').modal('show');
+            $('#modalDetalles .modal-body').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div></div>');
+        },
+        success: function(response) {
+            if (response.resultado === 'success') {
+                const datos = response.datos;
+                
+                // Llenar información del solicitante
+                $('#detalle-solicitante').text(datos.nombre_solicitante);
+                $('#detalle-dependencia').text(datos.nombre_dependencia);
+                $('#detalle-unidad').text(datos.nombre_unidad);
+                $('#detalle-contacto').html(`${datos.telefono_empleado}<br>${datos.correo_empleado}`);
+                
+                // Llenar información técnica
+                $('#detalle-tecnico').text(datos.nombre_tecnico || 'Sin asignar');
+                $('#detalle-tipo-servicio').text(datos.nombre_tipo_servicio);
+                $('#detalle-estado').html(datos.estatus === 'A' ? '<span class="badge bg-warning">Activo</span>' : 
+                                        datos.estatus === 'I' ? '<span class="badge bg-success">Finalizado</span>' : 
+                                        '<span class="badge bg-danger">Eliminado</span>');
+                $('#detalle-fecha-resultado').text(datos.fecha_resultado || 'N/A');
+                
+                // Llenar información del equipo
+                $('#detalle-tipo-equipo').text(datos.tipo_equipo);
+                $('#detalle-marca').text(datos.nombre_marca);
+                $('#detalle-serial').text(datos.serial);
+                $('#detalle-codigo-bien').text(datos.codigo_bien);
+                
+                // Llenar información de la solicitud
+                $('#detalle-motivo').text(datos.motivo);
+                $('#detalle-fecha-solicitud').text(new Date(datos.fecha_solicitud).toLocaleString());
+                $('#detalle-resultado').text(datos.resultado_hoja_servicio || 'N/A');
+                $('#detalle-observacion').text(datos.observacion || 'N/A');
+                
+                // Llenar detalles técnicos
+                const tbody = $('#tablaDetalles tbody');
+                tbody.empty();
+                
+                if (datos.detalles && datos.detalles.length > 0) {
+                    datos.detalles.forEach((detalle, index) => {
+                        const materialInfo = detalle.id_material ? 
+                            `${detalle.material_info?.nombre || 'Material'} (${detalle.cantidad || 0} unidades)` : 
+                            'No aplica';
+                            
+                        tbody.append(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${detalle.componente || 'N/A'}</td>
+                                <td>${detalle.detalle || 'N/A'}</td>
+                                <td>${materialInfo}</td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    tbody.append('<tr><td colspan="4" class="text-center">No hay detalles técnicos registrados</td></tr>');
+                }
             } else {
-                $tbody.append(`
-                    <tr>
-                        <td colspan="6" class="text-center">No hay detalles registrados</td>
-                    </tr>
-                `);
+                mostrarAlerta('Error', response.mensaje, 'error');
+                $('#modalDetalles').modal('hide');
             }
         },
-        error: function (xhr, status, error) {
-            console.error('Error al cargar detalles:', error);
-            $('#tablaDetallesModal tbody').html(`
-                <tr>
-                    <td colspan="6" class="text-center text-danger">Error al cargar detalles</td>
-                </tr>
-            `);
+        error: function(xhr, status, error) {
+            mostrarAlerta('Error', 'Error al cargar los detalles: ' + error, 'error');
+            $('#modalDetalles').modal('hide');
         }
     });
 }
-
 function cargarMaterialesDisponiblesParaFila($select, materialSeleccionado = null) {
     $.ajax({
         url: '?page=servicios', // Cambiado de materiales a servicios

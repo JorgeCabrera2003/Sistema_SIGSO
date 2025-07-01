@@ -121,8 +121,10 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Secciones bien diferenciadas -->
                     <div class="row">
                         <div class="col-md-6">
+                            <!-- Sección Solicitante -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
                                     <h6 class="card-title mb-0"><i class="bi bi-person"></i> Información del Solicitante</h6>
@@ -146,7 +148,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+                            <!-- Sección Técnico -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
                                     <h6 class="card-title mb-0"><i class="bi bi-tools"></i> Información Técnica</h6>
@@ -171,8 +173,8 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="col-md-6">
+                            <!-- Sección Equipo -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
                                     <h6 class="card-title mb-0"><i class="bi bi-pc-display"></i> Información del Equipo</h6>
@@ -196,7 +198,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+                            <!-- Sección Solicitud -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
                                     <h6 class="card-title mb-0"><i class="bi bi-chat-square-text"></i> Detalles de la Solicitud</h6>
@@ -222,8 +224,7 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Sección de detalles técnicos -->
+                    <!-- Sección Detalles Técnicos -->
                     <div class="card">
                         <div class="card-header bg-light">
                             <h6 class="card-title mb-0"><i class="bi bi-list-check"></i> Detalles Técnicos</h6>
