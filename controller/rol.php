@@ -16,7 +16,7 @@ if (is_file("view/" . $page . ".php")) {
 	$rol = new Rol();
 	$permiso = new Permiso();
 
-	if (!isset($permisos['unidad']['ver']['estado']) || $permisos['unidad']['ver']['estado'] == "0") {
+	if (!isset($permisos['rol']['ver']['estado']) || $permisos['rol']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Rol Y Permisos";
 		Bitacora($msg, "Rol Y Permisos");
 		header('Location: ?page=home');
@@ -126,7 +126,6 @@ if (is_file("view/" . $page . ".php")) {
 						$json['icon'] = "success";
 						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó un rol con el id:" . $_POST["id_rol"];
 						$json['mensaje'] = "Se modificó un rol exitosamente";
-
 
 					} else {
 						$json['icon'] = "warning";

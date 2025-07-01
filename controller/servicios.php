@@ -10,8 +10,8 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Verificar permisos - Solo superusuario (5) y técnicos (2)
-$rolesPermitidos = [2, 5];
+// Verificar permisos - Solo superusuario (1) y técnicos (2)
+$rolesPermitidos = [2, 1];
 if (!in_array($_SESSION['user']['id_rol'], $rolesPermitidos)) {
     echo '<script>window.location="?page=inicio"</script>';
     $_SESSION['msg']['danger'] = "No tiene permisos para acceder a este módulo";
@@ -68,7 +68,7 @@ if (is_file("view/" . $page . ".php")) {
     // Registrar nueva hoja de servicio (solo superusuario)
     if (isset($_POST["registrar"])) {
         try {
-            if ($_SESSION['user']['id_rol'] != 5) {
+            if ($_SESSION['user']['id_rol'] != 1) {
                 throw new Exception('No tiene permisos para esta acción');
             }
 
@@ -127,7 +127,7 @@ if (is_file("view/" . $page . ".php")) {
                 $infoUsuario = $_SESSION['user'];
 
                 // Superusuario puede ver todo
-                if ($infoUsuario['id_rol'] == 5) {
+                if ($infoUsuario['id_rol'] == 1) {
                     $puedeVer = true;
                 }
                 // Técnico puede ver si es de su área o la ha tomado
@@ -180,7 +180,7 @@ if (is_file("view/" . $page . ".php")) {
             $stmt->execute();
             $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$hoja || ($hoja['cedula_tecnico'] != $_SESSION['user']['cedula'] && $_SESSION['user']['id_rol'] != 5)) {
+            if (!$hoja || ($hoja['cedula_tecnico'] != $_SESSION['user']['cedula'] && $_SESSION['user']['id_rol'] != 1)) {
                 throw new Exception('No tiene permisos para finalizar esta hoja');
             }
 
@@ -213,7 +213,7 @@ if (is_file("view/" . $page . ".php")) {
             }
 
             // Verificar que el usuario es técnico
-            if ($_SESSION['user']['id_rol'] != 2 && $_SESSION['user']['id_rol'] != 5) {
+            if ($_SESSION['user']['id_rol'] != 2 && $_SESSION['user']['id_rol'] != 1) {
                 throw new Exception('Solo los técnicos pueden tomar hojas de servicio');
             }
 
@@ -254,7 +254,7 @@ if (is_file("view/" . $page . ".php")) {
             $hojaServicio->set_codigo_hoja_servicio($_POST["codigo_hoja_servicio"]);
             
             // Solo superusuario puede cambiar tipo de servicio
-            if ($_SESSION['user']['id_rol'] == 5 && isset($_POST["id_tipo_servicio"])) {
+            if ($_SESSION['user']['id_rol'] == 1 && isset($_POST["id_tipo_servicio"])) {
                 $hojaServicio->set_id_tipo_servicio($_POST["id_tipo_servicio"]);
             }
             
@@ -418,8 +418,8 @@ if (isset($_POST['listar_tipos'])) {
 
         // HTML para el PDF
         ob_start();
+        $html;
         require_once "view/Dompdf/servicios.php";
-        $html = ob_get_clean();
 
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
@@ -446,11 +446,25 @@ if (isset($_POST['listar_tipos'])) {
     if (isset($_POST['get_user_data'])) {
         header('Content-Type: application/json');
         echo json_encode([
-            'rol' => ($_SESSION['user']['id_rol'] == 5 ? 'SUPERUSUARIO' : ($_SESSION['user']['id_rol'] == 2 ? 'TECNICO' : 'OTRO')),
+            'rol' => ($_SESSION['user']['id_rol'] == 1 ? 'SUPERUSUARIO' : ($_SESSION['user']['id_rol'] == 2 ? 'TECNICO' : 'OTRO')),
             'cedula' => $_SESSION['user']['cedula'],
             'nombre_usuario' => $_SESSION['user']['nombre_usuario'],
             'id_rol' => $_SESSION['user']['id_rol']
         ]);
+        exit;
+    }
+
+    // Obtener lista de técnicos (para selects, asignaciones, etc.)
+    if (isset($_POST['obtener_tecnicos'])) {
+        try {
+            $tecnicos = $empleado->Transaccion(['peticion' => 'listar_tecnicos']);
+            echo json_encode($tecnicos);
+        } catch (Exception $e) {
+            echo json_encode([
+                'resultado' => 'error',
+                'mensaje' => $e->getMessage()
+            ]);
+        }
         exit;
     }
 

@@ -167,41 +167,41 @@ class HojaServicio extends Conexion
 
         try {
             $sql = "SELECT
-                    hs.codigo_hoja_servicio,
-                    hs.nro_solicitud,
-                    hs.id_tipo_servicio,
-                    ts.nombre_tipo_servicio,
-                    hs.redireccion,
-                    hs.cedula_tecnico,
-                    CONCAT(tec.nombre_empleado, ' ', tec.apellido_empleado) AS nombre_tecnico,
-                    hs.fecha_resultado,
-                    hs.resultado_hoja_servicio,
-                    hs.observacion,
-                    hs.estatus,
-                    s.motivo,
-                    s.fecha_solicitud,
-                    s.estado_solicitud,
-                    CONCAT(sol.nombre_empleado, ' ', sol.apellido_empleado) AS nombre_solicitante,
-                    sol.telefono_empleado,
-                    sol.correo_empleado,
-                    u.nombre_unidad,
-                    d.nombre AS nombre_dependencia,
-                    e.tipo_equipo,
-                    e.serial,
-                    b.codigo_bien,
-                    m.nombre_marca,
-                    b.descripcion
-                FROM hoja_servicio hs
-                LEFT JOIN solicitud s ON hs.nro_solicitud = s.nro_solicitud
-                LEFT JOIN tipo_servicio ts ON hs.id_tipo_servicio = ts.id_tipo_servicio
-                LEFT JOIN empleado sol ON s.cedula_solicitante = sol.cedula_empleado
-                LEFT JOIN empleado tec ON hs.cedula_tecnico = tec.cedula_empleado
-                LEFT JOIN unidad u ON sol.id_unidad = u.id_unidad
-                LEFT JOIN dependencia d ON u.id_dependencia = d.id
-                LEFT JOIN equipo e ON s.id_equipo = e.id_equipo
-                LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
-                LEFT JOIN marca m ON b.id_marca = m.id_marca
-                WHERE hs.codigo_hoja_servicio = :codigo";
+            hs.codigo_hoja_servicio,
+            hs.nro_solicitud,
+            hs.id_tipo_servicio,
+            ts.nombre_tipo_servicio,
+            hs.redireccion,
+            hs.cedula_tecnico,
+            CONCAT(COALESCE(tec.nombre_empleado, ''), ' ', COALESCE(tec.apellido_empleado, '')) AS nombre_tecnico,
+            hs.fecha_resultado,
+            hs.resultado_hoja_servicio,
+            hs.observacion,
+            hs.estatus,
+            s.motivo,
+            s.fecha_solicitud,
+            s.estado_solicitud,
+            CONCAT(COALESCE(sol.nombre_empleado, ''), ' ', COALESCE(sol.apellido_empleado, '')) AS nombre_solicitante,
+            COALESCE(sol.telefono_empleado, 'N/A') AS telefono_empleado,
+            COALESCE(sol.correo_empleado, 'N/A') AS correo_empleado,
+            COALESCE(u.nombre_unidad, 'N/A') AS nombre_unidad,
+            COALESCE(d.nombre, 'N/A') AS nombre_dependencia,
+            COALESCE(e.tipo_equipo, 'N/A') AS tipo_equipo,
+            COALESCE(e.serial, 'N/A') AS serial,
+            COALESCE(b.codigo_bien, 'N/A') AS codigo_bien,
+            COALESCE(m.nombre_marca, 'N/A') AS nombre_marca,
+            COALESCE(b.descripcion, 'N/A') AS descripcion
+        FROM hoja_servicio hs
+        JOIN solicitud s ON hs.nro_solicitud = s.nro_solicitud
+        JOIN tipo_servicio ts ON hs.id_tipo_servicio = ts.id_tipo_servicio
+        JOIN empleado sol ON s.cedula_solicitante = sol.cedula_empleado
+        LEFT JOIN empleado tec ON hs.cedula_tecnico = tec.cedula_empleado
+        LEFT JOIN unidad u ON sol.id_unidad = u.id_unidad
+        LEFT JOIN dependencia d ON u.id_dependencia = d.id
+        LEFT JOIN equipo e ON s.id_equipo = e.id_equipo
+        LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
+        LEFT JOIN marca m ON b.id_marca = m.id_marca
+        WHERE hs.codigo_hoja_servicio = :codigo";
 
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
@@ -221,6 +221,7 @@ class HojaServicio extends Conexion
                 return ['resultado' => 'error', 'mensaje' => 'No se encontró la hoja de servicio'];
             }
         } catch (PDOException $e) {
+            error_log('Error en obtenerHojaServicio: ' . $e->getMessage());
             return ['resultado' => 'error', 'mensaje' => 'Error al consultar hoja de servicio: ' . $e->getMessage()];
         }
     }
@@ -330,12 +331,12 @@ class HojaServicio extends Conexion
                 LEFT JOIN empleado tec ON hs.cedula_tecnico = tec.cedula_empleado
                 WHERE s.estatus = 1";
 
-            if ($usuario['id_rol'] != 5) { // No es superusuario
-                // Obtener informacion del técnico
+            if ($usuario['id_rol'] != 1) { // No es superusuario
+                // Obtener información del técnico usando nombres calificados de BD
                 $sqlTecnico = "SELECT e.cedula_empleado, e.id_cargo, e.id_servicio 
-                              FROM empleado e
-                              JOIN usuario u ON e.cedula_empleado = u.cedula
-                              WHERE u.nombre_usuario = :usuario";
+                  FROM sigso_sistema.empleado e
+                  JOIN sigso_usuario.usuario u ON e.cedula_empleado = u.cedula
+                  WHERE u.nombre_usuario = :usuario";
 
                 $stmtTecnico = $this->conex->prepare($sqlTecnico);
                 $stmtTecnico->bindParam(':usuario', $usuario['nombre_usuario']);
@@ -343,7 +344,7 @@ class HojaServicio extends Conexion
                 $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
 
                 if ($tecnico) {
-                    // Tecnicos ven solo hojas de su area o que han tomado
+                    // Técnicos ven solo hojas de su área o que han tomado
                     $sql .= " AND (ts.id_tipo_servicio = :id_servicio OR hs.cedula_tecnico = :cedula)";
                     $stmt = $this->conex->prepare($sql);
                     $stmt->bindParam(':id_servicio', $tecnico['id_servicio'], PDO::PARAM_INT);
@@ -468,9 +469,14 @@ class HojaServicio extends Conexion
         if (!$this->codigo_hoja_servicio) return [];
 
         try {
-            $sql = "SELECT componente, detalle, id_movimiento_material 
-                FROM detalle_hoja 
-                WHERE codigo_hoja_servicio = :codigo";
+            $sql = "SELECT 
+                        componente, 
+                        detalle, 
+                        id_movimiento_material,
+                        (SELECT id_material FROM movimiento_materiales WHERE id_movimiento_material = dh.id_movimiento_material) AS id_material,
+                        (SELECT cantidad FROM movimiento_materiales WHERE id_movimiento_material = dh.id_movimiento_material) AS cantidad
+                    FROM detalle_hoja dh
+                    WHERE codigo_hoja_servicio = :codigo";
 
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);

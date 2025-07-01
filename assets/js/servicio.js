@@ -234,16 +234,6 @@ function configurarEventos() {
     // Evento para el botón de refrescar
     $('#btn-refrescar').on('click', refrescarTabla);
 
-    // Quitar esta línea:
-    // $('#btn-agregar-detalle').on('click', function () {
-    //     agregarFilaDetalle();
-    // });
-
-    // Usar delegación para el botón de agregar detalle (funciona aunque el botón sea recreado)
-    $(document).on('click', '#btn-agregar-detalle', function () {
-        agregarFilaDetalle();
-    });
-
     // Evento delegado para activar/desactivar select y cantidad según checkbox
     $(document).on('change', '.usar-material', function () {
         const $row = $(this).closest('tr');
@@ -371,6 +361,7 @@ function guardarHojaServicio() {
         enviarDatosServicio(datos);
     }
 }
+
 function enviarDatosServicio(datos) {
     // Enviar al servidor
     $.ajax({
@@ -417,7 +408,6 @@ function enviarDatosServicio(datos) {
     });
 }
 
-
 function abrirModalRegistro() {
     // Limpiar el modal
     $('#modal1')[0].reset();
@@ -441,111 +431,65 @@ function verDetalles(codigo) {
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
-        data: {
-            consultar: 'consultar',
-            codigo_hoja_servicio: codigo
-        },
+        data: { consultar: true, codigo_hoja_servicio: codigo },
         dataType: 'json',
-        beforeSend: function () {
-            // Mostrar spinner de carga
-            $('#modalDetalles .modal-body').html(`
-                <div class="text-center my-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p>Cargando detalles...</p>
-                </div>
-            `);
-        },
-        success: function (response) {
-            if (response.resultado === 'success') {
-                // Llenar los datos en el modal de detalles
-                llenarModalDetalles(response.datos);
-                // Mostrar el modal de detalles
+        success: function(resp) {
+            if (resp.resultado === 'success' && resp.datos) {
+                llenarModalDetalles(resp.datos);
                 $('#modalDetalles').modal('show');
             } else {
-                mostrarError(response.mensaje || 'Error al cargar los detalles');
+                mostrarError(resp.mensaje || 'No se encontraron datos');
             }
         },
-        error: function (xhr, status, error) {
-            mostrarError('Error al consultar los detalles: ' + error);
+        error: function() {
+            mostrarError('Error al consultar detalles');
         }
     });
 }
 
 function llenarModalDetalles(datos) {
-    // Información del solicitante
-    $('#detalle-solicitante').text(datos.nombre_solicitante || 'N/A');
-    $('#detalle-dependencia').text(datos.nombre_dependencia || 'N/A');
-    $('#detalle-unidad').text(datos.nombre_unidad || 'N/A');
-    $('#detalle-contacto').text(
-        (datos.telefono_empleado || 'Sin teléfono') + ' | ' +
-        (datos.correo_empleado || 'Sin correo')
-    );
+    // Sección Solicitante
+    $('#detalle-solicitante').text(datos.nombre_solicitante || '');
+    $('#detalle-dependencia').text(datos.nombre_dependencia || '');
+    $('#detalle-unidad').text(datos.nombre_unidad || '');
+    $('#detalle-contacto').text((datos.telefono_empleado || '') + ' / ' + (datos.correo_empleado || ''));
 
-    // Información técnica
+    // Sección Técnico
     $('#detalle-tecnico').text(datos.nombre_tecnico || 'Sin asignar');
-    $('#detalle-tipo-servicio').text(datos.nombre_tipo_servicio || 'N/A');
+    $('#detalle-tipo-servicio').text(datos.nombre_tipo_servicio || '');
+    $('#detalle-estado').text(datos.estatus === 'A' ? 'Activa' : (datos.estatus === 'I' ? 'Finalizada' : 'Eliminada'));
+    $('#detalle-fecha-resultado').text(datos.fecha_resultado || '');
 
-    let estadoText = 'Desconocido';
-    let estadoClass = 'secondary';
-    if (datos.estatus === 'A') {
-        estadoText = 'Activo';
-        estadoClass = 'info';
-    } else if (datos.estatus === 'I') {
-        estadoText = 'Finalizado';
-        estadoClass = 'success';
-    } else if (datos.estatus === 'E') {
-        estadoText = 'Eliminado';
-        estadoClass = 'danger';
-    }
-    $('#detalle-estado').html(`<span class="badge bg-${estadoClass}">${estadoText}</span>`);
+    // Sección Equipo
+    $('#detalle-tipo-equipo').text(datos.tipo_equipo || '');
+    $('#detalle-marca').text(datos.nombre_marca || '');
+    $('#detalle-serial').text(datos.serial || '');
+    $('#detalle-codigo-bien').text(datos.codigo_bien || '');
 
-    $('#detalle-fecha-resultado').text(
-        datos.fecha_resultado ? new Date(datos.fecha_resultado).toLocaleString() : 'N/A'
-    );
+    // Sección Solicitud
+    $('#detalle-motivo').text(datos.motivo || '');
+    $('#detalle-fecha-solicitud').text(datos.fecha_solicitud || '');
+    $('#detalle-resultado').text(datos.resultado_hoja_servicio || '');
+    $('#detalle-observacion').text(datos.observacion || '');
 
-    // Información del equipo
-    $('#detalle-tipo-equipo').text(datos.tipo_equipo || 'N/A');
-    $('#detalle-marca').text(datos.nombre_marca || 'N/A');
-    $('#detalle-serial').text(datos.serial || 'N/A');
-    $('#detalle-codigo-bien').text(datos.codigo_bien || 'N/A');
-
-    // Detalles de la solicitud
-    $('#detalle-motivo').text(datos.motivo || 'No especificado');
-    $('#detalle-fecha-solicitud').text(
-        datos.fecha_solicitud ? new Date(datos.fecha_solicitud).toLocaleString() : 'N/A'
-    );
-    $('#detalle-resultado').text(datos.resultado_hoja_servicio || 'No especificado');
-    $('#detalle-observacion').text(datos.observacion || 'No especificado');
-
-    // Detalles técnicos
-    const $tbody = $('#tablaDetalles tbody').empty();
-    if (datos.detalles && datos.detalles.length > 0) {
-        datos.detalles.forEach(function (detalle, index) {
-            let materialInfo = 'N/A';
-            if (detalle.id_movimiento_material) {
-                materialInfo = `Material #${detalle.id_movimiento_material}`;
-                if (detalle.cantidad) {
-                    materialInfo += ` (Cantidad: ${detalle.cantidad})`;
-                }
-            }
-
-            $tbody.append(`
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${detalle.componente || ''}</td>
-                    <td>${detalle.detalle || ''}</td>
-                    <td>${materialInfo}</td>
-                </tr>
-            `);
+    // Sección Detalles Técnicos
+    let detalles = datos.detalles || [];
+    let tbody = $('#tablaDetalles tbody');
+    tbody.empty();
+    if (detalles.length > 0) {
+        detalles.forEach(function(det, idx) {
+            let material = det.id_material ? (det.material_info ? det.material_info.nombre + ' (' + det.cantidad + ')' : 'ID: ' + det.id_material + ' (' + det.cantidad + ')') : '';
+            tbody.append(
+                `<tr>
+                    <td>${idx + 1}</td>
+                    <td>${det.componente || ''}</td>
+                    <td>${det.detalle || ''}</td>
+                    <td>${material}</td>
+                </tr>`
+            );
         });
     } else {
-        $tbody.append(`
-            <tr>
-                <td colspan="4" class="text-center">No hay detalles registrados</td>
-            </tr>
-        `);
+        tbody.append('<tr><td colspan="4" class="text-center">Sin detalles técnicos</td></tr>');
     }
 }
 
@@ -571,7 +515,7 @@ function editarHoja(codigo) {
         },
         success: function (response) {
             if (response.resultado === 'success') {
-                // Restaurar el contenido original del modal
+                // Restaurar el contenido original del modal con TODOS los campos
                 $('#modal1 .modal-body').html(`
                     <input type="hidden" id="codigo_hoja_servicio">
                     <div class="row justify-content-center">
@@ -586,14 +530,13 @@ function editarHoja(codigo) {
                             <div class="form-floating mb-3 mt-4">
                                 <select class="form-select" name="id_tipo_servicio" id="id_tipo_servicio">
                                     <option value="">Seleccione un tipo</option>
-                                    ${$('#id_tipo_servicio').html()}
                                 </select>
                                 <span id="sid_tipo_servicio"></span>
                                 <label for="id_tipo_servicio" class="form-label">Tipo de Servicio</label>
                             </div>
                         </div>
                     </div>
-                    <div class="row justify-content-center" id="fila-resultado" style="display: none;">
+                    <div class="row justify-content-center">
                         <div class="col-md-12">
                             <div class="form-floating mb-3 mt-4">
                                 <select placeholder="" class="form-control" name="resultado_hoja_servicio" id="resultado_hoja_servicio">
@@ -607,7 +550,7 @@ function editarHoja(codigo) {
                             </div>
                         </div>
                     </div>
-                    <div class="row justify-content-center" id="fila-observacion" style="display: none;">
+                    <div class="row justify-content-center">
                         <div class="col-md-12">
                             <div class="form-floating mb-3 mt-4">
                                 <textarea class="form-control" name="observacion" id="observacion" style="height: 100px"></textarea>
@@ -616,9 +559,12 @@ function editarHoja(codigo) {
                             </div>
                         </div>
                     </div>
-                    <div class="row justify-content-center" id="fila-detalles" style="display: none;">
+                    <div class="row justify-content-center">
                         <div class="col-md-12">
                             <h5>Detalles Técnicos</h5>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Detalles técnicos del servicio
+                            </div>
                             <div class="table-responsive">
                                 <table class="table" id="tablaDetallesModal">
                                     <thead>
@@ -641,29 +587,25 @@ function editarHoja(codigo) {
                     </div>
                 `);
 
-                // Cargar tipos de servicio antes de setear el valor
-                cargarTiposServicio().then(function () {
+                // Cargar tipos de servicio
+                cargarTiposServicio().then(function() {
+                    // Llenar el formulario con los datos
+                    $('#codigo_hoja_servicio').val(response.datos.codigo_hoja_servicio);
+                    $('#nro_solicitud').val(response.datos.nro_solicitud);
                     $('#id_tipo_servicio').val(response.datos.id_tipo_servicio);
+                    $('#resultado_hoja_servicio').val(response.datos.resultado_hoja_servicio || '');
+                    $('#observacion').val(response.datos.observacion || '');
+
+                    // Configurar el modal
+                    $('#modalTitleId').text('Editar Hoja de Servicio');
+                    $('#enviar').text('Actualizar').attr('name', 'actualizar');
+
+                    // Mostrar el modal
+                    $('#modal1').modal('show');
+
+                    // Cargar detalles técnicos
+                    cargarDetallesHojaEdicion(codigo);
                 });
-
-                // Llenar el formulario con los datos
-                $('#codigo_hoja_servicio').val(response.datos.codigo_hoja_servicio);
-                $('#nro_solicitud').val(response.datos.nro_solicitud);
-                $('#resultado_hoja_servicio').val(response.datos.resultado_hoja_servicio || '');
-                $('#observacion').val(response.datos.observacion || '');
-
-                // Configurar el modal
-                $('#modalTitleId').text('Editar Hoja de Servicio');
-                $('#enviar').text('Actualizar').attr('name', 'actualizar');
-
-                // Mostrar campos adicionales
-                $('#fila-resultado, #fila-observacion, #fila-detalles').show();
-
-                // Cargar detalles técnicos
-                cargarDetallesHoja(codigo);
-
-                // Mostrar el modal
-                $('#modal1').modal('show');
             } else {
                 mostrarError(response.mensaje || 'Error al cargar los datos para editar');
             }
@@ -674,328 +616,61 @@ function editarHoja(codigo) {
     });
 }
 
-function cargarDetallesHoja(codigo) {
+function cargarDetallesHojaEdicion(codigo) {
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
         data: {
-            consultar_detalles: 'consultar_detalles',
+            consultar: true,
             codigo_hoja_servicio: codigo
         },
         dataType: 'json',
-        success: function (response) {
-            const $tbody = $('#tablaDetallesModal tbody').empty();
+        success: function(response) {
+            let detalles = [];
+            if (response.resultado === 'success' && response.datos && response.datos.detalles) {
+                detalles = response.datos.detalles;
+            } else if (Array.isArray(response)) {
+                detalles = response; // fallback por si la respuesta es solo array
+            }
+            const $tbody = $('#tablaDetallesModal tbody');
+            $tbody.empty();
 
-            if (response && response.length > 0) {
-                response.forEach(function (detalle) {
-                    const $row = $(`
-                        <tr>
-                            <td><input type="text" class="form-control componente" value="${detalle.componente || ''}"></td>
-                            <td><input type="text" class="form-control detalle" value="${detalle.detalle || ''}"></td>
-                            <td class="text-center">
-                                <input type="checkbox" class="form-check-input usar-material" ${detalle.id_material ? 'checked' : ''}>
-                            </td>
-                            <td>
-                                <select class="form-select material-select" ${detalle.id_material ? '' : 'disabled'}>
-                                    <option value="">Seleccione material</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control material-cantidad" min="1" value="${detalle.cantidad || 1}" ${detalle.id_material ? '' : 'disabled'}>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-
-                    // Cargar materiales disponibles
-                    cargarMaterialesDisponiblesParaFila($row.find('.material-select'), detalle.id_material);
-
-                    $tbody.append($row);
+            if (detalles.length > 0) {
+                detalles.forEach(function(det) {
+                    agregarFilaDetalle(
+                        det.componente || '',
+                        det.detalle || '',
+                        det.id_material || '',
+                        det.cantidad || ''
+                    );
                 });
             } else {
-                $tbody.append(`
-                    <tr>
-                        <td colspan="6" class="text-center">No hay detalles registrados</td>
-                    </tr>
-                `);
+                agregarFilaDetalle();
             }
         },
-        error: function (xhr, status, error) {
-            console.error('Error al cargar detalles:', error);
-            $('#tablaDetallesModal tbody').html(`
-                <tr>
-                    <td colspan="6" class="text-center text-danger">Error al cargar detalles</td>
-                </tr>
-            `);
+        error: function() {
+            $('#tablaDetallesModal tbody').empty();
+            agregarFilaDetalle();
         }
     });
 }
 
-function cargarMaterialesDisponiblesParaFila($select, materialSeleccionado = null) {
-    $.ajax({
-        url: '?page=servicios', // Cambiado de materiales a servicios
-        type: 'POST',
-        data: {listar_materiales: true}, // Cambiado el parámetro
-        dataType: 'json',
-        success: function (response) {
-            $select.empty().append('<option value="">Seleccione material</option>');
-            if (response.resultado === 'success') {
-                response.datos.forEach(function (material) {
-                    $select.append(new Option(
-                        `${material.nombre_material} (Stock: ${material.stock})`,
-                        material.id_material,
-                        false,
-                        material.id_material == materialSeleccionado
-                    ));
-                });
-            }
-        },
-        error: function () {
-            $select.append(new Option('Error al cargar materiales', '', true, true));
-        }
-    });
-}
-
-function tomarHoja(codigo) {
-    // Primero verificar si el usuario puede tomar esta hoja
-    $.ajax({
-        url: '?page=servicios',
-        type: 'POST',
-        data: {
-            verificar_hoja_tomar: 'verificar_hoja_tomar',
-            codigo_hoja_servicio: codigo
-        },
-        dataType: 'json',
-        beforeSend: function () {
-            // Mostrar spinner en el botón
-            $(`button[onclick="tomarHoja(${codigo})"]`).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
-        },
-        success: function (response) {
-            if (response.resultado === 'success') {
-                Swal.fire({
-                    title: '¿Tomar esta hoja de servicio?',
-                    text: "Se asignará esta hoja a su usuario",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, tomar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Confirmado, proceder a tomar la hoja
-                        $.ajax({
-                            url: '?page=servicios',
-                            type: 'POST',
-                            data: {
-                                tomar_hoja: 'tomar_hoja',
-                                codigo_hoja_servicio: codigo
-                            },
-                            dataType: 'json',
-                            success: function (response) {
-                                if (response.resultado === 'success') {
-                                    mostrarExito(response.mensaje);
-                                    tablaServicios.ajax.reload(null, false);
-                                } else {
-                                    mostrarError(response.mensaje);
-                                }
-                            },
-                            error: function (xhr, status, error) {
-                                mostrarError('Error al procesar la solicitud: ' + error);
-                            }
-                        });
-                    }
-                });
-            } else {
-                mostrarError(response.mensaje || 'No puede tomar esta hoja de servicio');
-            }
-        },
-        error: function (xhr, status, error) {
-            mostrarError('Error al verificar la hoja: ' + error);
-        },
-        complete: function () {
-            // Restaurar el ícono del botón
-            $(`button[onclick="tomarHoja(${codigo})"]`).html('<i class="fa-solid fa-handshake-angle"></i>');
-        }
-    });
-}
-
-function finalizarHoja(codigo) {
-    Swal.fire({
-        title: 'Finalizar Hoja de Servicio',
-        html: `
-            <div class="mb-3">
-                <label for="swal-resultado" class="form-label">Resultado</label>
-                <select id="swal-resultado" class="form-select">
-                    <option value="">Seleccione un resultado</option>
-                    <option value="Buen_funcionamiento">Buen funcionamiento</option>
-                    <option value="Operativo">Operativo</option>
-                    <option value="Sin_funcionar">Sin funcionar</option>
-                    <option value="Reparado">Reparado</option>
-                    <option value="Reemplazado">Reemplazado</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="swal-observacion" class="form-label">Observación</label>
-                <textarea id="swal-observacion" class="form-control" placeholder="Ingrese observaciones"></textarea>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Finalizar',
-        cancelButtonText: 'Cancelar',
-        focusConfirm: false,
-        preConfirm: () => {
-            const resultado = $('#swal-resultado').val();
-            const observacion = $('#swal-observacion').val();
-
-            if (!resultado) {
-                Swal.showValidationMessage('El resultado es requerido');
-                return false;
-            }
-
-            return {
-                resultado: resultado,
-                observacion: observacion
-            };
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const {resultado, observacion} = result.value;
-
-            $.ajax({
-                url: '?page=servicios',
-                type: 'POST',
-                data: {
-                    finalizar: 'finalizar',
-                    codigo_hoja_servicio: codigo,
-                    resultado_hoja_servicio: resultado,
-                    observacion: observacion
-                },
-                dataType: 'json',
-                beforeSend: function () {
-                    // Mostrar spinner en el botón
-                    $(`button[onclick="finalizarHoja(${codigo})"]`).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
-                },
-                success: function (response) {
-                    if (response.resultado === 'success') {
-                        mostrarExito(response.mensaje);
-                        tablaServicios.ajax.reload(null, false);
-                    } else {
-                        mostrarError(response.mensaje);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    mostrarError('Error al finalizar la hoja: ' + error);
-                },
-                complete: function () {
-                    // Restaurar el ícono del botón
-                    $(`button[onclick="finalizarHoja(${codigo})"]`).html('<i class="bi bi-check-circle"></i>');
-                }
-            });
-        }
-    });
-}
-
-function eliminarHoja(codigo) {
-    Swal.fire({
-        title: '¿Eliminar esta hoja de servicio?',
-        text: "Esta acción no se puede deshacer",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: '?page=servicios',
-                type: 'POST',
-                data: {
-                    eliminar: 'eliminar',
-                    codigo_hoja_servicio: codigo
-                },
-                dataType: 'json',
-                beforeSend: function () {
-                    // Mostrar spinner en el botón
-                    $(`button[onclick="eliminarHoja(${codigo})"]`).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
-                },
-                success: function (response) {
-                    if (response.resultado === 'success') {
-                        mostrarExito(response.mensaje);
-                        tablaServicios.ajax.reload(null, false);
-                    } else {
-                        mostrarError(response.mensaje);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    mostrarError('Error al eliminar la hoja: ' + error);
-                },
-                complete: function () {
-                    // Restaurar el ícono del botón
-                    $(`button[onclick="eliminarHoja(${codigo})"]`).html('<i class="fa-solid fa-trash"></i>');
-                }
-            });
-        }
-    });
-}
-
-function cargarDetallesPorTipoServicio(tipoServicioId) {
-    // Definir detalles sugeridos según el tipo de servicio
-    const detallesSugeridos = {
-        1: [ // Soporte Técnico
-            {componente: 'Instalación de Software', detalle: ''},
-            {componente: 'Mantenimiento Preventivo', detalle: ''},
-            {componente: 'Reemplazo de Hardware', detalle: ''}
-        ],
-        2: [ // Redes
-            {componente: 'Instalación de Punto de Red', detalle: ''},
-            {componente: 'Configuración de Switch', detalle: ''},
-            {componente: 'Prueba de Conectividad', detalle: ''}
-        ],
-        3: [ // Telefonía
-            {componente: 'Instalación de Teléfono', detalle: ''},
-            {componente: 'Configuración de Extensión', detalle: ''},
-            {componente: 'Prueba de Línea', detalle: ''}
-        ],
-        4: [ // Electrónica
-            {componente: 'Reparación de Placa', detalle: ''},
-            {componente: 'Revisión de Componentes', detalle: ''},
-            {componente: 'Prueba de Funcionamiento', detalle: ''}
-        ]
-    };
-
-    const $tbody = $('#tablaDetallesModal tbody').empty();
-
-    if (detallesSugeridos[tipoServicioId]) {
-        detallesSugeridos[tipoServicioId].forEach(detalle => {
-            agregarFilaDetalle(detalle.componente, detalle.detalle);
-        });
-    } else {
-        // Si no hay detalles sugeridos, agregar una fila vacía
-        agregarFilaDetalle();
-    }
-}
-
-function agregarFilaDetalle(componente = '', detalle = '') {
+function agregarFilaDetalle(componente = '', detalle = '', id_material = '', cantidad = '') {
+    const usarMaterial = id_material && cantidad;
     const $row = $(`
         <tr>
             <td><input type="text" class="form-control componente" value="${componente}" placeholder="Componente"></td>
             <td><input type="text" class="form-control detalle" value="${detalle}" placeholder="Detalle"></td>
             <td class="text-center">
-                <input type="checkbox" class="form-check-input usar-material">
+                <input type="checkbox" class="form-check-input usar-material" ${usarMaterial ? 'checked' : ''}>
             </td>
             <td>
-                <select class="form-select material-select" disabled>
+                <select class="form-select material-select" ${usarMaterial ? '' : 'disabled'}>
                     <option value="">Seleccione material</option>
                 </select>
             </td>
             <td>
-                <input type="number" class="form-control material-cantidad" min="1" value="1" disabled>
+                <input type="number" class="form-control material-cantidad" min="1" value="${cantidad || 1}" ${usarMaterial ? '' : 'disabled'}>
             </td>
             <td>
                 <button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle">
@@ -1005,10 +680,43 @@ function agregarFilaDetalle(componente = '', detalle = '') {
         </tr>
     `);
 
-    // Cargar materiales disponibles en el select
-    cargarMaterialesDisponiblesParaFila($row.find('.material-select'));
+    // Cargar materiales y seleccionar el correspondiente si aplica
+    cargarMaterialesDisponiblesParaFila($row.find('.material-select'), id_material);
 
     $('#tablaDetallesModal tbody').append($row);
+}
+
+// Evento delegado para el botón agregar detalle
+$(document).on('click', '#modal1 #btn-agregar-detalle', function() {
+    agregarFilaDetalle();
+});
+
+function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = null) {
+    $.ajax({
+        url: '?page=servicios',
+        type: 'POST',
+        data: { listar_materiales: true },
+        dataType: 'json',
+        success: function(response) {
+            if (response.resultado === 'success') {
+                $select.empty().append('<option value="">Seleccione material</option>');
+                
+                response.datos.forEach(function(material) {
+                    $select.append($('<option>', {
+                        value: material.id_material,
+                        text: material.nombre_material + ' (Disponible: ' + material.stock + ')'
+                    }));
+                });
+
+                if (idMaterialSeleccionado) {
+                    $select.val(idMaterialSeleccionado);
+                }
+            }
+        },
+        error: function() {
+            $select.empty().append('<option value="">Error al cargar materiales</option>');
+        }
+    });
 }
 
 function cargarTiposServicio() {
@@ -1033,6 +741,13 @@ function cargarTiposServicio() {
             console.error('Error al cargar tipos de servicio:', error);
         }
     });
+}
+
+function cargarDetallesPorTipoServicio(tipoServicioId) {
+    // Aquí puedes cargar detalles sugeridos según el tipo de servicio
+    // Por ahora solo agregamos una fila vacía
+    $('#tablaDetallesModal tbody').empty();
+    agregarFilaDetalle();
 }
 
 function generarReportePDF() {
@@ -1122,10 +837,97 @@ function mostrarError(mensaje) {
     });
 }
 
-// Función para formatear fechas
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
 
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+// Funciones para acciones adicionales
+function tomarHoja(codigo) {
+    $.ajax({
+        url: '?page=servicios',
+        type: 'POST',
+        data: {
+            tomar_hoja: true,
+            codigo_hoja_servicio: codigo
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.resultado === 'success') {
+                mostrarExito(response.mensaje);
+                tablaServicios.ajax.reload(null, false);
+            } else {
+                mostrarError(response.mensaje);
+            }
+        },
+        error: function() {
+            mostrarError('Error al intentar tomar la hoja de servicio');
+        }
+    });
+}
+
+function finalizarHoja(codigo) {
+    $('#modal1').modal('show');
+    $('#modalTitleId').text('Finalizar Hoja de Servicio');
+    $('#enviar').text('Finalizar').attr('name', 'finalizar');
+    $('#codigo_hoja_servicio').val(codigo);
+    $('#fila-resultado, #fila-observacion').show();
+    $('#fila-detalles').hide();
+
+    // Cargar datos existentes
+    $.ajax({
+        url: '?page=servicios',
+        type: 'POST',
+        data: {
+            consultar: true,
+            codigo_hoja_servicio: codigo
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.resultado === 'success') {
+                $('#nro_solicitud').val(response.datos.nro_solicitud);
+                $('#id_tipo_servicio').val(response.datos.id_tipo_servicio);
+                $('#resultado_hoja_servicio').val(response.datos.resultado_hoja_servicio || '');
+                $('#observacion').val(response.datos.observacion || '');
+            }
+        }
+    });
+}
+
+function eliminarHoja(codigo) {
+    Swal.fire({
+        title: '¿Está seguro?',
+        text: "Esta acción eliminará la hoja de servicio permanentemente",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '?page=servicios',
+                type: 'POST',
+                data: {
+                    eliminar: true,
+                    codigo_hoja_servicio: codigo
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.resultado === 'success') {
+                        mostrarExito(response.mensaje);
+                        tablaServicios.ajax.reload(null, false);
+                    } else {
+                        mostrarError(response.mensaje);
+                    }
+                },
+                error: function() {
+                    mostrarError('Error al intentar eliminar la hoja de servicio');
+                }
+            });
+        }
+    });
 }
