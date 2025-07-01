@@ -1,163 +1,231 @@
 <?php
 
-if (!$_SESSION) {
-    echo '<script>window.location="?page=login"</script>';
-    $msg["danger"] = "Sesion Finalizada.";
-}
+    if (!$_SESSION) {
 
-ob_start();
+        header("Location: ?page=login");
+        $msg["danger"] = "Sesion Finalizada.";
 
-if (is_file("view/" . $page . ".php")) {
-
-    require_once "controller/utileria.php";
-    require_once "model/Switch_.php";
-
-    $titulo = "Gestionar Switch";
-    $cabecera = array('Código de Bien', "Cantidad de Puertos", "Serial", "Modificar / Eliminar");
-
-    $switch = new Switch_();
-
-    $bien = $switch->Transaccion(['peticion' => 'consultar_bien']);
-
-    if (isset($_POST["entrada"])) {
-        $json['resultado'] = "entrada";
-        echo json_encode($json);
-        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Ingresó al Módulo de Switch";
-        Bitacora($msg, "Switch");
-        exit;
     }
 
-    if (isset($_POST["registrar"])) {
+    ob_start();
 
-        $codigos_bien_validos = array_column($bien, 'codigo_bien');
+    if (is_file("view/" . $page . ".php")) {
 
-        if (!in_array($_POST["codigo_bien"], $codigos_bien_validos)) {
+        require_once "controller/utileria.php";
+        require_once "model/Switch_.php";
 
-            $json['resultado'] = "error";
-            $json['mensaje'] = "Error, Seleccione un Código de Bien";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+        $titulo = "Gestionar Switch";
+        $cabecera = array('Código de Bien', "Cantidad de Puertos", "Serial", "Modificar / Eliminar");
 
-        } else if (!in_array($_POST["cantidad_puertos"], ["8", "10", "16", "24", "28", "48", "52"])) {
-            $json['resultado'] = "error";
-            $json['mensaje'] = "Error <br>Cantidad de Puertos no válido";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-                
-        } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{3,45}$/", $_POST["serial_switch"]) == 0) {
+        $switch = new Switch_();
 
-            $json['resultado'] = "error";
-            $json['mensaje'] = "Error, Serial del Switch no válido";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+        $bien = $switch->Transaccion(['peticion' => 'consultar_bien']);
 
-        } else {
 
-            $switch->set_codigo_bien($_POST["codigo_bien"]);
-            $switch->set_cantidad_puertos($_POST["cantidad_puertos"]);
-            $switch->set_serial_switch($_POST["serial_switch"]);
+        if (!isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] !== "1") {
 
-            $peticion["peticion"] = "registrar";
-            $json = $switch->Transaccion($peticion);
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Switch";
 
-            if($json['estado'] == 1){
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo Switch";
-            } else {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo Switch";
-            }
+            Bitacora($msg, "Switch");
+            header("Location: ?page=home");
+
+            exit;
 
         }
 
-        echo json_encode($json);
-        Bitacora($msg, "Switch");
-        exit;
-    }
+        if (isset($_POST["entrada"])) {
 
-    if (isset($_POST['consultar'])) {
-        $peticion["peticion"] = "consultar";
-        $datos = $switch->Transaccion($peticion);
-        echo json_encode($datos);
-        exit;
-    }
+            $json['resultado'] = "entrada";
+            echo json_encode($json);
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Ingresó al Módulo de Switch";
+            Bitacora($msg, "Switch");
 
-    if (isset($_POST["consultar_eliminadas"])) {
-        $peticion["peticion"] = "consultar_eliminadas";
-        $datos = $switch->Transaccion($peticion);
-        echo json_encode($datos);
-        exit;
-    }
+            exit;
+        }
 
-    if (isset($_POST['consultar_bien'])) {
-        $datos = $switch->ConsultarBien();
-        echo json_encode($datos);
-        exit;
-    }
+        if (isset($_POST["registrar"])) {
 
-    if (isset($_POST["restaurar"])) {
-        $switch->set_codigo_bien($_POST["codigo_bien"]);
-        $peticion["peticion"] = "restaurar";
-        $datos = $switch->Transaccion($peticion);
-        echo json_encode($datos);
-        exit;
-    }
+            if (isset($permisos['switch']['registrar']['estado']) && $permisos['switch']['registrar']['estado'] == '1') {
 
-    if (isset($_POST["modificar"])) {
+                $codigos_bien_validos = array_column($bien, 'codigo_bien');
 
-       if (!in_array($_POST["cantidad_puertos"], ["8", "10", "16", "24", "28", "48", "52"])) {
-            $json['resultado'] = "error";
-            $json['mensaje'] = "Error <br>Cantidad de Puertos no válido";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-                
-        } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{3,45}$/", $_POST["serial_switch"]) == 0) {
+                if (!in_array($_POST["codigo_bien"], $codigos_bien_validos)) {
 
-            $json['resultado'] = "error";
-            $json['mensaje'] = "Error, Serial del Switch no válido";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                    $json['resultado'] = "error";
+                    $json['mensaje'] = "Error, Seleccione un Código de Bien";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-        } else {
+                } else if (!in_array($_POST["cantidad_puertos"], ["8", "10", "16", "24", "28", "48", "52"])) {
+                    $json['resultado'] = "error";
+                    $json['mensaje'] = "Error <br>Cantidad de Puertos no válido";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                        
+                } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{3,45}$/", $_POST["serial_switch"]) == 0) {
 
-            $switch->set_codigo_bien($_POST["codigo_bien"]);
-            $switch->set_cantidad_puertos($_POST["cantidad_puertos"]);
-            $switch->set_serial_switch($_POST["serial_switch"]);
+                    $json['resultado'] = "error";
+                    $json['mensaje'] = "Error, Serial del Switch no válido";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            $peticion["peticion"] = "actualizar";
-            $json = $switch->Transaccion($peticion);
+                } else {
 
-            if($json['estado'] == 1){
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Switch";
+                    $switch->set_codigo_bien($_POST["codigo_bien"]);
+                    $switch->set_cantidad_puertos($_POST["cantidad_puertos"]);
+                    $switch->set_serial_switch($_POST["serial_switch"]);
+
+                    $peticion["peticion"] = "registrar";
+                    $json = $switch->Transaccion($peticion);
+
+                    if($json['estado'] == 1){
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo Switch";
+                    } else {
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo Switch";
+                    }
+
+                }
             } else {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar el Switch";
+
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, No tienes permiso para registrar un Switch";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'Registrar' Denegado";
+
             }
-    }
 
-    echo json_encode($json);
-    Bitacora($msg, "Switch");
-    exit;
-}
+            echo json_encode($json);
+            Bitacora($msg, "Switch");
+            exit;
+        }
 
-    if (isset($_POST["eliminar"])) {
+        if (isset($_POST['consultar'])) {
 
-            $switch->set_codigo_bien($_POST["codigo_bien"]);
-            $peticion["peticion"] = "eliminar";
+            $peticion["peticion"] = "consultar";
             $datos = $switch->Transaccion($peticion);
+            echo json_encode($datos);
 
+            exit;
+        }
 
-            if($datos['estado'] == 1){
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Switch";
+        if (isset($_POST["consultar_eliminadas"])) {
+
+            $peticion["peticion"] = "consultar_eliminadas";
+            $datos = $switch->Transaccion($peticion);
+            echo json_encode($datos);
+
+            exit;
+        }
+
+        if (isset($_POST['consultar_bien'])) {
+
+            $datos = $switch->ConsultarBien();
+            echo json_encode($datos);
+
+            exit;
+        }
+
+        if (isset($_POST["restaurar"])) {
+
+            if (isset($permisos['switch']['restaurar']['estado']) && $permisos['switch']['restaurar']['estado'] == '1') {
+
+                $switch->set_codigo_bien($_POST["codigo_bien"]);
+                $peticion["peticion"] = "restaurar";
+                $datos = $switch->Transaccion($peticion);
+
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Restauró el Switch. Código de Bien: " . $switch->get_codigo_bien();
             } else {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Switch";
-            }
-        
 
-        echo json_encode($datos);
-        Bitacora($msg, "Switch");
-        exit;
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, No tienes permiso para restaurar un Switch";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'Restaurar' Denegado";
+
+            }
+
+            echo json_encode($datos);
+            Bitacora($msg, "Switch");
+
+            exit;
+        }
+
+        if (isset($_POST["modificar"])) {
+
+            if (isset($permisos['switch']['modificar']['estado']) && $permisos['switch']['modificar']['estado'] == '1') {
+
+                if (!in_array($_POST["cantidad_puertos"], ["8", "10", "16", "24", "28", "48", "52"])) {
+                        $json['resultado'] = "error";
+                        $json['mensaje'] = "Error <br>Cantidad de Puertos no válido";
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                            
+                } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{3,45}$/", $_POST["serial_switch"]) == 0) {
+
+                        $json['resultado'] = "error";
+                        $json['mensaje'] = "Error, Serial del Switch no válido";
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+                } else {
+
+                        $switch->set_codigo_bien($_POST["codigo_bien"]);
+                        $switch->set_cantidad_puertos($_POST["cantidad_puertos"]);
+                        $switch->set_serial_switch($_POST["serial_switch"]);
+
+                        $peticion["peticion"] = "actualizar";
+                        $json = $switch->Transaccion($peticion);
+
+                        if($json['estado'] == 1){
+                            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Switch";
+                        } else {
+                            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar el Switch";
+                        }
+                }
+            
+            } else {
+
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, No tienes permiso para modificar un Switch";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'Modificar' Denegado";
+
+            }
+
+            echo json_encode($json);
+            Bitacora($msg, "Switch");
+
+            exit;
+
+        }
+
+        if (isset($_POST["eliminar"])) {
+
+            if (isset($permisos['switch']['eliminar']['estado']) && $permisos['switch']['eliminar']['estado'] == '1') {
+
+                $switch->set_codigo_bien($_POST["codigo_bien"]);
+                $peticion["peticion"] = "eliminar";
+                $datos = $switch->Transaccion($peticion);
+
+
+                if($datos['estado'] == 1){
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Switch";
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Switch";
+                }
+            } else {
+
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, No tienes permiso para eliminar un Switch";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'Eliminar' Denegado";
+
+            }
+            
+            echo json_encode($datos);
+            Bitacora($msg, "Switch");
+
+            exit;
+
+        }
+    
+
+        require_once "view/" . $page . ".php";
+
+    } else {
+
+        require_once "view/404.php";
 
     }
-
-   
-
-    require_once "view/" . $page . ".php";
-
-} else {
-    require_once "view/404.php";
-}
 
 ?>

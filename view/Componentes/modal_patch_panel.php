@@ -13,8 +13,9 @@
         <div class="row justify-content-center">
 
           <div class="col-6" id="">
-            <div class="mb-3">
-
+            <div class="mb-3"> <!-- class="form-floating mb-3" -->
+              
+<label for="codigo_bien">Código de Bien</label>
               <select class="form-select" name="codigo_bien" id="codigo_bien" title="Seleccionar el Código del Bien del Patch Panel">
                 <option selected value="default" disabled>Seleciones un Código de Bien</option>
                  
@@ -27,7 +28,7 @@
               </select>
 
               <span id="scodigo_bien"></span>
-              <label for="codigo_bien">Código de Bien</label>
+              
             </div>
           </div>
                 

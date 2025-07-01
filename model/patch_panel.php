@@ -80,7 +80,7 @@ class patch_panel extends Conexion {
 
         }
 
-        $this->Cerrar_Conexion($none, $stm);
+        $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
     }
@@ -229,7 +229,6 @@ class patch_panel extends Conexion {
 
         } else {
 
-            //$this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
@@ -406,9 +405,7 @@ class patch_panel extends Conexion {
                 return $this->Restaurar();
 
             case 'validar':
-                $array = $this->Validar();
-                $this->Cerrar_Conexion($this->conex, $none);
-                return $array;
+                return $this->Validar();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

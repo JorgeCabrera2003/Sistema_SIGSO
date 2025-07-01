@@ -3,6 +3,7 @@ $(document).ready(function () {
     consultar();
     registrarEntrada();
     capaValidar();
+    ConsultarPermisos();
 
     $("#enviar").on("click", async function () {
 
@@ -109,7 +110,32 @@ $(document).ready(function () {
         consultarEliminadas();
         $("#modalEliminadas").modal("show");
     });
+
+    $('#codigo_bien').select2({
+		dropdownParent: $('#modal1'),
+		theme: 'bootstrap-5'
+	});
 });
+
+function vistaPermiso(permisos = null) {
+
+    if (!permisos || Object.keys(permisos).length == 0) {
+
+        $('.modificar').remove();
+        $('.eliminar').remove();
+
+    } else {
+
+        if (permisos['switch']['modificar']['estado'] == '0') {
+            $('.modificar').remove();
+        }
+
+        if (permisos['switch']['eliminar']['estado'] == '0') {
+            $('.eliminar').remove();
+        }
+
+    }
+}
 
 
 function enviaAjax(datos) {
@@ -172,9 +198,12 @@ function enviaAjax(datos) {
 
                 } else if (lee.resultado == "entrada") {
 
-                    
+            
 
-                } else if (lee.resultado == "error") {
+                } else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
+				} else if (lee.resultado == "error") {
 
                     mensajes("error", null, lee.mensaje, null);
 
@@ -313,8 +342,8 @@ function crearDataTable(arreglo) {
             { data: 'serial' },
             {
                 data: null, render: function () {
-                    const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update" title="Modificar Switch"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button onclick="rellenar(this, 1)" class="btn btn-danger" title="Eliminar Switch"><i class="fa-solid fa-trash"></i></button>`;
+                    const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar Switch"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button onclick="rellenar(this, 1)" class="btn btn-danger eliminar" title="Eliminar Switch"><i class="fa-solid fa-trash"></i></button>`;
                     return botones;
                 }
             }
@@ -326,6 +355,7 @@ function crearDataTable(arreglo) {
             url: idiomaTabla,
         }
     });
+    ConsultarPermisos();
 }
 
 function actualizarSelectBien() {

@@ -9,8 +9,11 @@ class Switch_ extends Conexion {
     private $serial_switch;
 
     public function __construct() {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+
+        $this->codigo_bien = "";
+        $this->cantidad_puertos = "";
+        $this->serial_switch = "";
+
     }
 
 
@@ -41,11 +44,16 @@ class Switch_ extends Conexion {
 
         try {
 
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "SELECT * FROM switch WHERE codigo_bien = :codigo_bien";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo_bien", $this->codigo_bien);
             $stm->execute();
+            $this->conex->commit();
 
             if ($stm->rowCount() > 0) {
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
@@ -56,51 +64,55 @@ class Switch_ extends Conexion {
 
         } catch (PDOException $e) {
 
+            $this->conex->rollBack();
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
 
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+       $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
     }
 
     private function Registrar() {
+        
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
 
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] == 0) {
-
             try {
+                $this->conex->beginTransaction();
 
                 $query = "INSERT INTO switch(codigo_bien, cantidad_puertos, `serial`) 
-                VALUES 
-                (:codigo_bien, :cantidad_puertos, :serial_switch)";
+                        VALUES (:codigo_bien, :cantidad_puertos, :serial_switch)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo_bien", $this->codigo_bien);
                 $stm->bindParam(":cantidad_puertos", $this->cantidad_puertos);
                 $stm->bindParam(":serial_switch", $this->serial_switch);
                 $stm->execute();
+
+                $this->conex->commit();
+
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Registró el Switch Exitosamente";
 
             } catch (PDOException $e) {
-
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
-
             }
-
         } else {
-
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -110,11 +122,15 @@ class Switch_ extends Conexion {
 
     private function Actualizar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex->beginTransaction();
 
                 $query = "UPDATE switch SET cantidad_puertos = :cantidad_puertos, `serial` = :serial_switch WHERE codigo_bien = :codigo_bien";
 
@@ -123,23 +139,24 @@ class Switch_ extends Conexion {
                 $stm->bindParam(":cantidad_puertos", $this->cantidad_puertos);
                 $stm->bindParam(":serial_switch", $this->serial_switch);
                 $stm->execute();
+
+                $this->conex->commit();
+
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Modificaron los datos del Switch Exitosamente";
 
             } catch (PDOException $e) {
-
+                $this->conex->rollBack();
                 $dato['estado'] = -1;
                 $dato['resultado'] = "error";
                 $dato['mensaje'] = $e->getMessage();
-
             }
         } else {
-
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al modificar el registro";
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -149,39 +166,43 @@ class Switch_ extends Conexion {
 
     private function Eliminar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] != 0) {
 
             try {
+                $this->conex->beginTransaction();
 
                 $query = "UPDATE bien b
-                JOIN switch s ON s.codigo_bien = b.codigo_bien
-                SET b.estatus = 0
-                WHERE b.codigo_bien = :codigo_bien";
+                    JOIN switch s ON s.codigo_bien = b.codigo_bien
+                    SET b.estatus = 0
+                    WHERE b.codigo_bien = :codigo_bien";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo_bien", $this->codigo_bien);
                 $stm->execute();
+
+                $this->conex->commit();
+
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Eliminó el Switch Exitosamente";
 
             } catch (PDOException $e) {
-
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
-
             }
 
         } else {
-
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -191,14 +212,17 @@ class Switch_ extends Conexion {
 
     private function Consultar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         $dato = [];
 
         try {
 
             $query = "SELECT s.codigo_bien, s.cantidad_puertos, s.serial
-            FROM switch s
-            JOIN bien b ON s.codigo_bien = b.codigo_bien
-            WHERE b.estatus = 1";
+                    FROM switch s
+                    JOIN bien b ON s.codigo_bien = b.codigo_bien
+                    WHERE b.estatus = 1";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -219,18 +243,18 @@ class Switch_ extends Conexion {
 
     public function ConsultarBien() {
 
-        $dato = [];
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
 
         try {
-
             $query = "SELECT b.codigo_bien, b.descripcion  
-                      FROM bien b
-                      WHERE b.estatus = 1
-                        AND NOT EXISTS (
-                            SELECT 1 FROM switch s WHERE s.codigo_bien = b.codigo_bien
-                        )
+                    FROM bien b
+                    WHERE b.estatus = 1
                         AND NOT EXISTS (
                             SELECT 1 FROM patch_panel p WHERE p.codigo_bien = b.codigo_bien
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1 FROM switch s WHERE s.codigo_bien = b.codigo_bien
                         )
                         AND NOT EXISTS (
                             SELECT 1 FROM equipo e WHERE e.codigo_bien = b.codigo_bien
@@ -238,26 +262,30 @@ class Switch_ extends Conexion {
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
-
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stm->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
-
-            return [];
+            $result = [];
         }
 
+        $this->Cerrar_Conexion($this->conex, $stm);
+
+        return $result;
     }
 
     private function ConsultarEliminadas() {
 
         $dato = [];
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         try {
 
-            $query = "SELECT s.*
-                      FROM switch s
-                      JOIN bien b ON s.codigo_bien = b.codigo_bien
-                      WHERE b.estatus = 0";
+            $query = "SELECT s.codigo_bien, s.cantidad_puertos, s.serial
+                    FROM switch s
+                    JOIN bien b ON s.codigo_bien = b.codigo_bien
+                    WHERE b.estatus = 0";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -276,26 +304,36 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
+        
     private function Restaurar() {
+
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
 
         $dato = [];
 
         try {
 
+            $this->conex->beginTransaction();
+
             $query = "UPDATE bien b
-                      JOIN switch s ON s.codigo_bien = b.codigo_bien
-                      SET b.estatus = 1
-                      WHERE b.codigo_bien = :codigo_bien";
+                    JOIN switch s ON s.codigo_bien = b.codigo_bien
+                    SET b.estatus = 1
+                    WHERE b.codigo_bien = :codigo_bien";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo_bien", $this->codigo_bien);
             $stm->execute();
+
+            $this->conex->commit();
+
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
-            $dato['mensaje'] = "Se Restauro el Switch Exitosamente";
+            $dato['mensaje'] = "Se Restauro el Patch Panel exitosamente";
 
         } catch (PDOException $e) {
 
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();

@@ -31,12 +31,24 @@
                         <h5 class="card-title">Gestionar Switch</h5>
 
                         <div class="d-flex justify-content-between">
+
+                        <?php if (isset($permisos['switch']['registrar']['estado']) && $permisos['switch']['registrar']['estado'] == "1") { ?>
+
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Agregar nuevo Switch">
                                 Registrar Switch
                             </button>
+
+                        <?php } ?>
+
+
+                        <?php if (isset($permisos['switch']['restaurar']['estado']) && $permisos['switch']['restaurar']['estado'] == "1") { ?>
+
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados" title="Consulta los Switch Eliminados">
                                 Switch Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
+
+                        <?php } ?>
+
                         </div>
 
                         <div class="table-responsive">
@@ -98,6 +110,7 @@
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <script defer src="assets/js/Switch_.js"></script>
+     <script src="assets/Select2/js/select2.min.js"></script>
     </div>
 </body>
 </html>

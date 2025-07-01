@@ -2,7 +2,7 @@
 
     if (!$_SESSION) {
 
-        echo '<script>window.location="?page=login"</script>';
+        header("Location: ?page=login");
         $msg["danger"] = "Sesion Finalizada.";
 
     }
@@ -27,7 +27,7 @@
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Patch Panel";
 
             Bitacora($msg, "Patch Panel");
-            echo '<script>window.location="?page=home"</script>';
+            header("Location: ?page=home");
 
             exit;
 
@@ -121,6 +121,7 @@
         if (isset($_POST['consultar_bien'])) {
             $datos = $patch_panel->ConsultarBien();
             echo json_encode($datos);
+
             exit;
         }
         
@@ -218,7 +219,7 @@
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Patch Panel";
                 }
             
-             } else {
+            } else {
 
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, No tienes permiso para eliminar un Patch Panel";
@@ -232,7 +233,6 @@
             exit;
 
         }
-
         
 
         require_once "view/" . $page . ".php";
