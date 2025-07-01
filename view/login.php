@@ -26,11 +26,17 @@
             <input type="password" name="password" class="form-control" id="yourPassword" required maxlength="20">
             <div class="invalid-feedback">Por favor ingresa tu contraseña!</div>
           </div>
-          <div class="col-12"></div>
           <div class="col-12">
+            
+          </div>
+          <div class="col-12">
+            <div class="col-12">
+              <div class="g-recaptcha" data-sitekey="<?php echo $recaptcha_sitekey; ?>"></div>
+            </div>
             <button class="btn btn-primary w-100" type="submit">
               Iniciar <i class="fa-solid fa-arrow-right-to-bracket"></i>
             </button>
+            <a href="?page=recuperar" class="btn btn-link w-100 mt-2">¿Olvidaste tu contraseña?</a>
           </div>
         </form>
       </div>
@@ -38,6 +44,8 @@
   </div>
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <script src="assets/js/login.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>

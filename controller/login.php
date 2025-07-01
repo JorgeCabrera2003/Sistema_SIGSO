@@ -7,11 +7,24 @@ if (is_file("view/$page.php")) {
 
 	require_once "model/usuario.php";
 	require_once "model/bitacora.php";
+	require_once "model/login.php";
 
 	$user = new Usuario();
 	$bitacora = new Bitacora();
+	$Login = new login();
+
+	$recaptcha_sitekey = $Login->get_recaptcha_sitekey();
 
 	if (!empty($_POST)) {
+
+		$recaptcha = $_POST['g-recaptcha-response'];
+		$secret = $Login->get_recaptcha_secret(); 
+		$response = file_get_contents(
+			"https://www.google.com/recaptcha/api/siteverify?secret=$secret&response=$recaptcha"
+		);
+		$arr = json_decode($response, true);
+
+
 		$peticion['peticion'] = "sesion";
 		$cedula = $_POST['particle'] . $_POST['CI'];
 		$pass = $_POST['password'];
