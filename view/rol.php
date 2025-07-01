@@ -31,8 +31,9 @@
         <div class="col-lg-12">
           <div class="card">
             <div class="card-body table-responsive py-3">
+              <?php if (isset($permisos['rol']['registrar']['estado']) && $permisos['rol']['registrar']['estado'] == "1") { ?>
             <button class="btn btn-primary mb-4" id="btn-registrar">Registrar Rol</button>
-
+                <?php }?>
             <div class="table-responsive">
                 <table class="table display" id="tabla1">
                     <thead>

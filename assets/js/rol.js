@@ -262,6 +262,9 @@ async function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -281,6 +284,25 @@ async function enviaAjax(datos) {
 		complete: function () { },
 	});
 }
+
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+
+		$('.modificar').remove();
+		$('.eliminar').remove();
+
+	} else {
+
+		if (permisos['rol']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['rol']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+	}
+};
 
 function capaValidar() {
 	$("#nombre").on("keypress", function (e) {
@@ -359,8 +381,8 @@ function crearDataTable(arreglo) {
 			{ data: 'nombre_rol' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}
@@ -370,6 +392,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
+	ConsultarPermisos();
 }
 
 function limpia() {

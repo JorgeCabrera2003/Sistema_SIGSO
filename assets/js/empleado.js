@@ -221,21 +221,21 @@ function capaValidar() {
 	});
 
 	$("#nombre").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ\b]*$/, e);
+		validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\b]*$/, e);
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/, $(this), $("#snombre"),
+			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ]{4,45}$/, $(this), $("#snombre"),
 			"El nombre debe tener de 4 a 45 carácteres"
 		);
 	});
 
 	$("#apellido").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ\b]*$/, e);
+		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\b]*$/, e);
 	});
 	$("#apellido").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/, $(this), $("#sapellido"),
+			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ]{4,45}$/, $(this), $("#sapellido"),
 			"El apellido debe tener de 4 a 45 carácteres"
 		);
 	});
@@ -295,11 +295,11 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
 
-	} else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ.]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ.]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre del empleado debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
+	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
 		return false;
 

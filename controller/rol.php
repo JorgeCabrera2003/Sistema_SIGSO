@@ -16,6 +16,13 @@ if (is_file("view/" . $page . ".php")) {
 	$rol = new Rol();
 	$permiso = new Permiso();
 
+	if (!isset($permisos['unidad']['ver']['estado']) || $permisos['unidad']['ver']['estado'] == "0") {
+		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Rol Y Permisos";
+		Bitacora($msg, "Rol Y Permisos");
+		header('Location: ?page=home');
+		exit;
+	}
+
 	if (isset($_POST["entrada"])) {
 		$json['resultado'] = "entrada";
 		echo json_encode($json);
@@ -117,7 +124,7 @@ if (is_file("view/" . $page . ".php")) {
 					$json = $permiso->Transaccion($peticion);
 					if ($json['estado'] == 1) {
 						$json['icon'] = "success";
-						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó un rol";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó un rol con el id:" . $_POST["id_rol"];
 						$json['mensaje'] = "Se modificó un rol exitosamente";
 
 
@@ -145,7 +152,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_ente"]) == 0) {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_rol"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -156,7 +163,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $rol->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un rol";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un rol con el id:" . $_POST["id_rol"];
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un rol";
 				}

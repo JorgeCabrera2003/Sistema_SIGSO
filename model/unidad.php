@@ -1,17 +1,20 @@
 <?php
 require_once "model/conexion.php";
+require_once "model/dependencia.php";
 class Unidad extends Conexion
 {
 
     private $id;
     private $id_dependencia;
     private $nombre;
+    private $dependencia;
 
     public function __construct()
     {
-
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->id = 0;
+        $this->id_dependencia = 0;
+        $this->nombre = "";
+        $this->dependencia = NULL;
     }
 
     public function set_id($id)
@@ -43,11 +46,30 @@ class Unidad extends Conexion
         return $this->nombre;
     }
 
+    private function LlamarDependencia()
+    {
+        if ($this->dependencia == NULL) {
+
+            $this->dependencia = new Ente();
+
+        }
+
+        return $this->dependencia;
+    }
+
+    private function DestruirDependencia()
+    {
+        $this->dependencia = NULL;
+    }
+
     private function Validar()
     {
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+
             $this->conex->beginTransaction();
             $query = "SELECT * FROM unidad WHERE id_unidad = :id";
 
@@ -75,21 +97,37 @@ class Unidad extends Conexion
     {
         $dato = [];
         $bool = $this->Validar();
+        $validarDependencia = NULL;
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
+
+                $this->LlamarDependencia()->set_id($this->get_id_dependencia());
+                $validarDependencia = $this->LlamarDependencia()->Transaccion(['peticion' => 'validar']);
                 $this->conex->beginTransaction();
-                $query = "INSERT INTO unidad(id_unidad, id_dependencia, nombre_unidad) VALUES 
+                if ($validarDependencia['bool'] == 1 && $validarDependencia['arreglo']['estatus'] == 1) {
+                    $query = "INSERT INTO unidad(id_unidad, id_dependencia, nombre_unidad) VALUES 
                 (NULL, :id_dependencia, :nombre)";
 
-                $stm = $this->conex->prepare($query);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->bindParam(":id_dependencia", $this->id_dependencia);
-                $stm->execute();
-                $dato['resultado'] = "registrar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró el unidad exitosamente";
-                $this->conex->commit();
+                    $stm = $this->conex->prepare($query);
+                    $stm->bindParam(":nombre", $this->nombre);
+                    $stm->bindParam(":id_dependencia", $this->id_dependencia);
+                    $stm->execute();
+                    $dato['resultado'] = "registrar";
+                    $dato['estado'] = 1;
+                    $dato['mensaje'] = "Se registró el unidad exitosamente";
+                    $this->conex->commit();
+
+                } else {
+
+                    $this->conex->rollBack();
+                    $dato['resultado'] = "error";
+                    $dato['estado'] = -1;
+                    $dato['mensaje'] = "Error, Dependencia no existe";
+                }
+
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
@@ -109,20 +147,36 @@ class Unidad extends Conexion
     private function Actualizar()
     {
         $dato = [];
+        $validarDependencia = NULL;
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "UPDATE unidad SET nombre_unidad = :nombre, id_dependencia = :id_dependencia WHERE id_unidad = :id";
+            $this->LlamarDependencia()->set_id($this->get_id_dependencia());
+            $validarDependencia = $this->LlamarDependencia()->Transaccion(['peticion' => 'validar']);
 
-            $stm = $this->conex->prepare($query);
-            $stm->bindParam(":id", $this->id);
-            $stm->bindParam(":nombre", $this->nombre);
-            $stm->bindParam(":id_dependencia", $this->id_dependencia);
-            $stm->execute();
-            $dato['resultado'] = "modificar";
-            $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos de la unidad con éxito";
-            $this->conex->commit();
+            if ($validarDependencia['bool'] == 1 && $validarDependencia['arreglo']['estatus'] == 1) {
+
+                $query = "UPDATE unidad SET nombre_unidad = :nombre, id_dependencia = :id_dependencia WHERE id_unidad = :id";
+
+                $stm = $this->conex->prepare($query);
+                $stm->bindParam(":id", $this->id);
+                $stm->bindParam(":nombre", $this->nombre);
+                $stm->bindParam(":id_dependencia", $this->id_dependencia);
+                $stm->execute();
+                $dato['resultado'] = "modificar";
+                $dato['estado'] = 1;
+                $dato['mensaje'] = "Se modificaron los datos de la unidad con éxito";
+                $this->conex->commit();
+            } else {
+
+                $this->conex->rollBack();
+                $dato['resultado'] = "error";
+                $dato['estado'] = -1;
+                $dato['mensaje'] = "Error, Dependencia no existe";
+
+            }
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $dato['estado'] = -1;
@@ -140,6 +194,8 @@ class Unidad extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
                 $query = "UPDATE unidad SET estatus = 0 WHERE id_unidad = :id";
 
@@ -171,6 +227,8 @@ class Unidad extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT unidad.id_unidad, 
             unidad.nombre_unidad, unidad.estatus,
@@ -199,6 +257,8 @@ class Unidad extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT * FROM unidad WHERE estatus = 1 AND id_dependencia = :dependencia";
 
