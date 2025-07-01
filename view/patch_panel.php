@@ -33,12 +33,23 @@
                         <h5 class="card-title">Gestionar Patch Panel</h5>
 
                         <div class="d-flex justify-content-between">
+
+                        <?php if (isset($permisos['patch_panel']['registrar']['estado']) && $permisos['patch_panel']['registrar']['estado'] == "1") { ?>
+
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Agregar nuevo Patch Panel">
                                 Registrar Patch Panel
                             </button>
+
+                        <?php } ?>
+
+                        <?php if (isset($permisos['patch_panel']['restaurar']['estado']) && $permisos['patch_panel']['restaurar']['estado'] == "1") { ?>
+
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados" title="Consulta los Patch Panel Eliminados">
                                 Patch Panel Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
+
+                        <?php } ?>
+
                         </div>
 
                         <div class="table-responsive">
@@ -104,9 +115,10 @@
     
     <?php require_once "Componentes/footer.php"; ?>
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-            class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
     <script defer src="assets/js/patch_panel.js"></script>
+    <script src="assets/Select2/js/select2.min.js"></script>
     </div>
 </body>
 

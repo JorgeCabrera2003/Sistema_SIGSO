@@ -2,6 +2,8 @@
 <html lang="es">
   <head>
     <link rel="shortcut icon" href="assets/img/favicon.png" type="image/x-icon">
+    <link href="assets/Select2/css/select2.min.css" rel="stylesheet" />
+    <link href="assets/Select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?php echo $titulo?></title>

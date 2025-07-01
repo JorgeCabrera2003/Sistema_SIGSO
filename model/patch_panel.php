@@ -10,8 +10,12 @@ class patch_panel extends Conexion {
     private $serial_patch_panel;
 
     public function __construct() {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+
+        $this->codigo_bien = "";
+        $this->tipo_patch_panel = "";
+        $this->cantidad_puertos = "";
+        $this->serial_patch_panel = "";
+
     }
 
 
@@ -50,11 +54,16 @@ class patch_panel extends Conexion {
 
         try {
 
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "SELECT * FROM patch_panel WHERE codigo_bien = :codigo_bien";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo_bien", $this->codigo_bien);
             $stm->execute();
+            $this->conex->commit();
 
             if ($stm->rowCount() > 0) {
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
@@ -65,6 +74,8 @@ class patch_panel extends Conexion {
 
         } catch (PDOException $e) {
 
+            $this->conex->rollBack();
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
 
         }
@@ -76,12 +87,17 @@ class patch_panel extends Conexion {
 
     private function Registrar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] == 0) {
 
             try {
+
+                $this->conex->beginTransaction();
 
                 $query = "INSERT INTO patch_panel(codigo_bien, tipo_patch_panel, cantidad_puertos,  `serial`) VALUES 
                 (:codigo_bien, :tipo_patch_panel, :cantidad_puertos, :serial_patch_panel)";
@@ -92,12 +108,16 @@ class patch_panel extends Conexion {
                 $stm->bindParam(":cantidad_puertos", $this->cantidad_puertos);
                 $stm->bindParam(":serial_patch_panel", $this->serial_patch_panel);
                 $stm->execute();
+
+                $this->conex->commit();
+
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Registro el Patch Panel Exitosamente";
 
             } catch (PDOException $e) {
 
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -105,7 +125,7 @@ class patch_panel extends Conexion {
             }
 
         } else {
-
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
@@ -119,12 +139,18 @@ class patch_panel extends Conexion {
 
     private function Actualizar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+       
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] != 0) {
-
+            
             try {
+
+                $this->conex->beginTransaction();
 
                 $query = "UPDATE patch_panel SET tipo_patch_panel= :tipo_patch_panel, cantidad_puertos= :cantidad_puertos,  `serial`=:serial_patch_panel WHERE codigo_bien = :codigo_bien";
 
@@ -134,19 +160,24 @@ class patch_panel extends Conexion {
                 $stm->bindParam(":cantidad_puertos", $this->cantidad_puertos);
                 $stm->bindParam(":serial_patch_panel", $this->serial_patch_panel);
                 $stm->execute();
+
+                $this->conex->commit();
+
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Modificaron los datos del Patch Panel Exitosamente";
 
             } catch (PDOException $e) {
-
+                $this->conex->rollBack();
                 $dato['estado'] = -1;
                 $dato['resultado'] = "error";
                 $dato['mensaje'] = $e->getMessage();
 
             }
+
         } else {
 
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al Modificar el registro";
@@ -160,12 +191,17 @@ class patch_panel extends Conexion {
 
     private function Eliminar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] != 0) {
 
             try {
+
+                $this->conex->beginTransaction();
 
                 $query = "UPDATE bien b
                 JOIN patch_panel p ON p.codigo_bien = b.codigo_bien
@@ -175,12 +211,16 @@ class patch_panel extends Conexion {
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo_bien", $this->codigo_bien);
                 $stm->execute();
+
+                $this->conex->commit();
+
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Eliminó El Patch Panel Exitosamente";
 
             } catch (PDOException $e) {
 
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -189,6 +229,7 @@ class patch_panel extends Conexion {
 
         } else {
 
+            //$this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
@@ -201,6 +242,9 @@ class patch_panel extends Conexion {
     }
 
     private function Consultar() {
+
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
 
         $dato = [];
 
@@ -229,6 +273,9 @@ class patch_panel extends Conexion {
     }
 
     public function ConsultarBien() {
+
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
 
         $dato = [];
 
@@ -265,6 +312,9 @@ class patch_panel extends Conexion {
 
         $dato = [];
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
         try {
 
             $query = "SELECT p.*
@@ -291,9 +341,15 @@ class patch_panel extends Conexion {
 
     private function Restaurar() {
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+       
+
         $dato = [];
 
         try {
+
+            $this->conex->beginTransaction();
 
             $query = "UPDATE bien b
                     JOIN patch_panel p ON p.codigo_bien = b.codigo_bien
@@ -303,12 +359,13 @@ class patch_panel extends Conexion {
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo_bien", $this->codigo_bien);
             $stm->execute();
+
+            $this->conex->commit();
+
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se Restauro el Patch Panel exitosamente";
             
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el Patch Panel. Codigo de Bien: " . $this->codigo_bien;
-            Bitacora($msg, "patch_panel");
 
         } catch (PDOException $e) {
 
@@ -349,7 +406,9 @@ class patch_panel extends Conexion {
                 return $this->Restaurar();
 
             case 'validar':
-                return $this->Validar();
+                $array = $this->Validar();
+                $this->Cerrar_Conexion($this->conex, $none);
+                return $array;
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
