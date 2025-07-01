@@ -15,7 +15,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	$ente = new Ente();
 
-	if (!isset($permisos['unidad']['ver']['estado']) || $permisos['unidad']['ver']['estado'] == "0") {
+	if (!isset($permisos['ente']['ver']['estado']) || $permisos['ente']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Ente";
 		Bitacora($msg, "Ente");
 		header('Location: ?page=home');

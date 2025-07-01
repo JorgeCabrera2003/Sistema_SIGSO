@@ -3,39 +3,61 @@ $(document).ready(function () {
 	registrarEntrada();
 	capaValidar();
 
-	$("#enviar").on("click", function () {
+	$("#enviar").on("click", async function () {
+		var confirmacion = false;
+		var envio = false;
+
 		switch ($(this).text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('registrar', 'registrar');
-					datos.append('nombre', $("#nombre").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se registrará un Tipo de Servicio", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('registrar', 'registrar');
+						datos.append('nombre', $("#nombre").val());
+						enviaAjax(datos);
+					}
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('modificar', 'modificar');
-					datos.append('id_servicio', $("#id_servicio").val());
-					datos.append('nombre', $("#nombre").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se modificará un Tipo de Servicio", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('modificar', 'modificar');
+						datos.append('id_servicio', $("#id_servicio").val());
+						datos.append('nombre', $("#nombre").val());
+						enviaAjax(datos);
+					}
 				}
 				break;
 			case "Eliminar":
-				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('eliminar', 'eliminar');
-					datos.append('id_servicio', $("#id_servicio").val());
-					enviaAjax(datos);
+				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_servicio"), $("#sid_servicio"), "") == 1) {
+					confirmacion = await confirmarAccion("Se eliminará un Tipo de Servicio", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('eliminar', 'eliminar');
+						datos.append('id_servicio', $("#id_servicio").val());
+						enviaAjax(datos);
+					}
 				}
 				break;
 
 			default:
 				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
 		}
-		$('#enviar').prop('disabled', true);
+		if (envio) {
+			$('#enviar').prop('disabled', true);
+		} else {
+			$('#enviar').prop('disabled', false);
+		}
+
+		if (!confirmacion) {
+			$('#enviar').prop('disabled', false);
+		} else {
+			$('#enviar').prop('disabled', true);
+		}
 	});
 
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
@@ -82,6 +104,9 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -116,7 +141,7 @@ function capaValidar() {
 }
 
 function validarenvio() {
-	//OJO TAREA, AGREGAR LA VALIDACION DEL nro	
+	
 	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre de la marca debe tener de 4 a 45 carácteres");
 		return false;
@@ -136,18 +161,37 @@ function iniciarTabla(arreglo) {
 	}
 };
 
+function vistaPermiso(permisos = null) {
+
+if(Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null){
+
+	$('.modificar').remove();
+	$('.eliminar').remove();
+
+} else {
+
+	if (permisos['tipo_servicio']['modificar']['estado'] == '0') {
+		$('.modificar').remove();
+	}
+
+	if (permisos['tipo_servicio']['eliminar']['estado'] == '0') {
+		$('.eliminar').remove();
+	}
+}
+};
+
 function crearDataTable(arreglo) {
 
 	console.log(arreglo);
 	tabla = $('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'codigo' },
-			{ data: 'nombre' },
+			{ data: 'id_tipo_servicio' },
+			{ data: 'nombre_tipo_servicio' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}],
@@ -155,7 +199,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-
+ConsultarPermisos();
 }
 
 

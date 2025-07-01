@@ -24,9 +24,11 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Gestionar Tipos de Servicios</h5>
+              <?php if (isset($permisos['tipo_servicio']['registrar']['estado']) && $permisos['tipo_servicio']['registrar']['estado'] == 1){ ?>
               <button type="button" class="btn btn-primary mx-auto my-4" id="btn-registrar">
                 Registrar Tipo de Servicio
               </button>
+              <?php }?>
               <div class="table-responsive">
                 <table class="table" id="tabla1">
                   <thead>

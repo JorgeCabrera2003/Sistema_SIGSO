@@ -3,39 +3,63 @@ $(document).ready(function () {
 	registrarEntrada();
 	capaValidar();
 
-	$("#enviar").on("click", function () {
-		switch ($(this).text()) {
+	$("#enviar").on("click", async function () {
+		var confirmacion = false;
+		var envio = false;
 
+		switch ($(this).text()) {
 			case "Registrar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('registrar', 'registrar');
-					datos.append('nombre', $("#nombre").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se registrará una Marca", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('registrar', 'registrar');
+						datos.append('nombre', $("#nombre").val());
+						enviaAjax(datos)
+						envio = true;
+					};
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('modificar', 'modificar');
-					datos.append('id_marca', $("#id_marca").val());
-					datos.append('nombre', $("#nombre").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se modificará una Marca", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('modificar', 'modificar');
+						datos.append('id_marca', $("#id_marca").val());
+						datos.append('nombre', $("#nombre").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 			case "Eliminar":
-				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('eliminar', 'eliminar');
-					datos.append('id_marca', $("#id_marca").val());
-					enviaAjax(datos);
+				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_marca"), $("#sid_marca"), "") == 1) {
+					confirmacion = await confirmarAccion("Se eliminará una Marca", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('eliminar', 'eliminar');
+						datos.append('id_marca', $("#id_marca").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 
 			default:
 				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
 		}
-		$('#enviar').prop('disabled', true);
+		if (envio) {
+			$('#enviar').prop('disabled', true);
+		} else {
+			$('#enviar').prop('disabled', false);
+		}
+
+		if (!confirmacion) {
+			$('#enviar').prop('disabled', false);
+		} else {
+			$('#enviar').prop('disabled', true);
+		}
 	});
 
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
@@ -81,6 +105,9 @@ function enviaAjax(datos) {
 					consultar();
 
 				} else if (lee.resultado == "entrada") {
+
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
 
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
@@ -136,18 +163,37 @@ function iniciarTabla(arreglo) {
 	}
 };
 
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+
+		$('.modificar').remove();
+		$('.eliminar').remove();
+
+	} else {
+
+		if (permisos['marca']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['marca']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+	}
+};
+
 function crearDataTable(arreglo) {
 
 	console.log(arreglo);
 	tabla = $('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'codigo' },
-			{ data: 'nombre' },
+			{ data: 'id_marca' },
+			{ data: 'nombre_marca' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}],
@@ -155,7 +201,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-
+	ConsultarPermisos();
 }
 
 
@@ -163,8 +209,9 @@ function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
 
-	$("#direccion").removeClass("is-valid is-invalid");
-	$("#direccion").val("");
+
+	$("#nombre").prop('readOnly', false);
+	$("#id_marca").prop('readOnly', false);
 
 	$('#enviar').prop('disabled', false);
 }
@@ -191,6 +238,8 @@ function rellenar(pos, accion) {
 		$("#enviar").text("Modificar");
 	}
 	else {
+		$("#nombre").prop('readOnly', true);
+		$("#id_marca").prop('readOnly', true);
 		$("#modalTitleId").text("Eliminar Marca")
 		$("#enviar").text("Eliminar");
 	}

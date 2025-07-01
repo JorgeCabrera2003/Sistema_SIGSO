@@ -3,20 +3,20 @@ require_once "model/conexion.php";
 class Marca extends Conexion
 {
 
-    private $codigo;
+    private $id;
     private $nombre;
 
 
     public function __construct()
     {
 
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->id = 0;
+        $this->nombre = "";
     }
 
-    public function set_codigo($codigo)
+    public function set_id($id)
     {
-        $this->codigo = $codigo;
+        $this->id = $id;
     }
 
     public function set_nombre($nombre)
@@ -24,9 +24,9 @@ class Marca extends Conexion
         $this->nombre = $nombre;
     }
 
-    public function get_codigo()
+    public function get_id()
     {
-        return $this->codigo;
+        return $this->id;
     }
 
     public function get_nombre()
@@ -40,10 +40,12 @@ class Marca extends Conexion
         $dato = [];
 
         try {
-            $query = "SELECT * FROM marca WHERE codigo = :codigo";
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $query = "SELECT * FROM marca WHERE id_marca = :id";
 
             $stm = $this->conex->prepare($query);
-            $stm->bindParam(":codigo", $this->codigo);
+            $stm->bindParam(":id", $this->id);
             $stm->execute();
 
             if ($stm->rowCount() > 0) {
@@ -54,6 +56,7 @@ class Marca extends Conexion
             }
 
         } catch (PDOException $e) {
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -67,7 +70,9 @@ class Marca extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $query = "INSERT INTO marca (codigo, nombre) VALUES 
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
+                $query = "INSERT INTO marca(id_marca, nombre_marca) VALUES 
             (NULL, :nombre)";
 
                 $stm = $this->conex->prepare($query);
@@ -75,7 +80,7 @@ class Marca extends Conexion
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró la marcar exitosamente";
+                $dato['mensaje'] = "Se registró la marca exitosamente";
             } catch (PDOException $e) {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
@@ -94,21 +99,23 @@ class Marca extends Conexion
     {
         $dato = [];
 
-            try {
-                $query = "UPDATE marca SET nombre= :nombre WHERE codigo = :codigo";
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $query = "UPDATE marca SET nombre_marca = :nombre WHERE id_marca = :id";
 
-                $stm = $this->conex->prepare($query);
-                $stm->bindParam(":codigo", $this->codigo);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->execute();
-                $dato['resultado'] = "modificar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se modificaron los datos del marca con éxito";
-            } catch (PDOException $e) {
-                $dato['estado'] = -1;
-                $dato['resultado'] = "error";
-                $dato['mensaje'] = $e->getMessage();
-            }
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id", $this->id);
+            $stm->bindParam(":nombre", $this->nombre);
+            $stm->execute();
+            $dato['resultado'] = "modificar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Se modificaron los datos de la marca con éxito";
+        } catch (PDOException $e) {
+            $dato['estado'] = -1;
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
@@ -120,14 +127,17 @@ class Marca extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $query = "UPDATE marca SET estatus = 0 WHERE codigo = :codigo";
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
+                $query = "UPDATE marca SET estatus = 0 WHERE id_marca = :id";
 
                 $stm = $this->conex->prepare($query);
-                $stm->bindParam(":codigo", $this->codigo);
+                $stm->bindParam(":id", $this->id);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el marca exitosamente";
+                $dato['mensaje'] = "Se eliminó la marca exitosamente";
+
             } catch (PDOException $e) {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
@@ -147,6 +157,8 @@ class Marca extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM marca WHERE estatus = 1";
 
             $stm = $this->conex->prepare($query);
