@@ -83,7 +83,7 @@ if (is_file("view/" . $page . ".php")) {
                 $peticion["peticion"] = "restaurar";
                 $json = $tipoBien->Transaccion($peticion);
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un nuevo tipo de bien";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un tipo de bien con el id". $_POST["id_tipo_bien"];
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar un nuevo tipo de bien";
                 }
@@ -117,7 +117,7 @@ if (is_file("view/" . $page . ".php")) {
                 $json = $tipoBien->Transaccion($peticion);
                 
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del tipo de bien";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del tipo de bien con el id: ".$_POST["id_tipo_bien"];
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar tipo de bien";
                 } 
@@ -139,7 +139,7 @@ if (is_file("view/" . $page . ".php")) {
         $json = $tipoBien->Transaccion($peticion);
         
         if ($json['estado'] == 1) {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un tipo de bien";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un tipo de bien con el id". $_POST["id_tipo_bien"];
         } else {
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un tipo de bien";
         }

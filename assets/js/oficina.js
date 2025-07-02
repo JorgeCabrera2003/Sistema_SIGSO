@@ -2,42 +2,69 @@ $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
+	cargarPiso();
 
-	$("#enviar").on("click", function () {
+	$("#enviar").on("click", async function () {
+
+		var confirmacion = false;
+		var envio = false;
+
 		switch ($(this).text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('registrar', 'registrar');
-					datos.append('id_piso', $("#id_piso").val());
-					datos.append('nombre', $("#nombre").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se registrará una Oficina", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('registrar', 'registrar');
+						datos.append('id_piso', $("#id_piso").val());
+						datos.append('nombre', $("#nombre").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('modificar', 'modificar');
-					datos.append('id_oficina', $("#id_oficina").val());
-					datos.append('id_piso', $("#id_piso").val());
-					datos.append('nombre', $("#nombre").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion("Se registrará una Oficina", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('modificar', 'modificar');
+						datos.append('id_oficina', $("#id_oficina").val());
+						datos.append('id_piso', $("#id_piso").val());
+						datos.append('nombre', $("#nombre").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 			case "Eliminar":
-				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('eliminar', 'eliminar');
-					datos.append('id_oficina', $("#id_oficina").val());
-					enviaAjax(datos);
+				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_oficina"), $("#sid_oficina"), "") == 1) {
+					confirmacion = await confirmarAccion("Se registrará una Oficina", "¿Está seguro de realizar la acción?", "question");
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('eliminar', 'eliminar');
+						datos.append('id_oficina', $("#id_oficina").val());
+						enviaAjax(datos);
+						envio = true;
+					}
 				}
 				break;
 
 			default:
 				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
 		}
-		$('#enviar').prop('disabled', true);
+		if (envio) {
+			$('#enviar').prop('disabled', true);
+		} else {
+			$('#enviar').prop('disabled', false);
+		}
+
+		if (!confirmacion) {
+			$('#enviar').prop('disabled', false);
+		} else {
+			$('#enviar').prop('disabled', true);
+		}
 	});
 
 	$("#btn-registrar").on("click", function () {
@@ -54,6 +81,12 @@ $(document).ready(function () {
 		$("#modalEliminadas").modal("show");
 	});
 });
+
+function cargarPiso() {
+	var datos = new FormData();
+	datos.append('consultar_pisos', 'consultar_pisos');
+	enviaAjax(datos);
+}
 
 function enviaAjax(datos) {
 	$.ajax({
@@ -87,6 +120,12 @@ function enviaAjax(datos) {
 					mensajes("success", 10000, lee.mensaje, null);
 					consultar();
 
+				} else if (lee.resultado == "consultar_pisos") {
+					selectPiso(lee.datos);
+
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "entrada") {
 
 				} else if (lee.resultado == "error") {
@@ -110,6 +149,48 @@ function enviaAjax(datos) {
 	});
 }
 
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+
+		$('.modificar').remove();
+		$('.eliminar').remove();
+		$('.restaurar').remove();
+
+	} else {
+
+		if (permisos['oficina']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['oficina']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+
+		if (permisos['oficina']['restaurar']['estado'] == '0') {
+			$('.restaurar').remove();
+		}
+	}
+};
+
+function selectPiso(arreglo) {
+	$("#id_piso").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+
+		$("#id_piso").append(
+			new Option('Seleccione un Piso', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#id_piso").append(
+				new Option(item.tipo_piso + " " + item.nro_piso, item.id_piso)
+			);
+		});
+	} else {
+		$("#id_piso").append(
+			new Option('No Hay Pisos', 'default')
+		);
+	}
+}
 
 function capaValidar() {
 	$("#nombre").on("keypress", function (e) {
@@ -123,7 +204,7 @@ function capaValidar() {
 	});
 
 	$("#id_piso").on("change", function () {
-		if ($(this).val() == "") {
+		if ($(this).val() == "default") {
 			$(this).addClass("is-invalid");
 			$(this).removeClass("is-valid");
 			$("#sid_piso").addClass("invalid-feedback");
@@ -144,7 +225,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El nombre de la oficina debe tener de 3 a 45 carácteres");
 		return false;
 
-	} else if ($("#id_piso").val() == "") {
+	} else if ($("#id_piso").val() == "default") {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un piso");
 		return false;
 	}
@@ -169,8 +250,8 @@ function crearDataTable(arreglo) {
 			},
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}],
@@ -178,6 +259,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
+	ConsultarPermisos();
 }
 
 function limpia() {
@@ -185,7 +267,7 @@ function limpia() {
 	$("#nombre").val("");
 
 	$("#id_piso").removeClass("is-valid is-invalid");
-	$("#id_piso").val("");
+	$("#id_piso").val("default");
 
 	$('#enviar').prop('disabled', false);
 }
@@ -203,6 +285,7 @@ function rellenar(pos, accion) {
 	}
 
 	$("#id_oficina").val($(linea).find("td:eq(0)").text());
+	$("#id_oficina").prop("readOnly", true);
 	$("#nombre").val($(linea).find("td:eq(1)").text());
 	buscarSelect("#id_piso", $(linea).find("td:eq(2)").text(), "text")
 
@@ -249,7 +332,7 @@ function consultarEliminadas() {
 							{
 								data: null,
 								render: function () {
-									return `<button onclick="restaurarOficina(this)" class="btn btn-success">
+									return `<button onclick="restaurarOficina(this)" class="btn btn-success restaurar">
                                             <i class="fa-solid fa-recycle"></i>
                                             </button>`;
 								}
@@ -259,6 +342,7 @@ function consultarEliminadas() {
 							url: idiomaTabla,
 						}
 					});
+					ConsultarPermisos();
 				}
 			} catch (e) {
 				console.error("Error procesando datos:", e);

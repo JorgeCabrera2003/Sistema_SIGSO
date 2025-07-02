@@ -2,7 +2,7 @@ $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
-	cargarDependencia()
+	cargarDependencia();
 
 	$("#enviar").on("click", async function () {
 

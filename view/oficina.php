@@ -23,12 +23,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Gestionar Oficinas</h5>
                         <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-primary my-4" id="btn-registrar">
-                                Registrar Oficina
-                            </button>
-                            <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
-                                Oficinas Eliminadas <i class="fa-solid fa-recycle"></i>
-                            </button>
+                            <?php if (isset($permisos['oficina']['registrar']['estado']) && $permisos['oficina']['registrar']['estado'] == '1') { ?>
+                                <button type="button" class="btn btn-primary my-4" id="btn-registrar">
+                                    Registrar Oficina
+                                </button>
+                            <?php } ?>
+                            <?php if (isset($permisos['oficina']['restaurar']['estado']) && $permisos['oficina']['restaurar']['estado'] == '1') { ?>
+                                <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
+                                    Oficinas Eliminadas <i class="fa-solid fa-recycle"></i>
+                                </button>
+                            <?php } ?>
                         </div>
                         <div class="table-responsive">
                             <table class="table" id="tabla1">
@@ -54,7 +58,8 @@
     </main><!-- End #main -->
 
     <!-- ModalEliminados -->
-    <div class="modal fade" id="modalEliminadas" tabindex="-1" role="dialog" aria-labelledby="modalEliminadasTitle" aria-hidden="true">
+    <div class="modal fade" id="modalEliminadas" tabindex="-1" role="dialog" aria-labelledby="modalEliminadasTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-warning">
@@ -85,7 +90,7 @@
         </div>
     </div>
     <!-- ModalEliminados -->
-    
+
     <?php require_once "Componentes/footer.php"; ?>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i

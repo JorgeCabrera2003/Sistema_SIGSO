@@ -45,7 +45,7 @@ class Piso extends Conexion
         return $this->id_edificio;
     }
 
-    
+
     public function get_tipo()
     {
         return $this->tipo;
@@ -75,7 +75,7 @@ class Piso extends Conexion
             }
 
         } catch (PDOException $e) {
-            $dato['bool'] = 0;
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -117,23 +117,23 @@ class Piso extends Conexion
     {
         $dato = [];
 
-            try {
-                $query = "UPDATE piso SET tipo_piso= :tipo_piso,
+        try {
+            $query = "UPDATE piso SET tipo_piso= :tipo_piso,
                 nro_piso= :nro_piso WHERE id_piso= :id_piso";
 
-                $stm = $this->conex->prepare($query);
-                $stm->bindParam(":id_piso", $this->id);
-                $stm->bindParam(":tipo_piso", $this->tipo);
-                $stm->bindParam(":nro_piso", $this->nro_piso);
-                $stm->execute();
-                $dato['resultado'] = "modificar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se actualizó el registro con éxito";
-            } catch (PDOException $e) {
-                $dato['resultado'] = "error";
-                $dato['estado'] = -1;
-                $dato['mensaje'] = $e->getMessage();
-            }
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_piso", $this->id);
+            $stm->bindParam(":tipo_piso", $this->tipo);
+            $stm->bindParam(":nro_piso", $this->nro_piso);
+            $stm->execute();
+            $dato['resultado'] = "modificar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Se actualizó el registro con éxito";
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
+        }
 
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
@@ -175,7 +175,8 @@ class Piso extends Conexion
         try {
             $query = "SELECT piso.id_piso, piso.tipo_piso, piso.nro_piso
             FROM piso
-            WHERE piso.estatus = 1";
+            WHERE piso.estatus = 1
+            ORDER BY piso.tipo_piso ASC, piso.nro_piso ASC";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -196,6 +197,11 @@ class Piso extends Conexion
 
             case 'registrar':
                 return $this->Registrar();
+
+            case 'validar':
+                $json = $this->Validar();
+                $this->Cerrar_Conexion($this->conex, $none);
+                return $json;
 
             case 'consultar':
                 return $this->Consultar();
