@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="codigo_hoja_servicio">
-                
+
                 <div class="row justify-content-center">
                     <div class="col-md-6">
                         <div class="form-floating mb-3 mt-4">
@@ -28,7 +28,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row justify-content-center" id="fila-resultado" style="display: none;">
                     <div class="col-md-12">
                         <div class="form-floating mb-3 mt-4">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row justify-content-center" id="fila-observacion" style="display: none;">
                     <div class="col-md-12">
                         <div class="form-floating mb-3 mt-4">
@@ -53,13 +53,12 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row justify-content-center" id="fila-detalles" style="display: none;">
     <div class="col-md-12">
         <h5>Detalles Técnicos</h5>
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> Se han cargado detalles sugeridos según el tipo de servicio seleccionado.
-            Puede modificarlos o agregar nuevos según sea necesario.
+            <i class="bi bi-info-circle"></i> Registre los componentes y materiales utilizados en este servicio
         </div>
         <div class="table-responsive">
             <table class="table" id="tablaDetallesModal">

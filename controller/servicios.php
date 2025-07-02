@@ -39,6 +39,38 @@ if (is_file("view/" . $page . ".php")) {
         header('Content-Type: application/json');
     }
 
+
+    if (isset($_POST['registrar_detalles'])) {
+        try {
+            if (empty($_POST['codigo_hoja_servicio'])) {
+                throw new Exception('Código de hoja no especificado');
+            }
+
+            $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
+
+            // Procesar detalles
+            $detalles = [];
+            if (!empty($_POST['detalles'])) {
+                $detalles = is_string($_POST['detalles']) ?
+                    json_decode($_POST['detalles'], true) : $_POST['detalles'];
+            }
+            $hojaServicio->set_detalles($detalles);
+
+            $resultado = $hojaServicio->registrarDetalles();
+
+            echo json_encode([
+                'resultado' => $resultado ? 'success' : 'error',
+                'mensaje' => $resultado ? 'Detalles registrados' : 'Error al registrar detalles'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'resultado' => 'error',
+                'mensaje' => $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
     // Registrar entrada al módulo
     if (isset($_POST["entrada"])) {
         $json['resultado'] = "entrada";
@@ -83,7 +115,7 @@ if (is_file("view/" . $page . ".php")) {
             // Procesar detalles si existen
             $detalles = [];
             if (!empty($_POST["detalles"])) {
-                $detalles = is_string($_POST["detalles"]) ? 
+                $detalles = is_string($_POST["detalles"]) ?
                     json_decode($_POST["detalles"], true) : $_POST["detalles"];
             }
 
@@ -104,7 +136,45 @@ if (is_file("view/" . $page . ".php")) {
             echo json_encode($datos);
         } catch (Exception $e) {
             echo json_encode([
-                'resultado' => 'error', 
+                'resultado' => 'error',
+                'mensaje' => $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
+    if (isset($_POST["eliminar"])) {
+        try {
+            if ($_SESSION['user']['id_rol'] != 1) {
+                throw new Exception('No tiene permisos para esta acción');
+            }
+
+            // Validar datos requeridos
+            if (empty($_POST["codigo_hoja_servicio"])) {
+                throw new Exception('Datos incompletos para registrar');
+            }
+
+            $hojaServicio->set_codigo_hoja_servicio($_POST["codigo_hoja_servicio"]);
+
+
+            $peticion = [
+                'peticion' => 'eliminar'
+            ];
+
+            $datos = $hojaServicio->Transaccion($peticion);
+
+            if ($datos['resultado'] === 'success') {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Eliminó la hoja de servicio #" . $datos['codigo'];
+                Bitacora($msg, "Servicio");
+                // No sobreescribas $datos['mensaje'] aquí, deja el mensaje del modelo
+            } else {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al eliminar servicio: " . $datos['mensaje'];
+            }
+
+            echo json_encode($datos);
+        } catch (Exception $e) {
+            echo json_encode([
+                'resultado' => 'error',
                 'mensaje' => $e->getMessage()
             ]);
         }
@@ -133,9 +203,11 @@ if (is_file("view/" . $page . ".php")) {
                 // Técnico puede ver si es de su área o la ha tomado
                 else {
                     $infoTecnico = $empleado->obtenerTecnico($infoUsuario['cedula']);
-                    if ($infoTecnico && 
+                    if (
+                        $infoTecnico &&
                         ($datos['datos']['id_tipo_servicio'] == $infoTecnico['id_servicio'] ||
-                         $datos['datos']['cedula_tecnico'] == $infoUsuario['cedula'])) {
+                            $datos['datos']['cedula_tecnico'] == $infoUsuario['cedula'])
+                    ) {
                         $puedeVer = true;
                     }
                 }
@@ -252,41 +324,41 @@ if (is_file("view/" . $page . ".php")) {
             }
 
             $hojaServicio->set_codigo_hoja_servicio($_POST["codigo_hoja_servicio"]);
-            
+
             // Solo superusuario puede cambiar tipo de servicio
             if ($_SESSION['user']['id_rol'] == 1 && isset($_POST["id_tipo_servicio"])) {
                 $hojaServicio->set_id_tipo_servicio($_POST["id_tipo_servicio"]);
             }
-            
+
             if (isset($_POST["resultado_hoja_servicio"])) {
                 $hojaServicio->set_resultado_hoja_servicio($_POST["resultado_hoja_servicio"]);
             }
-            
+
             if (isset($_POST["observacion"])) {
                 $hojaServicio->set_observacion($_POST["observacion"]);
             }
-            
+
             // Procesar detalles técnicos
             if (isset($_POST["detalles"])) {
-                $detalles = is_string($_POST["detalles"]) ? 
+                $detalles = is_string($_POST["detalles"]) ?
                     json_decode($_POST["detalles"], true) : $_POST["detalles"];
                 $hojaServicio->set_detalles($detalles);
             }
-            
+
             $datos = $hojaServicio->Transaccion([
                 'peticion' => 'actualizar',
                 'usuario' => $_SESSION['user']
             ]);
-            
+
             if ($datos['resultado'] === 'success') {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Actualizó la hoja de servicio #" . $_POST["codigo_hoja_servicio"];
                 Bitacora($msg, "Servicio");
             }
-            
+
             echo json_encode($datos);
         } catch (Exception $e) {
             echo json_encode([
-                'resultado' => 'error', 
+                'resultado' => 'error',
                 'mensaje' => 'Error al procesar la actualización: ' . $e->getMessage()
             ]);
         }
@@ -302,7 +374,7 @@ if (is_file("view/" . $page . ".php")) {
 
             $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
             $detalles = $hojaServicio->Transaccion(['peticion' => 'consultar_detalles']);
-            
+
             // Obtener información de materiales para los detalles
             if (is_array($detalles) && !empty($detalles)) {
                 $materialesDisponibles = $material->listarDisponibles();
@@ -310,7 +382,7 @@ if (is_file("view/" . $page . ".php")) {
                     $materiales = $materialesDisponibles['datos'];
                     foreach ($detalles as &$detalle) {
                         if ($detalle['id_material']) {
-                            $materialEncontrado = array_filter($materiales, function($m) use ($detalle) {
+                            $materialEncontrado = array_filter($materiales, function ($m) use ($detalle) {
                                 return $m['id_material'] == $detalle['id_material'];
                             });
                             if (!empty($materialEncontrado)) {
@@ -324,7 +396,7 @@ if (is_file("view/" . $page . ".php")) {
                     }
                 }
             }
-            
+
             echo json_encode($detalles);
         } catch (Exception $e) {
             echo json_encode([
@@ -355,30 +427,30 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     // Listar tipos de servicio
-    
-if (isset($_POST['listar_tipos'])) {
-    try {
-        $datos = $tipoServicio->Transaccion(['peticion' => 'consultar']);
-        // Asegurarse de que la respuesta tenga el formato correcto
-        if ($datos['resultado'] === 'consultar') {
-            echo json_encode([
-                'resultado' => 'success',
-                'datos' => $datos['datos']
-            ]);
-        } else {
+
+    if (isset($_POST['listar_tipos'])) {
+        try {
+            $datos = $tipoServicio->Transaccion(['peticion' => 'consultar']);
+            // Asegurarse de que la respuesta tenga el formato correcto
+            if ($datos['resultado'] === 'consultar') {
+                echo json_encode([
+                    'resultado' => 'success',
+                    'datos' => $datos['datos']
+                ]);
+            } else {
+                echo json_encode([
+                    'resultado' => 'error',
+                    'mensaje' => 'Formato de respuesta inesperado'
+                ]);
+            }
+        } catch (Exception $e) {
             echo json_encode([
                 'resultado' => 'error',
-                'mensaje' => 'Formato de respuesta inesperado'
+                'mensaje' => $e->getMessage()
             ]);
         }
-    } catch (Exception $e) {
-        echo json_encode([
-            'resultado' => 'error',
-            'mensaje' => $e->getMessage()
-        ]);
+        exit;
     }
-    exit;
-}
 
     // Listar materiales disponibles
     if (isset($_POST['listar_materiales'])) {
@@ -424,11 +496,11 @@ if (isset($_POST['listar_tipos'])) {
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
-        
+
         // Generar nombre del archivo
         $nombreArchivo = "reporte_hojas_servicio_" . date('Ymd_His');
         if ($id_tipo_servicio) {
-            $tipo = array_filter($tipos_servicio, function($t) use ($id_tipo_servicio) {
+            $tipo = array_filter($tipos_servicio, function ($t) use ($id_tipo_servicio) {
                 return $t['id_tipo_servicio'] == $id_tipo_servicio;
             });
             if (!empty($tipo)) {
@@ -468,7 +540,7 @@ if (isset($_POST['listar_tipos'])) {
         exit;
     }
 
-    // Si es una petición AJAX pero no coincide con ningún endpoint, devolver error JSON y no HTML
+    // Si es una peticion AJAX pero no coincide con ningún endpoint, devolver error JSON y no HTML
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         echo json_encode([
             'resultado' => 'error',

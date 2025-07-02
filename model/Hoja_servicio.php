@@ -498,28 +498,25 @@ class HojaServicio extends Conexion
         }
 
         try {
-            // Quitar beginTransaction y commit/rollBack aquí, la transacción ya está iniciada afuera
-
             // Eliminar detalles existentes
             $sqlDelete = "DELETE FROM detalle_hoja WHERE codigo_hoja_servicio = :codigo";
             $stmtDelete = $this->conex->prepare($sqlDelete);
             $stmtDelete->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
             $stmtDelete->execute();
 
-            // Si no hay detalles, solo confirmar la transacción afuera
+            // Si no hay detalles, retornar éxito
             if (empty($this->detalles)) {
-                // No commit aquí
                 return true;
             }
 
-            // Insertar nuevos detalles y gestionar materiales
+            // Preparar consultas
             $sqlInsert = "INSERT INTO detalle_hoja 
-                 (codigo_hoja_servicio, componente, detalle, id_movimiento_material) 
-                 VALUES (:codigo, :componente, :detalle, :id_movimiento)";
+                     (codigo_hoja_servicio, componente, detalle, id_movimiento_material) 
+                     VALUES (:codigo, :componente, :detalle, :id_movimiento)";
 
             $sqlMovimiento = "INSERT INTO movimiento_materiales 
-                     (id_material, accion, cantidad, descripcion)
-                     VALUES (:id_material, 'salida', :cantidad, :descripcion)";
+                         (id_material, accion, cantidad, descripcion)
+                         VALUES (:id_material, 'salida', :cantidad, :descripcion)";
 
             $stmtInsert = $this->conex->prepare($sqlInsert);
             $stmtMovimiento = $this->conex->prepare($sqlMovimiento);
@@ -549,7 +546,7 @@ class HojaServicio extends Conexion
 
                     // Actualizar stock
                     $sqlUpdateStock = "UPDATE material SET stock = stock - :cantidad 
-                              WHERE id_material = :id AND estatus = 1";
+                                  WHERE id_material = :id AND estatus = 1";
                     $stmtUpdate = $this->conex->prepare($sqlUpdateStock);
                     $stmtUpdate->bindValue(':cantidad', $detalle['cantidad'], PDO::PARAM_INT);
                     $stmtUpdate->bindValue(':id', $detalle['id_material'], PDO::PARAM_INT);
@@ -566,10 +563,9 @@ class HojaServicio extends Conexion
                 }
             }
 
-            // No commit aquí, lo hace el método principal
             return true;
         } catch (PDOException $e) {
-            // No rollBack aquí, lo hace el método principal
+            error_log('Error en registrarDetalles: ' . $e->getMessage());
             return false;
         }
     }
@@ -671,7 +667,7 @@ class HojaServicio extends Conexion
             }
 
             // Permisos: solo superusuario o técnico asignado
-            $esSuperusuario = isset($usuario['id_rol']) && $usuario['id_rol'] == 5;
+            $esSuperusuario = isset($usuario['id_rol']);
             $esTecnicoAsignado = isset($usuario['cedula']) && $hoja['cedula_tecnico'] == $usuario['cedula'];
 
             if (!$esSuperusuario && !$esTecnicoAsignado) {
@@ -811,6 +807,55 @@ class HojaServicio extends Conexion
     }
 
     /**
+     * Elimina (marca como eliminada) una hoja de servicio
+     */
+    private function eliminarHojaServicio()
+    {
+        if (!$this->codigo_hoja_servicio) {
+            return ['resultado' => 'error', 'mensaje' => 'Código de hoja no especificado'];
+        }
+        try {
+            $this->conex->beginTransaction();
+
+            // Verificar existencia
+            $sql = "SELECT estatus FROM hoja_servicio WHERE codigo_hoja_servicio = :codigo";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':codigo', $this->codigo_hoja_servicio);
+            $stmt->execute();
+            $estatusActual = $stmt->fetchColumn();
+
+            if ($estatusActual === false) {
+                $this->conex->rollBack();
+                return ['resultado' => 'error', 'mensaje' => 'Hoja de servicio no encontrada'];
+            }
+            if ($estatusActual === 'E') {
+                $this->conex->rollBack();
+                return ['resultado' => 'error', 'mensaje' => 'La hoja de servicio ya está eliminada'];
+            }
+
+            // Marcar como eliminada
+            $sqlUpdate = "UPDATE hoja_servicio SET estatus = 'E' WHERE codigo_hoja_servicio = :codigo";
+            $stmtUpdate = $this->conex->prepare($sqlUpdate);
+            $stmtUpdate->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+            $stmtUpdate->execute();
+
+            $this->conex->commit();
+            return [
+                'resultado' => 'success',
+                'mensaje' => 'Hoja de servicio eliminada correctamente',
+                'codigo' => $this->codigo_hoja_servicio // <-- Agregado
+            ];
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
+        }
+    }
+
+
+
+
+
+    /**
      * Maneja las transacciones del modelo
      */
     public function Transaccion($peticion)
@@ -890,8 +935,12 @@ class HojaServicio extends Conexion
             case 'consultar_detalles':
                 return $this->consultarSoloDetalles();
 
+            case 'eliminar':
+                return $this->eliminarHojaServicio();
+
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }
     }
+
 }

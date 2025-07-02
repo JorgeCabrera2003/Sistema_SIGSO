@@ -369,7 +369,7 @@ function enviarDatosServicio(datos) {
         type: 'POST',
         data: datos,
         dataType: 'json',
-        
+
         success: function (response) {
             if (response.resultado === 'success') {
                 mostrarExito(response.mensaje);
@@ -431,9 +431,9 @@ function verDetalles(codigo) {
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
-        data: { consultar: true, codigo_hoja_servicio: codigo },
+        data: {consultar: true, codigo_hoja_servicio: codigo},
         dataType: 'json',
-        success: function(resp) {
+        success: function (resp) {
             if (resp.resultado === 'success' && resp.datos) {
                 llenarModalDetalles(resp.datos);
                 $('#modalDetalles').modal('show');
@@ -441,7 +441,7 @@ function verDetalles(codigo) {
                 mostrarError(resp.mensaje || 'No se encontraron datos');
             }
         },
-        error: function() {
+        error: function () {
             mostrarError('Error al consultar detalles');
         }
     });
@@ -476,17 +476,23 @@ function llenarModalDetalles(datos) {
     let detalles = datos.detalles || [];
     let tbody = $('#tablaDetalles tbody');
     tbody.empty();
+    
     if (detalles.length > 0) {
         detalles.forEach(function(det, idx) {
-            let material = det.id_material ? (det.material_info ? det.material_info.nombre + ' (' + det.cantidad + ')' : 'ID: ' + det.id_material + ' (' + det.cantidad + ')') : '';
-            tbody.append(
-                `<tr>
+            let material = det.id_material ? 
+                (det.material_info ? 
+                    `${det.material_info.nombre} (${det.cantidad})` : 
+                    `ID: ${det.id_material} (${det.cantidad})`) : 
+                'No aplica';
+            
+            tbody.append(`
+                <tr>
                     <td>${idx + 1}</td>
                     <td>${det.componente || ''}</td>
                     <td>${det.detalle || ''}</td>
                     <td>${material}</td>
-                </tr>`
-            );
+                </tr>
+            `);
         });
     } else {
         tbody.append('<tr><td colspan="4" class="text-center">Sin detalles técnicos</td></tr>');
@@ -588,7 +594,7 @@ function editarHoja(codigo) {
                 `);
 
                 // Cargar tipos de servicio
-                cargarTiposServicio().then(function() {
+                cargarTiposServicio().then(function () {
                     // Llenar el formulario con los datos
                     $('#codigo_hoja_servicio').val(response.datos.codigo_hoja_servicio);
                     $('#nro_solicitud').val(response.datos.nro_solicitud);
@@ -625,7 +631,7 @@ function cargarDetallesHojaEdicion(codigo) {
             codigo_hoja_servicio: codigo
         },
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
             let detalles = [];
             if (response.resultado === 'success' && response.datos && response.datos.detalles) {
                 detalles = response.datos.detalles;
@@ -636,7 +642,7 @@ function cargarDetallesHojaEdicion(codigo) {
             $tbody.empty();
 
             if (detalles.length > 0) {
-                detalles.forEach(function(det) {
+                detalles.forEach(function (det) {
                     agregarFilaDetalle(
                         det.componente || '',
                         det.detalle || '',
@@ -648,18 +654,19 @@ function cargarDetallesHojaEdicion(codigo) {
                 agregarFilaDetalle();
             }
         },
-        error: function() {
+        error: function () {
             $('#tablaDetallesModal tbody').empty();
             agregarFilaDetalle();
         }
     });
 }
 
+// Función para agregar una nueva fila de detalle
 function agregarFilaDetalle(componente = '', detalle = '', id_material = '', cantidad = '') {
     const usarMaterial = id_material && cantidad;
     const $row = $(`
         <tr>
-            <td><input type="text" class="form-control componente" value="${componente}" placeholder="Componente"></td>
+            <td><input type="text" class="form-control componente" value="${componente}" placeholder="Componente" required></td>
             <td><input type="text" class="form-control detalle" value="${detalle}" placeholder="Detalle"></td>
             <td class="text-center">
                 <input type="checkbox" class="form-check-input usar-material" ${usarMaterial ? 'checked' : ''}>
@@ -686,8 +693,126 @@ function agregarFilaDetalle(componente = '', detalle = '', id_material = '', can
     $('#tablaDetallesModal tbody').append($row);
 }
 
+// Función para cargar materiales disponibles en una fila
+function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = null) {
+    $.ajax({
+        url: '?page=servicios',
+        type: 'POST',
+        data: {listar_materiales: true},
+        dataType: 'json',
+        success: function (response) {
+            if (response.resultado === 'success') {
+                $select.empty().append('<option value="">Seleccione material</option>');
+
+                response.datos.forEach(function (material) {
+                    $select.append($('<option>', {
+                        value: material.id_material,
+                        text: material.nombre_material + ' (Disponible: ' + material.stock + ')',
+                        'data-stock': material.stock
+                    }));
+                });
+
+                if (idMaterialSeleccionado) {
+                    $select.val(idMaterialSeleccionado);
+
+                    // Validar cantidad contra stock
+                    const $row = $select.closest('tr');
+                    const $cantidadInput = $row.find('.material-cantidad');
+                    const stock = $select.find('option:selected').data('stock');
+
+                    if ($cantidadInput.val() > stock) {
+                        mostrarError(`La cantidad (${$cantidadInput.val()}) excede el stock disponible (${stock})`);
+                        $cantidadInput.val(stock);
+                    }
+                }
+            }
+        },
+        error: function () {
+            $select.empty().append('<option value="">Error al cargar materiales</option>');
+        }
+    });
+}
+
+// Evento para manejar cambios en el checkbox de material
+$(document).on('change', '.usar-material', function () {
+    const $row = $(this).closest('tr');
+    const checked = $(this).is(':checked');
+
+    $row.find('.material-select, .material-cantidad').prop('disabled', !checked);
+
+    if (checked && $row.find('.material-select option').length <= 1) {
+        cargarMaterialesDisponiblesParaFila($row.find('.material-select'));
+    }
+});
+
+// Evento para validar cantidad contra stock
+$(document).on('change', '.material-select', function () {
+    const $row = $(this).closest('tr');
+    const stock = $(this).find('option:selected').data('stock');
+    const $cantidadInput = $row.find('.material-cantidad');
+
+    if (stock && $cantidadInput.val() > stock) {
+        mostrarError(`La cantidad (${$cantidadInput.val()}) excede el stock disponible (${stock})`);
+        $cantidadInput.val(stock);
+    }
+});
+
+// Evento para eliminar filas de detalle
+$(document).on('click', '.btn-eliminar-detalle', function () {
+    $(this).closest('tr').remove();
+});
+
+// Función para recopilar detalles antes de guardar
+function recopilarDetalles() {
+    const detalles = [];
+    let errorEnDetalles = false;
+
+    $('#tablaDetallesModal tbody tr').each(function () {
+        const componente = $(this).find('.componente').val()?.trim();
+        const detalle = $(this).find('.detalle').val()?.trim();
+        const usaMaterial = $(this).find('.usar-material').is(':checked');
+        const material = usaMaterial ? $(this).find('.material-select').val() : null;
+        const cantidad = usaMaterial ? $(this).find('.material-cantidad').val() : null;
+
+        // Solo agregar si tiene componente
+        if (componente) {
+            // Validar material si está marcado
+            if (usaMaterial) {
+                if (!material) {
+                    mostrarError('Debe seleccionar un material para el componente: ' + componente);
+                    errorEnDetalles = true;
+                    return false;
+                }
+
+                if (!cantidad || cantidad <= 0) {
+                    mostrarError('La cantidad debe ser mayor a 0 para el componente: ' + componente);
+                    errorEnDetalles = true;
+                    return false;
+                }
+
+                // Validar stock
+                const stock = $(this).find('.material-select option:selected').data('stock');
+                if (cantidad > stock) {
+                    mostrarError(`La cantidad (${cantidad}) excede el stock disponible (${stock}) para el componente: ${componente}`);
+                    errorEnDetalles = true;
+                    return false;
+                }
+            }
+
+            detalles.push({
+                componente: componente,
+                detalle: detalle || '',
+                id_material: material,
+                cantidad: cantidad ? parseInt(cantidad) : null
+            });
+        }
+    });
+
+    return {detalles, errorEnDetalles};
+}
+
 // Evento delegado para el botón agregar detalle
-$(document).on('click', '#modal1 #btn-agregar-detalle', function() {
+$(document).on('click', '#modal1 #btn-agregar-detalle', function () {
     agregarFilaDetalle();
 });
 
@@ -695,13 +820,13 @@ function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = n
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
-        data: { listar_materiales: true },
+        data: {listar_materiales: true},
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
             if (response.resultado === 'success') {
                 $select.empty().append('<option value="">Seleccione material</option>');
-                
-                response.datos.forEach(function(material) {
+
+                response.datos.forEach(function (material) {
                     $select.append($('<option>', {
                         value: material.id_material,
                         text: material.nombre_material + ' (Disponible: ' + material.stock + ')'
@@ -713,7 +838,7 @@ function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = n
                 }
             }
         },
-        error: function() {
+        error: function () {
             $select.empty().append('<option value="">Error al cargar materiales</option>');
         }
     });
@@ -854,7 +979,7 @@ function tomarHoja(codigo) {
             codigo_hoja_servicio: codigo
         },
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
             if (response.resultado === 'success') {
                 mostrarExito(response.mensaje);
                 tablaServicios.ajax.reload(null, false);
@@ -862,7 +987,7 @@ function tomarHoja(codigo) {
                 mostrarError(response.mensaje);
             }
         },
-        error: function() {
+        error: function () {
             mostrarError('Error al intentar tomar la hoja de servicio');
         }
     });
@@ -885,7 +1010,7 @@ function finalizarHoja(codigo) {
             codigo_hoja_servicio: codigo
         },
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
             if (response.resultado === 'success') {
                 $('#nro_solicitud').val(response.datos.nro_solicitud);
                 $('#id_tipo_servicio').val(response.datos.id_tipo_servicio);
@@ -916,15 +1041,15 @@ function eliminarHoja(codigo) {
                     codigo_hoja_servicio: codigo
                 },
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response.resultado === 'success') {
                         mostrarExito(response.mensaje);
                         tablaServicios.ajax.reload(null, false);
                     } else {
-                        mostrarError(response.mensaje);
+                        mostrarError(response.mensaje || 'Error al eliminar la hoja de servicio');
                     }
                 },
-                error: function() {
+                error: function () {
                     mostrarError('Error al intentar eliminar la hoja de servicio');
                 }
             });
