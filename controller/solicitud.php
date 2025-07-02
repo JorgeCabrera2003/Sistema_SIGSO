@@ -126,33 +126,20 @@ if (is_file("view/" . $page . ".php")) {
     exit;
 }
 
-    // Actualización de solicitud existente
-    if (isset($_POST["modificar"])) {
+    // Consultar solicitudes eliminadas
+    if (isset($_POST["consultar_eliminadas"])) {
+        $resultado = $solicitud->Transaccion(['peticion' => "consultar_eliminadas"]);
         header('Content-Type: application/json');
-        
-        try {
-            $solicitud->set_nro_solicitud($_POST["nrosol"]);
-            $solicitud->set_motivo($_POST["motivo"]);
-            $solicitud->set_cedula_solicitante($_POST["cedula"]);
-            $solicitud->set_id_equipo($_POST["serial"] ?: null);
-            
-            $resultado = $solicitud->Transaccion(['peticion' => "actualizar"]);
-            
-            if ($resultado['bool']) {
-                // Actualizar hoja de servicio
-                $hojaServicio->set_nro_solicitud($_POST["nrosol"]);
-                $hojaServicio->set_id_tipo_servicio($_POST["area"]);
-                $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
-                
-                $response = ["resultado" => "success", "mensaje" => "Solicitud actualizada correctamente"];
-            } else {
-                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
-            }
-        } catch (Exception $e) {
-            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
-        }
-        
-        echo json_encode($response);
+        echo json_encode($resultado);
+        exit;
+    }
+
+    // Restaurar solicitud eliminada
+    if (isset($_POST["restaurar"])) {
+        $solicitud->set_nro_solicitud($_POST['nrosol']);
+        $resultado = $solicitud->Transaccion(['peticion' => "restaurar"]);
+        header('Content-Type: application/json');
+        echo json_encode($resultado);
         exit;
     }
 

@@ -136,6 +136,124 @@ function configurarEventos() {
     $('#motivo').on('input', function () {
         validarMotivo($(this).val());
     });
+
+    // Reemplazar botón de actualizar por solicitudes eliminadas
+    $('#btn-solicitudes-eliminadas').on('click', function () {
+        consultarEliminadas();
+        $('#modalEliminadas').modal('show');
+    });
+}
+
+// --- NUEVAS FUNCIONES PARA PAPELERA DE SOLICITUDES ---
+
+function consultarEliminadas() {
+    var datos = new FormData();
+    datos.append('consultar_eliminadas', 'consultar_eliminadas');
+    $.ajax({
+        async: true,
+        url: "",
+        type: "POST",
+        contentType: false,
+        data: datos,
+        processData: false,
+        cache: false,
+        success: function (respuesta) {
+            try {
+                var lee = typeof respuesta === "string" ? JSON.parse(respuesta) : respuesta;
+                if (lee.resultado === "consultar_eliminadas") {
+                    TablaEliminados(lee.datos);
+                } else if (lee.resultado === "error") {
+                    mostrarError(lee.mensaje || "Error al consultar solicitudes eliminadas");
+                } else {
+                    mostrarError("Respuesta inesperada al consultar eliminados");
+                }
+            } catch (e) {
+                mostrarError("Error procesando solicitudes eliminadas: " + (e.message || e));
+            }
+        },
+        error: function (xhr) {
+            mostrarError("Error de red al consultar eliminados");
+        }
+    });
+}
+
+// Renderizar tabla de eliminados y botón de restaurar
+function TablaEliminados(arreglo) {
+    if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
+        $('#tablaEliminadas').DataTable().destroy();
+    }
+    $('#tablaEliminadas tbody').empty();
+    $('#tablaEliminadas').DataTable({
+        data: arreglo,
+        columns: [
+            { data: 'nro_solicitud' },
+            { data: 'solicitante' },
+            { data: 'cedula' },
+            { data: 'dependencia' },
+            { data: 'motivo' },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `<button class="btn btn-success btn-restaurar-solicitud" data-nrosol="${row.nro_solicitud}">
+                        <i class="fa-solid fa-recycle"></i>
+                    </button>`;
+                }
+            }
+        ],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json"
+        }
+    });
+}
+
+// Evento para restaurar solicitud
+$(document).on('click', '.btn-restaurar-solicitud', function () {
+    var nro_solicitud = $(this).data('nrosol');
+    Swal.fire({
+        title: '¿Restaurar Solicitud?',
+        text: "¿Está seguro que desea restaurar esta solicitud?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, restaurar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            restaurarSolicitud(nro_solicitud);
+        }
+    });
+});
+
+function restaurarSolicitud(nro_solicitud) {
+    var datos = new FormData();
+    datos.append('restaurar', 'restaurar');
+    datos.append('nrosol', nro_solicitud);
+    $.ajax({
+        url: "",
+        type: "POST",
+        data: datos,
+        processData: false,
+        contentType: false,
+        success: function (respuesta) {
+            try {
+                var lee = typeof respuesta === "string" ? JSON.parse(respuesta) : respuesta;
+                if (lee.resultado === "restaurar" && lee.bool) {
+                    Swal.fire('¡Restaurado!', 'La solicitud ha sido restaurada.', 'success');
+                    consultarEliminadas();
+                    // Si tienes una función para recargar la tabla principal, llama aquí
+                    if (typeof recargarTabla === "function") recargarTabla();
+                } else {
+                    Swal.fire('Error', lee.mensaje || "No se pudo restaurar la solicitud", 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', "Error procesando la respuesta", 'error');
+            }
+        },
+        error: function () {
+            Swal.fire('Error', "No se pudo restaurar la solicitud", 'error');
+        }
+    });
 }
 
 async function rellenarSolicitud(pos, accion) {

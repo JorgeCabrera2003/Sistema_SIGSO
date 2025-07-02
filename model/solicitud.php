@@ -494,6 +494,62 @@ class Solicitud extends Conexion
     }
 
     /**
+     * Consultar solicitudes eliminadas (estatus = 0)
+     */
+    private function consultarEliminadas()
+    {
+        $datos = ['resultado' => 'consultar_eliminadas', 'datos' => []];
+        try {
+            $sql = "SELECT 
+                        s.nro_solicitud,
+                        CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS solicitante,
+                        s.cedula_solicitante AS cedula,
+                        d.nombre AS dependencia,
+                        s.motivo
+                    FROM solicitud s
+                    LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
+                    LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
+                    LEFT JOIN dependencia d ON u.id_dependencia = d.id
+                    WHERE s.estatus = 0";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->execute();
+            $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $datos['resultado'] = 'error';
+            $datos['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stmt);
+        return $datos;
+    }
+
+    /**
+     * Restaurar una solicitud eliminada (estatus = 1)
+     */
+    private function restaurarSolicitud()
+    {
+        $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
+        try {
+            $this->conex->beginTransaction();
+            $sql = "UPDATE solicitud SET estatus = 1 WHERE nro_solicitud = :nro";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':nro', $this->nro_solicitud);
+            if ($stmt->execute()) {
+                $datos['resultado'] = 'restaurar';
+                $datos['mensaje'] = 'Solicitud restaurada exitosamente';
+                $datos['bool'] = $stmt->rowCount() > 0;
+                $this->conex->commit();
+            } else {
+                $this->conex->rollBack();
+            }
+        } catch (PDOException $e) {
+            $datos['mensaje'] = $e->getMessage();
+            $this->conex->rollBack();
+        }
+        $this->Cerrar_Conexion($this->conex, $stmt);
+        return $datos;
+    }
+
+    /**
      * Maneja las transacciones del modelo
      */
     public function Transaccion($peticion)
@@ -528,6 +584,12 @@ class Solicitud extends Conexion
 
             case "consultar_por_id":
                 return $this->obtenerSolicitudPorId();
+
+            case "consultar_eliminadas":
+                return $this->consultarEliminadas();
+
+            case "restaurar":
+                return $this->restaurarSolicitud();
 
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];

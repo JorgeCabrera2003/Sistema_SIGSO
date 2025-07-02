@@ -28,9 +28,10 @@
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSolicitud" id="btn-nueva-solicitud" title="Nueva Solicitud">
                   <i class="bi bi-plus-circle me-1"></i> Nueva Solicitud
                 </button>
-                
-                <button type="button" class="btn btn-secondary" id="btn-refrescar">
-                  <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+
+
+                <button type="button" class="btn btn-primary" id="btn-solicitudes-eliminadas" title="Solicitudes Eliminadas" data-bs-toggle="modal" data-bs-target="#modalEliminadas">
+                  Solicitudes Eliminadas <i class="fa-solid fa-recycle"></i>
                 </button>
               </div>
 
@@ -74,6 +75,41 @@
       </div>
     </section>
   </main>
+
+  <!-- Modal Solicitudes Eliminadas -->
+  <div class="modal fade" id="modalEliminadas" tabindex="-1" role="dialog" aria-labelledby="modalEliminadasTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title text-white" id="modalEliminadasTitle">Solicitudes Eliminadas</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table" id="tablaEliminadas">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Solicitante</th>
+                  <th>Cédula</th>
+                  <th>Dependencia</th>
+                  <th>Motivo</th>
+                  <th>Restaurar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Contenido dinámico -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ModalEliminados -->
 
   <?php require_once "Componentes/footer.php"; ?>
   
