@@ -23,12 +23,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Gestionar Equipos</h5>
                         <div class="d-flex justify-content-between">
+                            <?php if(isset($permisos['equipo']['registrar']['estado']) && $permisos['equipo']['registrar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar">
                                 Registrar Equipo
                             </button>
+                            <?php }?>
+                             <?php if(isset($permisos['equipo']['restaurar']['estado']) && $permisos['equipo']['restaurar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Equipos Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
+                            <?php }?>
                         </div>
                         <div class="table-responsive">
                             <table class="table" id="tabla1">

@@ -28,11 +28,7 @@
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_tipo_bien" id="id_tipo_bien">
                                 <option value="">Seleccione un tipo</option>
-                                <?php foreach ($tipos_bien as $tipo): ?>
-                                    <option value="<?= $tipo['id_tipo_bien'] ?>">
-                                        <?= $tipo['nombre_tipo_bien'] ?>
-                                    </option>
-                                <?php endforeach; ?>
+
                             </select>
                             <span id="sid_tipo_bien"></span>
                             <label for="id_tipo_bien" class="form-label">Tipo de Bien</label>
@@ -42,11 +38,7 @@
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_marca" id="id_marca">
                                 <option value="">Seleccione una marca</option>
-                                <?php foreach ($marcas as $marca): ?>
-                                    <option value="<?= $marca['id_marca'] ?>">
-                                        <?= $marca['nombre_marca'] ?>
-                                    </option>
-                                <?php endforeach; ?>
+
                             </select>
                             <span id="sid_marca"></span>
                             <label for="id_marca" class="form-label">Marca</label>
@@ -71,12 +63,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_oficina" id="id_oficina">
-                                <option value="">Seleccione una oficina</option>
-                                <?php foreach ($oficinas as $oficina): ?>
-                                    <option value="<?= $oficina['id_oficina'] ?>">
-                                        <?= $oficina['nombre_oficina'] ?>
-                                    </option>
-                                <?php endforeach; ?>
+
                             </select>
                             <span id="sid_oficina"></span>
                             <label for="id_oficina" class="form-label">Oficina</label>
@@ -87,12 +74,7 @@
                     <div class="col-12">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="cedula_empleado" id="cedula_empleado">
-                                <option value="">Seleccione un empleado</option>
-                                <?php foreach ($empleados as $empleado): ?>
-                                    <option value="<?= $empleado['cedula_empleado'] ?>">
-                                        <?= $empleado['nombre_completo'] ?>
-                                    </option>
-                                <?php endforeach; ?>
+
                             </select>
                             <span id="scedula_empleado"></span>
                             <label for="cedula_empleado" class="form-label">Empleado Asignado</label>

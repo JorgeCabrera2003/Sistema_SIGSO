@@ -1,5 +1,9 @@
 <?php
 require_once "model/conexion.php";
+require_once "model/empleado.php";
+require_once "model/oficina.php";
+require_once "model/marca.php";
+require_once "model/tipo_bien.php";
 class Bien extends Conexion
 {
     private $codigo_bien;
@@ -10,11 +14,22 @@ class Bien extends Conexion
     private $cedula_empleado;
     private $id_oficina;
     private $estatus;
+    private $empleado;
+    private $oficina;
+    private $marca;
+    private $tipo_bien;
 
     public function __construct()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->codigo_bien = 0;
+        $this->id_tipo_bien = NULL;
+        $this->id_marca = NULL;
+        $this->descripcion = "";
+        $this->estado = "";
+        $this->cedula_empleado = NULL;
+        $this->id_oficina = NULL;
+        $this->estatus = 0;
+
     }
 
     public function set_codigo_bien($codigo_bien)
@@ -97,17 +112,85 @@ class Bien extends Conexion
         return $this->estatus;
     }
 
+    private function LlamarEmpleado()
+    {
+        if ($this->empleado == NULL) {
+
+            $this->empleado = new Empleado();
+
+        }
+
+        return $this->empleado;
+    }
+
+    private function DestruirEmpleado()
+    {
+        $this->empleado = NULL;
+    }
+
+    private function LlamarMarca()
+    {
+        if ($this->marca == NULL) {
+
+            $this->marca = new Marca();
+
+        }
+
+        return $this->marca;
+    }
+
+    private function DestruirMarca()
+    {
+        $this->marca = NULL;
+    }
+
+    private function LlamarOficina()
+    {
+        if ($this->oficina == NULL) {
+
+            $this->oficina = new Oficina();
+
+        }
+
+        return $this->oficina;
+    }
+
+    private function DestruirOficina()
+    {
+        $this->oficina = NULL;
+    }
+
+    private function LlamarTipoBien()
+    {
+        if ($this->tipo_bien == NULL) {
+
+            $this->tipo_bien = new TipoBien();
+
+        }
+
+        return $this->tipo_bien;
+    }
+
+    private function DestruirTipoBien()
+    {
+        $this->tipo_bien = NULL;
+    }
+
     private function Validar()
     {
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+
+            $this->conex->beginTransaction();
             $query = "SELECT * FROM bien WHERE codigo_bien = :codigo";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo", $this->codigo_bien);
             $stm->execute();
-
+            $this->conex->commit();
             if ($stm->rowCount() > 0) {
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $dato['bool'] = 1;
@@ -116,6 +199,8 @@ class Bien extends Conexion
             }
 
         } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -129,6 +214,10 @@ class Bien extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
+                $this->conex->beginTransaction();
+
                 $query = "INSERT INTO bien(codigo_bien, id_tipo_bien, id_marca, descripcion, estado, cedula_empleado, id_oficina, estatus) VALUES 
                 (:codigo, :tipo_bien, :marca, :descripcion, :estado, :empleado, :oficina, 1)";
 
@@ -141,15 +230,18 @@ class Bien extends Conexion
                 $stm->bindParam(":empleado", $this->cedula_empleado);
                 $stm->bindParam(":oficina", $this->id_oficina);
                 $stm->execute();
+                $this->conex->commit();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se registró el bien exitosamente";
             } catch (PDOException $e) {
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
@@ -163,6 +255,10 @@ class Bien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "UPDATE bien SET id_tipo_bien=:tipo_bien, id_marca=:marca, descripcion=:descripcion, 
                      estado=:estado, cedula_empleado=:empleado, id_oficina=:oficina 
                      WHERE codigo_bien = :codigo";
@@ -176,10 +272,12 @@ class Bien extends Conexion
             $stm->bindParam(":empleado", $this->cedula_empleado);
             $stm->bindParam(":oficina", $this->id_oficina);
             $stm->execute();
+            $this->conex->commit();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se modificaron los datos del bien con éxito";
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -193,6 +291,10 @@ class Bien extends Conexion
         $dato = [];
         $bool = $this->Validar();
 
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+        $this->conex->beginTransaction();
+
         if ($bool['bool'] != 0) {
             try {
                 $query = "UPDATE bien SET estatus = 0 WHERE codigo_bien = :codigo";
@@ -200,15 +302,18 @@ class Bien extends Conexion
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo", $this->codigo_bien);
                 $stm->execute();
+                $this->conex->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el bien exitosamente";
             } catch (PDOException $e) {
+                $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
@@ -222,6 +327,10 @@ class Bien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "SELECT b.codigo_bien, CONCAT(tb.nombre_tipo_bien, ' ', m.nombre_marca) AS nombre_bien
             FROM bien b
             LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
@@ -234,9 +343,11 @@ class Bien extends Conexion
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
+            $this->conex->commit();
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
             $dato['resultado'] = "filtrar_bien";
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['datos'] = [];
         }
         return $dato;
@@ -248,6 +359,10 @@ class Bien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "SELECT b.*, tb.nombre_tipo_bien, m.nombre_marca, o.nombre_oficina, 
                      CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS empleado
                      FROM bien b 
@@ -259,63 +374,35 @@ class Bien extends Conexion
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
+            $this->conex->commit();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
-
-    public function ConsultarTiposBien()
+    private function ConsultarTiposBien()
     {
-        try {
-            $query = "SELECT * FROM tipo_bien WHERE estatus = 1";
-            $stm = $this->conex->prepare($query);
-            $stm->execute();
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
+        return $this->LlamarTipoBien()->Transaccion(['peticion' => 'consultar']);
     }
 
-    public function ConsultarMarcas()
+    private function ConsultarMarcas()
     {
-        try {
-            $query = "SELECT * FROM marca WHERE estatus = 1";
-            $stm = $this->conex->prepare($query);
-            $stm->execute();
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
+        return $this->LlamarMarca()->Transaccion(['peticion' => 'consultar']);
     }
 
-    public function ConsultarOficinas()
+    private function ConsultarOficinas()
     {
-        try {
-            $query = "SELECT * FROM oficina WHERE estatus = 1";
-            $stm = $this->conex->prepare($query);
-            $stm->execute();
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
+        return $this->LlamarOficina()->Transaccion(['peticion' => 'consultar']);
     }
 
-    public function ConsultarEmpleados()
+    private function ConsultarEmpleados()
     {
-        try {
-            $query = "SELECT cedula_empleado, CONCAT(nombre_empleado, ' ', apellido_empleado) AS nombre_completo 
-                     FROM empleado";
-            $stm = $this->conex->prepare($query);
-            $stm->execute();
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
+        return $this->LlamarEmpleado()->Transaccion(['peticion' => 'consultar']);
     }
 
     private function ConsultarEliminadas()
@@ -323,6 +410,10 @@ class Bien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "SELECT b.*, tb.nombre_tipo_bien, m.nombre_marca
                      FROM bien b 
                      LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
@@ -345,11 +436,16 @@ class Bien extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
             $query = "UPDATE bien SET estatus = 1 WHERE codigo_bien = :codigo";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo", $this->codigo_bien);
             $stm->execute();
+            $this->conex->commit();
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Bien restaurado exitosamente";
@@ -357,6 +453,7 @@ class Bien extends Conexion
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el bien Código: " . $this->codigo_bien;
             Bitacora($msg, "Bien");
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();

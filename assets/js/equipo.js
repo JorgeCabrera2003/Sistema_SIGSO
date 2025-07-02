@@ -152,6 +152,9 @@ async function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -241,7 +244,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un código de bien");
 		return false;
 
-	} else if($("#id_dependencia").val() == "default") {
+	} else if ($("#id_dependencia").val() == "default") {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un una dependencia");
 		return false;
 
@@ -314,6 +317,25 @@ async function selectUnidad(arreglo) {
 	return true;
 }
 
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+		$('.modificar').remove();
+		$('.eliminar').remove();
+		$('.restaurar').remove();
+	} else {
+		if (permisos['equipo']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+		if (permisos['equipo']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+		if (permisos['equipo']['restaurar']['estado'] == '0') {
+			$('.restaurar').remove();
+		}
+	}
+};
+
 function crearDataTable(arreglo) {
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
@@ -330,8 +352,8 @@ function crearDataTable(arreglo) {
 			{ data: 'nombre_unidad' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash eliminar"></i></button>`;
 					return botones;
 				}
 			}],
@@ -434,7 +456,7 @@ function consultarEliminadas() {
 							{
 								data: null,
 								render: function () {
-									return `<button onclick="restaurarEquipo(this)" class="btn btn-success">
+									return `<button onclick="restaurarEquipo(this)" class="btn btn-success restaurar">
                                           <i class="fa-solid fa-recycle"></i>
                                           </button>`;
 								}

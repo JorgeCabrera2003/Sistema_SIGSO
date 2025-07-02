@@ -20,6 +20,13 @@ if (is_file("view/" . $page . ".php")) {
     $dependencia = new Dependencia();
     $bien = new Bien();
 
+    if (!isset($permisos['equipo']['ver']['estado']) || $permisos['equipo']['ver']['estado'] == "0") {
+        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Equipo";
+        Bitacora($msg, "Equipo");
+        header('Location: ?page=home');
+        exit;
+    }
+
     if (isset($_POST["entrada"])) {
         $json['resultado'] = "entrada";
         echo json_encode($json);
@@ -29,19 +36,48 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["registrar"])) {
-        $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
-        $equipo->set_serial($_POST["serial"]);
-        $equipo->set_codigo_bien($_POST["codigo_bien"]);
-        $equipo->set_id_unidad($_POST["id_unidad"]);
-        $peticion["peticion"] = "registrar";
-        $json = $equipo->Transaccion($peticion);
-        echo json_encode($json);
+        if (isset($permisos['equipo']['registrar']['estado']) && $permisos['equipo']['registrar']['estado'] == '1') {
+            if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Código de Bien no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-        if ($json['estado'] == 1) {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo equipo";
+            } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Tipo de Bien no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Marca no válida";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Marca no válida";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else {
+
+                $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
+                $equipo->set_serial($_POST["serial"]);
+                $equipo->set_codigo_bien($_POST["codigo_bien"]);
+                $equipo->set_id_unidad($_POST["id_unidad"]);
+                $peticion["peticion"] = "registrar";
+                $json = $equipo->Transaccion($peticion);
+
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo equipo";
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo equipo";
+                }
+            }
         } else {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo equipo";
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error, No tienes permiso para registrar Equipo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
         }
+        echo json_encode($json);
         Bitacora($msg, "Equipo");
         exit;
     }
@@ -54,34 +90,82 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["modificar"])) {
-        $equipo->set_id_equipo($_POST["id_equipo"]);
-        $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
-        $equipo->set_serial($_POST["serial"]);
-        $equipo->set_codigo_bien($_POST["codigo_bien"]);
-        $equipo->set_id_unidad($_POST["id_unidad"]);
-        $peticion["peticion"] = "actualizar";
-        $json = $equipo->Transaccion($peticion);
-        echo json_encode($json);
+        if (isset($permisos['equipo']['modificar']['estado']) && $permisos['equipo']['modificar']['estado'] == '1') {
+            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_equipo"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Id de Equipo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-        if ($json['estado'] == 1) {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del equipo";
+            } else if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Código de Bien no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Serial no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Unidad no válida";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Tipo de Equipo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else {
+                $equipo->set_id_equipo($_POST["id_equipo"]);
+                $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
+                $equipo->set_serial($_POST["serial"]);
+                $equipo->set_codigo_bien($_POST["codigo_bien"]);
+                $equipo->set_id_unidad($_POST["id_unidad"]);
+                $peticion["peticion"] = "actualizar";
+                $json = $equipo->Transaccion($peticion);
+
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del equipo";
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar equipo";
+                }
+            }
         } else {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar equipo";
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error, No tienes permiso para modificar Equipo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
         }
+
+        echo json_encode($json);
         Bitacora($msg, "Equipo");
         exit;
     }
 
     if (isset($_POST["eliminar"])) {
-        $equipo->set_id_equipo($_POST["id_equipo"]);
-        $peticion["peticion"] = "eliminar";
-        $json = $equipo->Transaccion($peticion);
-        echo json_encode($json);
+        if (isset($permisos['equipo']['eliminar']['estado']) && $permisos['equipo']['eliminar']['estado'] == '1') {
+            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_equipo"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Id de Equipo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-        if ($json['estado'] == 1) {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un equipo";
+            } else {
+                $equipo->set_id_equipo($_POST["id_equipo"]);
+                $peticion["peticion"] = "eliminar";
+                $json = $equipo->Transaccion($peticion);
+                echo json_encode($json);
+
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un equipo";
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un equipo";
+                }
+            }
+
         } else {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un equipo";
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error, No tienes permiso para eliminar Equipo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
         }
         Bitacora($msg, "Equipo");
         exit;
@@ -120,9 +204,27 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["restaurar"])) {
-        $equipo->set_id_equipo($_POST["id_equipo"]);
-        $peticion["peticion"] = "restaurar";
-        $json = $equipo->Transaccion($peticion);
+        if (isset($permisos['equipo']['restaurar']['estado']) && $permisos['equipo']['restaurar']['estado'] == '1') {
+            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_equipo"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Id de Equipo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else {
+                $equipo->set_id_equipo($_POST["id_equipo"]);
+                $peticion["peticion"] = "restaurar";
+                $json = $equipo->Transaccion($peticion);
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del equipo";
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar equipo";
+                }
+            }
+        } else {
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error, No tienes permiso para restaurar Equipo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+        }
         echo json_encode($json);
         exit;
     }
