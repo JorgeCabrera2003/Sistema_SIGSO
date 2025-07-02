@@ -3,6 +3,7 @@ $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
+	ConsultarPermisos();
 
 	$("#enviar").on("click", async function () {
 
@@ -116,6 +117,25 @@ $(document).ready(function () {
 
 });
 
+function vistaPermiso(permisos = null) {
+
+    if (!permisos || Object.keys(permisos).length == 0) {
+
+        $('.modificar').remove();
+        $('.eliminar').remove();
+
+    } else {
+
+        if (permisos['punto_conexion']['modificar']['estado'] == '0') {
+            $('.modificar').remove();
+        }
+
+        if (permisos['punto_conexion']['eliminar']['estado'] == '0') {
+            $('.eliminar').remove();
+        }
+
+    }
+}
 
 function enviaAjax(datos) {
 
@@ -164,6 +184,9 @@ function enviaAjax(datos) {
 				} else if (lee.resultado == "entrada") {
 
 
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "error") {
 
 					mensajes("error", null, lee.mensaje, null);
@@ -196,6 +219,42 @@ function enviaAjax(datos) {
 
 		complete: function () { },
 	
+	});
+}
+
+function crearDataTable(arreglo) {
+
+	console.log(arreglo);
+
+	if ($.fn.DataTable.isDataTable('#tabla1')) {
+
+		$('#tabla1').DataTable().destroy();
+
+	}
+
+	$('#tabla1').DataTable({
+
+		data: arreglo,
+
+		columns: [
+			{ data: 'id_punto_conexion' },
+			{ data: 'codigo_patch_panel' },
+			{ data: 'id_equipo' },
+			{ data: 'puerto_patch_panel' },
+			{
+				data: null, render: function () {
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar Punto de Conexión"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar" title="Eliminar Punto de Conexión"><i class="fa-solid fa-trash"></i></button>`;
+					return botones;
+				}
+			}],
+		order: [
+			[1, 'asc'],
+			[2, 'asc']
+		],
+		language: {
+			url: idiomaTabla,
+		}
 	});
 }
 
@@ -274,42 +333,6 @@ function validarenvio() {
     }
 
     return valido;
-}
-
-function crearDataTable(arreglo) {
-
-	console.log(arreglo);
-
-	if ($.fn.DataTable.isDataTable('#tabla1')) {
-
-		$('#tabla1').DataTable().destroy();
-
-	}
-
-	$('#tabla1').DataTable({
-
-		data: arreglo,
-
-		columns: [
-			{ data: 'id_punto_conexion' },
-			{ data: 'codigo_patch_panel' },
-			{ data: 'id_equipo' },
-			{ data: 'puerto_patch_panel' },
-			{
-				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update" title="Modificar Punto de Conexión"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger" title="Eliminar Punto de Conexión"><i class="fa-solid fa-trash"></i></button>`;
-					return botones;
-				}
-			}],
-		order: [
-			[1, 'asc'],
-			[2, 'asc']
-		],
-		language: {
-			url: idiomaTabla,
-		}
-	});
 }
 
 function limpia() {

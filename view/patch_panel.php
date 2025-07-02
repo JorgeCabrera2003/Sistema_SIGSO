@@ -2,12 +2,6 @@
 
     require_once("Componentes/head.php"); 
 ?>
-<style>
-     #tabla1 td,
-     #tabla1 th {
-       text-align: center;
-     }
-   </style>
 <body>
 
     <?php require_once("Componentes/menu.php");

@@ -43,4 +43,12 @@
     <script src="assets/js/sweetalert2.js"></script>
     <script src="vendor/datatables.net/datatables.net/js/dataTables.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+     #tabla1 td,
+     #tabla1 th {
+       text-align: center;
+     }
+   </style>
+   
   </head>

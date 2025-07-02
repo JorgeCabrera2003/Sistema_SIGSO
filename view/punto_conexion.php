@@ -2,12 +2,6 @@
 
     require_once("Componentes/head.php"); 
 ?>
-<style>
-     #tabla1 td,
-     #tabla1 th {
-       text-align: center;
-     }
-   </style>
 <body>
 
     <?php require_once("Componentes/menu.php");
@@ -33,10 +27,14 @@
                         <h5 class="card-title">Gestionar Punto de Conexión</h5>
 
                         <div class="d-flex justify-content-between">
+
+                        <?php if (isset($permisos['punto_conexion']['registrar']['estado']) && $permisos['punto_conexion']['registrar']['estado'] == "1") { ?>
+
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Asignar un nuevo Punto de Conexión">
                                 Asignar Punto de Conexión
                             </button>
-                            
+                        <?php } ?>
+
                         </div>
 
                         <div class="table-responsive">
@@ -68,6 +66,7 @@
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
     <script defer src="assets/js/punto_conexion.js"></script>
+    <script src="assets/Select2/js/select2.min.js"></script>
     </div>
 </body>
 
