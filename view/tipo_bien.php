@@ -23,12 +23,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Gestionar Tipos de Bien</h5>
                         <div class="d-flex justify-content-between">
+                            <?php if (isset($permisos['tipo_bien']['registrar']['estado']) && $permisos['tipo_bien']['registrar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar">
                                 Registrar Tipo de Bien
                             </button>
+                            <?php }?>
+                            <?php if (isset($permisos['tipo_bien']['restaurar']['estado']) && $permisos['tipo_bien']['restaurar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Tipos de Bien Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
+                            <?php }?>
                         </div>
                         <div class="table-responsive">
                             <table class="table" id="tabla1">

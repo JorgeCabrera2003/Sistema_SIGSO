@@ -8,8 +8,9 @@ class Cargo extends Conexion
 
     public function __construct()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->id = 0;
+        $this->nombre = "";
+        $this->estatus = 0;
     }
 
     public function set_id($id)
@@ -46,6 +47,8 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM cargo WHERE id_cargo = :id";
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -58,6 +61,7 @@ class Cargo extends Conexion
                 $dato['bool'] = 0;
             }
         } catch (PDOException $e) {
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -71,6 +75,8 @@ class Cargo extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $query = "INSERT INTO cargo(id_cargo, nombre_cargo, estatus) VALUES (NULL, :nombre, 1)";
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
@@ -96,6 +102,8 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "UPDATE cargo SET nombre_cargo = :nombre WHERE id_cargo = :id";
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -120,6 +128,8 @@ class Cargo extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $query = "UPDATE cargo SET estatus = 0 WHERE id_cargo = :id";
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":id", $this->id);
@@ -145,6 +155,8 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM cargo WHERE estatus = 1";
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -162,6 +174,8 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM cargo WHERE estatus = 0";
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -179,6 +193,8 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "UPDATE cargo SET estatus = 1 WHERE id_cargo = :id";
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);

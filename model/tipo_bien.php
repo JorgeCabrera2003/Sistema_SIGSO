@@ -8,8 +8,9 @@ class TipoBien extends Conexion
 
     public function __construct()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->id = 0;
+        $this->nombre = "";
+        $this->estatus = 0;
     }
 
     public function set_id($id)
@@ -47,6 +48,8 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM tipo_bien WHERE id_tipo_bien = :id";
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -73,6 +76,8 @@ class TipoBien extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $query = "INSERT INTO tipo_bien(id_tipo_bien, nombre_tipo_bien, estatus) VALUES 
                 (NULL, :nombre, 1)";
 
@@ -101,6 +106,8 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "UPDATE tipo_bien SET nombre_tipo_bien = :nombre WHERE id_tipo_bien = :id";
 
             $stm = $this->conex->prepare($query);
@@ -126,6 +133,8 @@ class TipoBien extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $query = "UPDATE tipo_bien SET estatus = 0 WHERE id_tipo_bien = :id";
 
                 $stm = $this->conex->prepare($query);
@@ -153,6 +162,8 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM tipo_bien WHERE estatus = 1";
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -171,6 +182,8 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM tipo_bien WHERE estatus = 0";
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -188,6 +201,8 @@ class TipoBien extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "UPDATE tipo_bien SET estatus = 1 WHERE id_tipo_bien = :id";
 
             $stm = $this->conex->prepare($query);
@@ -196,7 +211,7 @@ class TipoBien extends Conexion
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Tipo de bien restaurado exitosamente";
-            
+
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el tipo de bien ID: " . $this->id;
             Bitacora($msg, "TipoBien");
         } catch (PDOException $e) {
@@ -218,14 +233,14 @@ class TipoBien extends Conexion
                 return $this->Consultar();
 
             case 'consultar_eliminadas':
-                return $this->ConsultarEliminadas();   
+                return $this->ConsultarEliminadas();
 
             case 'actualizar':
                 return $this->Actualizar();
 
             case 'eliminar':
                 return $this->Eliminar();
-                
+
             case 'restaurar':
                 return $this->Restaurar();
 

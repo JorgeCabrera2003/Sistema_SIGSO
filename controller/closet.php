@@ -1,6 +1,6 @@
 <?php
 require_once "controller/utileria.php";
-
+session_start();
 
 Bitacora("Cerró sesión", "Usuario");
 
