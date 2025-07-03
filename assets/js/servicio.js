@@ -69,6 +69,9 @@ $(document).ready(async function () {
         $(this).find('form')[0].reset();
         $('#tablaDetallesModal tbody').empty();
     });
+
+    // Consultar permisos al cargar la página
+    ConsultarPermisosServicios();
 });
 
 function inicializarTablaServicios() {
@@ -1034,7 +1037,7 @@ function finalizarHoja(codigo) {
 }
 
 $(document).on('click', '#btn-finalizar-hoja-modal', function() {
-    // Obtener el código de la hoja de servicio correctamente
+
     let codigo = $(this).attr('data-codigo') || $('#codigo_hoja_servicio').val();
     const resultado = $('#resultado_hoja_servicio').val();
     const observacion = $('#observacion').val();
@@ -1135,4 +1138,37 @@ function eliminarHoja(codigo) {
             });
         }
     });
+}
+
+// Agrega esta función para consultar permisos del módulo servicios
+function ConsultarPermisosServicios() {
+    var datos = new FormData();
+    datos.append('permisos', 'permisos');
+    $.ajax({
+        async: true,
+        url: "?page=servicios",
+        type: "POST",
+        contentType: false,
+        data: datos,
+        processData: false,
+        cache: false,
+        success: function (respuesta) {
+            try {
+                var lee = JSON.parse(respuesta);
+                if (lee.resultado == "permisos_modulo") {
+                    vistaPermisoServicios(lee.permisos);
+                }
+            } catch (e) { }
+        }
+    });
+}
+
+// Ejemplo de función para ocultar botones según permisos (ajusta según tus necesidades)
+function vistaPermisoServicios(permisos = null) {
+    // Ejemplo: ocultar botones de eliminar si no tiene permiso
+    if (!permisos || !permisos['hoja_servicio']) return;
+    if (permisos['hoja_servicio']['eliminar'] && permisos['hoja_servicio']['eliminar']['estado'] == '0') {
+        $('.btn-danger').hide();
+    }
+    // Agrega más controles según tus permisos
 }

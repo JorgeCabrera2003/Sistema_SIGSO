@@ -1,5 +1,5 @@
 <?php
-// Verificar sesión
+
 if (!isset($_SESSION)) {
     session_start();
 }
@@ -71,7 +71,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Registrar entrada al módulo
     if (isset($_POST["entrada"])) {
         $json['resultado'] = "entrada";
         echo json_encode($json);
@@ -80,7 +79,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Listar hojas de servicio según rol
     if (isset($_POST["listar"])) {
         try {
             $datos = $hojaServicio->Transaccion([
@@ -166,7 +164,6 @@ if (is_file("view/" . $page . ".php")) {
             if ($datos['resultado'] === 'success') {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Eliminó la hoja de servicio #" . $datos['codigo'];
                 Bitacora($msg, "Servicio");
-                // No sobreescribas $datos['mensaje'] aquí, deja el mensaje del modelo
             } else {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al eliminar servicio: " . $datos['mensaje'];
             }
@@ -200,7 +197,7 @@ if (is_file("view/" . $page . ".php")) {
                 if ($infoUsuario['id_rol'] == 1) {
                     $puedeVer = true;
                 }
-                // Técnico puede ver si es de su área o la ha tomado
+                // Técnico puede ver si es de su area o la ha tomado
                 else {
                     $infoTecnico = $empleado->obtenerTecnico($infoUsuario['cedula']);
                     if (
@@ -276,7 +273,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Tomar una hoja de servicio (para técnicos)
+    // Tomar una hoja de servicio (para tecnicos)
     if (isset($_POST['tomar_hoja'])) {
         try {
             // Validar datos requeridos
@@ -289,7 +286,7 @@ if (is_file("view/" . $page . ".php")) {
                 throw new Exception('Solo los técnicos pueden tomar hojas de servicio');
             }
 
-            // Verificar que la hoja es del área del técnico
+            // Verificar que la hoja es del área del tecnico
             $infoTecnico = $empleado->obtenerTecnico($_SESSION['user']['cedula']);
             if (!$infoTecnico || !$infoTecnico['id_servicio']) {
                 throw new Exception('No tiene un área de servicio asignada');
@@ -338,7 +335,7 @@ if (is_file("view/" . $page . ".php")) {
                 $hojaServicio->set_observacion($_POST["observacion"]);
             }
 
-            // Procesar detalles técnicos
+            // Procesar detalles tecnicos
             if (isset($_POST["detalles"])) {
                 $detalles = is_string($_POST["detalles"]) ?
                     json_decode($_POST["detalles"], true) : $_POST["detalles"];
@@ -375,7 +372,7 @@ if (is_file("view/" . $page . ".php")) {
             $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
             $detalles = $hojaServicio->Transaccion(['peticion' => 'consultar_detalles']);
 
-            // Obtener información de materiales para los detalles
+            // Obtener informacion de materiales para los detalles
             if (is_array($detalles) && !empty($detalles)) {
                 $materialesDisponibles = $material->listarDisponibles();
                 if ($materialesDisponibles['resultado'] === 'success') {
@@ -604,12 +601,20 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Si es una peticion AJAX pero no coincide con ningun endpoints, devolver error JSON y no HTML para no dañar el sistema
+    // Si es una peticion AJAX pero no coincide con ningun endpoints devolver error JSON y no HTML para no dañar el sistema
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         echo json_encode([
             'resultado' => 'error',
             'mensaje' => 'Petición no reconocida'
         ]);
+        exit;
+    }
+
+    // Agrega este bloque de permisos
+    if (isset($_POST['permisos'])) {
+        $json['resultado'] = 'permisos_modulo';
+        $json['permisos'] = $permisos;
+        echo json_encode($json);
         exit;
     }
 
