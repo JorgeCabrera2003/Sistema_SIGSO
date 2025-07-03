@@ -51,8 +51,15 @@
 
                             </table>
                         </div>
-
+<!-- <div class="text-end my-2">
+    <form method="post" action="">
+        <button type="submit" name="reporte_puntos" value="1" class="btn btn-primary">
+            Generar PDF 
+        </button>
+    </form>
+</div> -->
                     </div>
+                    
                 </div>
 
             </div>

@@ -261,3 +261,26 @@
     }
 
 ?>
+<?php
+
+if (isset($_POST["reporte_puntos"])) {
+    require_once "vendor/autoload.php";
+    $dompdf = new Dompdf\Dompdf();
+
+    require_once "model/punto_conexion.php";
+    $punto_conexion = new punto_conexion();
+    $datosReporte = $punto_conexion->Transaccion(["peticion" => "consultar"]);
+    $resultado = isset($datosReporte['datos']) ? $datosReporte['datos'] : [];
+
+    // Renderizar HTML para el PDF
+    ob_start();
+    require "view/Dompdf/puntos_conexion.php";
+    $html = ob_get_clean();
+
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'landscape');
+    $dompdf->render();
+
+    $dompdf->stream("reporte_puntos_conexion_" . date('Ymd_His') . ".pdf", array("Attachment" => false));
+    exit;
+}
