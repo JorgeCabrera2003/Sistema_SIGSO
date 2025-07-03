@@ -7,6 +7,12 @@ $(document).ready(function () {
     consultarMarca();
     consultarTipoBien();
 
+    // Inicializa Select2 al cargar la página
+    $("#id_oficina").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
+
     $("#enviar").on("click", async function () {
 
         var confirmacion = false;
@@ -317,7 +323,6 @@ function validarenvio() {
 function selectTipoBien(arreglo) {
     $("#id_tipo_bien").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-
         $("#id_tipo_bien").append(
             new Option('Seleccione un Tipo de Bien', 'default')
         );
@@ -331,12 +336,12 @@ function selectTipoBien(arreglo) {
             new Option('No Hay Tipos de Bien', 'default')
         );
     }
+    $("#id_tipo_bien").val('default');
 }
 
 function selectMarca(arreglo) {
     $("#id_marca").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-
         $("#id_marca").append(
             new Option('Seleccione una Marca', 'default')
         );
@@ -350,12 +355,12 @@ function selectMarca(arreglo) {
             new Option('No Hay Marcas', 'default')
         );
     }
+    $("#id_marca").val('default');
 }
 
 function selectOficina(arreglo) {
     $("#id_oficina").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-
         $("#id_oficina").append(
             new Option('Seleccione una Oficina', 'default')
         );
@@ -369,12 +374,17 @@ function selectOficina(arreglo) {
             new Option('No Hay Oficinas', 'default')
         );
     }
+    $("#id_oficina").val('default');
+    // Re-inicializa Select2 después de cargar las opciones
+    $("#id_oficina").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
 }
 
 function selectEmpleado(arreglo) {
     $("#cedula_empleado").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-
         $("#cedula_empleado").append(
             new Option('Seleccione un Empleado', 'default')
         );
@@ -388,9 +398,10 @@ function selectEmpleado(arreglo) {
         });
     } else {
         $("#cedula_empleado").append(
-            new Option('No Hay Empleados', '')
+            new Option('No Hay Empleados', 'default')
         );
     }
+    $("#cedula_empleado").val('default');
 }
 
 function vistaPermiso(permisos = null) {
@@ -504,6 +515,7 @@ function limpia() {
     $('#enviar').prop('disabled', false);
 }
 
+
 function rellenar(pos, accion) {
     linea = $(pos).closest('tr');
 
@@ -527,3 +539,35 @@ function rellenar(pos, accion) {
     $('#enviar').prop('disabled', false);
     $("#modal1").modal("show");
 }
+
+// Helper para sincronizar clases de validación con Select2
+function syncSelect2Validation(selectId) {
+    var $select = $(selectId);
+    var $select2 = $select.next('.select2');
+    var sel = $select2.find('.select2-selection');
+    sel.removeClass('is-valid is-invalid');
+    if ($select.hasClass('is-valid')) {
+        sel.addClass('is-valid');
+    } else if ($select.hasClass('is-invalid')) {
+        sel.addClass('is-invalid');
+    }
+}
+
+// Si tienes una función estadoSelect, modifícala así:
+function estadoSelect(selector, spanSelector, mensaje, estado) {
+    // ...existing code...
+    var $select = $(selector);
+    if (estado === 1) {
+        $select.removeClass("is-invalid").addClass("is-valid");
+        $(spanSelector).text("");
+    } else {
+        $select.removeClass("is-valid").addClass("is-invalid");
+        $(spanSelector).text(mensaje);
+    }
+    // Sincroniza el estado visual con Select2
+    syncSelect2Validation(selector);
+}
+
+// Si no tienes estadoSelect, llama syncSelect2Validation cada vez que cambies clases de validación en selects con Select2
+// Por ejemplo, después de $("#id_oficina").addClass("is-valid") o .addClass("is-invalid"), llama:
+// syncSelect2Validation("#id_oficina");

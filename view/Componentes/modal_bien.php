@@ -27,7 +27,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_tipo_bien" id="id_tipo_bien">
-                                <option value="">Seleccione un tipo</option>
+                                <option value="default">Seleccione un tipo</option>
 
                             </select>
                             <span id="sid_tipo_bien"></span>
@@ -37,7 +37,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_marca" id="id_marca">
-                                <option value="">Seleccione una marca</option>
+                                <option value="default">Seleccione una marca</option>
 
                             </select>
                             <span id="sid_marca"></span>
@@ -49,7 +49,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="estado" id="estado">
-                                <option value="">Seleccione un estado</option>
+                                <option value="default">Seleccione un estado</option>
                                 <option value="Nuevo">Nuevo</option>
                                 <option value="Usado">Usado</option>
                                 <option value="Dañado">Dañado</option>
@@ -63,7 +63,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_oficina" id="id_oficina">
-
+                                <option value="default">Seleccione una oficina</option>
                             </select>
                             <span id="sid_oficina"></span>
                             <label for="id_oficina" class="form-label">Oficina</label>
@@ -74,7 +74,7 @@
                     <div class="col-12">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="cedula_empleado" id="cedula_empleado">
-
+                                <option value="default">Seleccione un empleado</option>
                             </select>
                             <span id="scedula_empleado"></span>
                             <label for="cedula_empleado" class="form-label">Empleado Asignado</label>
