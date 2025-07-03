@@ -1,3 +1,9 @@
+// ...copia y adapta la lógica de empleado.js para el módulo técnico...
+// Cambia los textos y endpoints según corresponda para técnicos.
+// Por ejemplo, cambia "Empleado" por "Técnico" en los mensajes y títulos.
+// Cambia los nombres de variables si es necesario.
+// El resto de la lógica (validaciones, AJAX, etc.) puede ser muy similar.
+
 $(document).ready(function () {
 	consultar();
 	registrarEntrada();
@@ -12,7 +18,7 @@ $(document).ready(function () {
 
 			case "Registrar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion('Se registrará un nuevo Empleado', '¿Seguro de realizar la acción?', 'question');
+					confirmacion = await confirmarAccion('Se registrará un nuevo Técnico', '¿Seguro de realizar la acción?', 'question');
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('registrar', 'registrar');
@@ -29,7 +35,7 @@ $(document).ready(function () {
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion('Se modificará Empleado', '¿Seguro de realizar la acción?', 'question');
+					confirmacion = await confirmarAccion('Se modificará Técnico', '¿Seguro de realizar la acción?', 'question');
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('modificar', 'modificar');
@@ -46,7 +52,7 @@ $(document).ready(function () {
 				break;
 			case "Eliminar":
 				if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
-					confirmacion = await confirmarAccion('Se elminará Empleado', '¿Seguro de realizar la acción?', 'question');
+					confirmacion = await confirmarAccion('Se eliminará Técnico', '¿Seguro de realizar la acción?', 'question');
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
@@ -57,7 +63,7 @@ $(document).ready(function () {
 				break;
 
 			default:
-				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
+				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());
 		}
 		if (envio) {
 			$('#enviar').prop('disabled', true);
@@ -72,13 +78,13 @@ $(document).ready(function () {
 		}
 	});
 
-	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
+	$("#btn-registrar").on("click", function () {
 		limpia();
-		$("#idEmpleado").remove();
-		$("#modalTitleId").text("Registrar Empleado");
+		$("#idTecnico").remove();
+		$("#modalTitleId").text("Registrar Técnico");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
-	}); //<----Fin Evento del Boton Registrar
+	});
 });
 
 function cargarDependencia() {
@@ -111,9 +117,8 @@ async function enviaAjax(datos) {
 		processData: false,
 		cache: false,
 		beforeSend: function () { },
-		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
+		timeout: 10000,
 		success: function (respuesta) {
-			console.log(respuesta);
 			try {
 				var lee = JSON.parse(respuesta);
 				if (lee.resultado == "registrar") {
@@ -168,12 +173,9 @@ async function enviaAjax(datos) {
 	});
 }
 
-
-
 function selectCargo(arreglo) {
 	$("#cargo").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
-
 		$("#cargo").append(
 			new Option('Seleccione un Cargo', 'default')
 		);
@@ -192,7 +194,6 @@ function selectCargo(arreglo) {
 function selectDependencia(arreglo) {
 	$("#dependencia").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
-
 		$("#dependencia").append(
 			new Option('Seleccione una Dependencia', 'default')
 		);
@@ -213,7 +214,6 @@ async function selectUnidad(arreglo) {
 	$("#unidad").val("");
 	$("#unidad").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
-
 		$("#unidad").append(
 			new Option('Seleccione una Unidad', 'default')
 		);
@@ -232,8 +232,6 @@ async function selectUnidad(arreglo) {
 }
 
 function capaValidar() {
-
-
 	$("#cedula").on("keypress", function (e) {
 		validarKeyPress(/^[-0-9V\B]*$/, e);
 	});
@@ -299,7 +297,7 @@ function capaValidar() {
 			cargarUnidad(0);
 		} else {
 			estadoSelect(this, "sid_dependencia", "", 1);
-			cargarUnidad($(this).val()); // <-- Esto carga el modal de unidad según la dependencia seleccionada
+			cargarUnidad($(this).val());
 		}
 	});
 
@@ -310,17 +308,15 @@ function capaValidar() {
 			estadoSelect(this, "#sunidad", "", 1);
 		}
 	});
-
 }
 
 function validarenvio() {
-
 	if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
 
 	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ.]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
-		mensajes("error", 10000, "Verifica", "El nombre del empleado debe tener de 4 a 45 carácteres");
+		mensajes("error", 10000, "Verifica", "El nombre del técnico debe tener de 4 a 45 carácteres");
 		return false;
 
 	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
@@ -351,27 +347,24 @@ function validarenvio() {
 }
 
 function vistaPermiso(permisos = null) {
-
 	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 		$('.modificar').remove();
 		$('.eliminar').remove();
 		$('.restaurar').remove();
 	} else {
-		if (permisos['empleado']['modificar']['estado'] == '0') {
+		if (permisos['tecnico']['modificar']['estado'] == '0') {
 			$('.modificar').remove();
 		}
-		if (permisos['empleado']['eliminar']['estado'] == '0') {
+		if (permisos['tecnico']['eliminar']['estado'] == '0') {
 			$('.eliminar').remove();
 		}
-		if (permisos['empleado']['restaurar']['estado'] == '0') {
+		if (permisos['tecnico']['restaurar']['estado'] == '0') {
 			$('.restaurar').remove();
 		}
 	}
 };
 
 function crearDataTable(arreglo) {
-
-	console.log(arreglo);
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
@@ -387,6 +380,7 @@ function crearDataTable(arreglo) {
 			{ data: 'dependencia' },
 			{ data: 'unidad' },
 			{ data: 'cargo' },
+			{ data: 'servicio' },
 			{
 				data: null, render: function () {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -398,9 +392,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-
 }
-
 
 function limpia() {
 	$("#cedula").removeClass("is-valid is-invalid");
@@ -439,7 +431,6 @@ function limpia() {
 }
 
 async function rellenar(pos, accion) {
-
 	var espera;
 	linea = $(pos).closest('tr');
 
@@ -458,15 +449,26 @@ async function rellenar(pos, accion) {
 
 	buscarSelect('#cargo', $(linea).find("td:eq(7)").text(), 'text');
 
-
 	if (accion == 0) {
-		$("#modalTitleId").text("Modificar Empleado")
+		$("#modalTitleId").text("Modificar Técnico")
 		$("#enviar").text("Modificar");
 	}
 	else {
-		$("#modalTitleId").text("Eliminar Empleado")
+		$("#modalTitleId").text("Eliminar Técnico")
 		$("#enviar").text("Eliminar");
 	}
 	$('#enviar').prop('disabled', false);
 	$("#modal1").modal("show");
+}
+
+function consultar() {
+	var datos = new FormData();
+	datos.append('consultar', 'consultar');
+	enviaAjax(datos);
+}
+
+function registrarEntrada() {
+	var datos = new FormData();
+	datos.append('entrada', 'entrada');
+	enviaAjax(datos);
 }

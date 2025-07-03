@@ -161,10 +161,15 @@ class Empleado extends Conexion
             LEFT JOIN ente AS et ON d.id_ente = et.id
             LEFT JOIN cargo AS c ON e.id_cargo = c.id_cargo
             LEFT JOIN tipo_servicio AS ts ON e.id_servicio = ts.id_tipo_servicio";
+            // Filtro por cédula
             if ($filtro && isset($filtro['cedula'])) {
                 $query .= " WHERE e.cedula_empleado = :cedula";
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(':cedula', $filtro['cedula']);
+            // Filtro por rol técnico
+            } else if ($filtro && isset($filtro['rol']) && $filtro['rol'] == 'tecnico') {
+                $query .= " WHERE e.id_cargo = 1"; // Cambia 1 por el id_cargo real de técnico si es diferente
+                $stm = $this->conex->prepare($query);
             } else {
                 $stm = $this->conex->prepare($query);
             }

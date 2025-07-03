@@ -4,55 +4,183 @@
 
     class tecnico extends conexion{
 
-        private $data;
+        private $cedula;
+        private $nombre;
+        private $apellido;
+        private $id_cargo;
+        private $id_unidad;
+        private $telefono;
+        private $correo;
 
         public function __construct(){
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
-            $data=array();
         }
 
-         function set_cedula($cedula){
-            $this->data["cedula"] = $cedula;
+        // Setters
+        public function set_cedula($cedula){
+            $this->cedula = $cedula;
+        }
+        public function set_nombre($nombre){
+            $this->nombre = $nombre;
+        }
+        public function set_apellido($apellido){
+            $this->apellido = $apellido;
+        }
+        public function set_id_cargo($id_cargo){
+            $this->id_cargo = $id_cargo;
+        }
+        public function set_id_unidad($id_unidad){
+            $this->id_unidad = $id_unidad;
+        }
+        public function set_telefono($telefono){
+            $this->telefono = $telefono;
+        }
+        public function set_correo($correo){
+            $this->correo = $correo;
         }
 
-        function set_tipo($tipo){
-            $this->data["tipo"] = $tipo;
+        // CRUD para técnicos (empleados con cargo técnico)
+        public function Registrar(){
+            $datos = [];
+            try {
+                $this->conex->beginTransaction();
+                $sql = "INSERT INTO empleado (cedula_empleado, nombre_empleado, apellido_empleado, id_cargo, id_unidad, telefono_empleado, correo_empleado)
+                        VALUES (:cedula, :nombre, :apellido, :id_cargo, :id_unidad, :telefono, :correo)";
+                $stmt = $this->conex->prepare($sql);
+                $stmt->bindParam(':cedula', $this->cedula);
+                $stmt->bindParam(':nombre', $this->nombre);
+                $stmt->bindParam(':apellido', $this->apellido);
+                $stmt->bindParam(':id_cargo', $this->id_cargo);
+                $stmt->bindParam(':id_unidad', $this->id_unidad);
+                $stmt->bindParam(':telefono', $this->telefono);
+                $stmt->bindParam(':correo', $this->correo);
+                $stmt->execute();
+                $this->conex->commit();
+                $datos['resultado'] = "registrar";
+                $datos['mensaje'] = "Se registró el técnico exitosamente";
+                $datos['estado'] = 1;
+            } catch (PDOException $e) {
+                $this->conex->rollBack();
+                $datos['resultado'] = "error";
+                $datos['mensaje'] = $e->getMessage();
+                $datos['estado'] = -1;
+            }
+            return $datos;
         }
 
-        function tipo(){
-            $con = $this->conex->prepare("SELECT tipo FROM tecnico WHERE cedula=?");
-            $con->execute([$this->data["cedula"]]);
-            return $con->fetch();
+        public function Modificar(){
+            $datos = [];
+            try {
+                $this->conex->beginTransaction();
+                $sql = "UPDATE empleado SET nombre_empleado=:nombre, apellido_empleado=:apellido, id_cargo=:id_cargo, id_unidad=:id_unidad, telefono_empleado=:telefono, correo_empleado=:correo
+                        WHERE cedula_empleado=:cedula";
+                $stmt = $this->conex->prepare($sql);
+                $stmt->bindParam(':cedula', $this->cedula);
+                $stmt->bindParam(':nombre', $this->nombre);
+                $stmt->bindParam(':apellido', $this->apellido);
+                $stmt->bindParam(':id_cargo', $this->id_cargo);
+                $stmt->bindParam(':id_unidad', $this->id_unidad);
+                $stmt->bindParam(':telefono', $this->telefono);
+                $stmt->bindParam(':correo', $this->correo);
+                $stmt->execute();
+                $this->conex->commit();
+                $datos['resultado'] = "modificar";
+                $datos['mensaje'] = "Se modificó el técnico exitosamente";
+                $datos['estado'] = 1;
+            } catch (PDOException $e) {
+                $this->conex->rollBack();
+                $datos['resultado'] = "error";
+                $datos['mensaje'] = $e->getMessage();
+                $datos['estado'] = -1;
+            }
+            return $datos;
         }
 
-        function exist($id){
-            $con = $this->conex->prepare("SELECT * FROM orden_solicitud WHERE id=?");
-            $con->execute([$id]);
-            return $con->fetchAll(PDO::FETCH_ASSOC);
+        public function Eliminar(){
+            $datos = [];
+            try {
+                $this->conex->beginTransaction();
+                $sql = "DELETE FROM empleado WHERE cedula_empleado=:cedula AND id_cargo=:id_cargo";
+                $stmt = $this->conex->prepare($sql);
+                $stmt->bindParam(':cedula', $this->cedula);
+                $stmt->bindParam(':id_cargo', $this->id_cargo);
+                $stmt->execute();
+                $this->conex->commit();
+                $datos['resultado'] = "eliminar";
+                $datos['mensaje'] = "Se eliminó el técnico exitosamente";
+                $datos['estado'] = 1;
+            } catch (PDOException $e) {
+                $this->conex->rollBack();
+                $datos['resultado'] = "error";
+                $datos['mensaje'] = $e->getMessage();
+                $datos['estado'] = -1;
+            }
+            return $datos;
         }
 
-        public function Solicitar(){
-            $sql="INSERT INTO solicitud(cedula_solicitante,motivo) VALUES (:solicitante,:motivo);
-                  SELECT LAST_INSERT_ID() AS id;";
-            $solicitar = $this->conex->prepare($sql);
-            $solicitar->bindValue(':solicitante',$this->data["cedula_solicitante"]);
-            $solicitar->bindParam(':motivo',$this->data["motivo"]);
-
-            return $solicitar->execute();
+        public function Consultar(){
+            $datos = [];
+            try {
+                $this->conex->beginTransaction();
+                $sql = "SELECT 
+                            e.cedula_empleado AS cedula,
+                            e.nombre_empleado AS nombre,
+                            e.apellido_empleado AS apellido,
+                            e.telefono_empleado AS telefono,
+                            e.correo_empleado AS correo,
+                            d.nombre AS dependencia,
+                            u.nombre_unidad AS unidad,
+                            c.nombre_cargo AS cargo,
+                            ts.nombre_tipo_servicio AS servicio
+                        FROM empleado e
+                        LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
+                        LEFT JOIN dependencia d ON u.id_dependencia = d.id
+                        LEFT JOIN cargo c ON e.id_cargo = c.id_cargo
+                        LEFT JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
+                        WHERE e.id_cargo = 1";
+                $stmt = $this->conex->prepare($sql);
+                $stmt->execute();
+                $datos['resultado'] = "consultar";
+                $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $this->conex->commit();
+            } catch (PDOException $e) {
+                $this->conex->rollBack();
+                $datos['resultado'] = "error";
+                $datos['mensaje'] = $e->getMessage();
+            }
+            return $datos;
         }
 
-        public function crear(){
-            
-            $sql="INSERT INTO `solicitud`(`cedula_solicitante`,`motivo`,`id_equipo`,estatus) VALUES (:solicitante,:motivo,:equipo,'En Proceso')";
-            $solicitar = $this->conex->prepare($sql);
-            $solicitar->bindValue(':solicitante',$this->data["cedula_solicitante"]);
-            $solicitar->bindParam(':equipo',$this->data["id_equipo"]);
-            $solicitar->bindParam(':motivo',$this->data["motivo"]);
-            $solicitar->execute();
-            $nro = $this->conex->prepare("SELECT * FROM solicitud ORDER BY nro_solicitud DESC LIMIT 1;");
-            $nro->execute();
-            return $nro->fetchAll(PDO::FETCH_ASSOC)[0]["nro_solicitud"];
+        public function Validar(){
+            $datos = [];
+            try {
+                $sql = "SELECT * FROM empleado WHERE cedula_empleado=:cedula AND id_cargo=1";
+                $stmt = $this->conex->prepare($sql);
+                $stmt->bindParam(':cedula', $this->cedula);
+                $stmt->execute();
+                $datos['bool'] = $stmt->rowCount() > 0 ? 1 : 0;
+            } catch (PDOException $e) {
+                $datos['error'] = $e->getMessage();
+            }
+            return $datos;
+        }
+
+        public function Transaccion($peticion) {
+            switch ($peticion['peticion']) {
+                case 'registrar':
+                    return $this->Registrar();
+                case 'modificar':
+                    return $this->Modificar();
+                case 'eliminar':
+                    return $this->Eliminar();
+                case 'consultar':
+                    return $this->Consultar();
+                case 'validar':
+                    return $this->Validar();
+                default:
+                    return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
+            }
         }
     }
  ?>
