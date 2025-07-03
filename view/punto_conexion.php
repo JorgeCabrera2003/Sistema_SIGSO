@@ -12,7 +12,7 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="">Home</a></li>
-                <li class="breadcrumb-item active"><a href="">Gestionar Patch Panel</a>
+                <li class="breadcrumb-item active"><a href="">Gestionar Punto de Conexión</a>
                 </li>
             </ol>
         </nav>

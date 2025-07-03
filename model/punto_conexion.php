@@ -5,8 +5,8 @@ require_once "model/conexion.php";
 class punto_conexion extends Conexion {
 
     private $id_punto_conexion;
-    private $codigo_patch_panel;
     private $id_equipo;
+    private $codigo_patch_panel;
     private $puerto_patch_panel;
 
     public function __construct() {
@@ -20,14 +20,14 @@ class punto_conexion extends Conexion {
 
 
     public function get_id_punto_conexion() {
-    return $this->id_punto_conexion;
+        return $this->id_punto_conexion;
     }
     public function set_id_punto_conexion($id_punto_conexion) {
         $this->id_punto_conexion = $id_punto_conexion;
     }
 
     public function get_codigo_patch_panel() {
-    return $this->codigo_patch_panel;
+        return $this->codigo_patch_panel;
     }
     public function set_codigo_patch_panel($codigo_patch_panel) {
         $this->codigo_patch_panel = $codigo_patch_panel;
@@ -84,7 +84,49 @@ class punto_conexion extends Conexion {
 
         return $dato;
     } 
-        
+    
+    private function Existe() {
+
+        $dato = [];
+
+        try {
+
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
+            $query = "SELECT * FROM punto_conexion 
+            WHERE codigo_patch_panel = :codigo_patch_panel 
+            AND puerto_patch_panel = :puerto_patch_panel 
+            AND id_equipo = :id_equipo";
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
+            $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
+            $stm->bindParam(":id_equipo", $this->id_equipo);
+            $stm->execute();
+            
+            $this->conex->commit();
+
+            if ($stm->rowCount() > 0) {
+                $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
+                $dato['bool'] = 1;
+            } else {
+                $dato['bool'] = 0;
+            }
+
+        } catch (PDOException $e) {
+
+            $this->conex->rollBack();
+            $dato['bool'] = -1;
+            $dato['error'] = $e->getMessage();
+
+        }
+
+        $this->Cerrar_Conexion($this->conex, $stm);
+
+        return $dato;
+    } 
 
     private function Registrar() {
 
@@ -92,7 +134,7 @@ class punto_conexion extends Conexion {
         $this->conex = $this->conex->Conex();
 
         $dato = [];
-        $bool = $this->Validar();;
+        $bool = $this->Validar();
 
         if ($bool['bool'] == 0) {
 
@@ -145,7 +187,7 @@ class punto_conexion extends Conexion {
         $this->conex = $this->conex->Conex();
 
         $dato = [];
-        $bool = $this->Validar();
+        $bool = $this->Existe();
 
         if ($bool['bool'] != 0) {
 
@@ -181,8 +223,7 @@ class punto_conexion extends Conexion {
 
             }
         } else {
-
-            $this->conex->rollBack();
+            
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al Modificar el registro";
@@ -208,7 +249,7 @@ class punto_conexion extends Conexion {
 
                 $this->conex->beginTransaction();
 
-                    $query = "DELETE FROM punto_conexion WHERE id_punto_conexion = :id_punto_conexion";
+                $query = "DELETE FROM punto_conexion WHERE id_punto_conexion = :id_punto_conexion";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":id_punto_conexion", $this->id_punto_conexion);

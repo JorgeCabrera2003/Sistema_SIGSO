@@ -4,6 +4,7 @@ require_once "model/conexion.php";
 
 class patch_panel extends Conexion {
 
+    private $conex;
     private $codigo_bien;
     private $tipo_patch_panel;
     private $cantidad_puertos;

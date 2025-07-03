@@ -1,10 +1,14 @@
 <?php
-require_once "controller/utileria.php";
-session_start();
+    require_once "controller/utileria.php";
 
-Bitacora("Cerró sesión", "Usuario");
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-session_unset();
-session_destroy();
-echo '<script>window.location="?page=login"</script>';
+    Bitacora("Cerró sesión", "Usuario");
+
+    session_unset();
+    session_destroy();
+
+    header("Location: ?page=login");
 ?>
