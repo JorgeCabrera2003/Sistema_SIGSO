@@ -177,6 +177,8 @@ class Solicitud extends Conexion
     /**
      * Actualiza una solicitud existente
      */
+    // En el modelo Solicitud, agregar/actualizar el método actualizarSolicitud
+
     private function actualizarSolicitud()
     {
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
@@ -195,10 +197,10 @@ class Solicitud extends Conexion
             $nuevoEstado = $tieneHoja ? 'En proceso' : 'Pendiente';
 
             $sql = "UPDATE solicitud 
-                    SET motivo = :motivo, 
-                        id_equipo = :equipo, 
-                        estado_solicitud = :estado
-                    WHERE nro_solicitud = :nro";
+            SET motivo = :motivo, 
+                id_equipo = :equipo, 
+                estado_solicitud = :estado
+            WHERE nro_solicitud = :nro";
 
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':nro', $this->nro_solicitud);
@@ -207,10 +209,12 @@ class Solicitud extends Conexion
             $stmt->bindParam(':estado', $nuevoEstado);
 
             if ($stmt->execute()) {
-                $datos['resultado'] = 'actualizar';
+                $datos['resultado'] = 'success';
+                $datos['mensaje'] = 'Solicitud actualizada correctamente';
                 $datos['bool'] = true;
                 $this->conex->commit();
             } else {
+                $datos['mensaje'] = 'Error al ejecutar la actualización';
                 $this->conex->rollBack();
             }
         } catch (PDOException $e) {
@@ -494,7 +498,7 @@ class Solicitud extends Conexion
     }
 
     /**
-     * Consultar solicitudes eliminadas (estatus = 0)
+     * Consultar solicitudes eliminadas
      */
     private function consultarEliminadas()
     {
@@ -523,7 +527,7 @@ class Solicitud extends Conexion
     }
 
     /**
-     * Restaurar una solicitud eliminada (estatus = 1)
+     * Restaurar una solicitud eliminada
      */
     private function restaurarSolicitud()
     {

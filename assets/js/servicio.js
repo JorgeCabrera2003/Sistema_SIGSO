@@ -44,19 +44,28 @@ $(document).ready(async function () {
         generarReportePDF();
     });
 
-    // Configurar eventos del modal de detalles
     $('#modalDetalles').on('shown.bs.modal', function () {
         modalDetallesAbierto = true;
     }).on('hidden.bs.modal', function () {
         modalDetallesAbierto = false;
     });
 
-    // Configurar eventos del modal principal
+    var $resultado = document.getElementById('resultado_hoja_servicio');
+    var $btnFinalizar = document.getElementById('btn-finalizar-hoja-modal1');
+    if ($resultado && $btnFinalizar) {
+        $resultado.addEventListener('change', function () {
+            if ($resultado.value) {
+                $btnFinalizar.style.display = '';
+            } else {
+                $btnFinalizar.style.display = 'none';
+            }
+        });
+        $resultado.dispatchEvent(new Event('change'));
+    }
+
     $('#modal1').on('shown.bs.modal', function () {
-        // Ajustar scrollbar si es necesario
         $(this).find('.modal-body').scrollTop(0);
     }).on('hidden.bs.modal', function () {
-        // Limpiar el modal al cerrar
         $(this).find('form')[0].reset();
         $('#tablaDetallesModal tbody').empty();
     });
@@ -180,21 +189,22 @@ function inicializarTablaServicios() {
                             </button>`;
                     }
 
-                    // Botones para superusuario o técnico asignado
-                    if (userData.rol === 'SUPERUSUARIO') {
-                        botones += `
-                            <button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm ms-1" title="Editar">
-                                <i class="fa-solid fa-pencil"></i>
-                            </button>
-                            <button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm ms-1" title="Eliminar">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>`;
-                    } else if (row.cedula_tecnico === userData.cedula && row.estatus === 'A') {
-                        botones += `
-                            <button onclick="finalizarHoja(${row.codigo_hoja_servicio})" class="btn btn-success btn-sm ms-1" title="Finalizar">
-                                <i class="bi bi-check-circle"></i>
-                            </button>`;
+                    // Botones para superusuario o técnico asignado SOLO si la hoja está activa
+                    if (row.estatus === 'A') {
+                        if (userData.rol === 'SUPERUSUARIO') {
+                            botones += `
+                                <button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm ms-1" title="Editar">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                                <button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm ms-1" title="Eliminar">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>`;
+                        } else if (row.cedula_tecnico === userData.cedula && row.estatus === 'A') {
+                            // Si quieres permitir editar al técnico asignado, puedes agregar aquí el botón de editar
+                            // botones += ...;
+                        }
                     }
+                    // Si la hoja está finalizada o eliminada, NO se muestran los botones de editar/eliminar
 
                     return `<div class="btn-group">${botones}</div>`;
                 }
@@ -263,7 +273,7 @@ function configurarEventos() {
         }
     });
 
-    // Evento para el botón de imprimir en el modal de detalles
+
     $('#btn-imprimir-detalles').on('click', function () {
         if (modalDetallesAbierto) {
             window.print();
@@ -279,24 +289,23 @@ function guardarHojaServicio() {
     const resultado = $('#resultado_hoja_servicio').val();
     const observacion = $('#observacion').val();
 
-    // Validaciones básicas
+
     if (!tipoServicio) {
         mostrarError('Debe seleccionar un tipo de servicio');
         return;
     }
 
-    // Validar resultado si se está finalizando
+
     if (accion === 'finalizar' && !resultado) {
         mostrarError('Debe seleccionar un resultado al finalizar');
         return;
     }
 
-    // Recopilar detalles técnicos (opcionales)
     const detalles = [];
     let errorEnDetalles = false;
 
     $('#tablaDetallesModal tbody tr').each(function () {
-        if (errorEnDetalles) return false; // Salir del bucle si hay error
+        if (errorEnDetalles) return false; 
 
         const componente = $(this).find('.componente').val()?.trim();
         const detalle = $(this).find('.detalle').val()?.trim();
@@ -304,9 +313,8 @@ function guardarHojaServicio() {
         const material = usaMaterial ? $(this).find('.material-select').val() : null;
         const cantidad = usaMaterial ? $(this).find('.material-cantidad').val() : null;
 
-        // Solo agregar si tiene componente
         if (componente) {
-            // Validar material si está marcado
+
             if (usaMaterial) {
                 if (!material) {
                     mostrarError('Debe seleccionar un material para el componente: ' + componente);
@@ -332,7 +340,6 @@ function guardarHojaServicio() {
 
     if (errorEnDetalles) return;
 
-    // Preparar datos para enviar
     const datos = {
         peticion: accion,
         codigo_hoja_servicio: codigoHoja,
@@ -340,10 +347,10 @@ function guardarHojaServicio() {
         id_tipo_servicio: tipoServicio,
         resultado_hoja_servicio: resultado,
         observacion: observacion,
-        detalles: detalles.length > 0 ? detalles : [] // Enviar array vacío si no hay detalles
+        detalles: detalles.length > 0 ? detalles : []
     };
 
-    // Mostrar confirmación para acciones importantes
+    
     if (accion === 'finalizar') {
         Swal.fire({
             title: '¿Confirmar finalización?',
@@ -354,28 +361,30 @@ function guardarHojaServicio() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                enviarDatosServicio(datos);
+                enviarDatosServicio(datos, true);
             }
         });
     } else {
-        enviarDatosServicio(datos);
+        enviarDatosServicio(datos, false);
     }
 }
 
-function enviarDatosServicio(datos) {
-    // Enviar al servidor
+function enviarDatosServicio(datos, esFinalizar = false) {
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
         data: datos,
         dataType: 'json',
-
         success: function (response) {
             if (response.resultado === 'success') {
                 mostrarExito(response.mensaje);
                 $('#modal1').modal('hide');
                 tablaServicios.ajax.reload(null, false);
 
+                // Si es finalizar, abrir el PDF de la hoja de servicio
+                if (esFinalizar && datos.codigo_hoja_servicio) {
+                    abrirPDFHojaServicio(datos.codigo_hoja_servicio);
+                }
                 // Bitácora solo para acciones exitosas
                 if (datos.peticion === 'registrar') {
                     const msg = `(${userData.nombre_usuario}), Registró la hoja de servicio #${response.codigo || datos.codigo_hoja_servicio}`;
@@ -408,8 +417,27 @@ function enviarDatosServicio(datos) {
     });
 }
 
+function abrirPDFHojaServicio(codigoHoja) {
+
+    const form = document.createElement('form');
+    form.action = '?page=servicios';
+    form.method = 'POST';
+    form.target = '_blank';
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'pdf_hoja_servicio';
+    input.value = codigoHoja;
+    form.appendChild(input);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
 function abrirModalRegistro() {
-    // Limpiar el modal
+
     $('#modal1')[0].reset();
     $('#codigo_hoja_servicio').val('');
     $('#modalTitleId').text('Nueva Hoja de Servicio');
@@ -417,13 +445,11 @@ function abrirModalRegistro() {
     $('#tablaDetallesModal tbody').empty();
     $('#enviar').prop('disabled', false);
 
-    // Mostrar campos según acción
     $('#fila-resultado, #fila-observacion, #fila-detalles').hide();
 
-    // Cargar tipos de servicio antes de mostrar el modal
+
     cargarTiposServicio();
 
-    // Mostrar el modal
     $('#modal1').modal('show');
 }
 
@@ -454,7 +480,7 @@ function llenarModalDetalles(datos) {
     $('#detalle-unidad').text(datos.nombre_unidad || '');
     $('#detalle-contacto').text((datos.telefono_empleado || '') + ' / ' + (datos.correo_empleado || ''));
 
-    // Sección Técnico
+    // Sección Tecnico
     $('#detalle-tecnico').text(datos.nombre_tecnico || 'Sin asignar');
     $('#detalle-tipo-servicio').text(datos.nombre_tipo_servicio || '');
     $('#detalle-estado').text(datos.estatus === 'A' ? 'Activa' : (datos.estatus === 'I' ? 'Finalizada' : 'Eliminada'));
@@ -472,19 +498,19 @@ function llenarModalDetalles(datos) {
     $('#detalle-resultado').text(datos.resultado_hoja_servicio || '');
     $('#detalle-observacion').text(datos.observacion || '');
 
-    // Sección Detalles Técnicos
+    // Sección Detalles Tecnicos
     let detalles = datos.detalles || [];
     let tbody = $('#tablaDetalles tbody');
     tbody.empty();
-    
+
     if (detalles.length > 0) {
-        detalles.forEach(function(det, idx) {
-            let material = det.id_material ? 
-                (det.material_info ? 
-                    `${det.material_info.nombre} (${det.cantidad})` : 
-                    `ID: ${det.id_material} (${det.cantidad})`) : 
+        detalles.forEach(function (det, idx) {
+            let material = det.id_material ?
+                (det.material_info ?
+                    `${det.material_info.nombre} (${det.cantidad})` :
+                    `ID: ${det.id_material} (${det.cantidad})`) :
                 'No aplica';
-            
+
             tbody.append(`
                 <tr>
                     <td>${idx + 1}</td>
@@ -509,7 +535,7 @@ function editarHoja(codigo) {
         },
         dataType: 'json',
         beforeSend: function () {
-            // Mostrar spinner en el modal
+
             $('#modal1 .modal-body').html(`
                 <div class="text-center my-5">
                     <div class="spinner-border text-primary" role="status">
@@ -593,23 +619,20 @@ function editarHoja(codigo) {
                     </div>
                 `);
 
-                // Cargar tipos de servicio
+
                 cargarTiposServicio().then(function () {
-                    // Llenar el formulario con los datos
+
                     $('#codigo_hoja_servicio').val(response.datos.codigo_hoja_servicio);
                     $('#nro_solicitud').val(response.datos.nro_solicitud);
                     $('#id_tipo_servicio').val(response.datos.id_tipo_servicio);
                     $('#resultado_hoja_servicio').val(response.datos.resultado_hoja_servicio || '');
                     $('#observacion').val(response.datos.observacion || '');
 
-                    // Configurar el modal
                     $('#modalTitleId').text('Editar Hoja de Servicio');
                     $('#enviar').text('Actualizar').attr('name', 'actualizar');
 
-                    // Mostrar el modal
                     $('#modal1').modal('show');
 
-                    // Cargar detalles técnicos
                     cargarDetallesHojaEdicion(codigo);
                 });
             } else {
@@ -636,7 +659,7 @@ function cargarDetallesHojaEdicion(codigo) {
             if (response.resultado === 'success' && response.datos && response.datos.detalles) {
                 detalles = response.datos.detalles;
             } else if (Array.isArray(response)) {
-                detalles = response; // fallback por si la respuesta es solo array
+                detalles = response;
             }
             const $tbody = $('#tablaDetallesModal tbody');
             $tbody.empty();
@@ -661,7 +684,6 @@ function cargarDetallesHojaEdicion(codigo) {
     });
 }
 
-// Función para agregar una nueva fila de detalle
 function agregarFilaDetalle(componente = '', detalle = '', id_material = '', cantidad = '') {
     const usarMaterial = id_material && cantidad;
     const $row = $(`
@@ -681,19 +703,18 @@ function agregarFilaDetalle(componente = '', detalle = '', id_material = '', can
             </td>
             <td>
                 <button type="button" class="btn btn-danger btn-sm btn-eliminar-detalle">
-                    <i class="bi bi-trash"></i>
+                    <i class="fa-solid fa-trash"></i>
                 </button>
             </td>
         </tr>
     `);
 
-    // Cargar materiales y seleccionar el correspondiente si aplica
     cargarMaterialesDisponiblesParaFila($row.find('.material-select'), id_material);
 
     $('#tablaDetallesModal tbody').append($row);
 }
 
-// Función para cargar materiales disponibles en una fila
+
 function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = null) {
     $.ajax({
         url: '?page=servicios',
@@ -715,7 +736,7 @@ function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = n
                 if (idMaterialSeleccionado) {
                     $select.val(idMaterialSeleccionado);
 
-                    // Validar cantidad contra stock
+
                     const $row = $select.closest('tr');
                     const $cantidadInput = $row.find('.material-cantidad');
                     const stock = $select.find('option:selected').data('stock');
@@ -733,7 +754,7 @@ function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = n
     });
 }
 
-// Evento para manejar cambios en el checkbox de material
+
 $(document).on('change', '.usar-material', function () {
     const $row = $(this).closest('tr');
     const checked = $(this).is(':checked');
@@ -745,7 +766,6 @@ $(document).on('change', '.usar-material', function () {
     }
 });
 
-// Evento para validar cantidad contra stock
 $(document).on('change', '.material-select', function () {
     const $row = $(this).closest('tr');
     const stock = $(this).find('option:selected').data('stock');
@@ -757,12 +777,10 @@ $(document).on('change', '.material-select', function () {
     }
 });
 
-// Evento para eliminar filas de detalle
 $(document).on('click', '.btn-eliminar-detalle', function () {
     $(this).closest('tr').remove();
 });
 
-// Función para recopilar detalles antes de guardar
 function recopilarDetalles() {
     const detalles = [];
     let errorEnDetalles = false;
@@ -774,9 +792,8 @@ function recopilarDetalles() {
         const material = usaMaterial ? $(this).find('.material-select').val() : null;
         const cantidad = usaMaterial ? $(this).find('.material-cantidad').val() : null;
 
-        // Solo agregar si tiene componente
         if (componente) {
-            // Validar material si está marcado
+
             if (usaMaterial) {
                 if (!material) {
                     mostrarError('Debe seleccionar un material para el componente: ' + componente);
@@ -811,7 +828,6 @@ function recopilarDetalles() {
     return {detalles, errorEnDetalles};
 }
 
-// Evento delegado para el botón agregar detalle
 $(document).on('click', '#modal1 #btn-agregar-detalle', function () {
     agregarFilaDetalle();
 });
@@ -869,14 +885,13 @@ function cargarTiposServicio() {
 }
 
 function cargarDetallesPorTipoServicio(tipoServicioId) {
-    // Aquí puedes cargar detalles sugeridos según el tipo de servicio
-    // Por ahora solo agregamos una fila vacía
+
     $('#tablaDetallesModal tbody').empty();
     agregarFilaDetalle();
 }
 
 function generarReportePDF() {
-    // Validar fechas
+
     const fechaInicio = $('#fecha_inicio').val();
     const fechaFin = $('#fecha_fin').val();
 
@@ -890,14 +905,12 @@ function generarReportePDF() {
         return;
     }
 
-    // Crear un formulario temporal para enviar por POST
     const form = document.createElement('form');
     form.action = '?page=servicios';
     form.method = 'POST';
     form.target = '_blank';
     form.style.display = 'none';
 
-    // Agregar campos al formulario
     const campos = {
         generar_reporte: '1',
         fecha_inicio: fechaInicio,
@@ -915,7 +928,6 @@ function generarReportePDF() {
         }
     }
 
-    // Agregar el formulario al documento y enviarlo
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
@@ -969,7 +981,6 @@ function formatDate(dateString) {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
-// Funciones para acciones adicionales
 function tomarHoja(codigo) {
     $.ajax({
         url: '?page=servicios',
@@ -996,12 +1007,12 @@ function tomarHoja(codigo) {
 function finalizarHoja(codigo) {
     $('#modal1').modal('show');
     $('#modalTitleId').text('Finalizar Hoja de Servicio');
-    $('#enviar').text('Finalizar').attr('name', 'finalizar');
-    $('#codigo_hoja_servicio').val(codigo);
+    $('#enviar').hide();
+    $('#btn-finalizar-hoja-modal').show().attr('data-codigo', codigo);
+
     $('#fila-resultado, #fila-observacion').show();
     $('#fila-detalles').hide();
 
-    // Cargar datos existentes
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
@@ -1012,6 +1023,7 @@ function finalizarHoja(codigo) {
         dataType: 'json',
         success: function (response) {
             if (response.resultado === 'success') {
+                $('#codigo_hoja_servicio').val(response.datos.codigo_hoja_servicio);
                 $('#nro_solicitud').val(response.datos.nro_solicitud);
                 $('#id_tipo_servicio').val(response.datos.id_tipo_servicio);
                 $('#resultado_hoja_servicio').val(response.datos.resultado_hoja_servicio || '');
@@ -1020,6 +1032,74 @@ function finalizarHoja(codigo) {
         }
     });
 }
+
+$(document).on('click', '#btn-finalizar-hoja-modal', function() {
+    // Obtener el código de la hoja de servicio correctamente
+    let codigo = $(this).attr('data-codigo') || $('#codigo_hoja_servicio').val();
+    const resultado = $('#resultado_hoja_servicio').val();
+    const observacion = $('#observacion').val();
+
+    if (!codigo) {
+        mostrarError('No se pudo obtener el código de la hoja de servicio.');
+        return;
+    }
+
+    if (!resultado) {
+        mostrarError('Debe seleccionar un resultado para finalizar la hoja');
+        return;
+    }
+
+    const datos = {
+        peticion: 'finalizar',
+        codigo_hoja_servicio: codigo,
+        resultado_hoja_servicio: resultado,
+        observacion: observacion
+    };
+
+    Swal.fire({
+        title: '¿Confirmar finalización?',
+        text: 'Esta acción marcará la hoja de servicio como finalizada',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, finalizar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '?page=servicios',
+                type: 'POST',
+                data: datos,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.resultado === 'success') {
+                        mostrarExito(response.mensaje);
+                        $('#modal1').modal('hide');
+                        if (typeof tablaServicios !== 'undefined') {
+                            tablaServicios.ajax.reload(null, false);
+                        }
+                        if (response.codigo) {
+                            abrirPDFHojaServicio(response.codigo);
+                        }
+                    } else {
+                        mostrarError(response.mensaje || 'Error al finalizar la hoja');
+                    }
+                },
+                error: function () {
+                    mostrarError('Error en la solicitud al finalizar la hoja');
+                }
+            });
+        }
+    });
+});
+
+$('#resultado_hoja_servicio').on('change', function() {
+    if ($(this).val()) {
+        $('#btn-finalizar-hoja-modal').show();
+    } else {
+        $('#btn-finalizar-hoja-modal').hide();
+    }
+});
+
 
 function eliminarHoja(codigo) {
     Swal.fire({

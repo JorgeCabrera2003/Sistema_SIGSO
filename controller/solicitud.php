@@ -126,54 +126,129 @@ if (is_file("view/" . $page . ".php")) {
     exit;
 }
 
-    // Consultar solicitudes eliminadas
-    if (isset($_POST["consultar_eliminadas"])) {
-        $resultado = $solicitud->Transaccion(['peticion' => "consultar_eliminadas"]);
-        header('Content-Type: application/json');
-        echo json_encode($resultado);
-        exit;
-    }
+// Consultar solicitudes eliminadas
+if (isset($_POST["consultar_eliminadas"])) {
+    $resultado = $solicitud->Transaccion(['peticion' => "consultar_eliminadas"]);
+    header('Content-Type: application/json');
+    echo json_encode($resultado);
+    exit;
+}
 
-    // Restaurar solicitud eliminada
-    if (isset($_POST["restaurar"])) {
+// Restaurar solicitud eliminada
+if (isset($_POST["restaurar"])) {
+    $solicitud->set_nro_solicitud($_POST['nrosol']);
+    $resultado = $solicitud->Transaccion(['peticion' => "restaurar"]);
+    header('Content-Type: application/json');
+    echo json_encode($resultado);
+    exit;
+}
+
+// Eliminación de solicitud
+if (isset($_POST["eliminar"])) {
+    header('Content-Type: application/json');
+    
+    try {
         $solicitud->set_nro_solicitud($_POST['nrosol']);
-        $resultado = $solicitud->Transaccion(['peticion' => "restaurar"]);
-        header('Content-Type: application/json');
-        echo json_encode($resultado);
-        exit;
-    }
-
-    // Eliminación de solicitud
-    if (isset($_POST["eliminar"])) {
-        header('Content-Type: application/json');
+        $resultado = $solicitud->Transaccion(['peticion' => "eliminar"]);
         
-        try {
-            $solicitud->set_nro_solicitud($_POST['nrosol']);
-            $resultado = $solicitud->Transaccion(['peticion' => "eliminar"]);
-            
-            if ($resultado['bool']) {
-                $response = ["resultado" => "success", "mensaje" => $resultado['mensaje']];
-            } else {
-                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
-            }
-        } catch (Exception $e) {
-            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
+        if ($resultado['bool']) {
+            $response = ["resultado" => "success", "mensaje" => $resultado['mensaje']];
+        } else {
+            $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
         }
-        
-        echo json_encode($response);
-        exit;
+    } catch (Exception $e) {
+        $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
     }
+    
+    echo json_encode($response);
+    exit;
+}
 
-    // Generación de reportes
-    if (isset($_POST["reporte"])) {
-        require_once "model/reporte.php";
-        $reporte = new Reporte();
+if (isset($_POST["modificar"])) {
+    header('Content-Type: application/json');
+    
+    try {
+        // Verificar que todos los campos requeridos estén presentes
+        if (!isset($_POST["nroSolicitud"]) || empty($_POST["nroSolicitud"])) {
+            throw new Exception("Número de solicitud no especificado");
+        }
+
+        $solicitud->set_nro_solicitud($_POST["nroSolicitud"]);
+        $solicitud->set_motivo($_POST["motivo"]);
+        $solicitud->set_cedula_solicitante($_POST["cedula"]);
+        $solicitud->set_id_equipo(isset($_POST["serial"]) ? $_POST["serial"] : null);
         
+        $resultado = $solicitud->Transaccion(['peticion' => "actualizar"]);
+        
+        if ($resultado['bool']) {
+            // Solo actualizar hoja de servicio si se proporciona un área
+            if (isset($_POST["area"]) && !empty($_POST["area"])) {
+                $hojaServicio->set_nro_solicitud($_POST["nroSolicitud"]);
+                $hojaServicio->set_id_tipo_servicio($_POST["area"]);
+                
+                // Primero consultar si ya existe una hoja para esta solicitud
+                $consultaHoja = $hojaServicio->Transaccion([
+                    'peticion' => 'consultar_por_solicitud',
+                    'nro_solicitud' => $_POST["nroSolicitud"]
+                ]);
+                
+                if ($consultaHoja['resultado'] === 'success' && !empty($consultaHoja['datos'])) {
+                    // Si existe, actualizarla
+                    $hojaServicio->set_codigo_hoja_servicio($consultaHoja['datos']['codigo_hoja_servicio']);
+                    $resultHoja = $hojaServicio->Transaccion(['peticion' => "actualizar"]);
+                } else {
+                    // Si no existe, crear una nueva
+                    $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
+                }
+                
+                if ($resultHoja['resultado'] !== 'success') {
+                    throw new Exception("Error al actualizar hoja de servicio: ".$resultHoja['mensaje']);
+                }
+            }
+            
+            $response = [
+                "resultado" => "success",
+                "mensaje" => "Solicitud actualizada correctamente",
+                "nro_solicitud" => $_POST["nroSolicitud"]
+            ];
+        } else {
+            $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+        }
+    } catch (Exception $e) {
+        $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
+    }
+    
+    echo json_encode($response);
+    exit;
+}
+
+// Generación de reportes
+if (isset($_POST["reporte"])) {
+        require_once "vendor/autoload.php";
+        $dompdf = new Dompdf\Dompdf();
+
         $solicitud->set_fecha_inicio($_POST["inicio"]);
         $solicitud->set_fecha_final($_POST["final"]);
-        
+
         $datosReporte = $solicitud->Transaccion(["peticion" => "reporte"]);
-        $reporte->solicitudes($datosReporte['datos']);
+        $resultado = $datosReporte['datos'];
+
+        // Guardar datos en sesión para la vista si lo necesitas
+        $_SESSION['servicio'] = [];
+        foreach ($resultado as $fila) {
+            $_SESSION['servicio'][] = $fila;
+        }
+
+        // Renderizar HTML para el PDF
+        ob_start();
+        require "view/Dompdf/solicitudes.php";
+        $html = ob_get_clean();
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $dompdf->stream("reporte_solicitudes_" . date('Ymd_His') . ".pdf", array("Attachment" => false));
         exit;
     }
 

@@ -55,38 +55,42 @@
                 </div>
 
                 <div class="row justify-content-center" id="fila-detalles" style="display: none;">
-    <div class="col-md-12">
-        <h5>Detalles Técnicos</h5>
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> Registre los componentes y materiales utilizados en este servicio
-        </div>
-        <div class="table-responsive">
-            <table class="table" id="tablaDetallesModal">
-                <thead>
-                    <tr>
-                        <th>Componente</th>
-                        <th>Detalle</th>
-                        <th class="text-center">¿Usa material?</th>
-                        <th>Material</th>
-                        <th>Cantidad</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Contenido dinámico -->
-                </tbody>
-            </table>
-        </div>
-        <button type="button" class="btn btn-sm btn-primary mt-2" id="btn-agregar-detalle">
-            <i class="bi bi-plus-circle"></i> Agregar Detalle
-        </button>
-    </div>
-</div>
+                    <div class="col-md-12">
+                        <h5>Detalles Técnicos</h5>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Registre los componentes y materiales utilizados en este servicio
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="tablaDetallesModal">
+                                <thead>
+                                    <tr>
+                                        <th>Componente</th>
+                                        <th>Detalle</th>
+                                        <th class="text-center">¿Usa material?</th>
+                                        <th>Material</th>
+                                        <th>Cantidad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Contenido dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary mt-2" id="btn-agregar-detalle">
+                            <i class="bi bi-plus-circle"></i> Agregar Detalle
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button id="enviar" name="" class="btn btn-primary"></button>
+                <!-- Botón Finalizar, visible solo cuando corresponda -->
+                <button type="button" class="btn btn-success" id="btn-finalizar-hoja-modal" style="display: block;">
+                    <i class="bi bi-check-circle"></i> Finalizar
+                </button>
             </div>
         </div>
     </div>

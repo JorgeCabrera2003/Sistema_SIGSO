@@ -452,7 +452,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Listar materiales disponibles
+
     if (isset($_POST['listar_materiales'])) {
         try {
             $datos = $material->listarDisponibles();
@@ -466,17 +466,16 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Reporte PDF de hojas de servicio
+
     if (isset($_POST['generar_reporte'])) {
         require_once "vendor/autoload.php";
         $dompdf = new Dompdf\Dompdf();
 
-        // Filtros de fechas y tipo de servicio
         $fecha_inicio = $_POST['fecha_inicio'] ?? null;
         $fecha_fin = $_POST['fecha_fin'] ?? null;
         $id_tipo_servicio = $_POST['id_tipo_servicio'] ?? null;
 
-        // Validar fechas
+
         if ($fecha_inicio && $fecha_fin && $fecha_inicio > $fecha_fin) {
             echo json_encode([
                 'resultado' => 'error',
@@ -485,10 +484,8 @@ if (is_file("view/" . $page . ".php")) {
             exit;
         }
 
-        // Obtener datos desde el modelo
         $datos = $hojaServicio->reporteHojasServicio($fecha_inicio, $fecha_fin, $id_tipo_servicio);
 
-        // HTML para el PDF
         ob_start();
         $html;
         require_once "view/Dompdf/servicios.php";
@@ -497,7 +494,6 @@ if (is_file("view/" . $page . ".php")) {
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
 
-        // Generar nombre del archivo
         $nombreArchivo = "reporte_hojas_servicio_" . date('Ymd_His');
         if ($id_tipo_servicio) {
             $tipo = array_filter($tipos_servicio, function ($t) use ($id_tipo_servicio) {
@@ -514,7 +510,75 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Manejar petición AJAX para obtener datos del usuario
+    // ******************Finalizar hoja de servicio **********
+    if (isset($_POST['peticion']) && $_POST['peticion'] === 'finalizar') {
+        try {
+            if (!isset($_SESSION['user'])) {
+                throw new Exception('Sesión no iniciada');
+            }
+
+            // Solo tecnicos y superusuarios pueden finalizar la hoja
+            if (!in_array($_SESSION['user']['id_rol'], [1, 2])) {
+                throw new Exception('No tiene permisos para esta acción');
+            }
+
+            $camposRequeridos = ['codigo_hoja_servicio', 'resultado_hoja_servicio'];
+            foreach ($camposRequeridos as $campo) {
+                if (empty($_POST[$campo])) {
+                    throw new Exception("El campo $campo es requerido");
+                }
+            }
+
+            $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
+            $hojaServicio->set_cedula_tecnico($_SESSION['user']['cedula']);
+            $hojaServicio->set_resultado_hoja_servicio($_POST['resultado_hoja_servicio']);
+            $hojaServicio->set_observacion($_POST['observacion'] ?? '');
+
+            $resultado = $hojaServicio->Transaccion([
+                'peticion' => 'finalizar',
+                'usuario' => $_SESSION['user']
+            ]);
+
+            if ($resultado['resultado'] === 'success') {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Finalizó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
+                Bitacora($msg, "Servicio");
+            }
+
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            echo json_encode([
+                'resultado' => 'error',
+                'mensaje' => $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
+    // Reporte PDF de una hoja de servicio individual al finalizar
+    if (isset($_POST['pdf_hoja_servicio'])) {
+        require_once "vendor/autoload.php";
+        $dompdf = new Dompdf\Dompdf();
+
+        $codigo_hoja = $_POST['pdf_hoja_servicio'];
+        $hojaServicio->set_codigo_hoja_servicio($codigo_hoja);
+        $datos = $hojaServicio->Transaccion(['peticion' => 'consultar']);
+
+        // HTML para el PDF individual
+        ob_start();
+        $datos_hoja = $datos['datos'];
+        require "view/Dompdf/hoja_servicio_pdf.php";
+        $html = ob_get_clean();
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $nombreArchivo = "hoja_servicio_" . $codigo_hoja . ".pdf";
+        $dompdf->stream($nombreArchivo, array("Attachment" => false));
+        exit;
+    }
+
+
     if (isset($_POST['get_user_data'])) {
         header('Content-Type: application/json');
         echo json_encode([
@@ -526,7 +590,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Obtener lista de técnicos (para selects, asignaciones, etc.)
+
     if (isset($_POST['obtener_tecnicos'])) {
         try {
             $tecnicos = $empleado->Transaccion(['peticion' => 'listar_tecnicos']);
@@ -540,7 +604,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Si es una peticion AJAX pero no coincide con ningún endpoint, devolver error JSON y no HTML
+    // Si es una peticion AJAX pero no coincide con ningun endpoints, devolver error JSON y no HTML para no dañar el sistema
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         echo json_encode([
             'resultado' => 'error',

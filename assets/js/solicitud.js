@@ -200,8 +200,25 @@ function TablaEliminados(arreglo) {
                 }
             }
         ],
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json"
+       language: {
+            "decimal": "",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
         }
     });
 }
@@ -473,6 +490,12 @@ function enviarFormulario() {
     if (validarFormulario()) {
         const formData = new FormData($('#formSolicitud')[0]);
         const accion = $('#btnGuardar').attr('name');
+        
+        // Asegurarnos de incluir el nroSolicitud aunque esté oculto
+        if ($('#nroSolicitud').val()) {
+            formData.append('nroSolicitud', $('#nroSolicitud').val());
+        }
+        
         formData.append(accion, accion);
 
         $.ajax({
@@ -487,16 +510,20 @@ function enviarFormulario() {
             },
             success: function (response) {
                 if (response.resultado === 'success') {
-                    console.log('Solicitud procesada:', response);
                     $('#modalSolicitud').modal('hide');
-                    mostrarExito(response.mensaje);
+                    mostrarExito(response.mensaje || 'Operación realizada con éxito');
                     recargarTabla();
                 } else {
                     mostrarError(response.mensaje || 'Error al procesar la solicitud');
                 }
             },
             error: function (xhr, status, error) {
-                mostrarError('Error en la solicitud: ' + error);
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    mostrarError(response.mensaje || 'Error en la solicitud');
+                } catch (e) {
+                    mostrarError('Error en la solicitud: ' + error);
+                }
             },
             complete: function () {
                 $('#btnGuardar').prop('disabled', false).text(accion === 'registrar' ? 'Guardar' : 'Actualizar');

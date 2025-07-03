@@ -250,11 +250,15 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <?php if ($_SESSION['user']['id_rol'] == 5): ?>
+                    <?php if ($_SESSION['user']['id_rol'] == 5 || $_SESSION['user']['id_rol'] == 1): ?>
                         <button type="button" class="btn btn-primary" id="btn-imprimir-detalles">
                             <i class="bi bi-printer"></i> Imprimir
                         </button>
                     <?php endif; ?>
+                    <!-- Botón Finalizar: visible solo si es técnico asignado o superusuario, y hoja activa -->
+                    <button type="button" class="btn btn-success" id="btn-finalizar-hoja" style="display:none;">
+                        <i class="bi bi-check-circle"></i> Finalizar
+                    </button>
                 </div>
             </div>
         </div>
@@ -285,5 +289,42 @@
     
 
     <script defer src="assets/js/servicio.js"></script>
+    <script>
+    // Mostrar el botón "Finalizar" solo si corresponde
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#modalDetalles').on('show.bs.modal', function () {
+            setTimeout(function() {
+                // Obtener datos del detalle desde el DOM
+                var estado = $('#detalle-estado').text().trim();
+                var tecnico = $('#detalle-tecnico').text().trim();
+                var userCedula = "<?php echo $_SESSION['user']['cedula']; ?>";
+                var userRol = "<?php echo $_SESSION['user']['id_rol']; ?>";
+                var tecnicoAsignado = tecnico !== '' && tecnico !== 'Sin asignar' && tecnico.indexOf(userCedula) !== -1;
+
+                // Solo mostrar si está activa y es técnico asignado o superusuario
+                if (estado === 'Activa' && (userRol == 1 || tecnicoAsignado)) {
+                    $('#btn-finalizar-hoja').show();
+                } else {
+                    $('#btn-finalizar-hoja').hide();
+                }
+            }, 300);
+        });
+        // Evento para abrir el modal de finalizar
+        $('#btn-finalizar-hoja').on('click', function() {
+            // Obtener el código de la hoja de servicio del detalle
+            var codigo = $('#tablaDetalles').closest('.modal-content').find('tbody tr:first td:first').text();
+            // Si tienes el código en otro lado, ajústalo aquí
+            if (!codigo || isNaN(codigo)) {
+                // Alternativamente, puedes guardar el código en un atributo data en el modal
+                codigo = $('#modalDetalles').data('codigo');
+            }
+            if (codigo) {
+                finalizarHoja(codigo);
+            } else {
+                alert('No se pudo obtener el código de la hoja de servicio.');
+            }
+        });
+    });
+    </script>
 </body>
 </html>

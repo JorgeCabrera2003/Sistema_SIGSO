@@ -230,72 +230,111 @@ class HojaServicio extends Conexion
      * Finaliza una hoja de servicio
      */
     private function finalizarHojaServicio()
-    {
-        if (!$this->codigo_hoja_servicio || !$this->cedula_tecnico || !$this->resultado_hoja_servicio) {
-            return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para finalizar hoja'];
-        }
-
-        try {
-            $this->conex->beginTransaction();
-
-            // Verificar que la hoja existe y está activa
-            $sqlVerificar = "SELECT estatus FROM hoja_servicio WHERE codigo_hoja_servicio = :codigo";
-            $stmtVerificar = $this->conex->prepare($sqlVerificar);
-            $stmtVerificar->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-            $stmtVerificar->execute();
-
-            $estatusActual = $stmtVerificar->fetchColumn();
-
-            if ($estatusActual === false) {
-                throw new Exception("La hoja de servicio no existe");
-            }
-
-            if ($estatusActual !== 'A') {
-                throw new Exception("La hoja de servicio ya está " . ($estatusActual == 'I' ? 'finalizada' : 'eliminada'));
-            }
-
-            // Actualizar la hoja
-            $sql = "UPDATE hoja_servicio 
-                    SET cedula_tecnico = :tecnico, 
-                        fecha_resultado = NOW(),
-                        resultado_hoja_servicio = :resultado,
-                        observacion = :observacion,
-                        estatus = 'I' 
-                    WHERE codigo_hoja_servicio = :codigo";
-
-            $stmt = $this->conex->prepare($sql);
-            $stmt->bindParam(':tecnico', $this->cedula_tecnico);
-            $stmt->bindParam(':resultado', $this->resultado_hoja_servicio);
-            $stmt->bindParam(':observacion', $this->observacion);
-            $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                // Obtener el número de solicitud para actualizar estado
-                $sqlSolicitud = "SELECT nro_solicitud FROM hoja_servicio WHERE codigo_hoja_servicio = :codigo";
-                $stmtSolicitud = $this->conex->prepare($sqlSolicitud);
-                $stmtSolicitud->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-                $stmtSolicitud->execute();
-                $this->nro_solicitud = $stmtSolicitud->fetchColumn();
-
-                // Actualizar estado de la solicitud si todas las hojas están finalizadas
-                $this->actualizarEstadoSolicitud('Finalizado');
-
-                $this->conex->commit();
-                return [
-                    'resultado' => 'success',
-                    'mensaje' => 'Hoja de servicio finalizada exitosamente'
-                ];
-            } else {
-                throw new Exception("Error al ejecutar la actualización");
-            }
-        } catch (PDOException $e) {
-            $this->conex->rollBack();
-            return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
-        } catch (Exception $e) {
-            $this->conex->rollBack();
-            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
-        }
+{
+    if (!$this->codigo_hoja_servicio || !$this->cedula_tecnico || !$this->resultado_hoja_servicio) {
+        return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para finalizar hoja. Se requiere un resultado.'];
     }
+
+    // Obtener usuario autenticado para validar permisos
+    $usuario = isset($_SESSION['user']) ? $_SESSION['user'] : (isset($this->usuario) ? $this->usuario : []);
+
+    try {
+        $this->conex->beginTransaction();
+
+        // 1. Verificar que la hoja existe y está activa
+        $sqlVerificar = "SELECT estatus, nro_solicitud, cedula_tecnico FROM hoja_servicio 
+                        WHERE codigo_hoja_servicio = :codigo";
+        $stmtVerificar = $this->conex->prepare($sqlVerificar);
+        $stmtVerificar->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+        $stmtVerificar->execute();
+
+        $hoja = $stmtVerificar->fetch(PDO::FETCH_ASSOC);
+
+        if (!$hoja) {
+            throw new Exception("La hoja de servicio no existe");
+        }
+
+        if ($hoja['estatus'] !== 'A') {
+            throw new Exception("La hoja de servicio ya está " . 
+                ($hoja['estatus'] == 'I' ? 'finalizada' : 'eliminada'));
+        }
+
+        // 2. Validar que el técnico sea el asignado o superusuario
+        $esSuperusuario = isset($usuario['id_rol']) && $usuario['id_rol'] == 1;
+        if ($hoja['cedula_tecnico'] !== $this->cedula_tecnico && !$esSuperusuario) {
+            throw new Exception("No tiene permisos para finalizar esta hoja de servicio");
+        }
+
+        // 3. Validar que el resultado no esté vacío
+        if (empty($this->resultado_hoja_servicio)) {
+            throw new Exception("Debe especificar un resultado para finalizar la hoja");
+        }
+
+        // 4. Actualizar la hoja de servicio
+        $sql = "UPDATE hoja_servicio 
+                SET cedula_tecnico = :tecnico, 
+                    fecha_resultado = NOW(),
+                    resultado_hoja_servicio = :resultado,
+                    observacion = :observacion,
+                    estatus = 'I' 
+                WHERE codigo_hoja_servicio = :codigo";
+
+        $stmt = $this->conex->prepare($sql);
+        $stmt->bindParam(':tecnico', $this->cedula_tecnico);
+        $stmt->bindParam(':resultado', $this->resultado_hoja_servicio);
+        $stmt->bindParam(':observacion', $this->observacion);
+        $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Error al actualizar la hoja de servicio");
+        }
+
+        // 5. Actualizar estado de la solicitud si todas las hojas están finalizadas
+        $this->nro_solicitud = $hoja['nro_solicitud'];
+        
+        // Verificar si quedan hojas activas para esta solicitud
+        $sqlHojasActivas = "SELECT COUNT(*) as pendientes 
+                           FROM hoja_servicio 
+                           WHERE nro_solicitud = :nro 
+                           AND estatus = 'A'";
+        
+        $stmtHojas = $this->conex->prepare($sqlHojasActivas);
+        $stmtHojas->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
+        $stmtHojas->execute();
+        $result = $stmtHojas->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['pendientes'] == 0) {
+            // Actualizar estado de la solicitud a "Finalizado"
+            $sqlActualizarSolicitud = "UPDATE solicitud 
+                                      SET estado_solicitud = 'Finalizado',
+                                          resultado_solicitud = 'Completado'
+                                      WHERE nro_solicitud = :nro";
+            
+            $stmtActualizar = $this->conex->prepare($sqlActualizarSolicitud);
+            $stmtActualizar->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
+            
+            if (!$stmtActualizar->execute()) {
+                throw new Exception("Error al actualizar estado de la solicitud");
+            }
+        }
+
+        $this->conex->commit();
+
+        return [
+            'resultado' => 'success',
+            'mensaje' => 'Hoja de servicio finalizada exitosamente',
+            'codigo' => $this->codigo_hoja_servicio
+        ];
+
+    } catch (PDOException $e) {
+        $this->conex->rollBack();
+        error_log('Error en finalizarHojaServicio: ' . $e->getMessage());
+        return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
+    } catch (Exception $e) {
+        $this->conex->rollBack();
+        return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+    }
+}
 
     /**
      * Lista las hojas de servicio según el rol del usuario
@@ -642,11 +681,36 @@ class HojaServicio extends Conexion
         }
     }
 
+    public function consultarPorSolicitud($nroSolicitud) {
+    try {
+        $sql = "SELECT codigo_hoja_servicio FROM hoja_servicio 
+                WHERE nro_solicitud = :nro AND estatus = 'A' LIMIT 1";
+        $stmt = $this->conex->prepare($sql);
+        $stmt->bindParam(':nro', $nroSolicitud, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($datos) {
+            return ['resultado' => 'success', 'datos' => $datos];
+        } else {
+            return ['resultado' => 'error', 'mensaje' => 'No se encontró hoja de servicio activa'];
+        }
+    } catch (PDOException $e) {
+        return ['resultado' => 'error', 'mensaje' => 'Error al consultar hoja: ' . $e->getMessage()];
+    }
+}
+
     /**
      * Actualiza una hoja de servicio existente
      */
-    private function actualizarHojaServicio($usuario)
+    private function actualizarHojaServicio($usuario = null)
     {
+        // Asegurar que $usuario tenga valor
+        if (!$usuario && isset($_SESSION['user'])) {
+            $usuario = $_SESSION['user'];
+        }
+
         if (!$this->codigo_hoja_servicio) {
             return ['resultado' => 'error', 'mensaje' => 'Código de hoja no especificado'];
         }
@@ -930,7 +994,9 @@ class HojaServicio extends Conexion
                 ];
 
             case 'actualizar':
-                return $this->actualizarHojaServicio($peticion['usuario']);
+                // Si no se pasa usuario, usar el de sesión
+                $usuario = isset($peticion['usuario']) ? $peticion['usuario'] : (isset($_SESSION['user']) ? $_SESSION['user'] : []);
+                return $this->actualizarHojaServicio($usuario);
 
             case 'consultar_detalles':
                 return $this->consultarSoloDetalles();

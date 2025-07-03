@@ -426,7 +426,21 @@ class Empleado extends Conexion
         }
     }
 
-
+    /**
+     * Devuelve los datos del técnico por cédula (para uso en servicios)
+     */
+    public function obtenerTecnico($cedula)
+    {
+        try {
+            $sql = "SELECT cedula_empleado, id_cargo, id_servicio FROM empleado WHERE cedula_empleado = :cedula LIMIT 1";
+            $stmt = $this->conex->prepare($sql); // <-- usar $this->conex
+            $stmt->bindParam(':cedula', $cedula);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
 
     public function Transaccion($peticion)
     {
