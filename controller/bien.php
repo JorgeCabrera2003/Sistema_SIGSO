@@ -31,6 +31,14 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    // Agrega este bloque para responder a la petición de permisos (igual que en ente.php)
+    if (isset($_POST['permisos'])) {
+        $json['resultado'] = 'permisos_modulo';
+        $json['permisos'] = $permisos;
+        echo json_encode($json);
+        exit;
+    }
+
     if (isset($_POST["registrar"])) {
         if (isset($permisos['bien']['registrar']['estado']) && $permisos['bien']['registrar']['estado'] == '1') {
             if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {

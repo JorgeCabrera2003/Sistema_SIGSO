@@ -734,3 +734,26 @@ function selectUnidadEquipo(arreglo) {
     }
     $("#id_unidad_equipo").val('default');
 }
+
+// Agrega esta función para consultar permisos, igual que en ente.js
+function ConsultarPermisos() {
+    var datos = new FormData();
+    datos.append('permisos', 'permisos');
+    $.ajax({
+        async: true,
+        url: "",
+        type: "POST",
+        contentType: false,
+        data: datos,
+        processData: false,
+        cache: false,
+        success: function (respuesta) {
+            try {
+                var lee = JSON.parse(respuesta);
+                if (lee.resultado == "permisos_modulo") {
+                    vistaPermiso(lee.permisos);
+                }
+            } catch (e) { }
+        }
+    });
+}

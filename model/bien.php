@@ -29,7 +29,6 @@ class Bien extends Conexion
         $this->cedula_empleado = NULL;
         $this->id_oficina = NULL;
         $this->estatus = 0;
-
     }
 
     public function set_codigo_bien($codigo_bien)
@@ -355,7 +354,6 @@ class Bien extends Conexion
         return $dato;
     }
 
-
     private function Consultar()
     {
         $dato = [];
@@ -387,6 +385,7 @@ class Bien extends Conexion
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
+
     private function ConsultarTiposBien()
     {
         return $this->LlamarTipoBien()->Transaccion(['peticion' => 'consultar']);
