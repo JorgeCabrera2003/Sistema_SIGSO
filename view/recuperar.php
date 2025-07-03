@@ -30,7 +30,7 @@ require_once("Componentes/head.php") ?>
               <div class="col-12" id="form-codigo-recuperacion" style="display:none;">
                 <label for="codigo_recuperacion" class="form-label">Código de recuperación</label>
                 <div class="input-group" id="codigo_recuperacion_group">
-                  <input type="text" class="form-control" name="codigo_recuperacion" id="codigo_recuperacion" maxlength="6" placeholder="Ingrese el código recibido">
+                  <input type="text" class="form-control" name="codigo_recuperacion" id="codigo_recuperacion" maxlength="6" placeholder="Ingrese el código ">
 
                   <span id="scodigo_bien"></span>
                   

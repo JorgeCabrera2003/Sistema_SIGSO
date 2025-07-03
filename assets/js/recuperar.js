@@ -293,7 +293,7 @@ function mostrarPerfil(usuario) {
                     <i title="su correo">${usuario.correo}</i>
                 </u> 
                 un código de confirmación para cambiar su contraseña.<br>
-                Por favor introduzcalo a continuación:
+                Por favor de click en "Solicitar Código" e introduzcalo a continuación:
             </span>
             <br><hr>
         </div>

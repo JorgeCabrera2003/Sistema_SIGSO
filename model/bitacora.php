@@ -2,7 +2,7 @@
 require_once "model/conexion.php";
 class Bitacora extends Conexion
 {
-
+    private $conex;
     private $id;
     private $usuario;
     private $modulo;

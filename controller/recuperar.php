@@ -9,7 +9,6 @@
 
     if (is_file("view/$page.php")) {
 
-        
         require_once "model/recuperar.php";
         require_once "model/usuario.php";
         require_once "model/bitacora.php";
@@ -29,18 +28,20 @@
             $recuperar->set_cedula($cedula);
             $peticion["peticion"] = "consultar";
             $datos = $recuperar->Transaccion($peticion);
-            echo json_encode($datos);
-
+            
+            /*
             $msg = "(" .$cedula. "), Ingresó a la Recuperación de Contraseña y Consulto una Cédula.";
             
-            
-            $bitacora->set_usuario(null);
+            $bitacora->set_usuario($cedula);
             $bitacora->set_modulo("Recuperación");
             $bitacora->set_accion($msg);
             $bitacora->set_fecha(date('Y-m-d'));
             $bitacora->set_hora(date('H:i:s'));
-            $bitacora->Transaccion(['peticion' => 'consultar']);
+            $peticion["peticion"] = "registrar";
+            $bitacora->Transaccion($peticion);
+            */
 
+            echo json_encode($datos);
             exit;
         }
 
@@ -72,7 +73,7 @@
             $bitacora->set_accion($msg);
             $bitacora->set_fecha(date('Y-m-d'));
             $bitacora->set_hora(date('H:i:s'));
-            $bitacora->Transaccion(['peticion' => 'actualizar']);
+            $bitacora->Transaccion(['peticion' => 'registrar']);
 
             echo json_encode($json); 
             exit;

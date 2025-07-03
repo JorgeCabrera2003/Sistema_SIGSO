@@ -22,7 +22,7 @@
         $bien = $switch->Transaccion(['peticion' => 'consultar_bien']);
 
 
-        if (!isset($permisos['switch']['ver']['estado']) || $permisos['switch']['ver']['estado'] !== "1") {
+        if (!isset($permisos['switch']['ver']['estado']) || $permisos['switch']['ver']['estado'] !== 1) {
 
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Switch";
 
@@ -45,7 +45,7 @@
 
         if (isset($_POST["registrar"])) {
 
-            if (isset($permisos['switch']['registrar']['estado']) && $permisos['switch']['registrar']['estado'] == '1') {
+            if (isset($permisos['switch']['registrar']['estado']) && $permisos['switch']['registrar']['estado'] == 1) {
 
                 $codigos_bien_validos = array_column($bien, 'codigo_bien');
 
@@ -123,7 +123,7 @@
 
         if (isset($_POST["restaurar"])) {
 
-            if (isset($permisos['switch']['restaurar']['estado']) && $permisos['switch']['restaurar']['estado'] == '1') {
+            if (isset($permisos['switch']['restaurar']['estado']) && $permisos['switch']['restaurar']['estado'] == 1) {
 
                 $switch->set_codigo_bien($_POST["codigo_bien"]);
                 $peticion["peticion"] = "restaurar";
@@ -146,7 +146,7 @@
 
         if (isset($_POST["modificar"])) {
 
-            if (isset($permisos['switch']['modificar']['estado']) && $permisos['switch']['modificar']['estado'] == '1') {
+            if (isset($permisos['switch']['modificar']['estado']) && $permisos['switch']['modificar']['estado'] == 1) {
 
                 if (!in_array($_POST["cantidad_puertos"], ["8", "10", "16", "24", "28", "48", "52"])) {
                         $json['resultado'] = "error";
@@ -192,7 +192,7 @@
 
         if (isset($_POST["eliminar"])) {
 
-            if (isset($permisos['switch']['eliminar']['estado']) && $permisos['switch']['eliminar']['estado'] == '1') {
+            if (isset($permisos['switch']['eliminar']['estado']) && $permisos['switch']['eliminar']['estado'] == 1) {
 
                 $switch->set_codigo_bien($_POST["codigo_bien"]);
                 $peticion["peticion"] = "eliminar";

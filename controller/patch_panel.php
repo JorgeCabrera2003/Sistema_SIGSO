@@ -21,8 +21,8 @@
 
         $bien = $patch_panel->Transaccion(['peticion' => 'consultar_bien']);
 
-    
-        if (!isset($permisos['patch_panel']['ver']['estado']) || $permisos['patch_panel']['ver']['estado'] !== "1") {
+        
+        if (!isset($permisos['patch_panel']['ver']['estado']) || $permisos['patch_panel']['ver']['estado'] !== 1) {
 
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Patch Panel";
 
@@ -45,7 +45,7 @@
 
         if (isset($_POST["registrar"])) {
 
-            if (isset($permisos['patch_panel']['registrar']['estado']) && $permisos['patch_panel']['registrar']['estado'] == '1') {
+            if (isset($permisos['patch_panel']['registrar']['estado']) && $permisos['patch_panel']['registrar']['estado'] == 1) {
             
                 $codigos_bien_validos = array_column($bien, 'codigo_bien');
                 
@@ -127,7 +127,7 @@
         
         if (isset($_POST["restaurar"])) {
 
-            if (isset($permisos['patch_panel']['restaurar']['estado']) && $permisos['patch_panel']['restaurar']['estado'] == '1') {
+            if (isset($permisos['patch_panel']['restaurar']['estado']) && $permisos['patch_panel']['restaurar']['estado'] == 1) {
 
                 $patch_panel->set_codigo_bien($_POST["codigo_bien"]);
                 $peticion["peticion"] = "restaurar";
@@ -151,7 +151,7 @@
 
         if (isset($_POST["modificar"])) {
 
-            if (isset($permisos['patch_panel']['modificar']['estado']) && $permisos['patch_panel']['modificar']['estado'] == '1') {
+            if (isset($permisos['patch_panel']['modificar']['estado']) && $permisos['patch_panel']['modificar']['estado'] == 1) {
 
                 if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{3,45}$/", $_POST["serial_patch_panel"]) == 0) {
                     $json['resultado'] = "error";
@@ -204,7 +204,7 @@
 
         if (isset($_POST["eliminar"])) {
 
-            if (isset($permisos['patch_panel']['eliminar']['estado']) && $permisos['patch_panel']['eliminar']['estado'] == '1') {
+            if (isset($permisos['patch_panel']['eliminar']['estado']) && $permisos['patch_panel']['eliminar']['estado'] == 1) {
 
                 $patch_panel->set_codigo_bien($_POST["codigo_bien"]);
                 $peticion["peticion"] = "eliminar";
