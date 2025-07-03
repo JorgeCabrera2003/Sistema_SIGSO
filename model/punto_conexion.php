@@ -4,6 +4,7 @@ require_once "model/conexion.php";
 
 class punto_conexion extends Conexion {
 
+    private $conex;
     private $id_punto_conexion;
     private $id_equipo;
     private $codigo_patch_panel;
@@ -241,16 +242,19 @@ class punto_conexion extends Conexion {
         $this->conex = $this->conex->Conex();
 
         $dato = [];
-        $bool = $this->Validar();
 
-        if ($bool['bool'] != 0) {
-        
-            try {
+        try {
+            $this->conex->beginTransaction();
 
-                $this->conex->beginTransaction();
+            // Verifica si existe el registro por ID
+            $query = "SELECT * FROM punto_conexion WHERE id_punto_conexion = :id_punto_conexion";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_punto_conexion", $this->id_punto_conexion);
+            $stm->execute();
 
+            if ($stm->rowCount() > 0) {
+                // Si existe, elimina
                 $query = "DELETE FROM punto_conexion WHERE id_punto_conexion = :id_punto_conexion";
-
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":id_punto_conexion", $this->id_punto_conexion);
                 $stm->execute();
@@ -260,21 +264,18 @@ class punto_conexion extends Conexion {
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el Punto de Conexión exitosamente";
-
-            } catch (PDOException $e) {
-
+            } else {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
-                $dato['mensaje'] = $e->getMessage();
-
+                $dato['mensaje'] = "No existe el Punto de Conexión a eliminar";
             }
-        } else {
 
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
-            $dato['mensaje'] = "Error al eliminar el registro";
-
+            $dato['mensaje'] = $e->getMessage();
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);

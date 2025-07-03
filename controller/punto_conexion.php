@@ -152,7 +152,106 @@
 
         }
 
+        if (isset($_POST['get_puertos_patch_panel'])) {
+            require_once "model/patch_panel.php";
+            require_once "model/punto_conexion.php";
+            $codigo_patch_panel = $_POST['codigo_patch_panel'];
+
+            // 1. Obtener la cantidad de puertos del patch panel
+            $patch_panel = new patch_panel();
+            $peticion = ["peticion" => "consultar"];
+            $patch_panels = $patch_panel->Transaccion($peticion);
+            $cantidad_puertos = 0;
+            if (isset($patch_panels['datos'])) {
+                foreach ($patch_panels['datos'] as $pp) {
+                    if ($pp['codigo_bien'] == $codigo_patch_panel) {
+                        $cantidad_puertos = $pp['cantidad_puertos'];
+                        break;
+                    }
+                }
+            }
+
+            // 2. Obtener los puertos ya ocupados en punto_conexion
+            $punto_conexion = new punto_conexion();
+            $punto_conexion->set_codigo_patch_panel($codigo_patch_panel);
+            $peticion = ["peticion" => "consultar"];
+            $puntos = $punto_conexion->Transaccion($peticion);
+            $puertos_ocupados = [];
+            if (isset($puntos['datos'])) {
+                foreach ($puntos['datos'] as $row) {
+                    if ($row['codigo_patch_panel'] == $codigo_patch_panel) {
+                        $puertos_ocupados[] = $row['puerto_patch_panel'];
+                    }
+                }
+            }
+
+            // 3. Generar lista de puertos disponibles
+            $puertos_disponibles = [];
+            for ($i = 1; $i <= $cantidad_puertos; $i++) {
+                if (!in_array($i, $puertos_ocupados)) {
+                    $puertos_disponibles[] = $i;
+                }
+            }
+
+            // 4. Si estás modificando, permite el puerto actual (opcional)
+            if (isset($_POST['puerto_actual']) && $_POST['puerto_actual'] != '') {
+                $puertos_disponibles[] = $_POST['puerto_actual'];
+                $puertos_disponibles = array_unique($puertos_disponibles);
+                sort($puertos_disponibles, SORT_NUMERIC);
+            }
+
+            echo json_encode(array_values($puertos_disponibles));
+            exit;
+        }
         
+        if (isset($_POST['get_equipos_disponibles'])) {
+            require_once "model/equipo.php";
+            require_once "model/punto_conexion.php";
+            $equipo = new equipo();
+            $punto_conexion = new punto_conexion();
+
+            // Obtener todos los equipos
+            $peticion = ["peticion" => "consultar"];
+            $equipos = $equipo->Transaccion($peticion);
+            $equipos = isset($equipos['datos']) ? $equipos['datos'] : [];
+
+            // Obtener equipos ya conectados
+            $peticion = ["peticion" => "consultar"];
+            $puntos = $punto_conexion->Transaccion($peticion);
+            $equipos_conectados = [];
+            if (isset($puntos['datos'])) {
+                foreach ($puntos['datos'] as $row) {
+                    $equipos_conectados[] = $row['id_equipo'];
+                }
+            }
+
+            // Si estás modificando, permite el equipo actual
+            if (isset($_POST['equipo_actual']) && $_POST['equipo_actual'] != '') {
+                $equipos_conectados = array_diff($equipos_conectados, [$_POST['equipo_actual']]);
+            }
+
+            // Filtrar equipos disponibles
+            $equipos_disponibles = [];
+            foreach ($equipos as $eq) {
+                if (!in_array($eq['id_equipo'], $equipos_conectados)) {
+                    $equipos_disponibles[] = $eq;
+                }
+            }
+
+            // Si estás modificando, agrega el equipo actual al principio
+            if (isset($_POST['equipo_actual']) && $_POST['equipo_actual'] != '') {
+                foreach ($equipos as $eq) {
+                    if ($eq['id_equipo'] == $_POST['equipo_actual']) {
+                        array_unshift($equipos_disponibles, $eq);
+                        break;
+                    }
+                }
+            }
+
+            echo json_encode($equipos_disponibles);
+            exit;
+        }
+
         require_once "view/" . $page . ".php";
 
     } else {

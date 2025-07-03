@@ -66,7 +66,10 @@
           <div class="col-6">
             <div class="form-floating mb-3 ">
 
-              <input placeholder="" class="form-control" name="puerto_patch_panel" type="text" id="puerto_patch_panel" title="Ingresar Puerto del Patch Panel" maxlength="2">
+              <select class="form-select" name="puerto_patch_panel" id="puerto_patch_panel" title="Seleccionar Puerto del Patch Panel">
+                <option selected value="default" disabled>Selecciona un Puerto</option>
+                <!-- Opciones dinámicas -->
+              </select>
               <span id="spuerto_patch_panel"></span>
               <label for="puerto_patch_panel" class="form-label">Nro. de Puerto</label>
 

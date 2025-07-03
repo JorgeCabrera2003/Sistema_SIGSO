@@ -106,6 +106,7 @@ $(document).ready(function () {
 	$("#btn-registrar").on("click", function () { 
 
 		limpia();
+		cargarEquiposDisponibles();
 		
 		$("#modalTitleId").text("Registrar Punto de Conexión");
 		$("#enviar").text("Registrar");
@@ -272,12 +273,29 @@ function capaValidar() {
 
   
     $("#codigo_patch_panel").on("change", function () {
-        if ($(this).val() == "default") {
-            $(this).addClass("is-invalid").removeClass("is-valid");
-            $("#scodigo_patch_panel").text("Debe seleccionar un patch panel");
+        let codigo_patch_panel = $(this).val();
+        if (codigo_patch_panel && codigo_patch_panel !== "default") {
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: {
+                    get_puertos_patch_panel: true,
+                    codigo_patch_panel: codigo_patch_panel
+                },
+                dataType: "json",
+                success: function (puertos) {
+                    let $select = $("#puerto_patch_panel");
+                    $select.empty();
+                    $select.append('<option selected value="default" disabled>Selecciona un Puerto</option>');
+                    if (puertos.length > 0) {
+                        puertos.forEach(function (puerto) {
+                            $select.append('<option value="' + puerto + '">' + puerto + '</option>');
+                        });
+                    }
+                }
+            });
         } else {
-            $(this).addClass("is-valid").removeClass("is-invalid");
-            $("#scodigo_patch_panel").text("");
+            $("#puerto_patch_panel").empty().append('<option selected value="default" disabled>Selecciona un Puerto</option>');
         }
     });
 
@@ -334,7 +352,27 @@ function validarenvio() {
 
     return valido;
 }
-
+function cargarEquiposDisponibles(equipo_actual = "") {
+    $.ajax({
+        url: "",
+        type: "POST",
+        data: {
+            get_equipos_disponibles: true,
+            equipo_actual: equipo_actual
+        },
+        dataType: "json",
+        success: function (equipos) {
+            let $select = $("#id_equipo");
+            $select.empty();
+            $select.append('<option selected value="default" disabled>Selecciona un Equipo</option>');
+            if (equipos.length > 0) {
+                equipos.forEach(function (equipo) {
+                    $select.append('<option value="' + equipo.id_equipo + '">' + equipo.id_equipo + ' - ' + equipo.tipo_equipo + '</option>');
+                });
+            }
+        }
+    });
+}
 function limpia() {
 
 	$("#id_punto_conexion").val(""); 
@@ -355,39 +393,64 @@ function limpia() {
 
 function rellenar(pos, accion) {
 
-	limpia();
-	
+    limpia();
     let linea = $(pos).closest('tr');
-    let codigoBien = $(linea).find("td:eq(0)").text().trim();
-	
+    let equipo_actual = $(linea).find("td:eq(2)").text().trim();
 
-     $("#id_punto_conexion").val($(linea).find("td:eq(0)").text().trim());
+    // Cargar equipos disponibles y seleccionar el actual cuando termine el AJAX
+    cargarEquiposDisponibles(equipo_actual);
+
+    // Espera un poco para asegurar que el AJAX terminó antes de seleccionar el valor
+    setTimeout(function() {
+        $("#id_equipo").val(equipo_actual);
+    }, 300);
+
+    $("#id_punto_conexion").val($(linea).find("td:eq(0)").text().trim());
     $("#codigo_patch_panel").val($(linea).find("td:eq(1)").text().trim());
-    $("#id_equipo").val($(linea).find("td:eq(2)").text().trim());
     $("#puerto_patch_panel").val($(linea).find("td:eq(3)").text().trim());
 
-	if (accion == 0) {
+    let codigo_patch_panel = $("#codigo_patch_panel").val();
+    let puerto_patch_panel = $(linea).find("td:eq(3)").text().trim();
+    if (codigo_patch_panel && codigo_patch_panel !== "default") {
+        $.ajax({
+            url: "",
+            type: "POST",
+            data: {
+                get_puertos_patch_panel: true,
+                codigo_patch_panel: codigo_patch_panel,
+                puerto_actual: puerto_patch_panel // para permitir el puerto actual al modificar/eliminar
+            },
+            dataType: "json",
+            success: function (puertos) {
+                let $select = $("#puerto_patch_panel");
+                $select.empty();
+                $select.append('<option selected value="default" disabled>Selecciona un Puerto</option>');
+                if (puertos.length > 0) {
+                    puertos.forEach(function (puerto) {
+                        $select.append('<option value="' + puerto + '">' + puerto + '</option>');
+                    });
+                }
+                $select.val(puerto_patch_panel);
+            }
+        });
+    }
 
-		$('#codigo_patch_panel').prop('disabled', false);
+    if (accion == 0) {
+        $('#codigo_patch_panel').prop('disabled', false);
         $('#id_equipo').prop('disabled', false);
         $('#puerto_patch_panel').prop('disabled', false);
         $("#modalTitleId").text("Modificar Punto de Conexión");
         $("#enviar").attr("title", "Modificar Punto de Conexión");
         $("#enviar").text("Modificar");
-
-	}
-	else {
-
-		$('#codigo_patch_panel').prop('disabled', true);
+    } else {
+        $('#codigo_patch_panel').prop('disabled', true);
         $('#id_equipo').prop('disabled', true);
         $('#puerto_patch_panel').prop('disabled', true);
         $("#modalTitleId").text("Eliminar Punto de Conexión");
         $("#enviar").attr("title", "Eliminar Punto de Conexión");
         $("#enviar").text("Eliminar");
-		
-	}
+    }
 
-	$('#enviar').prop('disabled', false);
-	$("#modal1").modal("show");
-
+    $('#enviar').prop('disabled', false);
+    $("#modal1").modal("show");
 }
