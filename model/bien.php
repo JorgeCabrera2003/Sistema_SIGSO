@@ -235,13 +235,15 @@ class Bien extends Conexion
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se registró el bien exitosamente";
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                if ($this->conex->beginTransaction()) {
+                    $this->conex->rollBack();
+                }
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conex->rollBack();
+            // No hay transacción activa aquí, solo retorna error
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";

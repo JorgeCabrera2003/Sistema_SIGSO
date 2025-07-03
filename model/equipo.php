@@ -80,10 +80,11 @@ class Equipo extends Conexion
 
         try {
             $this->conex->beginTransaction();
-            $query = "SELECT * FROM equipo WHERE id_equipo = :id";
-
+            // Cambiar la validación: evitar duplicados por serial o por código_bien
+            $query = "SELECT * FROM equipo WHERE serial = :serial OR (codigo_bien = :codigo_bien AND estatus = 1)";
             $stm = $this->conex->prepare($query);
-            $stm->bindParam(":id", $this->id_equipo);
+            $stm->bindParam(":serial", $this->serial);
+            $stm->bindParam(":codigo_bien", $this->codigo_bien);
             $stm->execute();
             $this->conex->commit();
             if ($stm->rowCount() > 0) {
@@ -129,7 +130,7 @@ class Equipo extends Conexion
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conex->rollBack();
+            // No hacer rollback aquí, solo retornar error
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";

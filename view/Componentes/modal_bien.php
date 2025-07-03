@@ -7,6 +7,48 @@
                 <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Checkbox para activar el registro de equipo (solo visible en Registrar) -->
+                <div class="row" id="row-registro-equipo" style="display:none;">
+                    <div class="col-12 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkRegistrarEquipo">
+                            <label class="form-check-label" for="checkRegistrarEquipo">
+                                Registrar equipo asociado a este bien
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Carrusel para registrar equipo -->
+                <div id="carruselEquipo" class="carousel slide mb-4" data-bs-ride="carousel" style="display:none;">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="serial_equipo" placeholder="Serial del equipo">
+                                        <label for="serial_equipo">Serial del equipo</label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="tipo_equipo" placeholder="Tipo de equipo">
+                                        <label for="tipo_equipo">Tipo de equipo</label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="id_unidad_equipo">
+                                            <option value="default">Seleccione una unidad</option>
+                                        </select>
+                                        <span id="sid_unidad_equipo"></span>
+                                        <label for="id_unidad_equipo">Unidad</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Puedes agregar más .carousel-item aquí si necesitas más pasos/campos -->
+                    </div>
+                </div>
                 <div class="row justify-content-center" id="Fila1">
                     <div class="col-4">
                         <div class="form-floating mb-3 mt-4">

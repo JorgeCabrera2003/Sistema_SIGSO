@@ -8,11 +8,13 @@ ob_start();
 if (is_file("view/" . $page . ".php")) {
     require_once "controller/utileria.php";
     require_once "model/bien.php";
+    require_once "model/equipo.php";
 
     $titulo = "Gestionar Bienes";
     $cabecera = array('#', "Código", "Tipo", "Marca", "Descripción", "Estado", "Oficina", "Empleado", "Modificar/Eliminar");
 
     $bien = new Bien();
+    $equipo = new Equipo();
 
     if (!isset($permisos['bien']['ver']['estado']) || $permisos['bien']['ver']['estado'] == "0") {
         $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Bien";
@@ -75,6 +77,35 @@ if (is_file("view/" . $page . ".php")) {
                 $bien->set_estado($_POST["estado"]);
                 $peticion["peticion"] = "registrar";
                 $json = $bien->Transaccion($peticion);
+
+                // Solo si el bien se registró correctamente, registra el equipo si corresponde
+                if ($json['estado'] == 1 && isset($_POST['registrar_equipo']) && $_POST['registrar_equipo'] == '1') {
+                    require_once "model/equipo.php";
+                    $equipo = new Equipo();
+
+                    // Validación igual que en controller/equipo.php
+                    if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
+                        $jsonEquipo['resultado'] = "error";
+                        $jsonEquipo['mensaje'] = "Error, Código de Bien no válido";
+                    } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial_equipo"]) == 0) {
+                        $jsonEquipo['resultado'] = "error";
+                        $jsonEquipo['mensaje'] = "Error, Serial no válido";
+                    } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
+                        $jsonEquipo['resultado'] = "error";
+                        $jsonEquipo['mensaje'] = "Error, Tipo de Equipo no válido";
+                    } else if (!isset($_POST["id_unidad_equipo"]) || $_POST["id_unidad_equipo"] == "default") {
+                        $jsonEquipo['resultado'] = "error";
+                        $jsonEquipo['mensaje'] = "Debe seleccionar una unidad para el equipo";
+                    } else {
+                        $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
+                        $equipo->set_serial($_POST["serial_equipo"]);
+                        $equipo->set_codigo_bien($_POST["codigo_bien"]);
+                        $equipo->set_id_unidad($_POST["id_unidad_equipo"]);
+                        $peticionEquipo["peticion"] = "registrar";
+                        $jsonEquipo = $equipo->Transaccion($peticionEquipo);
+                    }
+                    $json['equipo'] = $jsonEquipo;
+                }
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo bien";
@@ -257,6 +288,16 @@ if (is_file("view/" . $page . ".php")) {
         $peticion["peticion"] = "consultar_empleados";
         $json = $bien->Transaccion($peticion);
         $json['resultado'] = "consultar_empleados";
+        echo json_encode($json);
+        exit;
+    }
+
+    // Agrega este bloque para responder a la petición de unidades
+    if (isset($_POST['consultar_unidades'])) {
+        require_once "model/unidad.php";
+        $unidad = new Unidad();
+        $json = $unidad->Transaccion(['peticion' => 'consultar']);
+        $json['resultado'] = "consultar_unidades";
         echo json_encode($json);
         exit;
     }

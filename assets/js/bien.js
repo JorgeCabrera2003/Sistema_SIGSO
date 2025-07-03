@@ -7,10 +7,75 @@ $(document).ready(function () {
     consultarMarca();
     consultarTipoBien();
 
-    // Inicializa Select2 al cargar la página
+    // Inicializa Select2 al cargar la pagina
     $("#id_oficina").select2({
         dropdownParent: $('#modal1'),
         width: '100%'
+    });
+    $("#cedula_empleado").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
+    $("#id_tipo_bien").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
+    $("#id_marca").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
+    $("#estado").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
+
+    // Inicializa Select2 para unidad de equipo en el carrusel
+    $("#id_unidad_equipo").select2({
+        dropdownParent: $('#modal1'),
+        width: '100%'
+    });
+
+    // Mostrar checkbox/carrusel solo en Registrar
+    $("#btn-registrar").on("click", function () {
+        limpia();
+        $("#codigo_bien").parent().parent().show();
+        $("#modalTitleId").text("Registrar Bien");
+        $("#enviar").text("Registrar");
+        // Mostrar checkbox y ocultar carrusel al abrir para registrar
+        $("#row-registro-equipo").show();
+        $("#checkRegistrarEquipo").prop("checked", false);
+        $("#carruselEquipo").hide();
+        consultarUnidadEquipo();
+        $("#modal1").modal("show");
+    });
+
+    // Ocultar checkbox/carrusel en Modificar/Eliminar
+    function ocultarEquipoOpcional() {
+        $("#row-registro-equipo").hide();
+        $("#carruselEquipo").hide();
+        $("#checkRegistrarEquipo").prop("checked", false);
+        // Limpia campos del carrusel
+        $("#serial_equipo").val('');
+        $("#tipo_equipo").val('');
+    }
+
+    // Detectar cambio de acción en el modal
+    $("#modal1").on("show.bs.modal", function () {
+        if ($("#enviar").text() !== "Registrar") {
+            ocultarEquipoOpcional();
+        }
+    });
+
+    // Mostrar/ocultar carrusel según el checkbox
+    $("#checkRegistrarEquipo").on("change", function () {
+        if ($(this).is(":checked")) {
+            $("#carruselEquipo").show();
+        } else {
+            $("#carruselEquipo").hide();
+            // Limpia campos del carrusel
+            $("#serial_equipo").val('');
+            $("#tipo_equipo").val('');
+        }
     });
 
     $("#enviar").on("click", async function () {
@@ -32,7 +97,55 @@ $(document).ready(function () {
                         datos.append('estado', $("#estado").val());
                         datos.append('cedula_empleado', $("#cedula_empleado").val());
                         datos.append('id_oficina', $("#id_oficina").val());
-                        enviaAjax(datos);
+                        // Si el checkbox está activo, agrega los datos del equipo
+                        if ($("#checkRegistrarEquipo").is(":checked")) {
+                            datos.append('registrar_equipo', '1');
+                            datos.append('serial_equipo', $("#serial_equipo").val());
+                            datos.append('tipo_equipo', $("#tipo_equipo").val());
+                            datos.append('id_unidad_equipo', $("#id_unidad_equipo").val());
+                        }
+                        // Enviar el bien y, si corresponde, el equipo
+                        $.ajax({
+                            async: true,
+                            url: "",
+                            type: "POST",
+                            contentType: false,
+                            data: datos,
+                            processData: false,
+                            cache: false,
+                            beforeSend: function () { },
+                            timeout: 10000,
+                            success: function (respuesta) {
+                                try {
+                                    var lee = JSON.parse(respuesta);
+                                    if (lee.resultado == "registrar") {
+                                        $("#modal1").modal("hide");
+                                        mensajes("success", 10000, lee.mensaje, null);
+                                        consultar();
+                                        // Si también se registró el equipo, muestra mensaje
+                                        if (lee.equipo && lee.equipo.estado == 1) {
+                                            mensajes("success", 5000, "Equipo registrado correctamente", null);
+                                        } else if (lee.equipo && lee.equipo.estado == -1) {
+                                            mensajes("error", 10000, "Error al registrar el equipo", lee.equipo.mensaje);
+                                        }
+                                    } else if (lee.resultado == "error") {
+                                        mensajes("error", null, lee.mensaje, null);
+                                    }
+                                } catch (e) {
+                                    mensajes("error", null, "Error en JSON Tipo: " + e.name + "\n" +
+                                        "Mensaje: " + e.message + "\n" +
+                                        "Posición: " + e.lineNumber);
+                                }
+                            },
+                            error: function (request, status, err) {
+                                if (status == "timeout") {
+                                    mensajes("error", null, "Servidor ocupado", "Intente de nuevo");
+                                } else {
+                                    mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
+                                }
+                            },
+                            complete: function () { },
+                        });
                         envio = true;
                     }
                 }
@@ -83,17 +196,21 @@ $(document).ready(function () {
         }
     });
 
-    $("#btn-registrar").on("click", function () {
-        limpia();
-        $("#codigo_bien").parent().parent().show();
-        $("#modalTitleId").text("Registrar Bien");
-        $("#enviar").text("Registrar");
-        $("#modal1").modal("show");
-    });
-
     $("#btn-consultar-eliminados").on("click", function () {
         consultarEliminadas();
         $("#modalEliminadas").modal("show");
+    });
+    // Limpia los campos y clases de validacion al cerrar el modal
+    $('#modal1').on('hidden.bs.modal', function () {
+        $("#id_oficina").val('default').removeClass('is-valid is-invalid').trigger('change');
+        $("#cedula_empleado").val('default').removeClass('is-valid is-invalid').trigger('change');
+        $("#id_tipo_bien").val('default').removeClass('is-valid is-invalid').trigger('change');
+        $("#id_marca").val('default').removeClass('is-valid is-invalid').trigger('change');
+        syncSelect2Validation("#id_oficina");
+        syncSelect2Validation("#cedula_empleado");
+        syncSelect2Validation("#id_tipo_bien");
+        syncSelect2Validation("#id_marca");
+        ocultarEquipoOpcional();
     });
 });
 
@@ -512,6 +629,10 @@ function limpia() {
     $("#cedula_empleado").removeClass("is-valid is-invalid");
     $("#cedula_empleado").val("default");
 
+    // Limpia campos del carrusel
+    $("#serial_equipo").val('');
+    $("#tipo_equipo").val('');
+
     $('#enviar').prop('disabled', false);
 }
 
@@ -540,7 +661,7 @@ function rellenar(pos, accion) {
     $("#modal1").modal("show");
 }
 
-// Helper para sincronizar clases de validación con Select2
+// Helper para sincronizar clases de validacion con Select2
 function syncSelect2Validation(selectId) {
     var $select = $(selectId);
     var $select2 = $select.next('.select2');
@@ -571,3 +692,45 @@ function estadoSelect(selector, spanSelector, mensaje, estado) {
 // Si no tienes estadoSelect, llama syncSelect2Validation cada vez que cambies clases de validación en selects con Select2
 // Por ejemplo, después de $("#id_oficina").addClass("is-valid") o .addClass("is-invalid"), llama:
 // syncSelect2Validation("#id_oficina");
+
+// Agrega esta función antes de $(document).ready o dentro, pero fuera de cualquier otro scope
+function consultarUnidadEquipo() {
+    var datos = new FormData();
+    datos.append('consultar_unidades', 'consultar_unidades');
+    $.ajax({
+        async: true,
+        url: "",
+        type: "POST",
+        contentType: false,
+        data: datos,
+        processData: false,
+        cache: false,
+        success: function (respuesta) {
+            try {
+                var lee = JSON.parse(respuesta);
+                if (lee.resultado == "consultar_unidades") {
+                    selectUnidadEquipo(lee.datos);
+                }
+            } catch (e) { }
+        }
+    });
+}
+
+function selectUnidadEquipo(arreglo) {
+    $("#id_unidad_equipo").empty();
+    if (Array.isArray(arreglo) && arreglo.length > 0) {
+        $("#id_unidad_equipo").append(
+            new Option('Seleccione una unidad', 'default')
+        );
+        arreglo.forEach(item => {
+            $("#id_unidad_equipo").append(
+                new Option(item.nombre_unidad, item.id_unidad)
+            );
+        });
+    } else {
+        $("#id_unidad_equipo").append(
+            new Option('No hay unidades', 'default')
+        );
+    }
+    $("#id_unidad_equipo").val('default');
+}

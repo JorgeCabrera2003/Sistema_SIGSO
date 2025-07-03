@@ -113,7 +113,7 @@ $(document).ready(function () {
 
     $('#codigo_bien').select2({
 		dropdownParent: $('#modal1'),
-		theme: 'bootstrap-5'
+        width: '100%',
 	});
 });
 
