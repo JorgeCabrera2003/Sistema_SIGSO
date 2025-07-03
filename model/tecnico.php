@@ -172,6 +172,34 @@
             return $datos;
         }
 
+        // Devuelve el técnico con más servicios realizados en el mes actual
+        public function getTecnicoMasEficienteMes() {
+            $datos = [];
+            try {
+                $mesActual = date('m');
+                $anioActual = date('Y');
+                // Se asume que la tabla hoja_servicio tiene los campos: cedula_tecnico, fecha_inicio
+                $sql = "SELECT 
+                            e.cedula_empleado AS cedula,
+                            CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre_completo,
+                            COUNT(hs.codigo_hoja_servicio) AS total_servicios
+                        FROM hoja_servicio hs
+                        INNER JOIN empleado e ON hs.cedula_tecnico = e.cedula_empleado
+                        WHERE MONTH(hs.fecha_inicio) = :mes AND YEAR(hs.fecha_inicio) = :anio
+                        GROUP BY hs.cedula_tecnico
+                        ORDER BY total_servicios DESC
+                        LIMIT 1";
+                $stmt = $this->conex->prepare($sql);
+                $stmt->bindParam(':mes', $mesActual);
+                $stmt->bindParam(':anio', $anioActual);
+                $stmt->execute();
+                $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                $datos = null;
+            }
+            return $datos;
+        }
+
         public function Transaccion($peticion) {
             switch ($peticion['peticion']) {
                 case 'registrar':

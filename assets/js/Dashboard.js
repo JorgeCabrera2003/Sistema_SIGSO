@@ -54,6 +54,19 @@ function renderGrafico(canvasId, tipo, datos) {
           'rgba(153, 102, 255, 0.6)'
         ]
       }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      },
+      layout: {
+        padding: 10
+      }
     }
   });
 }

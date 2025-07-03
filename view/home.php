@@ -39,14 +39,14 @@
               <span class="account-balance">10</span>
             </div>
             <span class="account-name">Gráfico</span>
+            <div class="grafico-container" style="width: 100%; height: 200px;">
+              <canvas id="miGrafico"></canvas>
+            </div>
             <select class="form-select mt-2" id="tipoGraficoRed">
               <option value="bar">Barras</option>
               <option value="pie">Torta</option>
               <option value="line">Líneas</option>
             </select>
-            <div class="account-item d-flex justify-content-between" style="width: 100%; height: 200px;">
-              <canvas id="miGrafico"></canvas>
-            </div>
           </div>
         </div>
       </div>
@@ -76,15 +76,15 @@
               <span class="account-balance"><?php echo $cantidadOficina; ?></span>
             </div>
             <span class="account-name">Gráfico</span>
+            <div class="grafico-container" style="width: 100%; height: 200px;">
+
+              <canvas id="GraUsuario"></canvas>
+            </div>
             <select class="form-select mt-2" id="tipoGraficoUsuario">
               <option value="bar">Barras</option>
               <option value="pie">Torta</option>
               <option value="line">Líneas</option>
             </select>
-            <div class="account-item d-flex justify-content-between" style="width: 100%; height: 200px;">
-
-              <canvas id="GraUsuario"></canvas>
-            </div>
           </div>
         </div>
       </div>
@@ -106,7 +106,9 @@
           <div class="account-list">
             <div class="account-item d-flex justify-content-between mb-2">
               <span class="account-name">Más eficiente</span>
-              <span class="account-balance">Gustavo Badallo</span>
+              <span class="account-balance">
+                <?php echo isset($nombreTecnicoMasEficiente) ? $nombreTecnicoMasEficiente : 'N/A'; ?>
+              </span>
             </div>
             <div class="account-item d-flex justify-content-between mb-2">
               <span class="account-name">Redes</span>
@@ -121,14 +123,14 @@
               <span class="account-balance">2</span>
             </div>
             <span class="account-name">Gráfico</span>
+            <div class="grafico-container" style="width: 100%; height: 200px;">
+              <canvas id="Graftecnicos"></canvas>
+            </div>
             <select class="form-select mt-2" id="tipoGraficoTecnicos">
               <option value="bar">Barras</option>
               <option value="pie">Torta</option>
               <option value="line">Líneas</option>
             </select>
-            <div class="account-item d-flex justify-content-between" style="width: 100%; height: 200px;">
-              <canvas id="Graftecnicos"></canvas>
-            </div>
           </div>
         </div>
       </div>
@@ -159,7 +161,9 @@
             </div>
             <div class="account-item d-flex justify-content-between" style="width: 100%; height: 200px;">
               <span class="account-name">Gráfico</span>
-              <canvas id="GraUsuario"></canvas>
+              <div class="grafico-container" style="width: 100%; height: 200px;">
+                <canvas id="GraUsuario"></canvas>
+              </div>
             </div>
           </div>
         </div>
