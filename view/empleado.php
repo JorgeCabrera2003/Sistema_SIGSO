@@ -24,9 +24,11 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Gestionar Empleados</h5>
+            <?php if(isset($permisos['empleado']['registrar']['estado']) && $permisos['empleado']['registrar']['estado'] == '1'){ ?>
             <button type="button" class="btn btn-primary mx-auto my-4" id="btn-registrar">
               Registrar Empleado
             </button>
+            <?php }?>
             <div class="table-responsive">
               <table class="table" id="tabla1">
                 <thead>

@@ -5,50 +5,71 @@ $(document).ready(function () {
 	cargarCargo();
 	cargarDependencia();
 
-	$("#enviar").on("click", function () {
+	$("#enviar").on("click", async function () {
+		var confirmacion = false;
+		var envio = false;
 		switch ($(this).text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('registrar', 'registrar');
-					datos.append('cedula', $("#cedula").val());
-					datos.append('nombre', $("#nombre").val());
-					datos.append('apellido', $("#apellido").val());
-					datos.append('telefono', $("#telefono").val());
-					datos.append('correo', $("#correo").val());
-					datos.append('unidad', $("#unidad").val());
-					datos.append('cargo', $("#cargo").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion('Se registrará un nuevo Empleado', '¿Seguro de realizar la acción?', 'question');
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('registrar', 'registrar');
+						datos.append('cedula', $("#cedula").val());
+						datos.append('nombre', $("#nombre").val());
+						datos.append('apellido', $("#apellido").val());
+						datos.append('telefono', $("#telefono").val());
+						datos.append('correo', $("#correo").val());
+						datos.append('unidad', $("#unidad").val());
+						datos.append('cargo', $("#cargo").val());
+						enviaAjax(datos);
+					}
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					var datos = new FormData();
-					datos.append('modificar', 'modificar');
-					datos.append('cedula', $("#cedula").val());
-					datos.append('nombre', $("#nombre").val());
-					datos.append('apellido', $("#apellido").val());
-					datos.append('telefono', $("#telefono").val());
-					datos.append('correo', $("#correo").val());
-					datos.append('unidad', $("#unidad").val());
-					datos.append('cargo', $("#cargo").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion('Se modificará Empleado', '¿Seguro de realizar la acción?', 'question');
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('modificar', 'modificar');
+						datos.append('cedula', $("#cedula").val());
+						datos.append('nombre', $("#nombre").val());
+						datos.append('apellido', $("#apellido").val());
+						datos.append('telefono', $("#telefono").val());
+						datos.append('correo', $("#correo").val());
+						datos.append('unidad', $("#unidad").val());
+						datos.append('cargo', $("#cargo").val());
+						enviaAjax(datos);
+					}
 				}
 				break;
 			case "Eliminar":
 				if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
-					var datos = new FormData();
-					datos.append('eliminar', 'eliminar');
-					datos.append('cedula', $("#cedula").val());
-					enviaAjax(datos);
+					confirmacion = await confirmarAccion('Se elminará Empleado', '¿Seguro de realizar la acción?', 'question');
+					if (confirmacion) {
+						var datos = new FormData();
+						datos.append('eliminar', 'eliminar');
+						datos.append('cedula', $("#cedula").val());
+						enviaAjax(datos);
+					}
 				}
 				break;
 
 			default:
 				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
 		}
-		$('#enviar').prop('disabled', true);
+		if (envio) {
+			$('#enviar').prop('disabled', true);
+		} else {
+			$('#enviar').prop('disabled', false);
+		}
+
+		if (!confirmacion) {
+			$('#enviar').prop('disabled', false);
+		} else {
+			$('#enviar').prop('disabled', true);
+		}
 	});
 
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
@@ -123,6 +144,9 @@ async function enviaAjax(datos) {
 					selectCargo(lee.datos);
 
 				} else if (lee.resultado == "entrada") {
+
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
 
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
@@ -326,6 +350,25 @@ function validarenvio() {
 	return true;
 }
 
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+		$('.modificar').remove();
+		$('.eliminar').remove();
+		$('.restaurar').remove();
+	} else {
+		if (permisos['empleado']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+		if (permisos['empleado']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+		if (permisos['empleado']['restaurar']['estado'] == '0') {
+			$('.restaurar').remove();
+		}
+	}
+};
+
 function crearDataTable(arreglo) {
 
 	console.log(arreglo);
@@ -346,8 +389,8 @@ function crearDataTable(arreglo) {
 			{ data: 'cargo' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
+					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
 					return botones;
 				}
 			}],

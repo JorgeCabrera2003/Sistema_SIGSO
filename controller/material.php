@@ -16,6 +16,13 @@ if (is_file("view/" . $page . ".php")) {
 	$material = new Material();
 	$oficina = new Oficina();
 
+	if (!isset($permisos['material']['ver']['estado']) || $permisos['material']['ver']['estado'] == "0") {
+		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Material";
+		Bitacora($msg, "Material");
+		header('Location: ?page=home');
+		exit;
+	}
+
 	if (isset($_POST["entrada"])) {
 		$json['resultado'] = "entrada";
 		echo json_encode($json);
@@ -25,37 +32,41 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
-		if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Nombre del Material no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["ubicacion"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Ubicación no válida";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Stock no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else {
-			$material->set_nombre($_POST["nombre"]);
-			$material->set_ubicacion($_POST["ubicacion"]);
-			$material->set_stock($_POST["stock"]);
-			$peticion["peticion"] = "registrar";
-			$json = $material->Transaccion($peticion);
-			if ($json['estado'] == 1) {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo material";
-				$msgN = "Nuevo material registrado por " . $_SESSION['user']['nombre_usuario'] . ": " . $_POST["nombre"];
+		if (isset($permisos['material']['registrar']['estado']) && $permisos['material']['registrar']['estado'] == '1') {
+			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Nombre del Material no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["ubicacion"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Ubicación no válida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Stock no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo material";
+				$material->set_nombre($_POST["nombre"]);
+				$material->set_ubicacion($_POST["ubicacion"]);
+				$material->set_stock($_POST["stock"]);
+				$peticion["peticion"] = "registrar";
+				$json = $material->Transaccion($peticion);
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo material";
+					$msgN = "Nuevo material registrado por " . $_SESSION['user']['nombre_usuario'] . ": " . $_POST["nombre"];
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo material";
+				}
 			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para registrar Material";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
 		}
+
 		echo json_encode($json);
 		Bitacora($msg, "Material");
-		Notificar(
-                    $msgN,
-                    "Material"
-                );
+		Notificar($msgN, "Material");
 		exit;
 	}
 
@@ -67,35 +78,41 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["modificar"])) {
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_material"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Nombre del Material no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["ubicacion"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Ubicación no válida";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else if (preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Stock no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else {
-			$material->set_id($_POST["id_material"]);
-			$material->set_nombre($_POST["nombre"]);
-			$material->set_ubicacion($_POST["ubicacion"]);
-			$material->set_stock($_POST["stock"]);
-			$peticion["peticion"] = "actualizar";
-			$json = $material->Transaccion($peticion);
-
-			if ($json['estado'] == 1) {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Material";
+		if (isset($permisos['material']['modificar']['estado']) && $permisos['material']['modificar']['estado'] == '1') {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_material"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Nombre del Material no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["ubicacion"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Ubicación no válida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Stock no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Material";
+				$material->set_id($_POST["id_material"]);
+				$material->set_nombre($_POST["nombre"]);
+				$material->set_ubicacion($_POST["ubicacion"]);
+				$material->set_stock($_POST["stock"]);
+				$peticion["peticion"] = "actualizar";
+				$json = $material->Transaccion($peticion);
+
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Material";
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Material";
+				}
 			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para modificar Material";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Material");
@@ -118,20 +135,26 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["eliminar"])) {
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_material"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else {
-			$material->set_id($_POST["id_material"]);
-			$peticion["peticion"] = "eliminar";
-			$json = $material->Transaccion($peticion);
-
-			if ($json['estado'] == 1) {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Material";
+		if (isset($permisos['material']['eliminar']['estado']) && $permisos['material']['eliminar']['estado'] == '1') {
+			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_material"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Material";
+				$material->set_id($_POST["id_material"]);
+				$peticion["peticion"] = "eliminar";
+				$json = $material->Transaccion($peticion);
+
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Material";
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Material";
+				}
 			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para eliminar Material";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Material");

@@ -23,7 +23,7 @@ $(document).ready(function () {
 		}
 	});
 
-	
+
 
 	$("#enviar").on("click", async function () {
 		var confirmacion = false;
@@ -145,7 +145,7 @@ function enviaAjax(datos) {
 		data: datos,
 		processData: false,
 		cache: false,
-		beforeSend: function () {},
+		beforeSend: function () { },
 		timeout: 10000,
 		success: function (respuesta) {
 			console.log(respuesta);
@@ -174,6 +174,10 @@ function enviaAjax(datos) {
 					consultar();
 
 				} else if (lee.resultado == "entrada") {
+
+				} else if (lee.resultado == "permisos_modulo") {
+					vistaPermiso(lee.permisos);
+
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -190,7 +194,7 @@ function enviaAjax(datos) {
 				mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
 			}
 		},
-		complete: function () {},
+		complete: function () { },
 	});
 }
 
@@ -216,10 +220,10 @@ function capaValidar() {
 	});
 
 	$("#ubicacion").on("change", function () {
-		if($(this).val() != ""){
+		if ($(this).val() != "") {
 			console.log("select actvio");
-			estadoSelect($(this), $("#subicacion"), "Debe seleccionar una ubicación",1);
-		}else{
+			estadoSelect($(this), $("#subicacion"), "Debe seleccionar una ubicación", 1);
+		} else {
 			estadoSelect($(this), $("#subicacion"), "Debe seleccionar una ubicación");
 		}
 	});
@@ -239,6 +243,25 @@ function validarenvio() {
 	return true;
 }
 
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+		$('.modificar').remove();
+		$('.eliminar').remove();
+		$('.restaurar').remove();
+	} else {
+		if (permisos['material']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+		if (permisos['material']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+		if (permisos['material']['restaurar']['estado'] == '0') {
+			$('.restaurar').remove();
+		}
+	}
+};
+
 function crearDataTable(arreglo) {
 	console.log(arreglo);
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
@@ -247,14 +270,18 @@ function crearDataTable(arreglo) {
 	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{data: 'id_material'},
-			{data: 'nombre_material'},
-			{data: 'nombre_oficina'},
-			{data: 'stock'},
+			{ data: 'id_material' },
+			{ data: 'nombre_material' },
+			{ data: 'nombre_oficina' },
+			{ data: 'stock' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar">
+										<i class="fa-solid fa-pen-to-square"></i>
+										</button>
+                    				<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"
+										<i class="fa-solid fa-trash"></i>
+										</button>`;
 					return botones;
 				}
 			}],
@@ -319,16 +346,16 @@ function TablaEliminados(arreglo) {
 	$('#tablaEliminadas').DataTable({
 		data: arreglo,
 		columns: [
-			{data: 'id_material'},
-			{data: 'nombre_material'},
-			{data: 'ubicacion'},
-			{data: 'stock'},
+			{ data: 'id_material' },
+			{ data: 'nombre_material' },
+			{ data: 'ubicacion' },
+			{ data: 'stock' },
 			{
 				data: null,
 				render: function () {
-					return `<button onclick="restaurarMaterial(this)" class="btn btn-success">
+					return `<button onclick="restaurarMaterial(this)" class="btn btn-success restaurar">
                                             <i class="fa-solid fa-recycle"></i>
-                                            </button>`;
+                            	</button>`;
 				}
 			}
 		],
