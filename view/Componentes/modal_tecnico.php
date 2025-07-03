@@ -85,10 +85,11 @@
         <div class="row justify-content-center" id="Fila6">
           <div class="col-md-8">
             <div class="form-floating mb-3">
-              <input placeholder="Área" class="form-control" name="servicio" type="text" id="servicio" maxlength="100"
-                readonly>
-              <label for="servicio" class="form-label">Área</label>
+              <select class="form-select" name="servicio" id="servicio">
+                <option selected value="default">Seleccione un Área</option>
+              </select>
               <span id="sservicio"></span>
+              <label for="servicio">Área</label>
             </div>
           </div>
         </div>

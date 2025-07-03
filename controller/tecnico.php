@@ -11,6 +11,7 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "model/cargo.php";
 	require_once "model/unidad.php";
 	require_once "model/dependencia.php";
+    require_once "model/tipo_servicio.php";
 
 	$titulo = "Gestionar Técnicos";
 	$cabecera = array('Cédula', "Nombre", "Apellido", "Teléfono", "Correo", "Dependencia", "Unidad", "Cargo", "Área", "Modificar/Eliminar");
@@ -19,6 +20,7 @@ if (is_file("view/" . $page . ".php")) {
 	$cargo = new Cargo();
 	$unidad = new Unidad();
 	$dependencia = new Dependencia();
+    $tipo_servicio = new TipoServicio();
 
 	if (!isset($permisos['tecnico']['ver']['estado']) || $permisos['tecnico']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Técnico";
@@ -74,6 +76,7 @@ if (is_file("view/" . $page . ".php")) {
 				$tecnico->set_telefono($_POST["telefono"]);
 				$tecnico->set_id_unidad($_POST["unidad"]);
 				$tecnico->set_id_cargo($_POST["cargo"]);
+				$tecnico->set_id_servicio($_POST["servicio"]); // <--- área
 				$peticion["peticion"] = "registrar";
 				$json = $tecnico->Transaccion($peticion);
 				if ($json['estado'] == 1) {
@@ -140,6 +143,7 @@ if (is_file("view/" . $page . ".php")) {
 				$tecnico->set_telefono($_POST["telefono"]);
 				$tecnico->set_id_unidad($_POST["unidad"]);
 				$tecnico->set_id_cargo($_POST["cargo"]);
+				$tecnico->set_id_servicio($_POST["servicio"]); // <--- área
 				$peticion["peticion"] = "modificar";
 				$json = $tecnico->Transaccion($peticion);
 				if ($json['estado'] == 1) {
@@ -207,6 +211,14 @@ if (is_file("view/" . $page . ".php")) {
 		$peticion["peticion"] = "consultar";
 		$json = $cargo->Transaccion($peticion);
 		$json["resultado"] = "cargar_cargo";
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST['cargar_servicio'])) {
+		$peticion["peticion"] = "consultar";
+		$json = $tipo_servicio->Transaccion($peticion);
+		$json["resultado"] = "cargar_servicio";
 		echo json_encode($json);
 		exit;
 	}

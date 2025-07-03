@@ -10,6 +10,7 @@ $(document).ready(function () {
 	capaValidar();
 	cargarCargo();
 	cargarDependencia();
+	cargarServicio(); // <--- Cargar áreas al iniciar
 
 	$("#enviar").on("click", async function () {
 		var confirmacion = false;
@@ -29,6 +30,7 @@ $(document).ready(function () {
 						datos.append('correo', $("#correo").val());
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
+						datos.append('servicio', $("#servicio").val()); // <-- Agrega el área
 						enviaAjax(datos);
 					}
 				}
@@ -46,6 +48,7 @@ $(document).ready(function () {
 						datos.append('correo', $("#correo").val());
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
+						datos.append('servicio', $("#servicio").val()); // <-- Agrega el área
 						enviaAjax(datos);
 					}
 				}
@@ -107,6 +110,12 @@ function cargarCargo() {
 	enviaAjax(datos);
 };
 
+function cargarServicio() {
+	var datos = new FormData();
+	datos.append('cargar_servicio', 'cargar_servicio');
+	enviaAjax(datos);
+}
+
 async function enviaAjax(datos) {
 	return await $.ajax({
 		async: true,
@@ -148,6 +157,8 @@ async function enviaAjax(datos) {
 				} else if (lee.resultado == "cargar_cargo") {
 					selectCargo(lee.datos);
 
+				} else if (lee.resultado == "cargar_servicio") {
+					selectServicio(lee.datos);
 				} else if (lee.resultado == "entrada") {
 
 				} else if (lee.resultado == "permisos_modulo") {
@@ -229,6 +240,24 @@ async function selectUnidad(arreglo) {
 		estadoSelect("#unidad", "#sunidad", "", 0);
 	}
 	return true;
+}
+
+function selectServicio(arreglo) {
+	$("#servicio").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#servicio").append(
+			new Option('Seleccione un Área', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#servicio").append(
+				new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
+			);
+		});
+	} else {
+		$("#servicio").append(
+			new Option('No hay áreas', 'default')
+		);
+	}
 }
 
 function capaValidar() {

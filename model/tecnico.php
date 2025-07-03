@@ -11,6 +11,7 @@
         private $id_unidad;
         private $telefono;
         private $correo;
+        private $id_servicio;
 
         public function __construct(){
             $this->conex = new Conexion("sistema");
@@ -39,19 +40,23 @@
         public function set_correo($correo){
             $this->correo = $correo;
         }
+        public function set_id_servicio($id_servicio){
+            $this->id_servicio = $id_servicio;
+        }
 
         // CRUD para técnicos (empleados con cargo técnico)
         public function Registrar(){
             $datos = [];
             try {
                 $this->conex->beginTransaction();
-                $sql = "INSERT INTO empleado (cedula_empleado, nombre_empleado, apellido_empleado, id_cargo, id_unidad, telefono_empleado, correo_empleado)
-                        VALUES (:cedula, :nombre, :apellido, :id_cargo, :id_unidad, :telefono, :correo)";
+                $sql = "INSERT INTO empleado (cedula_empleado, nombre_empleado, apellido_empleado, id_cargo, id_servicio, id_unidad, telefono_empleado, correo_empleado)
+                        VALUES (:cedula, :nombre, :apellido, :id_cargo, :id_servicio, :id_unidad, :telefono, :correo)";
                 $stmt = $this->conex->prepare($sql);
                 $stmt->bindParam(':cedula', $this->cedula);
                 $stmt->bindParam(':nombre', $this->nombre);
                 $stmt->bindParam(':apellido', $this->apellido);
                 $stmt->bindParam(':id_cargo', $this->id_cargo);
+                $stmt->bindParam(':id_servicio', $this->id_servicio);
                 $stmt->bindParam(':id_unidad', $this->id_unidad);
                 $stmt->bindParam(':telefono', $this->telefono);
                 $stmt->bindParam(':correo', $this->correo);
@@ -73,13 +78,14 @@
             $datos = [];
             try {
                 $this->conex->beginTransaction();
-                $sql = "UPDATE empleado SET nombre_empleado=:nombre, apellido_empleado=:apellido, id_cargo=:id_cargo, id_unidad=:id_unidad, telefono_empleado=:telefono, correo_empleado=:correo
+                $sql = "UPDATE empleado SET nombre_empleado=:nombre, apellido_empleado=:apellido, id_cargo=:id_cargo, id_servicio=:id_servicio, id_unidad=:id_unidad, telefono_empleado=:telefono, correo_empleado=:correo
                         WHERE cedula_empleado=:cedula";
                 $stmt = $this->conex->prepare($sql);
                 $stmt->bindParam(':cedula', $this->cedula);
                 $stmt->bindParam(':nombre', $this->nombre);
                 $stmt->bindParam(':apellido', $this->apellido);
                 $stmt->bindParam(':id_cargo', $this->id_cargo);
+                $stmt->bindParam(':id_servicio', $this->id_servicio);
                 $stmt->bindParam(':id_unidad', $this->id_unidad);
                 $stmt->bindParam(':telefono', $this->telefono);
                 $stmt->bindParam(':correo', $this->correo);
