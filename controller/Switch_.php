@@ -22,7 +22,7 @@
         $bien = $switch->Transaccion(['peticion' => 'consultar_bien']);
 
 
-        if (!isset($permisos['switch']['ver']['estado']) || $permisos['switch']['ver']['estado'] !== 1) {
+        if (!isset($permisos['switch']['ver']['estado']) || $permisos['switch']['ver']['estado'] == 0) {
 
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Switch";
 

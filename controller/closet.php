@@ -7,7 +7,6 @@
 
     Bitacora("Cerró sesión", "Usuario");
 
-    session_unset();
     session_destroy();
 
     header("Location: ?page=login");
