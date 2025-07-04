@@ -27,8 +27,12 @@
               <span class="ms-2 me-2 menu-text">Mis Solicitudes</span>
             </a>
           </li>
-        <?php } ?>
+        <?php } 
+        $permiso_hoja_servicio = isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1";
+        $permiso_solicitud = isset($permisos['solicitud']['ver_solicitud']['estado']) && $permisos['solicitud']['ver_solicitud']['estado'] == "1";
+        if ($permiso_solicitud || $permiso_hoja_servicio) { ?>
         <span>Servicios</span>
+        <?php } ?>
         <?php if (isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1") { ?>
           <li class="menu-item" title="Servicios">
             <a href="?page=servicios">
@@ -455,4 +459,4 @@
     </head>
     <link rel="icon" href="assets/img/favicon.ico">
 
-    <head>
+    <head></head></head>
