@@ -27,11 +27,11 @@
               <span class="ms-2 me-2 menu-text">Mis Solicitudes</span>
             </a>
           </li>
-        <?php } 
+        <?php }
         $permiso_hoja_servicio = isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1";
         $permiso_solicitud = isset($permisos['solicitud']['ver_solicitud']['estado']) && $permisos['solicitud']['ver_solicitud']['estado'] == "1";
         if ($permiso_solicitud || $permiso_hoja_servicio) { ?>
-        <span>Servicios</span>
+          <span>Servicios</span>
         <?php } ?>
         <?php if (isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1") { ?>
           <li class="menu-item" title="Servicios">
@@ -41,19 +41,23 @@
             </a>
           </li>
         <?php } ?>
-          <!-- CATEGORÍA: SERVICIOS -->
-          <li class="menu-title">
-          </li>
-          </li>
+        <!-- CATEGORÍA: SERVICIOS -->
+        <li class="menu-title">
+        </li>
+        </li>
 
-          <?php if (isset($permisos['solicitud']['ver_solicitud']['estado']) && $permisos['solicitud']['ver_solicitud']['estado'] == "1") { ?>
-            <li class="menu-item" title="Solicitudes">
-              <a href="?page=solicitud">
-                <i class="fa-solid fa-clipboard-list"></i>
-                <span class="ms-2 me-2 menu-text">Solicitudes</span>
-              </a>
-            </li>
-          <?php } ?>
+        <?php if (isset($permisos['solicitud']['ver_solicitud']['estado']) && $permisos['solicitud']['ver_solicitud']['estado'] == "1") { ?>
+          <li class="menu-item" title="Solicitudes">
+            <a href="?page=solicitud">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <span class="ms-2 me-2 menu-text">Solicitudes</span>
+            </a>
+          </li>
+        <?php }
+        $permiso_equipo = isset($permisos['equipo']['ver']['estado']) && $permisos['equipo']['ver']['estado'] == "1";
+        $permiso_bien = isset($permisos['bien']['ver']['estado']) && $permisos['bien']['ver']['estado'] == "1";
+        $permiso_material = isset($permisos['material']['ver']['estado']) && $permisos['material']['ver']['estado'] == "1";
+        if ($permiso_equipo || $permiso_bien || $permiso_material) { ?>
           <!-- CATEGORÍA: EQUIPOS -->
           <li class="menu-title">
             <span>Equipos</span>
@@ -94,59 +98,67 @@
               </li>
             <?php } ?>
           </ul>
-
+        <?php }
+        $permiso_switch = isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1";
+        $permiso_interconexion = isset($permisos['interconexion']['ver']['estado']) && $permisos['interconexion']['ver']['estado'] == "1";
+        $permiso_patch_panel = isset($permisos['patch_panel']['ver']['estado']) && $permisos['patch_panel']['ver']['estado'] == "1";
+        $permiso_punto_conexion = isset($permisos['punto_conexion']['ver']['estado']) && $permisos['punto_conexion']['ver']['estado'] == "1";
+        $permiso_piso = isset($permisos['piso']['ver']['estado']) && $permisos['piso']['ver']['estado'] == "1";
+        $permiso_oficina = isset($permisos['oficina']['ver']['estado']) && $permisos['oficina']['ver']['estado'] == "1";
+        if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion || $permiso_piso || $permiso_oficina) { ?>
           <!-- CATEGORÍA: INFRAESTRUCTURA -->
           <li class="menu-title">
             <span>Infraestructura</span>
           </li>
+          <?php if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion) { ?>
+            <li class="menu-item <?php echo ($page == "gestion_redes" || $page == "Configuracion") ? "active" : "" ?>"
+              title="Gestión de Redes">
+              <a class="nav-link collapsed" data-bs-target="#redes-submenu" data-bs-toggle="collapse" href="#">
+                <i class="fas fa-network-wired"></i>
+                <span class="ms-2 me-2 menu-text">Redes</span>
+                <i class="fa-solid fa-angle-right"></i>
+              </a>
+            </li>
 
-          <li class="menu-item <?php echo ($page == "gestion_redes" || $page == "Configuracion") ? "active" : "" ?>"
-            title="Gestión de Redes">
-            <a class="nav-link collapsed" data-bs-target="#redes-submenu" data-bs-toggle="collapse" href="#">
-              <i class="fas fa-network-wired"></i>
-              <span class="ms-2 me-2 menu-text">Redes</span>
-              <i class="fa-solid fa-angle-right"></i>
-            </a>
-          </li>
-
-          <ul id="redes-submenu" style="margin-left: 1em"
-            class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
-            data-bs-parent="#sidebar-nav">
-            <?php if (isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1") { ?>
-              <li class="menu-item" title="Gestión de Switches">
-                <a href="?page=Switch_">
-                  <i class="fa-solid fa-server"></i>
-                  <span class="ms-2 me-2 menu-text">Switches</span>
-                </a>
-              </li>
-            <?php } ?>
-            <?php if (isset($permisos['interconexion']['ver']['estado']) && $permisos['interconexion']['ver']['estado'] == "1") { ?>
-              <li class="menu-item" title="Gestión de Interconexiones">
-                <a href="?page=interconexion">
-                  <i class="fa-solid fa-network-wired"></i>
-                  <span class="ms-2 me-2 menu-text">Interconexiones</span>
-                </a>
-              </li>
-            <?php } ?>
-            <?php if (isset($permisos['patch_panel']['ver']['estado']) && $permisos['patch_panel']['ver']['estado'] == "1") { ?>
-              <li class="menu-item" title="Gestión de Patch Panel">
-                <a href="?page=patch_panel">
-                  <i class="fa-solid fa-plug"></i>
-                  <span class="ms-2 me-2 menu-text">Patch Panels</span>
-                </a>
-              </li>
-            <?php } ?>
-            <?php if (isset($permisos['punto_conexion']['ver']['estado']) && $permisos['punto_conexion']['ver']['estado'] == "1") { ?>
-              <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
-                title="Gestión de Puntos de Conexión">
-                <a href="?page=punto_conexion">
-                  <i class="fa-solid fa-ethernet"></i>
-                  <span class="ms-2 me-2 menu-text">Puntos de Conexión</span>
-                </a>
-              </li>
-            <?php } ?>
-          </ul>
-
+            <ul id="redes-submenu" style="margin-left: 1em"
+              class="nav-content <?php echo ($page == "gestion_equipos") ? "" : "collapse" ?>"
+              data-bs-parent="#sidebar-nav">
+              <?php if (isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1") { ?>
+                <li class="menu-item" title="Gestión de Switches">
+                  <a href="?page=Switch_">
+                    <i class="fa-solid fa-server"></i>
+                    <span class="ms-2 me-2 menu-text">Switches</span>
+                  </a>
+                </li>
+              <?php } ?>
+              <?php if (isset($permisos['interconexion']['ver']['estado']) && $permisos['interconexion']['ver']['estado'] == "1") { ?>
+                <li class="menu-item" title="Gestión de Interconexiones">
+                  <a href="?page=interconexion">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span class="ms-2 me-2 menu-text">Interconexiones</span>
+                  </a>
+                </li>
+              <?php } ?>
+              <?php if (isset($permisos['patch_panel']['ver']['estado']) && $permisos['patch_panel']['ver']['estado'] == "1") { ?>
+                <li class="menu-item" title="Gestión de Patch Panel">
+                  <a href="?page=patch_panel">
+                    <i class="fa-solid fa-plug"></i>
+                    <span class="ms-2 me-2 menu-text">Patch Panels</span>
+                  </a>
+                </li>
+              <?php } ?>
+              <?php if (isset($permisos['punto_conexion']['ver']['estado']) && $permisos['punto_conexion']['ver']['estado'] == "1") { ?>
+                <li class="menu-item <?php echo (isset($_GET['dato']) && $_GET['dato'] == "Bien") ? "active" : "" ?>"
+                  title="Gestión de Puntos de Conexión">
+                  <a href="?page=punto_conexion">
+                    <i class="fa-solid fa-ethernet"></i>
+                    <span class="ms-2 me-2 menu-text">Puntos de Conexión</span>
+                  </a>
+                </li>
+              <?php } ?>
+            </ul>
+          <?php } ?>
+          <?php if ($permiso_piso || $permiso_oficina) { ?>
           <li class="menu-item <?php echo ($page == "infraestructura" || $page == "Configuracion") ? "active" : "" ?>"
             title="Edificios y Oficinas">
             <a class="nav-link collapsed" data-bs-target="#edificios-submenu" data-bs-toggle="collapse" href="#">
@@ -176,170 +188,188 @@
               </li>
             <?php } ?>
           </ul>
+        <?php } ?>
+        <?php } $permiso_empleado = isset($permisos['empleado']['ver']['estado']) && $permisos['empleado']['ver']['estado'] == "1";
+                $permiso_tecnico = isset($permisos['tecnico']['ver']['estado']) && $permisos['tecnico']['ver']['estado'] == "1";
+        if($permiso_empleado || $permiso_tecnico) { ?>
+        <!-- CATEGORÍA: PERSONAL -->
+        <li class="menu-title">
+          <span>Personal</span>
+        </li>
 
-          <!-- CATEGORÍA: PERSONAL -->
-          <li class="menu-title">
-            <span>Personal</span>
-          </li>
+        <li class="menu-item <?php echo ($page == "empleados" || $page == "Configuracion") ? "active" : "" ?>"
+          title="Gestión de Personal">
+          <a class="nav-link collapsed" data-bs-target="#personal-submenu" data-bs-toggle="collapse" href="#">
+            <i class="fas fa-users"></i>
+            <span class="ms-2 me-2 menu-text">Personal</span>
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        </li>
 
-          <li class="menu-item <?php echo ($page == "empleados" || $page == "Configuracion") ? "active" : "" ?>"
-            title="Gestión de Personal">
-            <a class="nav-link collapsed" data-bs-target="#personal-submenu" data-bs-toggle="collapse" href="#">
-              <i class="fas fa-users"></i>
-              <span class="ms-2 me-2 menu-text">Personal</span>
-              <i class="fa-solid fa-angle-right"></i>
+        <ul id="personal-submenu" style="margin-left: 1em"
+          class="nav-content <?php echo ($page == "empleados") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
+          <?php if (isset($permisos['empleado']['ver']['estado']) && $permisos['empleado']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Gestión de Empleados">
+              <a href="?page=empleado">
+                <i class="fa-solid fa-user-tie"></i>
+                <span class="ms-2 me-2 menu-text">Empleados</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['tecnico']['ver']['estado']) && $permisos['tecnico']['ver']['estado'] == "1") { ?>
+            <li class="menu-item <?php echo ($page == "tecnico") ? "active" : "" ?>" title="Gestión de Técnicos">
+              <a href="?page=tecnico">
+                <i class="fa-solid fa-user-gear"></i>
+                <span class="ms-2 me-2 menu-text">Técnicos</span>
+              </a>
+            </li>
+          <?php } ?>
+        </ul>
+        <?php } 
+        $permiso_unidad = isset($permisos['unidad']['ver']['estado']) && $permisos['unidad']['ver']['estado'] == "1";
+        $permiso_dependencia = isset($permisos['dependencia']['ver']['estado']) && $permisos['dependencia']['ver']['estado'] == "1";
+        $permiso_ente = isset($permisos['ente']['ver']['estado']) && $permisos['ente']['ver']['estado'] == "1";
+        $permiso_marca = isset($permisos['marca']['ver']['estado']) && $permisos['marca']['ver']['estado'] == "1";
+        $permiso_tipo_servicio = isset($permisos['tipo_servicio']['ver']['estado']) && $permisos['tipo_servicio']['ver']['estado'] == "1";
+        $permiso_cargo = isset($permisos['cargo']['ver']['estado']) && $permisos['cargo']['ver']['estado'] == "1";
+        $permiso_tipo_bien = isset($permisos['tipo_bien']['ver']['estado']) && $permisos['tipo_bien']['ver']['estado'] == "1";
+        if($permiso_unidad || $permiso_dependencia || $permiso_ente || $permiso_marca || $permiso_tipo_servicio || $permiso_cargo || $permiso_tipo_bien) { ?>
+        <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
+        <li class="menu-title">
+          <span>Configuración</span>
+        </li>
+
+        <li class="menu-item <?php echo ($page == "configuracion" || $page == "Configuracion") ? "active" : "" ?>"
+          title="Configuración General">
+          <a class="nav-link collapsed" data-bs-target="#config-submenu" data-bs-toggle="collapse" href="#">
+            <i class="fas fa-cog"></i>
+            <span class="ms-2 me-2 menu-text">Configuración</span>
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        </li>
+
+        <ul id="config-submenu" style="margin-left: 1em"
+          class="nav-content <?php echo ($page == "Configuracion") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
+          <?php if (isset($permisos['unidad']['ver']['estado']) && $permisos['unidad']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Unidad">
+              <a href="?page=unidad">
+                <i class="fa-solid fa-sitemap"></i>
+                <span class="ms-2 me-2 menu-text">Unidades</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['dependencia']['ver']['estado']) && $permisos['dependencia']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Dependencia">
+              <a href="?page=dependencia">
+                <i class="fa-solid fa-diagram-project"></i>
+                <span class="ms-2 me-2 menu-text">Dependencias</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['dependencia']['ver']['estado']) && $permisos['dependencia']['ver']['estado'] == "1") { ?>
+            <li class="menu-item">
+              <a href="?page=ente">
+                <i class="fa-solid fa-building"></i>
+                <span class="ms-2 me-2 menu-text">Entes</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['marca']['ver']['estado']) && $permisos['marca']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Marca">
+              <a href="?page=marca">
+                <i class="fa-solid fa-trademark"></i>
+                <span class="ms-2 me-2 menu-text">Marcas</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['tipo_servicio']['ver']['estado']) && $permisos['tipo_servicio']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Tipo de Servicio">
+              <a href="?page=tipo_servicio">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span class="ms-2 me-2 menu-text">Tipos de Servicio</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['cargo']['ver']['estado']) && $permisos['cargo']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Cargo">
+              <a href="?page=cargo">
+                <i class="fa-solid fa-id-badge"></i>
+                <span class="ms-2 me-2 menu-text">Cargos</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['tipo_bien']['ver']['estado']) && $permisos['tipo_bien']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Tipo de Bien">
+              <a href="?page=tipo_bien">
+                <i class="fa-solid fa-tag"></i>
+                <span class="ms-2 me-2 menu-text">Tipos de Bien</span>
+              </a>
+            </li>
+          <?php } ?>
+        </ul>
+        <?php } 
+        $permiso_usuario = isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1";
+        $permiso_rol = isset($permisos['rol']['ver']['estado']) && $permisos['rol']['ver']['estado'] == "1";
+        $permiso_modulo = isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "1";
+        $permiso_bitacora = isset($permisos['bitacora']['ver']['estado']) && $permisos['bitacora']['ver']['estado'] == "1";
+        $permiso_mantenimiento = isset($permisos['mantenimiento']['ver']['estado']) && $permisos['mantenimiento']['ver']['estado'] == "1";
+        if($permiso_usuario || $permiso_rol || $permiso_modulo || $permiso_bitacora || $permiso_mantenimiento) { ?>
+        <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
+        <li class="menu-title">
+          <span>Seguridad</span>
+        </li>
+
+        <li class="menu-item <?php echo ($page == "seguridad" || $page == "Configuracion") ? "active" : "" ?>"
+          title="Módulo de Seguridad">
+          <a class="nav-link collapsed" data-bs-target="#seguridad-submenu" data-bs-toggle="collapse" href="#">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span class="ms-2 me-2 menu-text">Seguridad</span>
+            <i class="fa-solid fa-angle-right"></i>
+          </a>
+        </li>
+
+        <ul id="seguridad-submenu" style="margin-left: 1em;"
+          class="nav-content <?php echo ($page == "seguridad") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
+          <?php if (isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Gestión de Usuarios">
+              <a href="?page=usuario">
+                <i class="fa-solid fa-user-shield"></i>
+                <span class="ms-2 me-2 menu-text">Usuarios</span>
+              </a>
+            </li>
+          <?php } ?>
+          <?php if (isset($permisos['rol']['ver']['estado']) && $permisos['rol']['ver']['estado'] == "1") { ?>
+            <li class="menu-item" title="Roles y Permisos">
+              <a href="?page=rol">
+                <i class="fa-solid fa-user-lock"></i>
+                <span class="ms-2 me-2 menu-text">Roles y Permisos</span>
+              </a>
+            </li>
+          <?php } ?>
+          <li class="menu-item <?php echo ($page == "rol") ? "active" : "" ?>" title="Módulos del Sistema">
+            <a href="?page=modulo_sistema">
+              <i class="fa-solid fa-microchip"></i>
+              <span class="ms-2 me-2 menu-text">Módulos del Sistema</span>
             </a>
           </li>
-
-          <ul id="personal-submenu" style="margin-left: 1em"
-            class="nav-content <?php echo ($page == "empleados") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
-            <?php if (isset($permisos['empleado']['ver']['estado']) && $permisos['empleado']['ver']['estado'] == "1") { ?>
-              <li class="menu-item" title="Gestión de Empleados">
-                <a href="?page=empleado">
-                  <i class="fa-solid fa-user-tie"></i>
-                  <span class="ms-2 me-2 menu-text">Empleados</span>
-                </a>
-              </li>
-            <?php } ?>
-            <?php if (isset($permisos['tecnico']['ver']['estado']) && $permisos['tecnico']['ver']['estado'] == "1") { ?>
-              <li class="menu-item <?php echo ($page == "tecnico") ? "active" : "" ?>" title="Gestión de Técnicos">
-                <a href="?page=tecnico">
-                  <i class="fa-solid fa-user-gear"></i>
-                  <span class="ms-2 me-2 menu-text">Técnicos</span>
-                </a>
-              </li>
-            <?php } ?>
-          </ul>
-
-          <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
-            <li class="menu-title">
-              <span>Configuración</span>
-            </li>
-
-            <li class="menu-item <?php echo ($page == "configuracion" || $page == "Configuracion") ? "active" : "" ?>"
-              title="Configuración General">
-              <a class="nav-link collapsed" data-bs-target="#config-submenu" data-bs-toggle="collapse" href="#">
-                <i class="fas fa-cog"></i>
-                <span class="ms-2 me-2 menu-text">Configuración</span>
-                <i class="fa-solid fa-angle-right"></i>
+          <?php if (isset($permisos['bitacora']['ver']['estado']) && $permisos['bitacora']['ver']['estado'] == "1") { ?>
+            <li class="menu-item <?php echo ($page == "bitacora") ? "active" : "" ?>" title="Bitácora">
+              <a href="?page=bitacora">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span class="ms-2 me-2 menu-text">Bitácora</span>
               </a>
             </li>
-
-            <ul id="config-submenu" style="margin-left: 1em"
-              class="nav-content <?php echo ($page == "Configuracion") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
-              <?php if (isset($permisos['unidad']['ver']['estado']) && $permisos['unidad']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Unidad">
-                  <a href="?page=unidad">
-                    <i class="fa-solid fa-sitemap"></i>
-                    <span class="ms-2 me-2 menu-text">Unidades</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['dependencia']['ver']['estado']) && $permisos['dependencia']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Dependencia">
-                  <a href="?page=dependencia">
-                    <i class="fa-solid fa-diagram-project"></i>
-                    <span class="ms-2 me-2 menu-text">Dependencias</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['dependencia']['ver']['estado']) && $permisos['dependencia']['ver']['estado'] == "1") { ?>
-                <li class="menu-item">
-                  <a href="?page=ente">
-                    <i class="fa-solid fa-building"></i>
-                    <span class="ms-2 me-2 menu-text">Entes</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['marca']['ver']['estado']) && $permisos['marca']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Marca">
-                  <a href="?page=marca">
-                    <i class="fa-solid fa-trademark"></i>
-                    <span class="ms-2 me-2 menu-text">Marcas</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['tipo_servicio']['ver']['estado']) && $permisos['tipo_servicio']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Tipo de Servicio">
-                  <a href="?page=tipo_servicio">
-                    <i class="fa-solid fa-screwdriver-wrench"></i>
-                    <span class="ms-2 me-2 menu-text">Tipos de Servicio</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['cargo']['ver']['estado']) && $permisos['cargo']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Cargo">
-                  <a href="?page=cargo">
-                    <i class="fa-solid fa-id-badge"></i>
-                    <span class="ms-2 me-2 menu-text">Cargos</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['tipo_bien']['ver']['estado']) && $permisos['tipo_bien']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Tipo de Bien">
-                  <a href="?page=tipo_bien">
-                    <i class="fa-solid fa-tag"></i>
-                    <span class="ms-2 me-2 menu-text">Tipos de Bien</span>
-                  </a>
-                </li>
-              <?php } ?>
-            </ul>
-
-            <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
-            <li class="menu-title">
-              <span>Seguridad</span>
-            </li>
-
-            <li class="menu-item <?php echo ($page == "seguridad" || $page == "Configuracion") ? "active" : "" ?>"
-              title="Módulo de Seguridad">
-              <a class="nav-link collapsed" data-bs-target="#seguridad-submenu" data-bs-toggle="collapse" href="#">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span class="ms-2 me-2 menu-text">Seguridad</span>
-                <i class="fa-solid fa-angle-right"></i>
+          <?php } ?>
+          <?php if (isset($permisos['mantenimiento']['ver']['estado']) && $permisos['mantenimiento']['ver']['estado'] == "1") { ?>
+            <li class="menu-item <?php echo ($page == "backup") ? "active" : "" ?>" title="BackUp">
+              <a href="?page=backup">
+                <i class="fa-solid fa-database"></i>
+                <span class="ms-2 me-2 menu-text">Backups</span>
               </a>
             </li>
-
-            <ul id="seguridad-submenu" style="margin-left: 1em;"
-              class="nav-content <?php echo ($page == "seguridad") ? "" : "collapse" ?>" data-bs-parent="#sidebar-nav">
-              <?php if (isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Gestión de Usuarios">
-                  <a href="?page=usuario">
-                    <i class="fa-solid fa-user-shield"></i>
-                    <span class="ms-2 me-2 menu-text">Usuarios</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['rol']['ver']['estado']) && $permisos['rol']['ver']['estado'] == "1") { ?>
-                <li class="menu-item" title="Roles y Permisos">
-                  <a href="?page=rol">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span class="ms-2 me-2 menu-text">Roles y Permisos</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <li class="menu-item <?php echo ($page == "rol") ? "active" : "" ?>" title="Módulos del Sistema">
-                <a href="?page=modulo_sistema">
-                  <i class="fa-solid fa-microchip"></i>
-                  <span class="ms-2 me-2 menu-text">Módulos del Sistema</span>
-                </a>
-              </li>
-              <?php if (isset($permisos['bitacora']['ver']['estado']) && $permisos['bitacora']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "bitacora") ? "active" : "" ?>" title="Bitácora">
-                  <a href="?page=bitacora">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                    <span class="ms-2 me-2 menu-text">Bitácora</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['mantenimiento']['ver']['estado']) && $permisos['mantenimiento']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "backup") ? "active" : "" ?>" title="BackUp">
-                  <a href="?page=backup">
-                    <i class="fa-solid fa-database"></i>
-                    <span class="ms-2 me-2 menu-text">Backups</span>
-                  </a>
-                </li>
-              <?php } ?>
-            </ul>
+          <?php } ?>
+        </ul>
+        <?php } ?>
       </ul>
     </nav>
   </div>
@@ -459,4 +489,5 @@
     </head>
     <link rel="icon" href="assets/img/favicon.ico">
 
-    <head></head></head>
+    <head></head>
+    </head>
