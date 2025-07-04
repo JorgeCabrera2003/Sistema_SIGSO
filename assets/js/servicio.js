@@ -80,22 +80,37 @@ function inicializarTablaServicios() {
             url: '?page=servicios',
             type: 'POST',
             data: function (d) {
-                return $.extend({}, d, {
-                    listar: 'listar',
-                    usuario: JSON.stringify({
-                        nombre_usuario: '<?= $_SESSION["user"]["nombre_usuario"] ?>',
-                        cedula: '<?= $_SESSION["user"]["cedula"] ?>',
-                        id_rol: '<?= $_SESSION["user"]["id_rol"] ?>'
-                    }),
-                    filtroEstado: $('#filtroEstado').val(),
-                    filtroTipo: $('#filtroTipo').val(),
-                    filtroFechaInicio: $('#filtroFechaInicio').val(),
-                    filtroFechaFin: $('#filtroFechaFin').val()
-                });
+                // Solo envía 'listar', no los filtros, para obtener todos los datos
+                return { listar: 'listar' };
             },
             dataSrc: function (json) {
                 if (json.resultado === 'success') {
-                    return json.datos;
+                    // Aplica el filtrado en el frontend
+                    let datos = json.datos;
+
+                    // Filtro Estado
+                    let filtroEstado = $('#filtroEstado').val();
+                    if (filtroEstado && filtroEstado !== 'todos') {
+                        datos = datos.filter(row => row.estatus === filtroEstado);
+                    }
+
+                    // Filtro Tipo
+                    let filtroTipo = $('#filtroTipo').val();
+                    if (filtroTipo && filtroTipo !== 'todos') {
+                        datos = datos.filter(row => row.id_tipo_servicio == filtroTipo);
+                    }
+
+                    // Filtro Fecha
+                    let filtroFechaInicio = $('#filtroFechaInicio').val();
+                    let filtroFechaFin = $('#filtroFechaFin').val();
+                    if (filtroFechaInicio) {
+                        datos = datos.filter(row => row.fecha_solicitud && row.fecha_solicitud >= filtroFechaInicio);
+                    }
+                    if (filtroFechaFin) {
+                        datos = datos.filter(row => row.fecha_solicitud && row.fecha_solicitud <= filtroFechaFin + " 23:59:59");
+                    }
+
+                    return datos;
                 } else {
                     mostrarError(json.mensaje || 'Error al cargar hojas de servicio');
                     return [];
@@ -217,7 +232,7 @@ function inicializarTablaServicios() {
         order: [[1, 'desc']],
         dom: '<"top"lf>rt<"bottom"ip><"clear">',
         processing: true,
-        serverSide: false,
+        serverSide: false, // Asegúrate de que esto esté en false
         language: {
             lengthMenu: "Mostrar _MENU_ registros por página",
             zeroRecords: "No se encontraron registros",

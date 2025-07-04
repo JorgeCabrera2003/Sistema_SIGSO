@@ -9,14 +9,8 @@ if (!isset($_SESSION['user'])) {
     $_SESSION['msg']['danger'] = "Sesión Finalizada.";
     exit;
 }
-
-// Verificar permisos - Solo superusuario (1) y técnicos (2)
 $rolesPermitidos = [2, 1];
-if (!in_array($_SESSION['user']['id_rol'], $rolesPermitidos)) {
-    echo '<script>window.location="?page=inicio"</script>';
-    $_SESSION['msg']['danger'] = "No tiene permisos para acceder a este módulo";
-    exit;
-}
+
 
 ob_start();
 if (is_file("view/" . $page . ".php")) {

@@ -44,7 +44,7 @@
                                 <select id="filtroTipo" class="form-select">
                                     <option value="">Todos</option>
                                     <?php foreach ($tipos_servicio as $tipo): ?>
-                                        <option value="<?= $tipo['id_tipo_servicio'] ?>">
+                                        <option value="<?= $tipo['nombre_tipo_servicio'] ?>">
                                             <?= $tipo['nombre_tipo_servicio'] ?>
                                         </option>
                                     <?php endforeach; ?>
