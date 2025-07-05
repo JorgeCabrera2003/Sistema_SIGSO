@@ -3,7 +3,7 @@
 <body>
   <?php require_once("Componentes/menu.php");
   require_once("Componentes/modal_material.php"); ?>
-
+  <?php require_once "Componentes/modal_historial_material.php"; ?>
   <div class="pagetitle">
     <h1>Materiales</h1>
     <nav>

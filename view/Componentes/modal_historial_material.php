@@ -4,7 +4,7 @@
     <div class="modal-content card">
       <div class="modal-header card-header">
         <h5 class="modal-title" id="modalTitleId_HistorialMaterial"></h5>
-        <button type="button" class="btn btn-close" data-bs-dismiss="modal_HistorialMaterial"
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal"
           aria-label="Close"></button>
       </div>
       <div class="modal-body">

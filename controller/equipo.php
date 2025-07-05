@@ -171,6 +171,22 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+	if (isset($_POST['detalle'])) {
+		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_equipo"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Id no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+		} else {
+			$peticion["peticion"] = "detalle";
+			$material->set_id($_POST['id_equipo']);
+			$json = $material->Transaccion($peticion);
+			$json['resultado'] = "detalle";
+		}
+		
+		echo json_encode($json);
+		exit;
+	}
+
     if (isset($_POST['filtrar_bien'])) {
         $peticion["peticion"] = "filtrar";
         $json = $bien->Transaccion($peticion);

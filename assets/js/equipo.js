@@ -150,6 +150,9 @@ async function enviaAjax(datos) {
 					mensajes("success", 10000, lee.mensaje, null);
 					consultar();
 
+				} else if (lee.resultado == "detalle") {
+					TablaHistorial(lee.datos)
+
 				} else if (lee.resultado == "entrada") {
 
 				} else if (lee.resultado == "permisos_modulo") {
@@ -323,6 +326,7 @@ function vistaPermiso(permisos = null) {
 		$('.modificar').remove();
 		$('.eliminar').remove();
 		$('.restaurar').remove();
+
 	} else {
 		if (permisos['equipo']['modificar']['estado'] == '0') {
 			$('.modificar').remove();
@@ -476,6 +480,29 @@ function consultarEliminadas() {
 		}
 	});
 }
+
+function TablaHistorial(arreglo) {
+	if ($.fn.DataTable.isDataTable('#tablaDetalles')) {
+		$('#tablaDetalles').DataTable().destroy();
+	}
+
+	$('#tablaDetalles').DataTable({
+		data: arreglo,
+		columns: [
+			{ data: 'id_movimiento_material' },
+			{ data: 'nombre_material' },
+			{ data: 'accion' },
+			{ data: 'cantidad' },
+			{ data: 'descripcion' }
+		],
+		language: {
+			url: idiomaTabla,
+		}
+
+	});
+	$("#modal1_HistorialMaterial").modal("show");
+}
+
 
 function restaurarEquipo(boton) {
 	var linea = $(boton).closest('tr');

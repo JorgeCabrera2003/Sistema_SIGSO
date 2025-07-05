@@ -1,5 +1,6 @@
 <?php
 require_once "model/conexion.php";
+require_once "model/hoja_servicio.php";
 class Equipo extends Conexion
 {
     private $id_equipo;

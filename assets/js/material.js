@@ -165,8 +165,8 @@ function enviaAjax(datos) {
 					$("#modal1").modal("hide");
 					mensajes("success", 10000, lee.mensaje, null);
 					consultar();
-				} else if (lee.resultado == "detalles") {
-					$("#modal1").modal("hide");
+				} else if (lee.resultado == "detalle") {
+					TablaHistorial(lee.datos)
 
 				} else if (lee.resultado == "consultar_eliminadas") {
 					TablaEliminados(lee.datos);
@@ -251,6 +251,7 @@ function vistaPermiso(permisos = null) {
 	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 		$('.modificar').remove();
 		$('.eliminar').remove();
+		$('.historial').remove();
 		$('.restaurar').remove();
 	} else {
 		if (permisos['material']['modificar']['estado'] == '0') {
@@ -258,6 +259,9 @@ function vistaPermiso(permisos = null) {
 		}
 		if (permisos['material']['eliminar']['estado'] == '0') {
 			$('.eliminar').remove();
+		}
+		if (permisos['material']['historial']['estado'] == '0') {
+			$('.historial').remove();
 		}
 		if (permisos['material']['restaurar']['estado'] == '0') {
 			$('.restaurar').remove();
@@ -282,7 +286,7 @@ function crearDataTable(arreglo) {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar">
 										<i class="fa-solid fa-pen-to-square"></i>
 										</button>
-										<button onclick="rellenar(this, 1)" class="btn btn-info eliminar">
+										<button onclick="rellenar(this, 1)" class="btn btn-info historial">
 										<i class="fa-solid fa-clock"></i>
 										</button>
                     				<button onclick="rellenar(this, 2)" class="btn btn-danger eliminar">
@@ -378,4 +382,26 @@ function TablaEliminados(arreglo) {
 			url: idiomaTabla,
 		}
 	});
+}
+
+function TablaHistorial(arreglo) {
+	if ($.fn.DataTable.isDataTable('#tablaDetalles')) {
+		$('#tablaDetalles').DataTable().destroy();
+	}
+
+	$('#tablaDetalles').DataTable({
+		data: arreglo,
+		columns: [
+			{ data: 'id_movimiento_material' },
+			{ data: 'nombre_material' },
+			{ data: 'accion' },
+			{ data: 'cantidad' },
+			{ data: 'descripcion' }
+		],
+		language: {
+			url: idiomaTabla,
+		}
+		
+	});
+	$("#modal1_HistorialMaterial").modal("show");
 }
