@@ -1,24 +1,21 @@
 <?php
 require_once "model/conexion.php";
-require_once "model/detalles_material.php";
-class Material extends Conexion
+class DetalleMaterial extends Conexion
 {
     private $id;
-    private $nombre;
-    private $ubicacion;
-    private $stock;
-    private $estatus;
-    private $detalles_material;
+    private $id_material;
+    private $accion;
+    private $cantidad;
+    private $descripcion;
 
 
     public function __construct()
     {
         $this->id = 0;
-        $this->nombre = "";
-        $this->ubicacion = 0;
-        $this->stock = 0;
-        $this->estatus = 0;
-        $this->detalles_material = NULL;
+        $this->id_material = 0;
+        $this->accion = "";
+        $this->cantidad = 0;
+        $this->descripcion = "";
     }
 
     public function set_id($id)
@@ -26,24 +23,24 @@ class Material extends Conexion
         $this->id = $id;
     }
 
-    public function set_nombre($nombre)
+    public function set_id_material($id_material)
     {
-        $this->nombre = $nombre;
+        $this->id_material = $id_material;
     }
 
-    public function set_ubicacion($ubicacion)
+    public function set_accion($accion)
     {
-        $this->ubicacion = $ubicacion;
+        $this->accion = $accion;
     }
 
-    public function set_stock($stock)
+    public function set_cantidad($cantidad)
     {
-        $this->stock = $stock;
+        $this->cantidad = $cantidad;
     }
 
-    public function set_estatus($estatus)
+    public function set_descripcion($descripcion)
     {
-        $this->estatus = $estatus;
+        $this->descripcion = $descripcion;
     }
 
     public function get_id()
@@ -51,40 +48,26 @@ class Material extends Conexion
         return $this->id;
     }
 
-    public function get_nombre()
+    public function get_id_material()
     {
-        return $this->nombre;
+        return $this->id_material;
     }
 
-    public function get_ubicacion()
+    public function get_accion()
     {
-        return $this->ubicacion;
+        return $this->accion;
     }
 
-    public function get_stock()
+    public function get_cantidad()
     {
-        return $this->stock;
+        return $this->cantidad;
     }
 
-    public function get_estatus()
+    public function get_descripcion()
     {
-        return $this->estatus;
+        return $this->descripcion;
     }
 
-    private function LlamarDetallesMaterial()
-    {
-        if ($this->detalles_material == NULL) {
-
-            $this->detalles_material = new DetalleMaterial();
-
-        }
-        return $this->detalles_material;
-    }
-
-    private function DestruirDetallesMaterial()
-    {
-        $this->detalles_material = NULL;
-    }
     public function listarDisponibles()
     {
         $dato = [];
@@ -113,6 +96,8 @@ class Material extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT * FROM material WHERE id_material = :id";
 
@@ -128,8 +113,8 @@ class Material extends Conexion
                 $dato['bool'] = 0;
             }
         } catch (PDOException $e) {
-            $dato['bool'] = -1;
             $this->conex->rollBack();
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -146,18 +131,20 @@ class Material extends Conexion
                 $this->conex = new Conexion("sistema");
                 $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
-                $query = "INSERT INTO material(id_material, ubicacion, nombre_material, stock, estatus) VALUES 
-                (NULL, :ubicacion, :nombre, :stock, 1)";
+                $query = "INSERT INTO movimiento_materiales(id_movimiento_material, id_material, accion, cantidad, descripcion)
+                VALUES (:id, :id_material, :accion, :cantidad, :descripcion)";
 
                 $stm = $this->conex->prepare($query);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->bindParam(":ubicacion", $this->ubicacion);
-                $stm->bindParam(":stock", $this->stock);
+                $stm->bindParam(":id", $this->id);
+                $stm->bindParam(":id_material", $this->id_material);
+                $stm->bindParam(":accion", $this->accion);
+                $stm->bindParam(":cantidad", $this->cantidad);
+                $stm->bindParam(":descripcion", $this->descripcion);
                 $stm->execute();
                 $this->conex->commit();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró el material exitosamente";
+                $dato['mensaje'] = "Se registró el detalle del material exitosamente";
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
@@ -182,55 +169,25 @@ class Material extends Conexion
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "UPDATE material SET nombre_material = :nombre, ubicacion = :ubicacion, stock = :stock
-            WHERE id_material = :id";
+            $query = "UPDATE movimiento_materiales SET id_material = :id_material, 
+            accion = :accion, cantidad = :cantidad, descripcion = :descripcion WHERE id_movimiento_material = :id";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
-            $stm->bindParam(":nombre", $this->nombre);
-            $stm->bindParam(":ubicacion", $this->ubicacion);
-            $stm->bindParam(":stock", $this->stock);
+            $stm->bindParam(":id_material", $this->id_material);
+            $stm->bindParam(":accion", $this->accion);
+            $stm->bindParam(":cantidad", $this->cantidad);
+            $stm->bindParam(":descripcion", $this->descripcion);
             $stm->execute();
             $this->conex->commit();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos del material con éxito";
+            $dato['mensaje'] = "Se modificaron los datos del detalle del material con éxito";
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
-        }
-        $this->Cerrar_Conexion($this->conex, $stm);
-        return $dato;
-    }
-
-    private function Eliminar()
-    {
-        $dato = [];
-        $bool = $this->Validar();
-
-        if ($bool['bool'] != 0) {
-            try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
-                $query = "UPDATE material SET estatus = 0 WHERE id_material = :id";
-
-                $stm = $this->conex->prepare($query);
-                $stm->bindParam(":id", $this->id);
-                $stm->execute();
-                $dato['resultado'] = "eliminar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el material exitosamente";
-            } catch (PDOException $e) {
-                $dato['resultado'] = "error";
-                $dato['estado'] = -1;
-                $dato['mensaje'] = $e->getMessage();
-            }
-        } else {
-            $dato['resultado'] = "error";
-            $dato['estado'] = -1;
-            $dato['mensaje'] = "Error al eliminar el registro";
         }
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
@@ -243,11 +200,13 @@ class Material extends Conexion
         try {
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
-            $query = "SELECT m.*, o.nombre_oficina FROM material m 
-                     LEFT JOIN oficina o ON m.ubicacion = o.id_oficina 
-                     WHERE m.estatus = 1";
+            $query = "SELECT mm.id_movimiento_material, m.nombre_material, mm.accion, mm.cantidad, mm.descripcion
+            FROM movimiento_materiales AS mm
+            INNER JOIN material AS m ON mm.id_material = m.id_material
+            WHERE m.id_material = :id_material";
 
             $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_material", $this->id_material);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -338,12 +297,6 @@ class Material extends Conexion
         return $dato;
     }
 
-    private function VerDetalles()
-    {
-        $this->LlamarDetallesMaterial()->set_id_material($this->get_id());
-        return $this->LlamarDetallesMaterial()->Transaccion(['peticion' => 'consultar']);
-    }
-
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -361,17 +314,11 @@ class Material extends Conexion
             case 'actualizar':
                 return $this->Actualizar();
 
-            case 'eliminar':
-                return $this->Eliminar();
-
             case 'consultar_eliminadas':
                 return $this->ConsultarEliminadas();
 
             case 'restaurar':
                 return $this->Restaurar();
-
-            case 'detalle':
-                return $this->VerDetalles();
 
             case 'reporte':
                 return $this->reporte($peticion['fecha_inicio'], $peticion['fecha_fin']);

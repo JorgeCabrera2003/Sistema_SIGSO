@@ -165,6 +165,9 @@ function enviaAjax(datos) {
 					$("#modal1").modal("hide");
 					mensajes("success", 10000, lee.mensaje, null);
 					consultar();
+				} else if (lee.resultado == "detalles") {
+					$("#modal1").modal("hide");
+
 				} else if (lee.resultado == "consultar_eliminadas") {
 					TablaEliminados(lee.datos);
 
@@ -279,7 +282,10 @@ function crearDataTable(arreglo) {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar">
 										<i class="fa-solid fa-pen-to-square"></i>
 										</button>
-                    				<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"
+										<button onclick="rellenar(this, 1)" class="btn btn-info eliminar">
+										<i class="fa-solid fa-clock"></i>
+										</button>
+                    				<button onclick="rellenar(this, 2)" class="btn btn-danger eliminar">
 										<i class="fa-solid fa-trash"></i>
 										</button>`;
 					return botones;
@@ -327,15 +333,24 @@ function rellenar(pos, accion) {
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Material")
 		$("#enviar").text("Modificar");
+		$('#enviar').prop('disabled', false);
+		$("#modal1").modal("show");
+	} else if (accion == 1) {
+		var datos = new FormData();
+		datos.append('id_material', $(linea).find("td:eq(0)").text());
+		datos.append('detalle', 'detalle');
+		$("#modalTitleId_HistorialMaterial").text("Detalle Material");
+		$("#modal1_HistorialMaterial").modal("show");
+		enviaAjax(datos);
 	} else {
 		$("#nombre").prop("readOnly", true);
 		$("#ubicacion").prop("disabled", true);
 		$("#stock").prop("readOnly", true);
 		$("#modalTitleId").text("Eliminar Material")
 		$("#enviar").text("Eliminar");
+		$('#enviar').prop('disabled', false);
+		$("#modal1").modal("show");
 	}
-	$('#enviar').prop('disabled', false);
-	$("#modal1").modal("show");
 }
 
 function TablaEliminados(arreglo) {

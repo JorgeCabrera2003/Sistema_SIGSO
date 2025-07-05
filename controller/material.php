@@ -11,7 +11,7 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "model/oficina.php";
 
 	$titulo = "Materiales";
-	$cabecera = array('#', "Nombre", "Ubicación", "Stock", "Modificar/Eliminar");
+	$cabecera = array('#', "Nombre", "Ubicación", "Stock", "Modificar/Historial/Eliminar");
 
 	$material = new Material();
 	$oficina = new Oficina();
@@ -73,6 +73,22 @@ if (is_file("view/" . $page . ".php")) {
 	if (isset($_POST['consultar'])) {
 		$peticion["peticion"] = "consultar";
 		$json = $material->Transaccion($peticion);
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST['detalle'])) {
+		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_material"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Id no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+		} else {
+			$peticion["peticion"] = "detalle";
+			$material->set_id($_POST['id_material']);
+			$json = $material->Transaccion($peticion);
+			$json['resultado'] = "detalle";
+		}
+		
 		echo json_encode($json);
 		exit;
 	}
