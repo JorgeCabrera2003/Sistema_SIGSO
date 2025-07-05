@@ -3,7 +3,8 @@ let datosGraficos = {};
 let tiposGraficos = {
   GraUsuario: 'bar',
   Graftecnicos: 'bar',
-  miGrafico: 'bar'
+  miGrafico: 'bar',
+  hojas: 'bar'
 };
 
 $(document).ready(function () {
@@ -24,6 +25,10 @@ $(document).ready(function () {
   $('#tipoGraficoRed').on('change', function () {
     tiposGraficos['miGrafico'] = $(this).val();
     renderGrafico('miGrafico', tiposGraficos['miGrafico'], datosGraficos['miGrafico']);
+  });
+  $('#tipoGraficoHojas').on('change', function () {
+    tiposGraficos['hojas'] = $(this).val();
+    renderGrafico('hojas', tiposGraficos['hojas'], datosGraficos['hojas']);
   });
 });
 
@@ -90,6 +95,7 @@ function enviaAjax(datos) {
           renderGrafico('GraUsuario', tiposGraficos['GraUsuario'], datosGraficos['GraUsuario']);
           renderGrafico('Graftecnicos', tiposGraficos['Graftecnicos'], datosGraficos['Graftecnicos']);
           renderGrafico('miGrafico', tiposGraficos['miGrafico'], datosGraficos['miGrafico']);
+          renderGrafico('hojas', tiposGraficos['hojas'], datosGraficos['hojas']);
         }
       } catch (e) {
         mensajes("error", null, "Error en JSON: " + e.message);

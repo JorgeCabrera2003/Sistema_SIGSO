@@ -166,7 +166,7 @@ class Empleado extends Conexion
                 $query .= " WHERE e.cedula_empleado = :cedula";
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(':cedula', $filtro['cedula']);
-            // Filtro por rol técnico
+                // Filtro por rol técnico
             } else if ($filtro && isset($filtro['rol']) && $filtro['rol'] == 'tecnico') {
                 $query .= " WHERE e.id_cargo = 1"; // Cambia 1 por el id_cargo real de técnico si es diferente
                 $stm = $this->conex->prepare($query);
@@ -447,6 +447,22 @@ class Empleado extends Conexion
         }
     }
 
+    private function contarEmpleados()
+    {
+        try {
+            $query = "SELECT * FROM filtrado_empleado"; 
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $datos = $stm->fetch(PDO::FETCH_ASSOC);
+            if ($datos) {
+                return ['resultado' => 'success', 'datos' => $datos];
+            } else {
+                return ['resultado' => 'error', 'mensaje' => 'Técnico no encontrado'];
+            }
+        } catch (PDOException $e) {
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+        }
+    }
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -471,6 +487,8 @@ class Empleado extends Conexion
             case 'obtener_tecnico':
                 $this->set_cedula($peticion['cedula']);
                 return $this->obtener_tecnico();
+            case 'contar_empleados':
+                return $this->contarEmpleados();
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }

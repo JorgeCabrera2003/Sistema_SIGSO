@@ -14,6 +14,7 @@
 
 
   <div class="row">
+    <?php if ($permiso_interconexion || $permiso_punto_conexion) { ?>
     <div class="col-md-6 mb-6">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -22,9 +23,12 @@
         </div>
         <div class="card-body">
           <h2 class="total-balance mb-3">30 Disponibles</h2>
-          <p class="text-muted mb-4">
-            Piso 5
-          </p>
+          <select class="form-select mt-2" name="pisoFiltrado" id="pisoFiltrado">
+            <option value="0">Seleccione un piso</option>
+            <?php foreach ($piso as $pisoItem) : ?>
+              <option value="<?php echo $pisoItem['id_piso']; ?>"><?php echo $pisoItem['nombre_piso']; ?></option>
+            <?php endforeach; ?>
+          </select>
           <div class="account-list">
             <div class="account-item d-flex justify-content-between mb-2">
               <span class="account-name">Chequeados</span>
@@ -51,6 +55,7 @@
         </div>
       </div>
     </div>
+    <?php } if ($permiso_usuario) { ?>
     <div class="col-md-6 mb-6">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -58,22 +63,22 @@
           <i class="fas fa-user text-muted"></i>
         </div>
         <div class="card-body">
-          <h2 class="total-balance mb-3"><?php echo $cantidadUsuarios; ?> Disponibles</h2>
+          <h2 class="total-balance mb-3"><?php echo $cantidadEmpleados['datos']['Total usuario']; ?> Usuarios Disponibles</h2>
           <p class="text-muted mb-4">
             Total de usuarios registrados
           </p>
           <div class="account-list">
             <div class="account-item d-flex justify-content-between mb-2">
-              <span class="account-name">Usuarios registrados</span>
-              <span class="account-balance"><?php echo $cantidadUsuarios; ?></span>
+              <span class="account-name">Empleados de OFITIC</span>
+              <span class="account-balance"><?php echo $cantidadEmpleados['datos']['Total empleados OFITIC']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between mb-2">
               <span class="account-name">Empleados</span>
-              <span class="account-balance"><?php echo $cantidadEmpleados; ?></span>
+              <span class="account-balance"><?php echo $cantidadEmpleados['datos']['Total empleados general']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between">
               <span class="account-name">Cantidad Oficinas</span>
-              <span class="account-balance"><?php echo $cantidadOficina; ?></span>
+              <span class="account-balance"><?php echo $cantidadEmpleados['datos']['Total oficina']; ?></span>
             </div>
             <span class="account-name">Gráfico</span>
             <div class="grafico-container" style="width: 100%; height: 200px;">
@@ -89,9 +94,11 @@
         </div>
       </div>
     </div>
+    <?php } ?>
   </div>
 
   <div class="mt-3 row">
+    <?php if ($permiso_tecnico) { ?>
     <div class="col-md-6 mb-6">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -99,28 +106,29 @@
           <i class="fa-solid fa-server text-muted"></i>
         </div>
         <div class="card-body">
-          <h2 class="total-balance mb-3">5 Disponibles</h2>
-          <p class="text-muted mb-4">
-            Piso 5
-          </p>
+          <h2 class="total-balance mb-3"><?php echo $cantidadTecnicos['datos'][0]['Total tecnicos']; ?> Técnicos Disponibles</h2>
           <div class="account-list">
             <div class="account-item d-flex justify-content-between mb-2">
-              <span class="account-name">Más eficiente</span>
+              <span class="account-name">Técnico más eficiente</span>
               <span class="account-balance">
-                <?php echo isset($nombreTecnicoMasEficiente) ? $nombreTecnicoMasEficiente : 'N/A'; ?>
+                <?php echo $cantidadTecnicos['datos'][0]['Tecnico eficiente']; ?>
               </span>
             </div>
             <div class="account-item d-flex justify-content-between mb-2">
               <span class="account-name">Redes</span>
-              <span class="account-balance">2</span>
+              <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total redes']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between mb-2">
               <span class="account-name">Soporte</span>
-              <span class="account-balance">1</span>
+              <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total soporte']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between">
               <span class="account-name">Electronica</span>
-              <span class="account-balance">2</span>
+              <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total electronica']; ?></span>
+            </div>
+            <div class="account-item d-flex justify-content-between">
+              <span class="account-name">Telefonia</span>
+              <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total telefono']; ?></span>
             </div>
             <span class="account-name">Gráfico</span>
             <div class="grafico-container" style="width: 100%; height: 200px;">
@@ -135,40 +143,66 @@
         </div>
       </div>
     </div>
+    <?php } if ($permiso_hoja_servicio) {?>
     <div class="col-md-6 mb-6">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Usuarios general</h5>
+          <h5 class="card-title mb-0">Hojas servicio</h5>
           <i class="fas fa-user text-muted"></i>
         </div>
         <div class="card-body">
-          <h2 class="total-balance mb-3"><?php echo $cantidadUsuarios; ?> Disponibles</h2>
+          <h2 class="total-balance mb-3"><?php echo $cantidadHojas['datos'][0]['Cantidad de hojas']; ?> Disponibles</h2>
           <p class="text-muted mb-4">
-            Total de usuarios registrados
+            Total de hojas procesadas
           </p>
           <div class="account-list">
             <div class="account-item d-flex justify-content-between mb-2">
-              <span class="account-name">Usuarios registrados</span>
-              <span class="account-balance"><?php echo $cantidadUsuarios; ?></span>
+              <span class="account-name">Área con más hojas</span>
+              <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Área con más hojas']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between mb-2">
-              <span class="account-name">Empleados</span>
-              <span class="account-balance"><?php echo $cantidadEmpleados; ?></span>
+              <span class="account-name">Hojas activos</span>
+              <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas activas']; ?></span>
+            </div>
+            <div class="account-item d-flex justify-content-between mb-2">
+              <span class="account-name">Hojas eliminadas</span>
+              <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas eliminadas']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between">
-              <span class="account-name">Cantidad Oficinas</span>
-              <span class="account-balance"><?php echo $cantidadOficina; ?></span>
+              <span class="account-name">Hojas finalizadas</span>
+              <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas finalizadas']; ?></span>
             </div>
             <div class="account-item d-flex justify-content-between" style="width: 100%; height: 200px;">
               <span class="account-name">Gráfico</span>
               <div class="grafico-container" style="width: 100%; height: 200px;">
-                <canvas id="GraUsuario"></canvas>
+                <canvas id="hojas"></canvas>
               </div>
             </div>
+            <select class="form-select mt-4" id="tipoGraficoHojas">
+              <option value="bar">Barras</option>
+              <option value="pie">Torta</option>
+              <option value="line">Líneas</option>
+            </select>
           </div>
         </div>
       </div>
     </div>
+    <?php } if (!$permiso_interconexion && !$permiso_punto_conexion && !$permiso_usuario && !$permiso_tecnico && !$permiso_hoja_servicio) { ?>
+    <div class="col-md-12 mb-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">HOME</h5>
+          <i class="fa-solid fa-server text-muted"></i>
+        </div>
+        <div class="card-body d-flex flex-column align-items-center">
+          <p class="text-muted mb-4">
+            <img src="assets/img/OFITIC.png" class="d-flex img-logo justify-content-center" style="width: 20.5em; border-radius: 2px" alt="">
+          </p>
+          <br><br><br><br>
+        </div>
+      </div>
+    </div>
+    <?php } ?>
   </div>
 
 
