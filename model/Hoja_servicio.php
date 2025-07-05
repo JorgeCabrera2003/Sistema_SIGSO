@@ -81,6 +81,25 @@ class HojaServicio extends Conexion
         }
     }
 
+    private function contarNumeroHoja()
+    {
+        try {
+            $sql = "SELECT * FROM `filtrado_hoja`";
+
+                $stmt = $this->conex->prepare($sql);
+
+            $stmt->execute();
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'resultado' => 'success',
+                'datos' => $resultados
+            ];
+        } catch (PDOException $e) {
+            return ['resultado' => 'error', 'mensaje' => 'Error al listar hojas: ' . $e->getMessage()];
+        }
+    }
+
     /**
      * Crea una nueva hoja de servicio
      */
@@ -1003,6 +1022,9 @@ class HojaServicio extends Conexion
 
             case 'eliminar':
                 return $this->eliminarHojaServicio();
+
+            case 'contar':
+                return $this->contarNumeroHoja();
 
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
