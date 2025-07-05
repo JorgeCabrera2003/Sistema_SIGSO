@@ -1,9 +1,23 @@
 <?php require_once("Componentes/head.php"); ?>
 
 <body>
+  <script>
+    // Detectar modo oscuro del sistema y aplicar clase 'dark' al body
+    function setDarkModeClass() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const bootstrapDark = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
+      if (prefersDark || bootstrapDark) {
+        document.body.classList.add('dark');
+      } else {
+        document.body.classList.remove('dark');
+      }
+    }
+    setDarkModeClass();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setDarkModeClass);
+  </script>
   <?php require_once("Componentes/menu.php"); ?>
 
-  <main id="main" class="main">
+  <main id="main" class="main mb-5">
     <div class="pagetitle">
       <h1>Perfil</h1>
       <nav>
@@ -57,25 +71,25 @@
                 <div class="tab-pane fade <?php echo $active2; ?> profile-overview" id="profile-overview">
                   <h5 class="card-title">Detalles</h5>
                   <div class="row mt-3">
-                    <div class="col-lg-3 col-md-4 label ">Nombre Completo</div>
-                    <div class="col-lg-9 col-md-8"><?php echo $datos["nombres"] . " " . $datos["apellidos"]; ?></div>
+                    <div class="col-lg-3 col-md-4 label">Nombre Completo</div>
+                    <div class="col-lg-9 col-md-8 card-text"><?php echo $datos["nombres"] . " " . $datos["apellidos"]; ?></div>
                   </div>
                   <div class="row mt-3">
-                    <div class="col-lg-3 col-md-4 label ">Cédula</div>
-                    <div class="col-lg-9 col-md-8"><?php echo $datos["cedula"]; ?></div>
+                    <div class="col-lg-3 col-md-4 label">Cédula</div>
+                    <div class="col-lg-9 col-md-8 card-text"><?php echo $datos["cedula"]; ?></div>
                   </div>
                   <div class="row mt-3">
-                    <div class="col-lg-3 col-md-4 label ">Correo electronico</div>
-                    <div class="col-lg-9 col-md-8"><?php echo $datos["correo"]; ?></div>
+                    <div class="col-lg-3 col-md-4 label">Correo electronico</div>
+                    <div class="col-lg-9 col-md-8 card-text"><?php echo $datos["correo"]; ?></div>
                   </div>
                   <div class="row mt-3">
-                    <div class="col-lg-3 col-md-4 label ">Telefono</div>
-                    <div class="col-lg-9 col-md-8"><?php echo $datos["telefono"]; ?></div>
+                    <div class="col-lg-3 col-md-4 label">Telefono</div>
+                    <div class="col-lg-9 col-md-8 card-text"><?php echo $datos["telefono"]; ?></div>
                   </div>
                   <?php if (isset($datos["especialidad"])) {
                     echo ('<div class="row">
                               <div class="col-lg-3 col-md-4 label">Especialidad</div>
-                              <div class="col-lg-9 col-md-8">' . $datos["especialidad"] . '</div>
+                              <div class="col-lg-9 col-md-8 card-text">' . $datos["especialidad"] . '</div>
                             </div>');
                   } ?>
                 </div>
@@ -244,6 +258,7 @@
     </section>
 
   </main><!-- End #main -->
+  <br><br>
 
   <!-- ======= Footer ======= -->
   <?php require_once "Componentes/footer.php"; ?>
@@ -357,5 +372,4 @@
   </script>
 
 </body>
-
-</html
+</html>

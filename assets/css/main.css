@@ -828,6 +828,114 @@ ul {
   border-bottom: none;
 }
 
+/* Compatibilidad modo oscuro para el modalDetalles */
+.dark #modalDetalles .modal-content,
+#modalDetalles.modal.dark .modal-content {
+  background-color: #23272b !important;
+  color: #f1f1f1 !important;
+  border-color: #444950 !important;
+}
+
+.dark #modalDetalles .modal-header,
+#modalDetalles.modal.dark .modal-header {
+  background-color: #181a1b !important;
+  border-bottom: 1px solid #444950 !important;
+}
+
+.dark #modalDetalles .modal-title,
+#modalDetalles.modal.dark .modal-title {
+  color: #fff !important;
+}
+
+.dark #modalDetalles .modal-footer,
+#modalDetalles.modal.dark .modal-footer {
+  background-color: #181a1b !important;
+  border-top: 1px solid #444950 !important;
+}
+
+.dark #modalDetalles .card,
+#modalDetalles.modal.dark .card {
+  background-color: #23272b !important;
+  color: #f1f1f1 !important;
+  border-color: #444950 !important;
+}
+
+.dark #modalDetalles .card-header,
+#modalDetalles.modal.dark .card-header {
+  background-color: #181a1b !important;
+  color: #fff !important;
+  border-bottom: 1px solid #444950 !important;
+}
+
+.dark #modalDetalles .table,
+#modalDetalles.modal.dark .table {
+  background-color: #23272b !important;
+  color: #f1f1f1 !important;
+}
+
+.dark #modalDetalles .table th,
+#modalDetalles.modal.dark .table th {
+  background-color: #181a1b !important;
+  color: #fff !important;
+}
+
+.dark #modalDetalles .table td,
+#modalDetalles.modal.dark .table td {
+  background-color: #23272b !important;
+  color: #f1f1f1 !important;
+}
+
+.dark #modalDetalles .btn,
+#modalDetalles.modal.dark .btn {
+  color: #fff;
+}
+
+.dark #modalDetalles .btn-secondary,
+#modalDetalles.modal.dark .btn-secondary {
+  background-color: #444950;
+  border-color: #444950;
+  color: #fff;
+}
+
+.dark #modalDetalles .btn-primary,
+#modalDetalles.modal.dark .btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.dark #modalDetalles .btn-success,
+#modalDetalles.modal.dark .btn-success {
+  background-color: #198754;
+  border-color: #198754;
+  color: #fff;
+}
+
+/* Compatibilidad con modo oscuro de Bootstrap 5 */
+#modalDetalles.modal.dark .modal-content {
+  background-color: #23272b !important;
+  color: #f1f1f1 !important;
+}
+
+#modalDetalles.modal.dark .modal-header,
+#modalDetalles.modal.dark .modal-footer {
+  background-color: #181a1b !important;
+  color: #fff !important;
+}
+
+#modalDetalles.modal.dark .card,
+#modalDetalles.modal.dark .card-header {
+  background-color: #23272b !important;
+  color: #fff !important;
+  border-color: #444950 !important;
+}
+
+#modalDetalles.modal.dark .table th,
+#modalDetalles.modal.dark .table td {
+  background-color: #23272b !important;
+  color: #f1f1f1 !important;
+}
+
 /* Buttons */
 .btn {
   border-radius: var(--radius);
@@ -1004,7 +1112,7 @@ ul {
 }
 
 .dark .table th {
-  color: var(--muted-foreground);
+  color: var(--muted-foreground) !important;
 }
 
 .dark .table-hover tbody tr:hover {
@@ -1359,4 +1467,42 @@ input[type=number]::-webkit-outer-spin-button {
 .dark .accordion-body {
   background-color: #181a1b;
   color: var(--foreground);
+}
+
+/* Compatibilidad de textos con modo oscuro */
+.label,
+.card-text,
+.text-body-secondary {
+  color: var(--foreground) !important;
+}
+
+.dark .label,
+.dark .card-text,
+.dark .text-body-secondary {
+  color: var(--foreground) !important;
+}
+
+/* Para mejorar contraste en modo oscuro en formularios y detalles */
+.profile-card h2,
+.profile-card h3,
+.card-title,
+.card-header,
+.card-footer,
+.form-label,
+.form-check-label,
+.breadcrumb-item,
+.page-title {
+  color: var(--foreground) !important;
+}
+
+.dark .profile-card h2,
+.dark .profile-card h3,
+.dark .card-title,
+.dark .card-header,
+.dark .card-footer,
+.dark .form-label,
+.dark .form-check-label,
+.dark .breadcrumb-item,
+.dark .page-title {
+  color: var(--foreground) !important;
 }

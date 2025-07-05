@@ -292,7 +292,15 @@
     <script>
     // Mostrar el botón "Finalizar" solo si corresponde
     document.addEventListener('DOMContentLoaded', function() {
+        // Compatibilidad modo oscuro para el modalDetalles
         $('#modalDetalles').on('show.bs.modal', function () {
+            // Detectar modo oscuro del sistema o de Bootstrap
+            var isDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark');
+            if (isDark) {
+                $('#modalDetalles').addClass('dark');
+            } else {
+                $('#modalDetalles').removeClass('dark');
+            }
             setTimeout(function() {
                 // Obtener datos del detalle desde el DOM
                 var estado = $('#detalle-estado').text().trim();
