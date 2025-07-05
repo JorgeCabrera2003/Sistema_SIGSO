@@ -23,7 +23,7 @@
         </div>
 
         <!-- Accordion de categorías de permisos -->
-        <div class="mt-4 accordion" id="accordionPermisos">
+        <div class="mt-4 accordion permissions-section" id="accordionPermisos">
 
           <!-- Seguridad -->
           <div class="accordion-item">

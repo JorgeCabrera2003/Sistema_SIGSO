@@ -1261,6 +1261,12 @@ input[type=number]::-webkit-outer-spin-button {
   background-color: #f8f9fa;
 }
 
+/* Modo oscuro para grupos de permisos */
+.dark .permission-group {
+  background-color: #23272b;
+  border-color: #444950;
+}
+
 .permission-group legend.group-header {
   width: auto;
   padding: 0 10px;
@@ -1268,6 +1274,11 @@ input[type=number]::-webkit-outer-spin-button {
   font-weight: 500;
   margin-bottom: 0;
   border-bottom: none;
+  color: var(--foreground);
+}
+
+.dark .permission-group legend.group-header {
+  color: var(--foreground);
 }
 
 .permission-options {
@@ -1277,6 +1288,11 @@ input[type=number]::-webkit-outer-spin-button {
   border-radius: 4px;
 }
 
+/* Modo oscuro para opciones de permisos */
+.dark .permission-options {
+  background-color: #181a1b;
+}
+
 .form-check-inline .form-check-input {
   margin-right: 8px;
 }
@@ -1284,4 +1300,63 @@ input[type=number]::-webkit-outer-spin-button {
 .group-checkbox {
   transform: scale(1.2);
   margin-right: 8px;
+}
+
+/* Mejor contraste para los checks en modo oscuro */
+.dark .form-check-label {
+  color: var(--foreground);
+}
+
+.dark .form-check-input {
+  background-color: #23272b;
+  border-color: #444950;
+}
+
+.dark .form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Compatibilidad modo oscuro para los acordiones */
+.accordion-item {
+  background-color: #fff;
+  border: 1px solid var(--border);
+}
+
+.dark .accordion-item {
+  background-color: #23272b;
+  border-color: #444950;
+}
+
+.accordion-button {
+  background-color: #f8f9fa;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+
+.dark .accordion-button {
+  background-color: #23272b;
+  color: var(--foreground);
+  border-bottom: 1px solid #444950;
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--primary);
+  background-color: #e9ecef;
+}
+
+.dark .accordion-button:not(.collapsed) {
+  color: var(--primary);
+  background-color: #181a1b;
+}
+
+.accordion-body {
+  background-color: #fff;
+  color: var(--foreground);
+}
+
+.dark .accordion-body {
+  background-color: #181a1b;
+  color: var(--foreground);
 }
