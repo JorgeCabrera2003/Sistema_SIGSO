@@ -8,23 +8,24 @@
       </div>
       <div class="modal-body">
         <div class="row justify-content-center" id="Fila1">
-          <div class="col-8">
+          <div class="col-md-8">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="90">
               <span id="snombre"></span>
               <label for="nombre" class="form-label">Nombre del Ente</label>
             </div>
           </div>
+          
         </div>
         <div class="row justify-content-center">
-          <div class="col-6">
+          <div class="col-md-6">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="responsable" type="text" id="responsable" maxlength="65">
               <span id="sresponsable"></span>
               <label for="responsable" class="form-label">Nombre del Responsable</label>
             </div>
           </div>
-          <div class="col-6">
+          <div class="col-md-6">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="telefono" type="text" id="telefono" maxlength="14">
               <span id="stelefono"></span>
@@ -33,9 +34,20 @@
           </div>
         </div>
         <div class="row justify-content-center">
-          <div class="col-12">
+          <div class="col-md-3">
             <div class="form-floating mb-3 mt-4">
-              <textarea placeholder="" class="form-control" name="direccion" type="text" id="direccion"
+              <select class="form-select" name="tipo_ente" id="tipo_ente">
+                <option value="default">Seleccione Tipo</option>
+                <option value="Interno">Interno</option>
+                <option value="Externo">Externo</option>
+              </select>
+              <span id="stipo_ente"></span>
+              <label for="tipo_ente" class="form-label">Tipo de Ente</label>
+            </div>
+          </div>
+          <div class="col-md-9">
+            <div class="form-floating mb-3 mt-4">
+              <textarea placeholder="" class="form-control" name="direccion" id="direccion"
                 maxlength="200"></textarea>
               <span id="sdireccion"></span>
               <label for="direccion" class="form-label">Dirección del Ente</label>

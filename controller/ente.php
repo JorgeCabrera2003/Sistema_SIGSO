@@ -11,7 +11,7 @@ if (is_file("view/" . $page . ".php")) {
 
 
 	$titulo = "Entes";
-	$cabecera = array('#', "Nombre", "Responsable", "Teléfono", "Ubicación", "Modificar/Eliminar");
+	$cabecera = array('#', "Nombre", "Responsable", "Teléfono", "Ubicación", "Tipo de Ente", "Modificar/Eliminar");
 
 	$ente = new Ente();
 
@@ -55,12 +55,18 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre del Responsable no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
+			} else if (preg_match("/^[a-zA-ZáéíóúüñÑçÇ]{4,20}$/", $_POST["tipo_ente"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Tipo de no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
 			} else {
 
 				$ente->set_nombre($_POST["nombre"]);
 				$ente->set_direccion($_POST["direccion"]);
 				$ente->set_telefono($_POST["telefono"]);
 				$ente->set_responsable($_POST["responsable"]);
+				$ente->set_tipo_ente($_POST['tipo_ente']);
 				$peticion["peticion"] = "registrar";
 				$json = $ente->Transaccion($peticion);
 				if ($json['estado'] == 1) {
@@ -116,6 +122,11 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre del Responsable no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
+			} else if (preg_match("/^[a-zA-ZáéíóúüñÑçÇ]{4,20}$/", $_POST["tipo_ente"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Tipo de no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
 			} else {
 
 				$ente->set_id($_POST["id_ente"]);
@@ -123,6 +134,7 @@ if (is_file("view/" . $page . ".php")) {
 				$ente->set_direccion($_POST["direccion"]);
 				$ente->set_telefono($_POST["telefono"]);
 				$ente->set_responsable($_POST["responsable"]);
+				$ente->set_tipo_ente($_POST['tipo_ente']);
 				$peticion["peticion"] = "actualizar";
 				$json = $ente->Transaccion($peticion);
 

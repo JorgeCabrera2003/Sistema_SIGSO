@@ -23,6 +23,7 @@ $(document).ready(function () {
 						datos.append('responsable', $("#responsable").val());
 						datos.append('telefono', $("#telefono").val());
 						datos.append('direccion', $("#direccion").val());
+						datos.append('tipo_ente', $("#tipo_ente").val());
 						enviaAjax(datos);
 						envio = true;
 					}
@@ -43,6 +44,7 @@ $(document).ready(function () {
 						datos.append('responsable', $("#responsable").val());
 						datos.append('telefono', $("#telefono").val());
 						datos.append('direccion', $("#direccion").val());
+						datos.append('tipo_ente', $("#tipo_ente").val());
 						enviaAjax(datos);
 						envio = true;
 					}
@@ -95,21 +97,21 @@ $(document).ready(function () {
 
 function vistaPermiso(permisos = null) {
 
-if(Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null){
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 
-	$('.modificar').remove();
-	$('.eliminar').remove();
-
-} else {
-
-	if (permisos['ente']['modificar']['estado'] == '0') {
 		$('.modificar').remove();
-	}
-
-	if (permisos['ente']['eliminar']['estado'] == '0') {
 		$('.eliminar').remove();
+
+	} else {
+
+		if (permisos['ente']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['ente']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
 	}
-}
 };
 
 function enviaAjax(datos) {
@@ -210,6 +212,14 @@ function capaValidar() {
 			"La dirección del Ente debe tener de 10 a 100 carácteres"
 		);
 	});
+
+	$("#tipo_ente").on("change", function () {
+		if ($(this).val() == "default" || $(this).val() == "") {
+			estadoSelect(this, "stipo_ente", "Debe seleccionar un tipo de ente", 0);
+		} else {
+			estadoSelect(this, "stipo_ente", "", 1);
+		}
+	});
 }
 
 function validarenvio() {
@@ -229,7 +239,9 @@ function validarenvio() {
 	} else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -./#]{10,100}$/, $("#direccion"), $("#sdireccion"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "La dirección del Ente debe tener de 10 a 100 carácteres");
 		return false;
-
+	} else if ($("#tipo_ente").val() == "default" || $("#tipo_ente").val() == "") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un tipo de ente");
+		return false;
 	}
 	return true;
 }
@@ -248,6 +260,7 @@ function crearDataTable(arreglo) {
 			{ data: 'nombre_responsable' },
 			{ data: 'telefono' },
 			{ data: 'direccion' },
+			{ data: 'tipo_ente' },
 			{
 				data: null, render: function () {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -276,10 +289,14 @@ function limpia() {
 	$("#direccion").removeClass("is-valid is-invalid");
 	$("#direccion").val("");
 
+	$("#tipo_ente").removeClass('is-valid is-invalid');
+	$("#tipo_ente").val("default");
+
 	$("#nombre").prop("readOnly", false);
 	$("#responsable").prop("readOnly", false);
 	$("#telefono").prop("readOnly", false);
 	$("#direccion").prop("readOnly", false);
+	$("#tipo_ente").prop("disable", false);
 
 	$('#enviar').prop('disabled', false);
 }
@@ -291,7 +308,7 @@ function rellenar(pos, accion) {
 	linea = $(pos).closest('tr');
 
 	$("#idEnte").remove();
-	$("#Fila1").prepend(`<div class="col-4" id="idEnte">
+	$("#Fila1").prepend(`<div class="col-md-4" id="idEnte">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="id_ente" type="text" id="id_ente" readOnly>
               <span id="sid_ente"></span>
@@ -304,17 +321,17 @@ function rellenar(pos, accion) {
 	$("#responsable").val($(linea).find("td:eq(2)").text());
 	$("#telefono").val($(linea).find("td:eq(3)").text());
 	$("#direccion").val($(linea).find("td:eq(4)").text());
-
+	buscarSelect("#tipo_ente", $(linea).find("td:eq(5)").text(), "text");
 
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Ente")
 		$("#enviar").text("Modificar");
-	}
-	else {
+	} else {
 		$("#nombre").prop("readOnly", true);
 		$("#responsable").prop("readOnly", true);
 		$("#telefono").prop("readOnly", true);
 		$("#direccion").prop("readOnly", true);
+		$("#tipo_ente").prop("disable", true);
 		$("#modalTitleId").text("Eliminar Ente")
 		$("#enviar").text("Eliminar");
 	}

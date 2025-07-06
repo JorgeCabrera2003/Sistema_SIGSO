@@ -8,6 +8,7 @@ class Ente extends Conexion
     private $responsable;
     private $telefono;
     private $direccion;
+    private $tipo_ente;
     private $estatus;
 
     public function __construct()
@@ -18,6 +19,7 @@ class Ente extends Conexion
         $this->responsable = "";
         $this->telefono = "";
         $this->direccion = "";
+        $this->tipo_ente = "";
         $this->estatus = 0;
 
     }
@@ -40,6 +42,10 @@ class Ente extends Conexion
     public function set_direccion($direccion)
     {
         $this->direccion = $direccion;
+    }
+    public function set_tipo_ente($tipo_ente)
+    {
+        $this->tipo_ente = $tipo_ente;
     }
 
     public function set_telefono($telefono)
@@ -70,6 +76,11 @@ class Ente extends Conexion
     public function get_responsable()
     {
         return $this->responsable;
+    }
+
+    public function get_tipo_ente()
+    {
+        return $this->tipo_ente;
     }
     public function get_telefono()
     {
@@ -122,14 +133,15 @@ class Ente extends Conexion
         if ($bool['bool'] == 0) {
             try {
                 $this->conex->beginTransaction();
-                $query = "INSERT INTO ente(id, nombre, direccion, telefono, nombre_responsable) VALUES 
-            (NULL, :nombre, :direccion, :telefono, :responsable)";
+                $query = "INSERT INTO ente(id, nombre, direccion, telefono, nombre_responsable, tipo_ente, estatus) VALUES 
+                (NULL, :nombre, :direccion, :telefono, :responsable, :tipo_ente, 1)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->bindParam(":direccion", $this->direccion);
                 $stm->bindParam(":telefono", $this->telefono);
                 $stm->bindParam(":responsable", $this->responsable);
+                $stm->bindParam(":tipo_ente", $this->tipo_ente);
                 $stm->execute();
                 $this->conex->commit();
                 $dato['resultado'] = "registrar";
@@ -159,8 +171,8 @@ class Ente extends Conexion
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "UPDATE ente SET nombre= :nombre, direccion= :direccion, telefono = :telefono, nombre_responsable = :responsable
-            WHERE id = :id";
+            $query = "UPDATE ente SET nombre= :nombre, direccion= :direccion, telefono = :telefono, nombre_responsable = :responsable,
+            tipo_ente = :tipo_ente WHERE id = :id";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -168,6 +180,7 @@ class Ente extends Conexion
             $stm->bindParam(":direccion", $this->direccion);
             $stm->bindParam(":telefono", $this->telefono);
             $stm->bindParam(":responsable", $this->responsable);
+            $stm->bindParam(":tipo_ente", $this->tipo_ente);
             $stm->execute();
             $this->conex->commit();
             $dato['resultado'] = "modificar";
