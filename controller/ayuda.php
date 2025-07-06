@@ -6,7 +6,7 @@
 	}
 	ob_start();
 	if (is_file("view/".$page.".php")) {
-
+		require_once "controller/utileria.php";
 		// Estilos de Pagina
 		$titulo = "Ayuda";
 		$css = ["ayuda"];
