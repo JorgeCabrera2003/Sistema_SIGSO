@@ -12,50 +12,61 @@
     </nav>
   </div><!-- End Page Title -->
 
-
   <div class="row">
-    <?php if ($permiso_interconexion || $permiso_punto_conexion) { ?>
-    <div class="col-md-6 mb-6">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Puntos de Red</h5>
-          <i class="fa-solid fa-server text-muted"></i>
-        </div>
-        <div class="card-body">
-          <h2 class="total-balance mb-3">30 Disponibles</h2>
-          <select class="form-select mt-2" name="pisoFiltrado" id="pisoFiltrado">
-            <option value="0">Seleccione un piso</option>
-            <?php foreach ($piso as $pisoItem) : ?>
-              <option value="<?php echo $pisoItem['id_piso']; ?>"><?php echo $pisoItem['nombre_piso']; ?></option>
-            <?php endforeach; ?>
-          </select>
-          <div class="account-list">
-            <div class="account-item d-flex justify-content-between mb-2">
-              <span class="account-name">Chequeados</span>
-              <span class="account-balance">28</span>
-            </div>
-            <div class="account-item d-flex justify-content-between mb-2">
-              <span class="account-name">funcionando</span>
-              <span class="account-balance">18</span>
-            </div>
-            <div class="account-item d-flex justify-content-between">
-              <span class="account-name">Fuera de servicio</span>
-              <span class="account-balance">10</span>
-            </div>
-            <span class="account-name">Gráfico</span>
-            <div class="grafico-container" style="width: 100%; height: 200px;">
-              <canvas id="miGrafico"></canvas>
-            </div>
-            <select class="form-select mt-2" id="tipoGraficoRed">
-              <option value="bar">Barras</option>
-              <option value="pie">Torta</option>
-              <option value="line">Líneas</option>
+    <?php if ($permiso_interconexion || $permiso_punto_conexion || $permiso_switch) { ?>
+      <div class="col-md-6 mb-6" id="card-puntos-red">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Patch Panel</h5>
+            <i class="fa-solid fa-server text-muted"></i>
+          </div>
+          <div class="card-body">
+            <select class="form-select mt-2" name="pisoFiltrado" id="pisoFiltrado">
+              <option value="0">Seleccione un piso</option>
+              <?php foreach ($piso as $pisoItem) : ?>
+                <option value="<?php echo $pisoItem['id_piso']; ?>">
+                  <?php echo $pisoItem['tipo_piso'] . ' ' . $pisoItem['nro_piso']; ?>
+                </option>
+              <?php endforeach; ?>
             </select>
+            <div id="patchPanelInfo" class="mt-3"></div>
+            <div id="patchPanelLoading" class="mt-2" style="display:none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <?php } if ($permiso_usuario) { ?>
+      <div class="col-md-6 mb-6" id="card-switch-red">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Switches</h5>
+            <i class="fa-solid fa-server text-muted"></i>
+          </div>
+          <div class="card-body">
+            <select class="form-select mt-2" name="pisoFiltradoSwitch" id="pisoFiltradoSwitch">
+              <option value="0">Seleccione un piso</option>
+              <?php foreach ($piso as $pisoItem) : ?>
+                <option value="<?php echo $pisoItem['id_piso']; ?>">
+                  <?php echo $pisoItem['tipo_piso'] . ' ' . $pisoItem['nro_piso']; ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+            <div id="switchPanelInfo" class="mt-3"></div>
+            <div id="switchPanelLoading" class="mt-2" style="display:none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <?php } ?>
+  </div>
+
+  <div class="mt-4 row">
+    <?php if ($permiso_usuario) { ?>
     <div class="col-md-6 mb-6">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -82,7 +93,6 @@
             </div>
             <span class="account-name">Gráfico</span>
             <div class="grafico-container" style="width: 100%; height: 200px;">
-
               <canvas id="GraUsuario"></canvas>
             </div>
             <select class="form-select mt-2" id="tipoGraficoUsuario">
@@ -95,9 +105,6 @@
       </div>
     </div>
     <?php } ?>
-  </div>
-
-  <div class="mt-3 row">
     <?php if ($permiso_tecnico) { ?>
     <div class="col-md-6 mb-6">
       <div class="card">
@@ -143,7 +150,8 @@
         </div>
       </div>
     </div>
-    <?php } if ($permiso_hoja_servicio) {?>
+    <?php } ?>
+    <?php if ($permiso_hoja_servicio) { ?>
     <div class="col-md-6 mb-6">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -187,7 +195,8 @@
         </div>
       </div>
     </div>
-    <?php } if (!$permiso_interconexion && !$permiso_punto_conexion && !$permiso_usuario && !$permiso_tecnico && !$permiso_hoja_servicio) { ?>
+    <?php } ?>
+    <?php if (!$permiso_interconexion && !$permiso_punto_conexion && !$permiso_usuario && !$permiso_tecnico && !$permiso_hoja_servicio && !$permiso_switch) { ?>
     <div class="col-md-12 mb-12">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -204,9 +213,6 @@
     </div>
     <?php } ?>
   </div>
-
-
-
 
   </main>
 

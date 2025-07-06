@@ -16,11 +16,17 @@ if (is_file("view/home.php")) {
   require_once "model/oficina.php";
   require_once "model/tecnico.php";
   require_once "model/hoja_servicio.php";
+  require_once "model/piso.php";
+  require_once "model/patch_panel.php";
+  require_once "model/Switch_.php";
   $usuario = new Usuario();
   $empleado = new Empleado();
   $oficina = new Oficina();
   $tecnico = new tecnico(); 
   $servicio = new HojaServicio();
+  $pisoModel = new Piso();
+  $patchPanelModel = new patch_panel();
+  $switchModel = new Switch_();
   $usuario->set_cedula($_SESSION['user']['cedula']);
   $cantidadEmpleados = $empleado->Transaccion(['peticion' => 'contar_empleados']);
   $totalHojas = 0;
@@ -29,6 +35,9 @@ if (is_file("view/home.php")) {
   $cantidadHojas = $servicio->Transaccion(['peticion' => 'contar']);
   $cantidadTecnicos = $tecnico->Transaccion(['peticion' => 'contarTecnico']);
   
+  // Obtener pisos activos para el select
+  $piso = $pisoModel->Transaccion(['peticion' => 'consultar'])['datos'];
+
   if (isset($_POST["grafico"])) {
     
     $areas = [
@@ -79,6 +88,28 @@ if (is_file("view/home.php")) {
         ]
     ];
     echo json_encode($grafico);
+    exit;
+  }
+
+// NUEVO: Procesar petición AJAX para patch_panel por piso
+if (isset($_POST['pisoFiltrado'])) {
+    $id_piso = intval($_POST['pisoFiltrado']);
+    $reporte = $patchPanelModel->Transaccion([
+        'peticion' => 'reporte_patch_panel',
+        'id_piso' => $id_piso
+    ]);
+    echo json_encode($reporte);
+    exit;
+  }
+
+// NUEVO: Procesar petición AJAX para switches por piso
+if (isset($_POST['pisoFiltradoSwitch'])) {
+    $id_piso = intval($_POST['pisoFiltradoSwitch']);
+    $reporte = $switchModel->Transaccion([
+        'peticion' => 'reporte_switch_panel',
+        'id_piso' => $id_piso
+    ]);
+    echo json_encode($reporte);
     exit;
   }
   

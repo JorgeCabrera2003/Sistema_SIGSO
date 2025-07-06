@@ -4,10 +4,40 @@ if (!$_SESSION) {
 	$msg["danger"] = "Sesion Finalizada.";
 }
 
+require_once "model/bien.php";
+require_once "model/equipo.php";
+$bien = new Bien();
+$equipo = new Equipo();
+
+// Endpoint para consultar equipos del empleado
+if (isset($_POST['peticion']) && $_POST['peticion'] === 'consultar_equipos_empleado' && isset($_POST['cedula_empleado'])) {
+    $cedula = $_POST['cedula_empleado'];
+    // Usa el método Transaccion del modelo Equipo
+    $json = $equipo->Transaccion([
+        'peticion' => 'equipos_por_empleado',
+        'cedula_empleado' => $cedula
+    ]);
+    echo json_encode(['resultado' => 'consultar_equipos_empleado', 'datos' => $json]);
+    exit;
+}
+
+if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
+    $peticion = [
+        'peticion' => 'consultar_bienes_empleado',
+        'cedula_empleado' => $_POST['cedula_empleado']
+    ];
+    $json = $bien->Transaccion($peticion);
+    $json['resultado'] = 'consultar_bienes_empleado';
+    header('Content-Type: application/json');
+    echo json_encode($json);
+    exit;
+}
+
 if (is_file("view/" . $page . ".php")) {
 	require_once "controller/utileria.php";
 	require_once "model/solicitud.php";
 	require_once "model/hoja_servicio.php";
+	require_once "model/bien.php";
 
 	$titulo = "Mis Solicitudes";
 	$cabecera = array('#', "Motivo", "Fecha Reporte", "Estado", "Resultado");
@@ -19,6 +49,7 @@ if (is_file("view/" . $page . ".php")) {
 	$origen = "";
 
 	$solicitud = new Solicitud();
+	$bien = new Bien();
 
 	$usuario->set_cedula($_SESSION['user']['cedula']);
 	$datos = $_SESSION['user'];
@@ -62,6 +93,12 @@ if (is_file("view/" . $page . ".php")) {
 
 			$solicitud->set_cedula_solicitante($datos["cedula"]);
 			$solicitud->set_motivo($_POST["motivo"]);
+			// Registrar el equipo si viene en el POST
+			if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
+				$solicitud->set_id_equipo($_POST["id_equipo"]);
+			} else {
+				$solicitud->set_id_equipo(null);
+			}
 			$peticion["peticion"] = "registrar";
 			$json = $solicitud->Transaccion($peticion);
 			
@@ -83,6 +120,18 @@ if (is_file("view/" . $page . ".php")) {
                 );
 		exit;
 	}
+
+
+    if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
+        $peticion = [
+            'peticion' => 'consultar_bienes_empleado',
+            'cedula_empleado' => $_POST['cedula_empleado']
+        ];
+        $json = $bien->Transaccion($peticion);
+        $json['resultado'] = 'consultar_bienes_empleado';
+        echo json_encode($json);
+        exit;
+    }
 
 	if (isset($_POST["reporte"])) {
 
@@ -109,3 +158,4 @@ if (is_file("view/" . $page . ".php")) {
 } else {
 	require_once "view/404.php";
 }
+

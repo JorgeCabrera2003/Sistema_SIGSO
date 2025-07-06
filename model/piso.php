@@ -173,7 +173,8 @@ class Piso extends Conexion
         $dato = [];
 
         try {
-            $query = "SELECT piso.id_piso, piso.tipo_piso, piso.nro_piso
+            $query = "SELECT piso.id_piso, piso.tipo_piso, piso.nro_piso,
+                  CONCAT(piso.tipo_piso, ' ', piso.nro_piso) AS nombre_piso
             FROM piso
             WHERE piso.estatus = 1
             ORDER BY piso.tipo_piso ASC, piso.nro_piso ASC";

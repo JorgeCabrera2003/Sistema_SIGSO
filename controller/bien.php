@@ -300,6 +300,18 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    // Endpoint para consultar bienes de un empleado (AJAX)
+    if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
+        $peticion = [
+            'peticion' => 'consultar_bienes_empleado',
+            'cedula_empleado' => $_POST['cedula_empleado']
+        ];
+        $json = $bien->Transaccion($peticion);
+        $json['resultado'] = 'consultar_bienes_empleado';
+        echo json_encode($json);
+        exit;
+    }
+
     // Agrega este bloque para responder a la petición de unidades
     if (isset($_POST['consultar_unidades'])) {
         require_once "model/unidad.php";

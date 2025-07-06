@@ -462,7 +462,38 @@ class Bien extends Conexion
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
-
+    
+    // Nueva función para consultar bienes por cédula de empleado
+    private function ConsultarPorEmpleado($cedula_empleado)
+    {
+        $dato = [];
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT b.codigo_bien, b.descripcion, tb.nombre_tipo_bien, m.nombre_marca
+                      FROM bien b
+                      LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
+                      LEFT JOIN marca m ON b.id_marca = m.id_marca
+                      WHERE b.estatus = 1 AND b.cedula_empleado = :cedula_empleado";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":cedula_empleado", $cedula_empleado);
+            $stm->execute();
+            $this->conex->commit();
+            $dato['resultado'] = "consultar_bienes_empleado";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            if (!isset($dato['datos']) || !is_array($dato['datos'])) {
+                $dato['datos'] = [];
+            }
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+            $dato['datos'] = [];
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -499,9 +530,12 @@ class Bien extends Conexion
             case 'restaurar':
                 return $this->Restaurar();
 
+            case 'consultar_bienes_empleado':
+                return $this->ConsultarPorEmpleado($peticion['cedula_empleado']);
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
         }
     }
+
 }
 ?>

@@ -87,42 +87,46 @@ class Solicitud extends Conexion
      * Registra una nueva solicitud
      */
     private function registrarSolicitud()
-    {
-        $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => -1];
+{
+    $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => -1];
 
-        try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+    try {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+        $this->conex->beginTransaction();
 
-            $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
-                    VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', :estatus)";
+        $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
+                VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', :estatus)";
 
-            $stmt = $this->conex->prepare($sql);
-            $stmt->bindParam(':solicitante', $this->cedula_solicitante);
-            $stmt->bindParam(':equipo', $this->id_equipo);
-            $stmt->bindParam(':motivo', $this->motivo);
-            $stmt->bindValue(':estatus', 1);
+        $stmt = $this->conex->prepare($sql);
+        $stmt->bindParam(':solicitante', $this->cedula_solicitante);
+        $stmt->bindParam(':motivo', $this->motivo);
 
-            if ($stmt->execute()) {
-                $nro = $this->conex->lastInsertId();
+        // Manejar el caso cuando no se selecciona un equipo (puede ser NULL)
+        $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
+        $stmt->bindParam(':equipo', $idEquipo);
 
-                $datos['resultado'] = 'registrar';
-                $datos['datos'] = $nro;
-                $datos['bool'] = 1;
-                $this->conex->commit();
-            } else {
-                $datos['mensaje'] = 'Error al ejecutar la consulta';
-                $this->conex->rollBack();
-            }
-        } catch (PDOException $e) {
-            $datos['mensaje'] = $e->getMessage();
+        $stmt->bindValue(':estatus', 1);
+
+        if ($stmt->execute()) {
+            $nro = $this->conex->lastInsertId();
+
+            $datos['resultado'] = 'registrar';
+            $datos['datos'] = $nro;
+            $datos['bool'] = 1;
+            $this->conex->commit();
+        } else {
+            $datos['mensaje'] = 'Error al ejecutar la consulta';
             $this->conex->rollBack();
         }
-
-        $this->Cerrar_Conexion($this->conex, $stmt);
-        return $datos;
+    } catch (PDOException $e) {
+        $datos['mensaje'] = $e->getMessage();
+        $this->conex->rollBack();
     }
+
+    $this->Cerrar_Conexion($this->conex, $stmt);
+    return $datos;
+}
 
     /**
      * Obtiene las solicitudes de un usuario específico
@@ -135,7 +139,7 @@ class Solicitud extends Conexion
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $sql = "SELECT 
+            $sql = "SELECT
                     s.nro_solicitud AS ID,
                     CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Tecnico,
                     s.motivo AS Motivo,

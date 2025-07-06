@@ -51,7 +51,10 @@ require_once("Componentes/modal_solicitar.php");?>
 
   <!-- ======= Footer ======= -->
   <?php require_once "Componentes/footer.php"; ?>
-
+<script>
+    // Asegúrate de que esta variable esté disponible globalmente
+    const userCedula = '<?php echo $_SESSION['user']['cedula'] ?? ''; ?>';
+</script>
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
   <script defer src="assets/js/mis_servicios.js"></script>
 

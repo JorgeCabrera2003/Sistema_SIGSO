@@ -380,6 +380,30 @@ class patch_panel extends Conexion {
         return $dato;
     }
 
+    private function reportePatchPanelPorNro($id_piso) {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+
+        $dato = [];
+        $stm = null; // Inicializar para evitar error de referencia
+
+        try {
+            // Llamar el procedimiento con el id_piso directamente
+            $query = "CALL sp_reporte_patch_panel_por_nro(:id_piso)";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_piso", $id_piso, PDO::PARAM_INT);
+            $stm->execute();
+            $dato['resultado'] = "reporte_patch_panel";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
     public function Transaccion($peticion) {
 
         switch ($peticion['peticion']) {
@@ -407,6 +431,9 @@ class patch_panel extends Conexion {
 
             case 'validar':
                 return $this->Validar();
+
+            case 'reporte_patch_panel':
+                return $this->reportePatchPanelPorNro($peticion['id_piso']);
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

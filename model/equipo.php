@@ -86,7 +86,6 @@ class Equipo extends Conexion
         if ($this->hoja_servicio == NULL) {
 
             $this->hoja_servicio = new DetalleMaterial();
-
         }
         return $this->hoja_servicio;
     }
@@ -384,6 +383,37 @@ class Equipo extends Conexion
         return $datos;
     }
 
+    // Cambia a private
+    private function equiposPorEmpleado($cedula_empleado)
+    {
+        $datos = [];
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
+            $sql = "SELECT e.id_equipo, e.tipo_equipo, e.serial, e.codigo_bien, b.descripcion
+                FROM equipo e
+                INNER JOIN bien b ON e.codigo_bien = b.codigo_bien
+                WHERE b.cedula_empleado = :cedula 
+                AND e.estatus = 1 
+                AND b.estatus = 1";
+
+            $stm = $this->conex->prepare($sql);
+            $stm->bindParam(':cedula', $cedula_empleado);
+            $stm->execute();
+
+            $datos = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $datos = ['error' => $e->getMessage()];
+        }
+
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $datos;
+    }
+
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -410,6 +440,9 @@ class Equipo extends Conexion
 
             case 'equipos_por_dependencia':
                 return $this->Restaurar();
+
+            case 'equipos_por_empleado':
+                return $this->equiposPorEmpleado($peticion['cedula_empleado']);
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

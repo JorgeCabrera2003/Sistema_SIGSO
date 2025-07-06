@@ -9,9 +9,15 @@
       <div class="modal-body">
         <div class="form-floating mb-3 mt-4">
           <input placeholder="" class="form-control" name="motivo" type="text"
-          id="motivo" maxlength="200">
+            id="motivo" maxlength="200">
           <span id="smotivo"></span>
           <label for="motivo" class="form-label">Describa su Solicitud</label>
+        </div>
+        <div class="form-floating mb-3">
+          <select class="form-select" id="select_equipos" name="id_equipo" style="width:100%">
+            <option value="">Seleccione un equipo</option>
+          </select>
+          <label for="select_equipos" class="form-label">Equipos del Solicitante</label>
         </div>
       </div>
 
