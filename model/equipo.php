@@ -9,11 +9,17 @@ class Equipo extends Conexion
     private $codigo_bien;
     private $id_unidad;
     private $id_dependencia;
+    private $hoja_servicio;
 
     public function __construct()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->id_equipo = 0;
+        $this->tipo_equipo = "";
+        $this->serial = 0;
+        $this->codigo_bien = 0;
+        $this->id_unidad = 0;
+        $this->id_dependencia = 0;
+        $this->hoja_servicio = NULL;
     }
 
     public function set_id_dependencia($id_dependencia)
@@ -75,11 +81,27 @@ class Equipo extends Conexion
         return $this->id_unidad;
     }
 
+    private function LlamarHojaServicio()
+    {
+        if ($this->hoja_servicio == NULL) {
+
+            $this->hoja_servicio = new DetalleMaterial();
+
+        }
+        return $this->hoja_servicio;
+    }
+
+    private function DestruirHojaServicio()
+    {
+        $this->hoja_servicio = NULL;
+    }
     private function Validar()
     {
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             // Cambiar la validación: evitar duplicados por serial o por código_bien
             $query = "SELECT * FROM equipo WHERE serial = :serial OR (codigo_bien = :codigo_bien AND estatus = 1)";
@@ -95,6 +117,7 @@ class Equipo extends Conexion
                 $dato['bool'] = 0;
             }
         } catch (PDOException $e) {
+            $dato['bool'] = -1;
             $this->conex->rollBack();
             $dato['error'] = $e->getMessage();
         }
@@ -109,6 +132,8 @@ class Equipo extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
                 $query = "INSERT INTO equipo(id_equipo, tipo_equipo, serial, codigo_bien, id_unidad, estatus) VALUES 
                 (NULL, :tipo_equipo, :serial, :codigo_bien, :id_unidad, :estatus)";
@@ -145,6 +170,8 @@ class Equipo extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "UPDATE equipo SET tipo_equipo= :tipo_equipo, serial= :serial, codigo_bien= :codigo_bien, 
                      id_unidad= :id_unidad WHERE id_equipo = :id";
@@ -177,6 +204,8 @@ class Equipo extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conex = new Conexion("sistema");
+                $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
                 $query = "UPDATE equipo SET estatus = 0 WHERE id_equipo = :id";
 
@@ -208,6 +237,8 @@ class Equipo extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT e.*, u.nombre_unidad, CONCAT(et.nombre,' - ', d.nombre) AS dependencia
                      FROM equipo e 
@@ -235,6 +266,8 @@ class Equipo extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT e.*, u.nombre_unidad 
                      FROM equipo e 
@@ -259,6 +292,8 @@ class Equipo extends Conexion
     {
         $dato = [];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "UPDATE equipo SET estatus = 1 WHERE id_equipo = :id";
 
@@ -282,33 +317,72 @@ class Equipo extends Conexion
         return $dato;
     }
 
-    public function equiposPorDependencia($idDependencia) {
-    $datos = [];
-    
-    try {
-        $this->conex->beginTransaction();
-        $query = "SELECT e.id_equipo, e.serial, e.tipo_equipo 
+    public function equiposPorDependencia($idDependencia)
+    {
+        $datos = [];
+
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT e.id_equipo, e.serial, e.tipo_equipo 
                  FROM equipo e
                  JOIN unidad u ON e.id_unidad = u.id_unidad
                  WHERE u.id_dependencia = :idDependencia
                  AND e.estatus = 1";
-                 
-        $stm = $this->conex->prepare($query);
-        $stm->bindParam(':idDependencia', $idDependencia);
-        $stm->execute();
-        
-        $datos['resultado'] = 'consultar_equipos';
-        $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-        $this->conex->commit();
-    } catch (PDOException $e) {
-        $this->conex->rollBack();
-        $datos['resultado'] = 'error';
-        $datos['mensaje'] = $e->getMessage();
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(':idDependencia', $idDependencia);
+            $stm->execute();
+
+            $datos['resultado'] = 'consultar_equipos';
+            $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $datos['resultado'] = 'error';
+            $datos['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $datos;
     }
-    
-    $this->Cerrar_Conexion($this->conex, $stm);
-    return $datos;
-}
+
+    public function HistorialEquipo()
+    {
+        $datos = [];
+
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT e.id_equipo, e.serial, e.tipo_equipo, hs.id_tipo_servicio, s.nro_solicitud,
+            s.motivo, hs.observacion, hs.resultado_hoja_servicio, ts.nombre_tipo_servicio,
+            hs.codigo_hoja_servicio, CONCAT(emp.nombre_empleado, ' ', emp.apellido_empleado) AS empleado
+                 FROM equipo e
+                 INNER JOIN solicitud s ON e.id_equipo = s.id_equipo
+                 INNER JOIN hoja_servicio hs ON s.nro_solicitud = hs.nro_solicitud
+                 INNER JOIN tipo_servicio ts ON ts.id_tipo_servicio = hs.id_tipo_servicio
+                 INNER JOIN empleado emp ON emp.cedula_empleado = s.cedula_solicitante
+                 WHERE e.id_equipo = :id
+                 AND e.estatus = 1";
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(':id', $this->id_equipo);
+            $stm->execute();
+
+            $datos['resultado'] = 'detalle';
+            $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $datos['resultado'] = 'error';
+            $datos['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $datos;
+    }
 
     public function Transaccion($peticion)
     {
@@ -330,6 +404,9 @@ class Equipo extends Conexion
 
             case 'restaurar':
                 return $this->Restaurar();
+
+            case 'detalle':
+                return $this->HistorialEquipo();
 
             case 'equipos_por_dependencia':
                 return $this->Restaurar();

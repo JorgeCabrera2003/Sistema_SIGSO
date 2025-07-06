@@ -15,8 +15,15 @@ class Solicitud extends Conexion
 
     public function __construct()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->nro_solicitud = 0;
+        $this->cedula_solicitante = 0;
+        $this->id_equipo = 0;
+        $this->motivo = "";
+        $this->resultado = "";
+        $this->estado = "";
+        $this->fecha_inicio = 0;
+        $this->fecha_final = 0;
+        $this->id_dependencia = 0;
     }
 
     // Setters
@@ -84,6 +91,8 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => -1];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
             $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
@@ -123,6 +132,8 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $sql = "SELECT 
                     s.nro_solicitud AS ID,
                     CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Tecnico,
@@ -140,10 +151,11 @@ class Solicitud extends Conexion
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':cedula', $this->cedula_solicitante);
             $stmt->execute();
-
+            $this->conex->commit();
             $datos['resultado'] = 'consultar';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -159,6 +171,8 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $sql = "SELECT * FROM solicitud WHERE nro_solicitud = :nro_solicitud";
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(":nro_solicitud", $this->nro_solicitud);
@@ -166,7 +180,9 @@ class Solicitud extends Conexion
 
             $datos['resultado'] = "validar";
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -184,6 +200,8 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
             // Verificar si existe hoja de servicio asociada
@@ -234,6 +252,8 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
             $sql = "UPDATE solicitud SET estatus = 0 WHERE nro_solicitud = :nro";
@@ -265,6 +285,8 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
             $sql = "UPDATE solicitud 
@@ -300,6 +322,9 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                 s.nro_solicitud AS ID,
                 CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Solicitante,
@@ -324,7 +349,9 @@ class Solicitud extends Conexion
             $stmt = $this->conex->query($sql);
             $datos['resultado'] = 'consultar';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -339,6 +366,9 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                     s.nro_solicitud AS ID,
                     CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Solicitante,
@@ -361,10 +391,12 @@ class Solicitud extends Conexion
             $stmt->bindParam(':inicio', $this->fecha_inicio);
             $stmt->bindParam(':final', $this->fecha_final);
             $stmt->execute();
+            $this->conex->commit();
 
             $datos['resultado'] = 'reporte';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -380,6 +412,9 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                     e.cedula_empleado AS cedula, 
                     CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre
@@ -393,7 +428,9 @@ class Solicitud extends Conexion
 
             $datos['resultado'] = 'consultar_solicitantes';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -409,6 +446,9 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                     e.id_equipo, 
                     e.tipo_equipo, 
@@ -424,7 +464,9 @@ class Solicitud extends Conexion
 
             $datos['resultado'] = 'consultar_equipos';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -437,6 +479,9 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                     *
                 FROM equipo e
@@ -447,10 +492,12 @@ class Solicitud extends Conexion
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':dependencia', $this->id_dependencia);
             $stmt->execute();
+            $this->conex->commit();
 
             $datos['resultado'] = 'consultar_equipos';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -466,6 +513,9 @@ class Solicitud extends Conexion
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => null];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                         s.nro_solicitud,
                         s.cedula_solicitante,
@@ -489,7 +539,9 @@ class Solicitud extends Conexion
 
             $datos['resultado'] = 'consultar_por_id';
             $datos['datos'] = $stmt->fetch(PDO::FETCH_ASSOC);
+            $this->conex->commit();
         } catch (PDOException $e) {
+            $this->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
 
@@ -504,6 +556,9 @@ class Solicitud extends Conexion
     {
         $datos = ['resultado' => 'consultar_eliminadas', 'datos' => []];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                         s.nro_solicitud,
                         CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS solicitante,
@@ -518,7 +573,9 @@ class Solicitud extends Conexion
             $stmt = $this->conex->prepare($sql);
             $stmt->execute();
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
         } catch (PDOException $e) {
+            $this->conex->rollBack();
             $datos['resultado'] = 'error';
             $datos['mensaje'] = $e->getMessage();
         }
@@ -533,6 +590,8 @@ class Solicitud extends Conexion
     {
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $sql = "UPDATE solicitud SET estatus = 1 WHERE nro_solicitud = :nro";
             $stmt = $this->conex->prepare($sql);

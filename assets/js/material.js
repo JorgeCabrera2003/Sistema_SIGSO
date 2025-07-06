@@ -403,5 +403,5 @@ function TablaHistorial(arreglo) {
 		}
 		
 	});
-	$("#modal1_HistorialMaterial").modal("show");
+	$("#modal1_HistorialEquipo").modal("show");
 }

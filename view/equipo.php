@@ -2,7 +2,8 @@
 
 <body>
     <?php require_once("Componentes/menu.php");
-    require_once("Componentes/modal_equipo.php"); ?>
+    require_once("Componentes/modal_equipo.php"); 
+    require_once "Componentes/modal_historial_equipo.php"; ?>
 
     <div class="pagetitle">
         <h1>Gestionar Equipos</h1>

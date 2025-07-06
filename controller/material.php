@@ -221,7 +221,6 @@ if (is_file("view/" . $page . ".php")) {
 	// Pass the data to the view
 	$page = "material";
 	$titulo = "Materiales";
-	$cabecera = array('#', "Nombre", "Ubicación", "Stock", "Modificar/Eliminar");
 
 	// Uncomment the next line if you want to use the oficinas variable in the view
 	//$oficinas = $dato_oficina;

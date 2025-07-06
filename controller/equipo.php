@@ -178,8 +178,8 @@ if (is_file("view/" . $page . ".php")) {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 		} else {
 			$peticion["peticion"] = "detalle";
-			$material->set_id($_POST['id_equipo']);
-			$json = $material->Transaccion($peticion);
+			$equipo->set_id_equipo($_POST['id_equipo']);
+			$json = $equipo->Transaccion($peticion);
 			$json['resultado'] = "detalle";
 		}
 		

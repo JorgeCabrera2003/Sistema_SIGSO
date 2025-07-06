@@ -356,8 +356,15 @@ function crearDataTable(arreglo) {
 			{ data: 'nombre_unidad' },
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger"><i class="fa-solid fa-trash eliminar"></i></button>`;
+					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar">
+					<i class="fa-solid fa-pen-to-square"></i>
+					</button>
+					<button onclick="rellenar(this, 1)" class="btn btn-info historial">
+					<i class="fa-solid fa-clock"></i>
+					</button>
+					<button onclick="rellenar(this, 2)" class="btn btn-danger">
+					<i class="fa-solid fa-trash eliminar"></i>
+					</button>`;
 					return botones;
 				}
 			}],
@@ -417,13 +424,21 @@ async function rellenar(pos, accion) {
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Equipo")
 		$("#enviar").text("Modificar");
+		$('#enviar').prop('disabled', false);
+		$("#modal1").modal("show");
 	}
-	else {
+	else if (accion == 1) {
+		var datos = new FormData();
+		datos.append('detalle', 'detalle');
+		datos.append('id_equipo', $(linea).find("td:eq(0)").text());
+		enviaAjax(datos);
+
+	} else {
 		$("#modalTitleId").text("Eliminar Equipo")
 		$("#enviar").text("Eliminar");
+		$('#enviar').prop('disabled', false);
+		$("#modal1").modal("show");
 	}
-	$('#enviar').prop('disabled', false);
-	$("#modal1").modal("show");
 }
 
 function consultarEliminadas() {
@@ -481,26 +496,39 @@ function consultarEliminadas() {
 	});
 }
 
-function TablaHistorial(arreglo) {
+function TablaHistorial(arreglo = null) {
 	if ($.fn.DataTable.isDataTable('#tablaDetalles')) {
 		$('#tablaDetalles').DataTable().destroy();
+	}
+
+if (Object.keys(arreglo).length == 0 || arreglo == null) {
+		$('#id_equipoH').val("");
+		$('#tipo_equipoH').val("");
+		$('#serialH').val("");
+		console.log(arreglo);
+	} else {
+		$('#id_equipoH').val(arreglo[0]['id_equipo']);
+		$('#tipo_equipoH').val(arreglo[0]['tipo_equipo']);
+		$('#serialH').val(arreglo[0]['serial']);
 	}
 
 	$('#tablaDetalles').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'id_movimiento_material' },
-			{ data: 'nombre_material' },
-			{ data: 'accion' },
-			{ data: 'cantidad' },
-			{ data: 'descripcion' }
+			{ data: 'nro_solicitud' },
+			{ data: 'empleado' },
+			{ data: 'motivo' },
+			{ data: 'codigo_hoja_servicio' },
+			{ data: 'nombre_tipo_servicio' },
+			{ data: 'observacion'},
+			{ data: 'resultado_hoja_servicio'}
 		],
 		language: {
 			url: idiomaTabla,
 		}
 
 	});
-	$("#modal1_HistorialMaterial").modal("show");
+	$("#modal1_HistorialEquipo").modal("show");
 }
 
 
