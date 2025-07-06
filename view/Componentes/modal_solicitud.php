@@ -13,7 +13,7 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label for="dependencia" class="form-label">Dependencia</label>
-              <select class="form-select" id="dependencia" name="dependencia" required>
+              <select class="form-select" id="dependencia" name="dependencia" required style="width:100%">
                 <option value="" selected disabled>Seleccione una dependencia</option>
               </select>
               <div class="invalid-feedback">Seleccione una dependencia</div>
@@ -21,7 +21,7 @@
             
             <div class="col-md-6">
               <label for="solicitante" class="form-label">Solicitante</label>
-              <select class="form-select" id="solicitante" name="cedula" required>
+              <select class="form-select" id="solicitante" name="cedula" required style="width:100%">
                 <option value="" selected disabled>Seleccione un solicitante</option>
               </select>
               <div class="invalid-feedback">Seleccione un solicitante</div>
@@ -31,14 +31,14 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label for="equipo" class="form-label">Equipo (Opcional)</label>
-              <select class="form-select" id="equipo" name="serial">
+              <select class="form-select" id="equipo" name="serial" style="width:100%">
                 <option value="" selected>No especificar equipo</option>
               </select>
             </div>
             
             <div class="col-md-6">
               <label for="area" class="form-label">Área de Servicio</label>
-              <select class="form-select" id="area" name="area" required>
+              <select class="form-select" id="area" name="area" required style="width:100%">
                 <option value="" selected disabled>Seleccione un área</option>
                 <option value="1">Soporte técnico</option>
                 <option value="4">Electrónica</option>

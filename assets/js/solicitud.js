@@ -101,6 +101,39 @@ function inicializarComponentes() {
 
     // Registrar entrada al módulo
     registrarEntrada();
+
+    // Inicializar select2 para todos los selects del modal
+    $('#dependencia').select2({
+        dropdownParent: $('#modalSolicitud'),
+        width: '100%',
+        placeholder: 'Seleccione una dependencia'
+    });
+    $('#solicitante').select2({
+        dropdownParent: $('#modalSolicitud'),
+        width: '100%',
+        placeholder: 'Seleccione un solicitante'
+    });
+    $('#equipo').select2({
+        dropdownParent: $('#modalSolicitud'),
+        width: '100%',
+        placeholder: 'Seleccione un equipo (opcional)',
+        allowClear: true
+    });
+    $('#area').select2({
+        dropdownParent: $('#modalSolicitud'),
+        width: '100%',
+        placeholder: 'Seleccione un área'
+    });
+
+    // Cuando cambia el solicitante, cargar equipos de ese solicitante
+    $('#solicitante').on('change', function () {
+        const cedula = $(this).val();
+        if (cedula) {
+            cargarEquiposPorSolicitante(cedula);
+        } else {
+            $('#equipo').empty().append('<option value="">No especificar equipo</option>').val('').trigger('change');
+        }
+    });
 }
 
 function cargarDatosIniciales() {
@@ -658,4 +691,53 @@ function mostrarError(mensaje) {
         toast: true,
         position: 'top-end'
     });
+}
+
+// Nueva función: cargar equipos por solicitante (como en mis_servicios)
+async function cargarEquiposPorSolicitante(cedula) {
+    const $select = $('#equipo');
+    $select.empty().append('<option value="">Cargando equipos...</option>');
+    $select.val('').trigger('change');
+
+    try {
+        const response = await $.ajax({
+            type: 'POST',
+            url: '?page=mis_servicios',
+            data: {
+                peticion: 'consultar_equipos_empleado',
+                cedula_empleado: cedula
+            },
+            dataType: 'json'
+        });
+
+        $select.empty();
+        $select.append('<option value="">No especificar equipo</option>');
+
+        if (response && Array.isArray(response.datos) && response.datos.length > 0) {
+            response.datos.forEach(equipo => {
+                let texto = equipo.tipo_equipo || 'Equipo';
+                if (equipo.serial) texto += ` (${equipo.serial})`;
+                if (equipo.descripcion) texto += ` - ${equipo.descripcion}`;
+                $select.append(
+                    new Option(texto, equipo.id_equipo)
+                );
+            });
+        } else {
+            $select.append('<option value="">No tiene equipos asignados</option>');
+        }
+
+        // Re-inicializa select2 para refrescar opciones
+        $select.select2({
+            dropdownParent: $('#modalSolicitud'),
+            width: '100%',
+            placeholder: 'Seleccione un equipo (opcional)',
+            allowClear: true
+        });
+        $select.val('').trigger('change');
+    } catch (error) {
+        console.error('Error al cargar equipos:', error);
+        $select.empty().append('<option value="">Error al cargar equipos</option>');
+        $select.val('').trigger('change');
+        mostrarError("Error al cargar equipos del solicitante");
+    }
 }
