@@ -140,7 +140,19 @@ function crearDataTable(arreglo) {
 			{ data: 'ID' },
 			{ data: 'Motivo' },
 			{ data: 'Inicio' },
-			{ data: 'Estatus' },
+			{ data: 'Estatus',
+				render: function (data) {
+					if (data == "Enviado") {
+						return `<span class="badge bg-primary">${data}</span>`;
+					} else if (data == "Pendiente") {
+						return `<span class="badge bg-warning text-dark">${data}</span>`;
+					} else if (data == "Finalizado") {
+						return `<span class="badge bg-success">${data}</span>`;
+					} else {
+						return `<span class="badge bg-info">${data}</span>`;
+					}
+				}
+			 },
 			{ data: 'Resultado' }
 		],
 		language: {
