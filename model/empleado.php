@@ -463,6 +463,51 @@ class Empleado extends Conexion
             return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
     }
+    // Agregar al final de la clase Empleado:
+    private function tecnicosPorAreaRendimiento($area_id)
+    {
+        $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
+            // Técnicos del área, ordenados por hojas finalizadas en el mes (ascendente)
+            $sql = "
+                SELECT 
+                    e.cedula_empleado, 
+                    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
+                    COALESCE(hs.cant_hojas, 0) AS hojas_mes
+                FROM empleado e
+                LEFT JOIN (
+                    SELECT 
+                        cedula_tecnico, 
+                        COUNT(*) AS cant_hojas
+                    FROM hoja_servicio
+                    WHERE estatus = 'I'
+                        AND MONTH(fecha_resultado) = MONTH(CURRENT_DATE())
+                        AND YEAR(fecha_resultado) = YEAR(CURRENT_DATE())
+                    GROUP BY cedula_tecnico
+                ) hs ON hs.cedula_tecnico = e.cedula_empleado
+                WHERE e.id_servicio = :area_id
+                    AND e.id_cargo = 1
+                    AND e.estatus = 1
+                ORDER BY hojas_mes ASC, nombre ASC
+            ";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':area_id', $area_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $datos['resultado'] = 'success';
+            $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $datos['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stmt);
+        return $datos;
+    }
+
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -489,6 +534,8 @@ class Empleado extends Conexion
                 return $this->obtener_tecnico();
             case 'contar_empleados':
                 return $this->contarEmpleados();
+            case 'tecnicos_por_area_rendimiento':
+                return $this->tecnicosPorAreaRendimiento($peticion['area_id']);
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }

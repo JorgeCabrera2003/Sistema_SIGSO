@@ -124,6 +124,12 @@ function inicializarComponentes() {
         width: '100%',
         placeholder: 'Seleccione un área'
     });
+    // Nuevo: inicializar select2 para técnico
+    $('#tecnico').select2({
+        dropdownParent: $('#modalSolicitud'),
+        width: '100%',
+        placeholder: 'Seleccione un técnico'
+    });
 
     // Cuando cambia el solicitante, cargar equipos de ese solicitante
     $('#solicitante').on('change', function () {
@@ -132,6 +138,16 @@ function inicializarComponentes() {
             cargarEquiposPorSolicitante(cedula);
         } else {
             $('#equipo').empty().append('<option value="">No especificar equipo</option>').val('').trigger('change');
+        }
+    });
+
+    // Cuando cambia el área, cargar técnicos del área
+    $('#area').on('change', function () {
+        const areaId = $(this).val();
+        if (areaId) {
+            cargarTecnicosPorArea(areaId);
+        } else {
+            $('#tecnico').empty().append('<option value="" selected disabled>Seleccione un técnico</option>').val('').trigger('change');
         }
     });
 }
@@ -519,6 +535,46 @@ async function cargarAreas() {
         $('#btnGuardar').text('Guardar').attr('name', 'registrar');
     });
 
+// Nueva función para cargar técnicos por área
+async function cargarTecnicosPorArea(areaId) {
+    const $select = $('#tecnico');
+    $select.empty().append('<option value="">Cargando técnicos...</option>');
+    $select.val('').trigger('change');
+    try {
+        const response = await $.ajax({
+            url: '',
+            type: 'POST',
+            data: {
+                action: 'load_tecnicos_por_area',
+                area_id: areaId
+            },
+            dataType: 'json'
+        });
+        $select.empty().append('<option value="" selected disabled>Seleccione un técnico</option>');
+        if (response && response.resultado === 'success' && Array.isArray(response.datos)) {
+            response.datos.forEach(tec => {
+                let texto = tec.nombre;
+                if (typeof tec.hojas_mes !== 'undefined') {
+                    texto += ` (${tec.hojas_mes} hojas finalizadas este mes)`;
+                }
+                $select.append(new Option(texto, tec.cedula_empleado));
+            });
+        } else {
+            $select.append('<option value="">No hay técnicos disponibles</option>');
+        }
+        $select.select2({
+            dropdownParent: $('#modalSolicitud'),
+            width: '100%',
+            placeholder: 'Seleccione un técnico'
+        });
+        $select.val('').trigger('change');
+    } catch (error) {
+        $select.empty().append('<option value="">Error al cargar técnicos</option>');
+        $select.val('').trigger('change');
+        mostrarError("Error al cargar técnicos del área");
+    }
+}
+
 function enviarFormulario() {
     if (validarFormulario()) {
         const formData = new FormData($('#formSolicitud')[0]);
@@ -527,6 +583,10 @@ function enviarFormulario() {
         // Asegurarnos de incluir el nroSolicitud aunque esté oculto
         if ($('#nroSolicitud').val()) {
             formData.append('nroSolicitud', $('#nroSolicitud').val());
+        }
+        // Asegurarnos de incluir el técnico seleccionado
+        if ($('#tecnico').val()) {
+            formData.set('tecnico', $('#tecnico').val());
         }
         
         formData.append(accion, accion);
@@ -574,7 +634,7 @@ function validarFormulario() {
     }
 
     // Validar selects requeridos
-    ['#dependencia', '#solicitante', '#area'].forEach(selector => {
+    ['#dependencia', '#solicitante', '#area', '#tecnico'].forEach(selector => {
         if (!$(selector).val()) {
             $(selector).addClass('is-invalid');
             valido = false;
@@ -624,6 +684,7 @@ function limpiarFormulario() {
     $('#nroSolicitud').val('');
     $('#solicitante').empty().append('<option value="" selected disabled>Seleccione una dependencia primero</option>');
     $('#equipo').empty().append('<option value="" selected>No especificar equipo</option>');
+    $('#tecnico').empty().append('<option value="" selected disabled>Seleccione un técnico</option>');
     $('#motivo').removeClass('is-valid is-invalid');
 }
 

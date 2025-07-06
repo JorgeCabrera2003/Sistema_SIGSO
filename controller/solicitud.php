@@ -66,6 +66,20 @@ if (is_file("view/" . $page . ".php")) {
                     echo json_encode($datosSolicitud);
                     exit;
                     
+                case "load_tecnicos_por_area":
+                    // Nuevo endpoint: técnicos por área, ordenados por menor cantidad de hojas finalizadas en el mes
+                    if (!isset($_POST["area_id"])) {
+                        $response = ["resultado" => "error", "mensaje" => "Área no especificada"];
+                        break;
+                    }
+                    // Nuevo método privado en Empleado
+                    $empleado = new Empleado();
+                    $response = $empleado->Transaccion([
+                        "peticion" => "tecnicos_por_area_rendimiento",
+                        "area_id" => $_POST["area_id"]
+                    ]);
+                    break;
+                    
                 default:
                     $response = ["resultado" => "error", "mensaje" => "Acción no reconocida"];
             }
@@ -104,6 +118,10 @@ if (is_file("view/" . $page . ".php")) {
             // Crear hoja de servicio asociada
             $hojaServicio->set_nro_solicitud($resultado['datos']);
             $hojaServicio->set_id_tipo_servicio($_POST["area"]);
+            // Nuevo: asignar técnico si viene
+            if (!empty($_POST["tecnico"])) {
+                $hojaServicio->set_cedula_tecnico($_POST["tecnico"]);
+            }
             $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
             
             if ($resultHoja['resultado'] !== 'success') {
@@ -185,7 +203,10 @@ if (isset($_POST["modificar"])) {
             if (isset($_POST["area"]) && !empty($_POST["area"])) {
                 $hojaServicio->set_nro_solicitud($_POST["nroSolicitud"]);
                 $hojaServicio->set_id_tipo_servicio($_POST["area"]);
-                
+                // Nuevo: asignar técnico si viene
+                if (!empty($_POST["tecnico"])) {
+                    $hojaServicio->set_cedula_tecnico($_POST["tecnico"]);
+                }
                 // Primero consultar si ya existe una hoja para esta solicitud
                 $consultaHoja = $hojaServicio->Transaccion([
                     'peticion' => 'consultar_por_solicitud',

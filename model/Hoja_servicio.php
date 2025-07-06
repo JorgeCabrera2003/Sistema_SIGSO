@@ -136,12 +136,14 @@ class HojaServicio extends Conexion
 
             // Insertar la hoja de servicio
             $sql = "INSERT INTO hoja_servicio 
-                    (nro_solicitud, id_tipo_servicio, estatus) 
-                    VALUES (:nro_solicitud, :tipo_servicio, 'A')";
+                    (nro_solicitud, id_tipo_servicio, estatus, cedula_tecnico) 
+                    VALUES (:nro_solicitud, :tipo_servicio, 'A', :cedula_tecnico)";
 
             $stmt = $this->conex->prepare($sql);
             $stmt->bindParam(':nro_solicitud', $this->nro_solicitud, PDO::PARAM_INT);
             $stmt->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
+            // Nuevo: técnico puede ser null
+            $stmt->bindParam(':cedula_tecnico', $this->cedula_tecnico);
 
             if ($stmt->execute()) {
                 $codigo = $this->conex->lastInsertId();

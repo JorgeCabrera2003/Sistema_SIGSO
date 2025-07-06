@@ -35,7 +35,6 @@
                 <option value="" selected>No especificar equipo</option>
               </select>
             </div>
-            
             <div class="col-md-6">
               <label for="area" class="form-label">Área de Servicio</label>
               <select class="form-select" id="area" name="area" required style="width:100%">
@@ -46,6 +45,16 @@
                 <option value="3">Telefonía</option>
               </select>
               <div class="invalid-feedback">Seleccione un área</div>
+            </div>
+          </div>
+          <!-- Nuevo select para técnico -->
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="tecnico" class="form-label">Técnico Asignado</label>
+              <select class="form-select" id="tecnico" name="tecnico" required style="width:100%">
+                <option value="" selected disabled>Seleccione un técnico</option>
+              </select>
+              <div class="invalid-feedback">Seleccione un técnico</div>
             </div>
           </div>
           
