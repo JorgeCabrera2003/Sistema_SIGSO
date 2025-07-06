@@ -134,6 +134,7 @@ class Solicitud extends Conexion
         try {
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
             $sql = "SELECT 
                     s.nro_solicitud AS ID,
                     CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS Tecnico,
