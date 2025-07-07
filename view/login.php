@@ -32,7 +32,12 @@
 
           <div class="col-12">
             <label for="yourPassword" class="form-label">Contraseña</label>
-            <input type="password" name="password" class="form-control" id="yourPassword"  maxlength="20">
+            <div class="input-group">
+              <input type="password" name="password" class="form-control" id="yourPassword" maxlength="20">
+              <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
             <div class="invalid-feedback">Por favor ingresa tu contraseña!</div>
           </div>
           <div class="col-12">
@@ -60,6 +65,55 @@
 
   <script>
     var loginError = <?php echo isset($error_login) && $error_login ? 'true' : 'false'; ?>;
+    
+    // Función para mostrar/ocultar contraseña
+    $(document).ready(function() {
+      $("#togglePassword").click(function() {
+        const passwordInput = $("#yourPassword");
+        const icon = $(this).find("i");
+        
+        if (passwordInput.attr("type") === "password") {
+          passwordInput.attr("type", "text");
+          icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+          passwordInput.attr("type", "password");
+          icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+      });
+
+      $("form").on("submit", function (e) {
+        
+        var cedula = $("input[name='CI']").val().trim();
+        var clave = $("input[name='password']").val().trim();
+
+        
+        if (cedula === "" || clave === "") {
+
+            e.preventDefault();
+            Swal.fire({
+                icon: "error",
+                title: "Completa el formulario",
+                text: "Debes ingresar su cédula y/o contraseña.",
+                confirmButtonText: "Aceptar"
+            });
+
+            return false;
+        }
+
+        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === "") {
+
+            e.preventDefault();
+            Swal.fire({
+                icon: "error",
+                title: "Completa el reCAPTCHA",
+                text: "Verifica que No eres un Robot.",
+                confirmButtonText: "Aceptar"
+            });
+            return false;
+        }
+
+      });
+    });
   </script>
 
   <script src="assets/js/login.js"></script>

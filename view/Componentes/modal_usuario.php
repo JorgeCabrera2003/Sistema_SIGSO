@@ -62,16 +62,25 @@
         <div class="row justify-content-center" id="Fila4">
           <div class="col-md-6">
             <div class="form-floating mb-3">
-              <input placeholder="Contraseña" class="form-control" name="clave" type="password" id="clave"
-                maxlength="15">
+              <div class="input-group">
+                <input placeholder="Contraseña" class="form-control" name="clave" type="password" id="clave" maxlength="15">
+                <button class="btn btn-outline-secondary toggle-password p-3" type="button" data-target="#clave">
+                  <i class="fa fa-eye"></i>
+                </button>
+              </div>
               <label for="clave" class="form-label">Contraseña</label>
               <span id="sclave"></span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-floating mb-3">
-              <input placeholder="Repita Contraseña" class="form-control" name="rclave" type="password" id="rclave" maxlength="45">
-              <label for="rclave" class="form-label">Repita la Contraseña</label>
+              <div class="input-group">
+                <input placeholder="Repita Contraseña" class="form-control" name="rclave" type="password" id="rclave" maxlength="45">
+                <button class="btn btn-outline-secondary toggle-password p-3" type="button" data-target="#rclave">
+                  <i class="fa fa-eye"></i>
+                </button>
+              </div>
+              <label for="rclave" class="form-label">Repita Contraseña</label>
               <span id="srclave"></span>
             </div>
           </div>
