@@ -357,11 +357,11 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
 
-	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ.]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+	} else if (validarKeyUp(/^[a-z A-ZÁÉÍÓÚáéíóúüñÑçÇ]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre del técnico debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
+	} else if (validarKeyUp(/^[a-z A-ZÁÉÍÓÚáéíóúüñÑçÇ]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
 		return false;
 

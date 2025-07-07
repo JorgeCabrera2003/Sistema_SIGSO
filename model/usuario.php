@@ -272,6 +272,52 @@ class Usuario extends Conexion
         return $dato;
     }
 
+    private function BuscarUsuario_Permiso($parametro = NULL)
+    {
+        if (isset($parametro['modulo']) && isset($parametro['accion'])) {
+
+            $dato = [];
+            try {
+                $this->conex = new Conexion("usuario");
+                $this->conex = $this->conex->Conex();
+                $this->conex->beginTransaction();
+                $stm = $this->conex->prepare("SELECT * FROM usuario u
+                INNER JOIN rol r ON r.id_rol = u.id_rol
+                INNER JOIN permiso p ON p.id_rol = r.id_rol
+                INNER JOIN modulo m ON m.id_modulo = p.id_modulo
+                WHERE m.id_modulo = :id_modulo AND p.accion_permiso = :permiso AND p.estado = :estado");
+
+                $stm->bindParam(":permiso", $this->cedula);
+                $stm->bindParam(':estado', $this->nombre_usuario);
+                $stm->execute();
+
+                if ($stm->rowCount() > 0) {
+                    $dato['datos'] = $stm->fetch(PDO::FETCH_ASSOC);
+                    $dato['bool'] = 1;
+                } else {
+                    $dato['bool'] = -1;
+                    $dato['datos'] = NULL;
+                    $dato['bool'] = 0;
+                }
+                $dato['resultado'] = "validar";
+                $dato['estado'] = 1;
+                $this->conex->commit();
+
+            } catch (PDOException $e) {
+                $this->conex->rollBack();
+                $dato['resultado'] = "error";
+                $dato['mensaje'] = $e->getMessage();
+                $dato['estado'] = -1;
+            }
+        } else {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = 'Parámetros no válidos';
+            $dato['estado'] = -1;
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
     private function IniciarSesion()
     {
         $dato = [];
@@ -490,6 +536,10 @@ class Usuario extends Conexion
             case 'validar':
 
                 return $this->Validar();
+
+            case 'usuario_permiso':
+
+                return $this->BuscarUsuario_Permiso($peticion['parametro']);
 
             case 'perfil':
 
