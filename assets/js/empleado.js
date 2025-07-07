@@ -239,7 +239,7 @@ function capaValidar() {
 	});
 	$("#cedula").on("keyup", function () {
 		validarKeyUp(
-			/^[V]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
+			/^[VE]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
 			"Cédula no válida, el formato es: V-**********"
 		);
 	});
@@ -249,7 +249,7 @@ function capaValidar() {
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ]{4,45}$/, $(this), $("#snombre"),
+			/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{4,45}$/, $(this), $("#snombre"),
 			"El nombre debe tener de 4 a 45 carácteres"
 		);
 	});
@@ -259,7 +259,7 @@ function capaValidar() {
 	});
 	$("#apellido").on("keyup", function () {
 		validarKeyUp(
-			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ]{4,45}$/, $(this), $("#sapellido"),
+			/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{4,45}$/, $(this), $("#sapellido"),
 			"El apellido debe tener de 4 a 45 carácteres"
 		);
 	});
@@ -269,7 +269,7 @@ function capaValidar() {
 	});
 	$("#correo").on("keyup", function () {
 		validarKeyUp(
-			/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
+			/^[-0-9a-zç_]{10,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
 			"El formato del correo electrónico es: usuario@servidor.com"
 		);
 	});
@@ -315,15 +315,15 @@ function capaValidar() {
 
 function validarenvio() {
 
-	if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
+	if (validarKeyUp(/^[VE]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
 
-	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ.]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
+	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{4,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre del empleado debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
+	} else if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{4,45}$/, $("#apellido"), $("#sapellido"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
 		return false;
 
@@ -331,7 +331,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El numero de teléfono debe tener el siguiente formato: ****-*******");
 		return false;
 
-	} else if (validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
+	} else if (validarKeyUp(/^[-0-9a-zç_]{10,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;
 
@@ -435,13 +435,30 @@ function limpia() {
 	$("#cargo").removeClass("is-valid is-invalid")
 	$("#scargo").text("");
 
+	$("#cedula").prop('readOnly', false);
+	$("#nombre").prop('readOnly', false);
+	$("#apellido").prop('readOnly', false);
+	$("#telefono").prop('readOnly', false);
+	$("#correo").prop('readOnly', false);
+	$("#dependencia").prop('disable', false);
+	$("#unidad").prop('disable', false);
+	$("#cargo").prop('disable', false);
+
 	$('#enviar').val('default').change();
 }
 
 async function rellenar(pos, accion) {
-
+	limpia();
 	var espera;
 	linea = $(pos).closest('tr');
+
+	$("#idEnte").remove();
+	$("#Fila1").prepend(`<div class="col-md-4" id="CheckUsuario">
+            <div class="form-floating mb-3 mt-4">
+              <input placeholder="" class="form-control" name="id_ente" type="text" id="id_ente" readOnly>
+              <span id="sid_ente"></span>
+              <label for="id_ente" class="form-label">ID del Ente</label>
+            </div>`);
 
 	$("#cedula").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());
@@ -464,6 +481,15 @@ async function rellenar(pos, accion) {
 		$("#enviar").text("Modificar");
 	}
 	else {
+		$("#cedula").prop('readOnly', true);
+		$("#nombre").prop('readOnly', true);
+		$("#apellido").prop('readOnly', true);
+		$("#telefono").prop('readOnly', true);
+		$("#correo").prop('readOnly', true);
+		$("#dependencia").prop('disable', true);
+		$("#unidad").prop('disable', true);
+		$("#cargo").prop('disable', true);
+
 		$("#modalTitleId").text("Eliminar Empleado")
 		$("#enviar").text("Eliminar");
 	}

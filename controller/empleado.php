@@ -39,7 +39,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['empleado']['registrar']['estado']) && $permisos['empleado']['registrar']['estado'] == '1') {
-			if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -75,6 +75,7 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
+				$validarUsuario = NULL;
 
 				$empleado->set_cedula($_POST["cedula"]);
 				$empleado->set_nombre($_POST["nombre"]);
@@ -84,9 +85,19 @@ if (is_file("view/" . $page . ".php")) {
 				$empleado->set_id_unidad($_POST["unidad"]);
 				$empleado->set_id_cargo($_POST["cargo"]);
 				$peticion["peticion"] = "registrar";
-				$json = $empleado->Transaccion($peticion);
+				$usuario->set_cedula($_POST["cedula"]);
+				$validarEmpleado = $empleado->Transaccion(['peticion' => 'validar']);
+				$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
 
 				if ($json['estado'] == 1) {
+					$clave = password_hash($_POST['cedula'], PASSWORD_DEFAULT);
+
+					$usuario->set_cedula($_POST["cedula"]);
+					$usuario->set_nombres($_POST["nombre"]);
+					$usuario->set_apellidos($_POST["apellido"]);
+					$usuario->set_clave($clave);
+					$usuario->set_correo($_POST["correo"]);
+					$usuario->set_telefono($_POST["telefono"]);
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado";
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo empleado";
@@ -115,7 +126,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['empleado']['modificar']['estado']) && $permisos['empleado']['modificar']['estado'] == '1') {
-			if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -180,7 +191,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['empleado']['eliminar']['estado']) && $permisos['empleado']['eliminar']['estado'] == '1') {
-			if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";

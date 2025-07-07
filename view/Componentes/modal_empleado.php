@@ -10,6 +10,14 @@
         <div class="row justify-content-center" id="Fila1">
           <div class="col-md-6">
             <div class="form-floating mb-3">
+              <input class="form-check-input permission-checkbox" type="checkbox" role="switch"
+                id="check_user" maxlength="45">
+              <label for="check_user" class="form-label">Registrar como Usuario</label>
+              <span id="scheck_user"></span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating mb-3">
               <input placeholder="Cédula de Identidad" class="form-control" name="cedula" type="text" id="cedula"
                 maxlength="45">
               <label for="cedula" class="form-label">Cédula de Identidad</label>

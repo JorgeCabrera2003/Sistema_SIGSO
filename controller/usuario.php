@@ -19,7 +19,10 @@ $peticion['rol'] = 'ADMINISTRADOR';
 $permiso = $usuario->Transaccion($peticion);
 
 if (isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] === "0") {
-	echo '<script>window.location="?page=404"</script>';
+	$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Usuario";
+	Bitacora($msg, "Usuario");
+	header('Location: ?page=home');
+	exit;
 }
 
 $cabecera = array("Nombre de Usuario", "Rol", "Cedula", "Nombre", "Apellido", "Teléfono", "Correo", "Modificar/Eliminar");
@@ -46,7 +49,7 @@ if (is_file("view/" . $page . ".php")) {
 			$json['mensaje'] = "Error, Nombre de Usuario no válido";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+		} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, Cédula no válida";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -124,7 +127,7 @@ if (is_file("view/" . $page . ".php")) {
 			$json['mensaje'] = "Error, Nombre de Usuario no válido";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+		} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, Cédula no válida";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";

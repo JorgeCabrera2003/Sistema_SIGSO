@@ -202,14 +202,19 @@ class Usuario extends Conexion
             $this->conex = new Conexion("usuario");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $stm = $this->conex->prepare("SELECT * FROM usuario WHERE cedula = :cedula");
+            $stm = $this->conex->prepare("SELECT * FROM usuario WHERE cedula = :cedula
+            OR nombre_usuario = :nombre_usuario
+            OR correo = :correo");
+            $stm->bindParam(':correo', $this->correo);
             $stm->bindParam(":cedula", $this->cedula);
+            $stm->bindParam(':nombre_usuario', $this->nombre_usuario);
             $stm->execute();
 
             if ($stm->rowCount() > 0) {
                 $dato['datos'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $dato['bool'] = 1;
             } else {
+                $dato['bool'] = -1;
                 $dato['datos'] = NULL;
                 $dato['bool'] = 0;
             }
