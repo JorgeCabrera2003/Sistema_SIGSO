@@ -54,7 +54,8 @@ function Bitacora($msg, $modulo)
     $bitacora->Transaccion($peticion);
 }
 
-function NotificarUsuarios($msg, $modulo, $parametro = []){
+function NotificarUsuarios($msg, $modulo, $parametro = [])
+{
     $usuario = new Usuario();
     $peticion['peticion'] = 'usuario_permiso';
     $peticion['parametro'] = ['modulo' => $parametro['modulo'], 'accion' => $parametro['accion']];
@@ -70,44 +71,48 @@ function NotificarUsuarios($msg, $modulo, $parametro = []){
     }
 
     $resultados = [];
-    foreach ($arrayUsuario['datos'] as $usuario) {
-        $notificacion->set_usuario($usuario['nombre_usuario']);
-        $notificacion->set_modulo($modulo);
-        $notificacion->set_mensaje($msg);
-        $notificacion->set_fecha($fecha);
-        $notificacion->set_hora($hora);
-        $resultados[] = $notificacion->Transaccion($peticion);
+    if ($arrayUsuario['bool'] == 1) {
+
+        foreach ($arrayUsuario['datos'] as $usuario) {
+            $notificacion->set_usuario($usuario['nombre_usuario']);
+            $notificacion->set_modulo($modulo);
+            $notificacion->set_mensaje($msg);
+            $notificacion->set_fecha($fecha);
+            $notificacion->set_hora($hora);
+            $resultados[] = $notificacion->Transaccion($peticion);
+        }
     }
 
     return $resultados;
 }
 
-function Notificar($msg, $modulo, $usuarios = [])
+function Notificar($msg, $modulo, $busqueda)
 {
+    $usuario = new Usuario();
+    $peticion['peticion'] = 'validar';
+    $usuario->set_cedula($busqueda);
+    $arrayUsuario = $usuario->Transaccion($peticion);
+
     global $notificacion;
     $peticion["peticion"] = "registrar";
     $hora = date('H:i:s');
     $fecha = date('Y-m-d');
 
-    if (empty($usuarios)) {
-        $usuarios = [$_SESSION['user']['nombre_usuario']];
-    }
-
-    $resultados = [];
-    foreach ($usuarios as $usuario) {
-        $notificacion->set_usuario($usuario);
+    if ($arrayUsuario['bool'] == 1) {
+        $notificacion->set_usuario($arrayUsuario['datos']['nombre_usuario']);
         $notificacion->set_modulo($modulo);
         $notificacion->set_mensaje($msg);
         $notificacion->set_fecha($fecha);
         $notificacion->set_hora($hora);
-        $resultados[] = $notificacion->Transaccion($peticion);
+        $resultados = $notificacion->Transaccion($peticion);
+    } else {
+        $resultados = 0;
     }
 
     return $resultados;
 }
 
-if(isset($_POST['permisos']))
-{
+if (isset($_POST['permisos'])) {
     $json['resultado'] = 'permisos_modulo';
     $json['permisos'] = ObtenerPermisos();
     echo json_encode($json);

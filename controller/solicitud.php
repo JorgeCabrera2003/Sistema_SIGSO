@@ -16,15 +16,15 @@ if (is_file("view/" . $page . ".php")) {
     // Configuración inicial
     $titulo = "Gestión de Solicitudes";
     $cabecera = array(
-        '#', 
-        "Solicitante", 
-        "Cédula", 
+        '#',
+        "Solicitante",
+        "Cédula",
         "Dependencia",
-        "Equipo", 
-        "Motivo", 
-        "Estado", 
-        "Fecha Reporte", 
-        "Resultado", 
+        "Equipo",
+        "Motivo",
+        "Estado",
+        "Fecha Reporte",
+        "Resultado",
         "Acciones"
     );
 
@@ -38,19 +38,19 @@ if (is_file("view/" . $page . ".php")) {
     // Manejo de acciones AJAX
     if (isset($_POST["action"])) {
         header('Content-Type: application/json');
-        
+
         try {
             switch ($_POST["action"]) {
                 case "load_equipos":
                     $solicitud->set_id_dependencia($_POST["dependencia_id"]);
                     $response = $solicitud->Transaccion(["peticion" => "consultar_equipos"]);
                     break;
-                    
+
                 case "load_solicitantes":
                     $solicitud->set_id_dependencia($_POST["dependencia_id"]);
                     $response = $solicitud->Transaccion(["peticion" => "consultar_solicitantes"]);
                     break;
-                    
+
                 case "load_dependencias":
                     $response = $dependencia->Transaccion(["peticion" => "consultar"]);
                     break;
@@ -58,14 +58,14 @@ if (is_file("view/" . $page . ".php")) {
                 case "load_areas":
                     $response = $dependencia->Transaccion(["peticion" => "consultar_areas"]);
                     break;
-                    
+
                 case "consultar_por_id":
                     // Retorna datos de la solicitud y el tipo de servicio asociado
                     $solicitud->set_nro_solicitud($_POST["id"]);
                     $datosSolicitud = $solicitud->Transaccion(["peticion" => "consultar_por_id"]);
                     echo json_encode($datosSolicitud);
                     exit;
-                    
+
                 case "load_tecnicos_por_area":
                     // Nuevo endpoint: técnicos por área, ordenados por menor cantidad de hojas finalizadas en el mes
                     if (!isset($_POST["area_id"])) {
@@ -79,7 +79,7 @@ if (is_file("view/" . $page . ".php")) {
                         "area_id" => $_POST["area_id"]
                     ]);
                     break;
-                    
+
                 case "redireccionar_hoja":
                     // Redireccionar hoja: crea una copia y la asigna a otro técnico/área
                     $hojaServicio = new HojaServicio();
@@ -93,11 +93,11 @@ if (is_file("view/" . $page . ".php")) {
                     ]);
                     $response = $result;
                     break;
-                    
+
                 default:
                     $response = ["resultado" => "error", "mensaje" => "Acción no reconocida"];
             }
-            
+
             echo json_encode($response);
         } catch (Exception $e) {
             echo json_encode(["resultado" => "error", "mensaje" => $e->getMessage()]);
@@ -121,144 +121,153 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["registrar"])) {
-    try {
-        $solicitud->set_motivo($_POST["motivo"]);
-        $solicitud->set_cedula_solicitante($_POST["cedula"]);
-        $solicitud->set_id_equipo($_POST["serial"] ?: null);
-        
-        $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
-        
-        if ($resultado['bool']) {
-            // Crear hoja de servicio asociada
-            $hojaServicio->set_nro_solicitud($resultado['datos']);
-            $hojaServicio->set_id_tipo_servicio($_POST["area"]);
-            // Nuevo: asignar técnico si viene
-            if (!empty($_POST["tecnico"])) {
-                $hojaServicio->set_cedula_tecnico($_POST["tecnico"]);
-            }
-            $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
-            
-            if ($resultHoja['resultado'] !== 'success') {
-                throw new Exception("Error al crear hoja de servicio: ".$resultHoja['mensaje']);
-            }
-            
-            $response = [
-                "resultado" => "success",
-                "mensaje" => "Solicitud y hoja de servicio registradas correctamente",
-                "nro_solicitud" => $resultado['datos']
-            ];
-        } else {
-            $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
-        }
-    } catch (Exception $e) {
-        $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
-    }
-    
-    echo json_encode($response);
-    exit;
-}
+        try {
+            $solicitud->set_motivo($_POST["motivo"]);
+            $solicitud->set_cedula_solicitante($_POST["cedula"]);
+            $solicitud->set_id_equipo($_POST["serial"] ?: null);
 
-// Consultar solicitudes eliminadas
-if (isset($_POST["consultar_eliminadas"])) {
-    $resultado = $solicitud->Transaccion(['peticion' => "consultar_eliminadas"]);
-    header('Content-Type: application/json');
-    echo json_encode($resultado);
-    exit;
-}
+            $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
 
-// Restaurar solicitud eliminada
-if (isset($_POST["restaurar"])) {
-    $solicitud->set_nro_solicitud($_POST['nrosol']);
-    $resultado = $solicitud->Transaccion(['peticion' => "restaurar"]);
-    header('Content-Type: application/json');
-    echo json_encode($resultado);
-    exit;
-}
-
-// Eliminación de solicitud
-if (isset($_POST["eliminar"])) {
-    header('Content-Type: application/json');
-    
-    try {
-        $solicitud->set_nro_solicitud($_POST['nrosol']);
-        $resultado = $solicitud->Transaccion(['peticion' => "eliminar"]);
-        
-        if ($resultado['bool']) {
-            $response = ["resultado" => "success", "mensaje" => $resultado['mensaje']];
-        } else {
-            $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
-        }
-    } catch (Exception $e) {
-        $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
-    }
-    
-    echo json_encode($response);
-    exit;
-}
-
-if (isset($_POST["modificar"])) {
-    header('Content-Type: application/json');
-    
-    try {
-        // Verificar que todos los campos requeridos estén presentes
-        if (!isset($_POST["nroSolicitud"]) || empty($_POST["nroSolicitud"])) {
-            throw new Exception("Número de solicitud no especificado");
-        }
-
-        $solicitud->set_nro_solicitud($_POST["nroSolicitud"]);
-        $solicitud->set_motivo($_POST["motivo"]);
-        $solicitud->set_cedula_solicitante($_POST["cedula"]);
-        $solicitud->set_id_equipo(isset($_POST["serial"]) ? $_POST["serial"] : null);
-        
-        $resultado = $solicitud->Transaccion(['peticion' => "actualizar"]);
-        
-        if ($resultado['bool']) {
-            // Solo actualizar hoja de servicio si se proporciona un área
-            if (isset($_POST["area"]) && !empty($_POST["area"])) {
-                $hojaServicio->set_nro_solicitud($_POST["nroSolicitud"]);
+            if ($resultado['bool']) {
+                // Crear hoja de servicio asociada
+                $hojaServicio->set_nro_solicitud($resultado['datos']);
                 $hojaServicio->set_id_tipo_servicio($_POST["area"]);
                 // Nuevo: asignar técnico si viene
                 if (!empty($_POST["tecnico"])) {
                     $hojaServicio->set_cedula_tecnico($_POST["tecnico"]);
                 }
-                // Primero consultar si ya existe una hoja para esta solicitud
-                $consultaHoja = $hojaServicio->Transaccion([
-                    'peticion' => 'consultar_por_solicitud',
-                    'nro_solicitud' => $_POST["nroSolicitud"]
-                ]);
-                
-                if ($consultaHoja['resultado'] === 'success' && !empty($consultaHoja['datos'])) {
-                    // Si existe, actualizarla
-                    $hojaServicio->set_codigo_hoja_servicio($consultaHoja['datos']['codigo_hoja_servicio']);
-                    $resultHoja = $hojaServicio->Transaccion(['peticion' => "actualizar"]);
-                } else {
-                    // Si no existe, crear una nueva
-                    $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
-                }
-                
-                if ($resultHoja['resultado'] !== 'success') {
-                    throw new Exception("Error al actualizar hoja de servicio: ".$resultHoja['mensaje']);
-                }
-            }
-            
-            $response = [
-                "resultado" => "success",
-                "mensaje" => "Solicitud actualizada correctamente",
-                "nro_solicitud" => $_POST["nroSolicitud"]
-            ];
-        } else {
-            $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
-        }
-    } catch (Exception $e) {
-        $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
-    }
-    
-    echo json_encode($response);
-    exit;
-}
+                $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
 
-// Generación de reportes
-if (isset($_POST["reporte"])) {
+                if ($resultHoja['resultado'] !== 'success') {
+                    throw new Exception("Error al crear hoja de servicio: " . $resultHoja['mensaje']);
+                }
+
+                $response = [
+                    "resultado" => "success",
+                    "mensaje" => "Solicitud y hoja de servicio registradas correctamente",
+                    "nro_solicitud" => $resultado['datos']
+                ];
+            } else {
+                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+            }
+        } catch (Exception $e) {
+            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
+
+    // Consultar solicitudes eliminadas
+    if (isset($_POST["consultar_eliminadas"])) {
+        $resultado = $solicitud->Transaccion(['peticion' => "consultar_eliminadas"]);
+        header('Content-Type: application/json');
+        echo json_encode($resultado);
+        exit;
+    }
+
+    // Restaurar solicitud eliminada
+    if (isset($_POST["restaurar"])) {
+        $solicitud->set_nro_solicitud($_POST['nrosol']);
+        $resultado = $solicitud->Transaccion(['peticion' => "restaurar"]);
+        header('Content-Type: application/json');
+        echo json_encode($resultado);
+        exit;
+    }
+
+    // Eliminación de solicitud
+    if (isset($_POST["eliminar"])) {
+        header('Content-Type: application/json');
+
+        try {
+            $solicitud->set_nro_solicitud($_POST['nrosol']);
+            $resultado = $solicitud->Transaccion(['peticion' => "eliminar"]);
+
+            if ($resultado['bool']) {
+                $response = ["resultado" => "success", "mensaje" => $resultado['mensaje']];
+            } else {
+                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+            }
+        } catch (Exception $e) {
+            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
+
+    if (isset($_POST["modificar"])) {
+        header('Content-Type: application/json');
+
+        try {
+            // Verificar que todos los campos requeridos estén presentes
+            if (!isset($_POST["nroSolicitud"]) || empty($_POST["nroSolicitud"])) {
+                throw new Exception("Número de solicitud no especificado");
+            }
+
+            $solicitud->set_nro_solicitud($_POST["nroSolicitud"]);
+            $solicitud->set_motivo($_POST["motivo"]);
+            $solicitud->set_cedula_solicitante($_POST["cedula"]);
+            $solicitud->set_id_equipo(isset($_POST["serial"]) ? $_POST["serial"] : null);
+
+            $resultado = $solicitud->Transaccion(['peticion' => "actualizar"]);
+
+            if ($resultado['bool']) {
+                // Solo actualizar hoja de servicio si se proporciona un área
+                if (isset($_POST["area"]) && !empty($_POST["area"])) {
+                    $hojaServicio->set_nro_solicitud($_POST["nroSolicitud"]);
+                    $hojaServicio->set_id_tipo_servicio($_POST["area"]);
+                    // Nuevo: asignar técnico si viene
+                    if (!empty($_POST["tecnico"])) {
+                        $hojaServicio->set_cedula_tecnico($_POST["tecnico"]);
+                    }
+                    // Primero consultar si ya existe una hoja para esta solicitud
+                    $consultaHoja = $hojaServicio->Transaccion([
+                        'peticion' => 'consultar_por_solicitud',
+                        'nro_solicitud' => $_POST["nroSolicitud"]
+                    ]);
+
+                    if ($consultaHoja['resultado'] === 'success' && !empty($consultaHoja['datos'])) {
+                        // Si existe, actualizarla
+                        $hojaServicio->set_codigo_hoja_servicio($consultaHoja['datos']['codigo_hoja_servicio']);
+                        $resultHoja = $hojaServicio->Transaccion(['peticion' => "actualizar"]);
+                    } else {
+                        // Si no existe, crear una nueva
+                        $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
+                    }
+
+                    if ($resultHoja['resultado'] !== 'success') {
+                        throw new Exception("Error al actualizar hoja de servicio: " . $resultHoja['mensaje']);
+                    }
+                }
+
+                $response = [
+                    "resultado" => "success",
+                    "mensaje" => "Solicitud actualizada correctamente",
+                    "nro_solicitud" => $_POST["nroSolicitud"]
+                ];
+
+                if (!empty($_POST["tecnico"])) {
+                    $Nmsg = "Tienes un nuevo servicio con la solicitud: " . $_POST["nroSolicitud"];
+                    Notificar($Nmsg, "Solicitud", $_POST["tecnico"]);
+                }
+                
+                $Nmsg = "Se esta atendiendo su solicitud nro: " . $_POST["nroSolicitud"] . " y se direccionó al Servicio de: " . $_POST["area"];
+                Notificar($Nmsg, "Solicitud", $_POST["cedula"]);
+
+            } else {
+                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+            }
+        } catch (Exception $e) {
+            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
+
+    // Generación de reportes
+    if (isset($_POST["reporte"])) {
         require_once "vendor/autoload.php";
         $dompdf = new Dompdf\Dompdf();
 

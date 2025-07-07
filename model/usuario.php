@@ -19,10 +19,10 @@ class Usuario extends Conexion
     public function __construct()
     {
         $this->cedula = "";
-        $this->nombre_usuario = "";
+        $this->nombre_usuario = NULL;
         $this->nombres = "";
         $this->apellidos = "";
-        $this->correo = "";
+        $this->correo = NULL;
         $this->telefono = "";
         $this->clave = "";
         $this->tipo = "";
@@ -302,7 +302,6 @@ class Usuario extends Conexion
                     $dato['bool'] = 0;
                 }
                 $dato['resultado'] = "validar";
-                $dato['estado'] = 1;
                 $this->conexion->commit();
 
             } catch (PDOException $e) {
