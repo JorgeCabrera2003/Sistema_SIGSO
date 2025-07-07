@@ -1,0 +1,12 @@
+
+sigso.sistema@gmail.com
+ 
+Nombre: SIGSO
+
+Fecha de NAciomiento: 01/01/2000
+
+clave: sistemasigso
+
+correo de recuperacion: mbokor474@gmail.com
+
+****** cambiar correo de recuperacion, y telefono afiliado********
