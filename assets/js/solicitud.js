@@ -3,6 +3,73 @@ $(document).ready(function () {
     inicializarComponentes();
     cargarDatosIniciales();
     configurarEventos();
+
+    // Arrays de palabras clave para cada área de servicio
+    const palabrasClave = {
+        soporte: ['computador', 'pc', 'equipo', 'laptop', 'monitor', 'teclado', 'mouse', 'impresora', 'software', 'windows', 'office', 'excel', 'word', 'encender', 'apagar', 'reiniciar', 'pantalla', 'sonido', 'altavoz', 'bocina', 'disco', 'ram', 'procesador', 'virus', 'antivirus', 'lentitud', 'internet', 'navegador', 'chrome', 'firefox', 'aplicación', 'programa', 'instalar', 'desinstalar'],
+        electronica: ['circuito', 'soldadura', 'multímetro', 'osciloscopio', 'fuente', 'alimentación', 'voltaje', 'corriente', 'resistencia', 'capacitor', 'diodo', 'transistor', 'placa', 'pcb', 'protoboard', 'arduino', 'raspberry', 'microcontrolador', 'sensor', 'actuador', 'motor', 'reparación', 'corto circuito', 'quemado', 'falla eléctrica'],
+        telefonia: ['teléfono', 'celular', 'central', 'pbx', 'extensión', 'tono', 'llamada', 'marcar', 'auricular', 'handset', 'voip', 'ip', 'sip', 'conmutador', 'interno', 'externo', 'fax', 'conferencia', 'buzón', 'mensaje', 'contestador', 'inalámbrico', 'inalambrico', 'inalámbrica', 'inalambrica', 'senitel', 'senitel'],
+        redes: ['red', 'wifi', 'ethernet', 'cable', 'conexión', 'conexion', 'ip', 'dns', 'dhcp', 'router', 'switch', 'acceso', 'inalámbrico', 'inalambrico', 'punto', 'acceso', 'velocidad', 'ping', 'latencia', 'caída', 'caida', 'intermitente', 'cortes', 'cortes', 'proxy', 'vpn', 'firewall', 'servidor', 'dominio', 'dominio']
+    };
+
+     function detectarAreaPorMotivo(motivo) {
+        // Convertir a minúsculas y eliminar acentos
+        const texto = motivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        // Contador de coincidencias
+        const conteo = {
+            soporte: 0,
+            electronica: 0,
+            telefonia: 0,
+            redes: 0
+        };
+
+        // Contar coincidencias para cada área
+        for (const area in palabrasClave) {
+            palabrasClave[area].forEach(palabra => {
+                const palabraNormalizada = palabra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const regex = new RegExp(`\\b${palabraNormalizada}\\b`, 'i');
+                if (regex.test(texto)) {
+                    conteo[area]++;
+                }
+            });
+        }
+
+        // Encontrar el área con más coincidencias
+        let areaSeleccionada = 'soporte'; // Valor por defecto
+        let maxCoincidencias = 0;
+
+        for (const area in conteo) {
+            if (conteo[area] > maxCoincidencias) {
+                maxCoincidencias = conteo[area];
+                areaSeleccionada = area;
+            }
+        }
+
+        // Mapear el nombre del área al ID correspondiente
+        const mapAreaToId = {
+            'soporte': 1,
+            'redes': 2,
+            'telefonia': 3,
+            'electronica': 4
+        };
+
+        return mapAreaToId[areaSeleccionada];
+    }
+
+    // Evento para el campo motivo
+    $('#motivo').on('input', function() {
+        validarMotivo($(this).val());
+        
+        // Solo detectar área si la solicitud está pendiente y no se ha seleccionado un área manualmente
+        const estadoSolicitud = $('#estado_solicitud').val() || 'Pendiente';
+        if (estadoSolicitud === 'Pendiente' && !$('#area').val()) {
+            const areaId = detectarAreaPorMotivo($(this).val());
+            if (areaId) {
+                $('#area').val(areaId).trigger('change');
+            }
+        }
+    });
 });
 
 function inicializarComponentes() {
@@ -92,9 +159,6 @@ function inicializarComponentes() {
             </button>
             <button class="btn btn-sm btn-danger" onclick="rellenarSolicitud(this, 1)" title="Eliminar solicitud">
                 <i class="fa-solid fa-trash"></i>
-            </button>
-            <button class="btn btn-sm btn-info" onclick="redireccionarHoja(${row.ID})" title="Redireccionar hoja">
-                <i class="fa-solid fa-share"></i>
             </button>
         </div>`;
                 },
@@ -186,9 +250,17 @@ function configurarEventos() {
     });
 
     // Validación del campo motivo
-    $('#motivo').on('input', function () {
-        validarMotivo($(this).val());
-    });
+    $('#motivo').on('input', function() {
+    validarMotivo($(this).val());
+    
+    // Solo detectar área si la solicitud está pendiente y no se ha seleccionado un área manualmente
+    if ($('#estado_solicitud').val() === 'Pendiente' && !$('#area').val()) {
+        const areaId = detectarAreaPorMotivo($(this).val());
+        if (areaId) {
+            $('#area').val(areaId).trigger('change');
+        }
+    }
+});
 
     // Reemplazar botón de actualizar por solicitudes eliminadas
     $('#btn-solicitudes-eliminadas').on('click', function () {
@@ -239,11 +311,11 @@ function TablaEliminados(arreglo) {
     $('#tablaEliminadas').DataTable({
         data: arreglo,
         columns: [
-            { data: 'nro_solicitud' },
-            { data: 'solicitante' },
-            { data: 'cedula' },
-            { data: 'dependencia' },
-            { data: 'motivo' },
+            {data: 'nro_solicitud'},
+            {data: 'solicitante'},
+            {data: 'cedula'},
+            {data: 'dependencia'},
+            {data: 'motivo'},
             {
                 data: null,
                 render: function (data, type, row) {
@@ -253,7 +325,7 @@ function TablaEliminados(arreglo) {
                 }
             }
         ],
-       language: {
+        language: {
             "decimal": "",
             "emptyTable": "No hay datos disponibles en la tabla",
             "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -330,12 +402,19 @@ async function rellenarSolicitud(pos, accion) {
     try {
         const linea = $(pos).closest('tr');
         const idSolicitud = linea.find("td:eq(0)").text();
+        const estado = linea.find("td:eq(6)").text().trim();
+
+        // Agregar campo oculto para el estado
+        if (!$('#estado_solicitud').length) {
+            $('#formSolicitud').append('<input type="hidden" id="estado_solicitud" name="estado">');
+        }
+        $('#estado_solicitud').val(estado);
 
         // Consultar datos completos de la solicitud y hoja de servicio
         const response = await $.ajax({
             url: '',
             type: 'POST',
-            data: { action: 'consultar_por_id', id: idSolicitud },
+            data: {action: 'consultar_por_id', id: idSolicitud},
             dataType: 'json'
         });
 
@@ -361,23 +440,35 @@ async function rellenarSolicitud(pos, accion) {
         await cargarDependencias();
         if (datos.id_dependencia) {
             $('#dependencia').val(datos.id_dependencia).trigger('change');
-            // Cargar solicitantes y equipos para la dependencia
-            await cargarSolicitantes(datos.id_dependencia);
-            await cargarEquipos(datos.id_dependencia);
-        }
 
-        // Seleccionar solicitante y equipo si existen
-        if (datos.cedula_solicitante) {
-            $('#solicitante').val(datos.cedula_solicitante);
-        }
-        if (datos.id_equipo) {
-            $('#equipo').val(datos.id_equipo);
+            // Esperar a que se carguen los solicitantes y equipos
+            await Promise.all([
+                cargarSolicitantes(datos.id_dependencia),
+                cargarEquipos(datos.id_dependencia)
+            ]);
+
+            // Seleccionar solicitante y equipo si existen
+            if (datos.cedula_solicitante) {
+                $('#solicitante').val(datos.cedula_solicitante).trigger('change');
+
+                // Cargar equipos específicos del solicitante
+                await cargarEquiposPorSolicitante(datos.cedula_solicitante);
+                if (datos.id_equipo) {
+                    $('#equipo').val(datos.id_equipo).trigger('change');
+                }
+            }
         }
 
         // Cargar áreas y seleccionar la correspondiente
         await cargarAreas();
         if (datos.id_tipo_servicio) {
-            $('#area').val(datos.id_tipo_servicio);
+            $('#area').val(datos.id_tipo_servicio).trigger('change');
+
+            // Cargar técnicos del área seleccionada
+            await cargarTecnicosPorArea(datos.id_tipo_servicio);
+            if (datos.cedula_tecnico) {
+                $('#tecnico').val(datos.cedula_tecnico).trigger('change');
+            }
         }
 
         // Rellenar otros campos
@@ -393,12 +484,56 @@ async function rellenarSolicitud(pos, accion) {
     }
 }
 
+function detectarAreaPorMotivo(motivo) {
+    // Convertir a minúsculas y eliminar acentos
+    const texto = motivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Contador de coincidencias
+    const conteo = {
+        soporte: 0,
+        electronica: 0,
+        telefonia: 0,
+        redes: 0
+    };
+
+    // Contar coincidencias para cada área
+    for (const area in palabrasClave) {
+        palabrasClave[area].forEach(palabra => {
+            const regex = new RegExp(`\\b${palabra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}\\b`, 'i');
+            if (regex.test(texto)) {
+                conteo[area]++;
+            }
+        });
+    }
+
+    // Encontrar el área con más coincidencias
+    let areaSeleccionada = 'soporte'; // Valor por defecto
+    let maxCoincidencias = 0;
+
+    for (const area in conteo) {
+        if (conteo[area] > maxCoincidencias) {
+            maxCoincidencias = conteo[area];
+            areaSeleccionada = area;
+        }
+    }
+
+    // Mapear el nombre del área al ID correspondiente
+    const mapAreaToId = {
+        'soporte': 1,
+        'redes': 2,
+        'telefonia': 3,
+        'electronica': 4
+    };
+
+    return mapAreaToId[areaSeleccionada];
+}
+
 function buscarSelect(selector, valor, tipoBusqueda = "text") {
     const $select = $(selector);
     let encontrado = false;
     let valorEncontrado = null;
 
-    $select.find("option").each(function() {
+    $select.find("option").each(function () {
         const optionText = $(this).text();
         const optionValue = $(this).val();
 
@@ -532,12 +667,12 @@ async function cargarAreas() {
     }
 }
 
-    $('#btn-nueva-solicitud').on('click', function () {
-        limpiarFormulario();
-        $('#modalSolicitud').modal('show');
-        $('#modalSolicitudLabel').text('Nueva Solicitud');
-        $('#btnGuardar').text('Guardar').attr('name', 'registrar');
-    });
+$('#btn-nueva-solicitud').on('click', function () {
+    limpiarFormulario();
+    $('#modalSolicitud').modal('show');
+    $('#modalSolicitudLabel').text('Nueva Solicitud');
+    $('#btnGuardar').text('Guardar').attr('name', 'registrar');
+});
 
 // Nueva función para cargar técnicos por área
 async function cargarTecnicosPorArea(areaId) {
@@ -583,7 +718,7 @@ function enviarFormulario() {
     if (validarFormulario()) {
         const formData = new FormData($('#formSolicitud')[0]);
         const accion = $('#btnGuardar').attr('name');
-        
+
         // Asegurarnos de incluir el nroSolicitud aunque esté oculto
         if ($('#nroSolicitud').val()) {
             formData.append('nroSolicitud', $('#nroSolicitud').val());
@@ -592,7 +727,7 @@ function enviarFormulario() {
         if ($('#tecnico').val()) {
             formData.set('tecnico', $('#tecnico').val());
         }
-        
+
         formData.append(accion, accion);
 
         $.ajax({
@@ -808,7 +943,7 @@ async function cargarEquiposPorSolicitante(cedula) {
 }
 
 // Función para mostrar modal de redirección
-window.redireccionarHoja = function(idHoja) {
+window.redireccionarHoja = function (idHoja) {
     // Puedes crear un modal dinámico o reutilizar uno existente
     // Aquí solo ejemplo básico
     Swal.fire({
@@ -834,19 +969,19 @@ window.redireccionarHoja = function(idHoja) {
                 Swal.showValidationMessage('Seleccione área y técnico destino');
                 return false;
             }
-            return { area, tecnico };
+            return {area, tecnico};
         },
         didOpen: () => {
-            $('#areaDestino').on('change', function() {
+            $('#areaDestino').on('change', function () {
                 // Cargar técnicos del área seleccionada
                 const areaId = $(this).val();
                 if (!areaId) return;
                 $.ajax({
                     url: '',
                     type: 'POST',
-                    data: { action: 'load_tecnicos_por_area', area_id: areaId },
+                    data: {action: 'load_tecnicos_por_area', area_id: areaId},
                     dataType: 'json',
-                    success: function(resp) {
+                    success: function (resp) {
                         const $tec = $('#tecnicoDestino');
                         $tec.empty().append('<option value="">Seleccione técnico destino</option>');
                         if (resp.resultado === 'success' && Array.isArray(resp.datos)) {
@@ -871,7 +1006,7 @@ window.redireccionarHoja = function(idHoja) {
                     tecnico_destino: result.value.tecnico
                 },
                 dataType: 'json',
-                success: function(resp) {
+                success: function (resp) {
                     if (resp.resultado === 'success') {
                         mostrarExito('Hoja redireccionada correctamente');
                         recargarTabla();
@@ -879,7 +1014,7 @@ window.redireccionarHoja = function(idHoja) {
                         mostrarError(resp.mensaje || 'Error al redireccionar');
                     }
                 },
-                error: function() {
+                error: function () {
                     mostrarError('Error al redireccionar');
                 }
             });

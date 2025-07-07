@@ -86,14 +86,18 @@ class Solicitud extends Conexion
     /**
      * Registra una nueva solicitud
      */
-    private function registrarSolicitud()
-{
+    private function registrarSolicitud() {
     $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => -1];
 
     try {
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
         $this->conex->beginTransaction();
+
+        // Detectar área automáticamente si no se especificó
+        if (empty($this->id_tipo_servicio)) {
+            $this->id_tipo_servicio = $this->detectarAreaPorMotivo($this->motivo);
+        }
 
         $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
                 VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', :estatus)";
@@ -167,6 +171,49 @@ class Solicitud extends Conexion
         $this->Cerrar_Conexion($this->conex, $stmt);
         return $datos;
     }
+
+    private function detectarAreaPorMotivo($motivo)
+    {
+        $palabrasClave = [
+            'soporte' => ['computador', 'pc', 'equipo', 'laptop', 'monitor', 'teclado', 'mouse', 'impresora', 'software'],
+            'electronica' => ['circuito', 'soldadura', 'multímetro', 'osciloscopio', 'fuente', 'alimentación'],
+            'telefonia' => ['teléfono', 'celular', 'central', 'pbx', 'extensión', 'tono'],
+            'redes' => ['red', 'wifi', 'ethernet', 'cable', 'conexión', 'ip', 'dns', 'dhcp']
+        ];
+
+        $texto = mb_strtolower($this->quitarAcentos($motivo));
+        $conteo = array_fill_keys(array_keys($palabrasClave), 0);
+
+        foreach ($palabrasClave as $area => $palabras) {
+            foreach ($palabras as $palabra) {
+                $palabra = $this->quitarAcentos($palabra);
+                if (preg_match("/\b$palabra\b/i", $texto)) {
+                    $conteo[$area]++;
+                }
+            }
+        }
+
+        $areaSeleccionada = array_search(max($conteo), $conteo);
+
+        $mapAreaToId = [
+            'soporte' => 1,
+            'redes' => 2,
+            'telefonia' => 3,
+            'electronica' => 4
+        ];
+
+        return $mapAreaToId[$areaSeleccionada] ?? 1; // Default a soporte técnico
+    }
+
+    private function quitarAcentos($texto)
+    {
+        return str_replace(
+            ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ'],
+            ['a', 'e', 'i', 'o', 'u', 'u', 'n'],
+            $texto
+        );
+    }
+
 
     /**
      * Valida si existe una solicitud
