@@ -168,7 +168,7 @@ function capaValidar() {
 	});
 
 	$("#cedula").on("keypress", function (e) {
-		validarKeyPress(/^[-0-9V\B]*$/, e);
+		validarKeyPress(/^[-0-9VE\B]*$/, e);
 	});
 	$("#cedula").on("keyup", function () {
 		validarKeyUp(
@@ -201,7 +201,7 @@ function capaValidar() {
 		validarKeyPress(/^[-0-9a-z_.@\b]*$/, e);
 	});
 	$("#correo").on("keyup", function () {
-		validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
+		validarKeyUp(/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
 			"El formato del correo electrónico es: usuario@servidor.com"
 		);
 	});
@@ -283,7 +283,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"),
+	} else if (validarKeyUp(/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"),
 		"") == 0) {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;

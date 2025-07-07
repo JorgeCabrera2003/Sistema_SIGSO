@@ -3,20 +3,24 @@
 const roles = [
     [
         'id' => 1,
-        'SUPERUSUARIO' => 'usuario'
+        'rol' => 'SUPERUSUARIO'
     ],
     [
         'id' => 2,
-        'ADMINISTRADOR' => 'rol'
+        'rol' => 'ADMINISTRADOR'
     ],
     [
         'id' => 3,
-        'TECNICO' => 'rol'
+        'rol' => 'TECNICO'
     ],
     [
         'id' => 4,
-        'SECRETARIA' => 'rol'
+        'rol' => 'SECRETARIA'
     ],
+    [
+        'id' => 5,
+        'rol' => 'SOLICITANTE'
+    ]
 ];
 
 ?>

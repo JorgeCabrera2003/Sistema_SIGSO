@@ -250,7 +250,7 @@ function capaValidar() {
 
 
 	$("#cedula").on("keypress", function (e) {
-		validarKeyPress(/^[-0-9V\B]*$/, e);
+		validarKeyPress(/^[-0-9VE\B]*$/, e);
 	});
 	$("#cedula").on("keyup", function () {
 		validarKeyUp(
@@ -260,7 +260,7 @@ function capaValidar() {
 	});
 
 	$("#nombre").on("keypress", function (e) {
-		validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\b]*$/, e);
+		validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ \b]*$/, e);
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
@@ -284,7 +284,7 @@ function capaValidar() {
 	});
 	$("#correo").on("keyup", function () {
 		validarKeyUp(
-			/^[-0-9a-zç_]{10,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
+			/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
 			"El formato del correo electrónico es: usuario@servidor.com"
 		);
 	});
@@ -346,7 +346,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El numero de teléfono debe tener el siguiente formato: ****-*******");
 		return false;
 
-	} else if (validarKeyUp(/^[-0-9a-zç_]{10,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
+	} else if (validarKeyUp(/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;
 

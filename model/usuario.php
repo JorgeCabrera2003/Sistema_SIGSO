@@ -195,7 +195,7 @@ class Usuario extends Conexion
         return $dato;
     }
 
-        private function ModificarUsuario_Empleado()
+    private function ModificarUsuario_Empleado()
     {
         $dato = [];
         try {
@@ -204,7 +204,7 @@ class Usuario extends Conexion
             $this->conex->beginTransaction();
             $query = "UPDATE usuario SET
                 nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
-                correo = :correo WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
+                correo = :correo WHERE cedula = :cedula";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
@@ -222,7 +222,7 @@ class Usuario extends Conexion
                 $dato['mensaje'] = "Error al modificar Usuario";
                 $dato['bool'] = 0;
             }
-            $dato['resultado'] = "modificar";
+            $dato['resultado'] = "modificar_empleado";
             $dato['estado'] = 1;
 
         } catch (PDOException $e) {
@@ -474,6 +474,10 @@ class Usuario extends Conexion
             case 'modificar':
 
                 return $this->ModificarUsuario();
+
+            case 'modificar_empleado':
+
+                return $this->ModificarUsuario_Empleado();
 
             case 'eliminar':
 
