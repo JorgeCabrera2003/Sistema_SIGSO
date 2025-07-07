@@ -137,9 +137,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         try {
-            if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 3) {
-                throw new Exception('No tiene permisos para esta acción');
-            }
+            
 
             // Validar datos requeridos
             if (empty($_POST["codigo_hoja_servicio"])) {
@@ -174,9 +172,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST['redireccionar'])) {
         try {
-            if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 2 || $_SESSION['user']['id_rol'] != 3) {
-                throw new Exception('No tiene permisos para esta acción');
-            }
+            
 
             // Validar datos requeridos
             if (empty($_POST['codigo_hoja_servicio']) || empty($_POST['area_destino'])) {
