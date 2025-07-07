@@ -2,6 +2,7 @@ $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
+	cargarTecnico();
 
 	$("#enviar").on("click", async function () {
 		var confirmacion = false;
@@ -16,6 +17,7 @@ $(document).ready(function () {
 						var datos = new FormData();
 						datos.append('registrar', 'registrar');
 						datos.append('nombre', $("#nombre").val());
+						datos.append('encargado', $("#encargado").val());
 						enviaAjax(datos);
 					}
 				}
@@ -28,6 +30,7 @@ $(document).ready(function () {
 						datos.append('modificar', 'modificar');
 						datos.append('id_servicio', $("#id_servicio").val());
 						datos.append('nombre', $("#nombre").val());
+						datos.append('encargado', $("#encargado").val());
 						enviaAjax(datos);
 					}
 				}
@@ -69,6 +72,12 @@ $(document).ready(function () {
 	}); //<----Fin Evento del Boton Registrar
 });
 
+function cargarTecnico() {
+	var datos = new FormData();
+	datos.append('listar_tecnicos', 'listar_tecnicos');
+	enviaAjax(datos);
+}
+
 function enviaAjax(datos) {
 	$.ajax({
 		async: true,
@@ -104,6 +113,9 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
+				} else if (lee.resultado == "listar_tecnicos") {
+					selectTecnico(lee.datos);
+
 				} else if (lee.resultado == "permisos_modulo") {
 					vistaPermiso(lee.permisos);
 
@@ -138,16 +150,30 @@ function capaValidar() {
 			"El nombre del edificio debe tener de 4 a 45 carácteres"
 		);
 	});
+
+	$('#encargado').on('change', function () {
+
+		if ($(this).val() === 'default') {
+
+			estadoSelect(this, '#sencargado', "Seleccione un Encargado", 0);
+		} else {
+			estadoSelect(this, '#sencargado', "", 1);
+		}
+	});
 }
 
 function validarenvio() {
-	
+
 	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre de la marca debe tener de 4 a 45 carácteres");
 		return false;
 
+	} else if ($('#encargado').val() === 'default') {
+		mensajes("error", 10000, "Verifica", "Seleccione una dependencia");
+		return false;
+	} else {
+		return true;
 	}
-	return true;
 }
 
 var tabla;
@@ -163,22 +189,47 @@ function iniciarTabla(arreglo) {
 
 function vistaPermiso(permisos = null) {
 
-if(Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null){
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 
-	$('.modificar').remove();
-	$('.eliminar').remove();
-
-} else {
-
-	if (permisos['tipo_servicio']['modificar']['estado'] == '0') {
 		$('.modificar').remove();
-	}
-
-	if (permisos['tipo_servicio']['eliminar']['estado'] == '0') {
 		$('.eliminar').remove();
+
+	} else {
+
+		if (permisos['tipo_servicio']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['tipo_servicio']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+	}
+};
+
+function selectTecnico(arreglo) {
+	$("#encargado").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+
+		$("#encargado").append(
+			new Option('Seleccione un Encargado', 'default')
+		);
+		$("#encargado").append(
+			new Option('No asignar', '')
+		);
+		arreglo.forEach(item => {
+			$("#encargado").append(
+				new Option(item.nombre_completo, item.cedula_empleado)
+			);
+		});
+	} else {
+		$("#encargado").append(
+			new Option('No Hay Encargados', 'default')
+		);
+		$("#encargado").append(
+			new Option('No asignar', '')
+		);
 	}
 }
-};
 
 function crearDataTable(arreglo) {
 
@@ -188,6 +239,8 @@ function crearDataTable(arreglo) {
 		columns: [
 			{ data: 'id_tipo_servicio' },
 			{ data: 'nombre_tipo_servicio' },
+			{ data: 'cedula_encargado' },
+			{ data: 'encargado' },
 			{
 				data: null, render: function () {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -199,7 +252,7 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-ConsultarPermisos();
+	ConsultarPermisos();
 }
 
 

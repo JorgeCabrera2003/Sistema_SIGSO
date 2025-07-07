@@ -412,6 +412,7 @@ class Empleado extends Conexion
     // Nuevo método para obtener información de técnicos por área
     private function listar_tecnicos()
     {
+        $datos = [];
         try {
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
@@ -426,12 +427,15 @@ class Empleado extends Conexion
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
+            $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC); 
             $this->conex->commit();
-            return ['resultado' => 'success', 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)];
+            $datos['resultado'] = "listar_tecnicos"; 
         } catch (PDOException $e) {
             $this->conex->rollBack();
-            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+             $datos['resultado'] = 'error';
+             $datos['mensaje'] = $e->getMessage();
         }
+        return $datos;
     }
 
     // Nuevo método para obtener información de un técnico específico

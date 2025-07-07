@@ -8,13 +8,14 @@ ob_start();
 if (is_file("view/" . $page . ".php")) {
 	require_once "controller/utileria.php";
 	require_once "model/tipo_servicio.php";
+	require_once "model/empleado.php";
 
 
 	$titulo = "Gestionar Tipo de Servicio";
-	$cabecera = array('#', "Nombre", "Modificar/Eliminar");
+	$cabecera = array('#', "Nombre del Servicio", "Cédula", "Nombre del Encargado", "Modificar/Eliminar");
 
 	$tipo_servicio = new TipoServicio();
-
+	$empleado = new Empleado();
 
 	if (!isset($permisos['tipo_servicio']['ver']['estado']) || $permisos['tipo_servicio']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Tipo de Servicio";
@@ -41,6 +42,7 @@ if (is_file("view/" . $page . ".php")) {
 
 			} else {
 				$tipo_servicio->set_nombre($_POST["nombre"]);
+				$tipo_servicio->set_encargado($_POST["encargado"]);
 				$peticion["peticion"] = "registrar";
 				$json = $tipo_servicio->Transaccion($peticion);
 
@@ -83,6 +85,7 @@ if (is_file("view/" . $page . ".php")) {
 			} else {
 				$tipo_servicio->set_codigo($_POST["id_servicio"]);
 				$tipo_servicio->set_nombre($_POST["nombre"]);
+				$tipo_servicio->set_encargado($_POST["encargado"]);
 				$peticion["peticion"] = "actualizar";
 				$json = $tipo_servicio->Transaccion($peticion);
 
@@ -113,7 +116,7 @@ if (is_file("view/" . $page . ".php")) {
 				$tipo_servicio->set_codigo($_POST["id_servicio"]);
 				$peticion["peticion"] = "eliminar";
 				$json = $tipo_servicio->Transaccion($peticion);
-				
+
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un servicio";
 				} else {
@@ -127,6 +130,14 @@ if (is_file("view/" . $page . ".php")) {
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Tipo de Servicio");
+		exit;
+	}
+
+	if (isset($_POST['listar_tecnicos'])) {
+		$peticion["peticion"] = "listar_tecnicos";
+		$json = $empleado->Transaccion($peticion);
+		$json['resultado'] = "listar_tecnicos";
+		echo json_encode($json);
 		exit;
 	}
 

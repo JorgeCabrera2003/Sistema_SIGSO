@@ -5,6 +5,7 @@ class TipoServicio extends Conexion
 
     private $id_tipo_servicio;
     private $nombre_tipo_servicio;
+    private $encargado;
 
 
     public function __construct()
@@ -22,6 +23,10 @@ class TipoServicio extends Conexion
     {
         $this->nombre_tipo_servicio = $nombre;
     }
+    public function set_encargado($encargado)
+    {
+        $this->encargado = $encargado;
+    }
 
     public function get_codigo()
     {
@@ -33,14 +38,18 @@ class TipoServicio extends Conexion
         return $this->nombre_tipo_servicio;
     }
 
+    public function get_encargado()
+    {
+        return $this->encargado;
+    }
 
     private function Validar()
     {
         $dato = [];
 
         try {
-             $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT * FROM tipo_servicio WHERE id_tipo_servicio = :codigo";
 
             $stm = $this->conex->prepare($query);
@@ -70,10 +79,11 @@ class TipoServicio extends Conexion
             try {
                 $this->conex = new Conexion("sistema");
                 $this->conex = $this->conex->Conex();
-                $query = "INSERT INTO tipo_servicio (nombre_tipo_servicio, estatus) VALUES (:nombre, 1)";
+                $query = "INSERT INTO tipo_servicio (nombre_tipo_servicio, cedula_encargado, estatus) VALUES (:nombre, :encargado, 1)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
+                $stm->bindParam(":encargado", $this->encargado);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
@@ -97,13 +107,14 @@ class TipoServicio extends Conexion
         $dato = [];
 
         try {
-             $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
-            $query = "UPDATE tipo_servicio SET nombre_tipo_servicio = :nombre WHERE id_tipo_servicio = :codigo";
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $query = "UPDATE tipo_servicio SET nombre_tipo_servicio = :nombre, cedula_encargado = :encargado WHERE id_tipo_servicio = :codigo";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo", $this->id_tipo_servicio);
             $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
+            $stm->bindParam(":encargado", $this->encargado);
             $stm->execute();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
@@ -119,7 +130,7 @@ class TipoServicio extends Conexion
 
     private function Eliminar()
     {
-         $this->conex = new Conexion("sistema");
+        $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
         $dato = [];
         $bool = $this->Validar();
@@ -153,12 +164,14 @@ class TipoServicio extends Conexion
         $dato = [];
 
         try {
-             $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
-            $query = "SELECT id_tipo_servicio, nombre_tipo_servicio 
-                 FROM tipo_servicio 
-                 WHERE estatus = 1
-                 ORDER BY nombre_tipo_servicio";
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $query = "SELECT ts.id_tipo_servicio, ts.nombre_tipo_servicio,
+            ts.cedula_encargado, CONCAT(emp.nombre_empleado,' ', emp.apellido_empleado) AS encargado
+            FROM tipo_servicio ts
+            LEFT JOIN empleado emp ON emp.cedula_empleado = ts.cedula_encargado
+            WHERE ts.estatus = 1
+            ORDER BY ts.nombre_tipo_servicio";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();

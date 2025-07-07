@@ -15,6 +15,14 @@
               <label for="nombre" class="form-label">Nombre del Servicio</label>
             </div>
           </div>
+          <div class="col-8">
+            <div class="form-floating mb-3 mt-4">
+              <select class="form-select" name="encargado" id="encargado">
+              </select>
+              <span id="sencargado"></span>
+              <label for="encargado" class="form-label">Seleccione un Encargado</label>
+            </div>
+          </div>
         </div>
       </div>
 
