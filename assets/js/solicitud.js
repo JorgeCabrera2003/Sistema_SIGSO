@@ -225,6 +225,7 @@ function cargarDatosIniciales() {
     cargarDependencias();
 }
 
+
 function configurarEventos() {
     // Evento para el botón de refrescar
     $('#btn-refrescar').on('click', function () {
