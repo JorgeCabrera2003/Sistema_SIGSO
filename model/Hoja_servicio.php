@@ -346,7 +346,6 @@ class HojaServicio extends Conexion
                 'mensaje' => 'Hoja de servicio finalizada exitosamente',
                 'codigo' => $this->codigo_hoja_servicio
             ];
-
         } catch (PDOException $e) {
             $this->conex->rollBack();
             error_log('Error en finalizarHojaServicio: ' . $e->getMessage());
@@ -958,84 +957,70 @@ class HojaServicio extends Conexion
     /**
      * Redirecciona una hoja de servicio a otro técnico/área
      */
-    private function redireccionar($area_destino, $tecnico_destino)
-{
+    private function redireccionar($area_destino, $tecnico_destino) {
     try {
-        // Obtener datos de la hoja original
-        $sql = "SELECT * FROM hoja_servicio WHERE codigo_hoja_servicio = :codigo";
+        $this->conex->beginTransaction();
+        
+        // 1. Verificar que la hoja original existe y no está ya redireccionada
+        $sql = "SELECT nro_solicitud FROM hoja_servicio 
+                WHERE codigo_hoja_servicio = :codigo 
+                AND redireccion IS NULL";
         $stmt = $this->conex->prepare($sql);
         $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
         $stmt->execute();
         $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
-
+        
         if (!$hoja) {
-            return ['resultado' => 'error', 'mensaje' => 'Hoja original no encontrada'];
+            throw new Exception("No se puede redireccionar esta hoja");
         }
-
-        // Verificar que no sea una redirección de una redirección
-        if ($hoja['redireccion'] !== null) {
-            return ['resultado' => 'error', 'mensaje' => 'No se puede redireccionar una hoja ya redireccionada'];
-        }
-
-        // Crear nueva hoja con los datos y los nuevos destino
-        $this->conex->beginTransaction();
+        
+        // 2. Crear nueva hoja redireccionada
         $sqlInsert = "INSERT INTO hoja_servicio 
-                      (nro_solicitud, id_tipo_servicio, redireccion, cedula_tecnico, estatus)
-                      VALUES (:nro_solicitud, :id_tipo_servicio, :redireccion, :cedula_tecnico, 'A')";
+                     (nro_solicitud, id_tipo_servicio, redireccion, cedula_tecnico, estatus)
+                     VALUES (:nro_solicitud, :id_tipo_servicio, :redireccion, :cedula_tecnico, 'A')";
         $stmtInsert = $this->conex->prepare($sqlInsert);
         $stmtInsert->bindParam(':nro_solicitud', $hoja['nro_solicitud'], PDO::PARAM_INT);
         $stmtInsert->bindParam(':id_tipo_servicio', $area_destino, PDO::PARAM_INT);
         $stmtInsert->bindParam(':redireccion', $this->codigo_hoja_servicio, PDO::PARAM_INT);
         $stmtInsert->bindParam(':cedula_tecnico', $tecnico_destino);
         $stmtInsert->execute();
-
+        
         $nuevoCodigo = $this->conex->lastInsertId();
-
-        // Copiar los detalles técnicos de la hoja original
-        $sqlDetalles = "INSERT INTO detalle_hoja 
-                        (codigo_hoja_servicio, componente, detalle, id_movimiento_material)
-                        SELECT :nuevo_codigo, componente, detalle, NULL 
-                        FROM detalle_hoja 
-                        WHERE codigo_hoja_servicio = :codigo_original";
-        $stmtDetalles = $this->conex->prepare($sqlDetalles);
-        $stmtDetalles->bindParam(':nuevo_codigo', $nuevoCodigo, PDO::PARAM_INT);
-        $stmtDetalles->bindParam(':codigo_original', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-        $stmtDetalles->execute();
-
+        
         $this->conex->commit();
-
+        
         return [
             'resultado' => 'success',
             'mensaje' => 'Hoja redireccionada correctamente',
             'codigo_nueva_hoja' => $nuevoCodigo
         ];
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         $this->conex->rollBack();
         return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
     }
 }
 
-private function obtenerTecnicosPorArea($areaId) {
-    try {
-        // Usando el procedimiento almacenado que ya existe en tu BD
-        $sql = "CALL obtener_tecnico_porArea(:area_param)";
-        $stmt = $this->conex->prepare($sql);
-        $stmt->bindParam(':area_param', $areaId, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $tecnicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return [
-            'resultado' => 'success',
-            'datos' => $tecnicos
-        ];
-    } catch (PDOException $e) {
-        return [
-            'resultado' => 'error', 
-            'mensaje' => 'Error al obtener técnicos: ' . $e->getMessage()
-        ];
+    private function obtenerTecnicosPorArea($areaId)
+    {
+        try {
+            $sql = "CALL obtener_tecnicos_por_servicio(:area_param)";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':area_param', $areaId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $tecnicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'resultado' => 'success',
+                'datos' => $tecnicos
+            ];
+        } catch (PDOException $e) {
+            return [
+                'resultado' => 'error',
+                'mensaje' => 'Error al obtener técnicos: ' . $e->getMessage()
+            ];
+        }
     }
-}
 
     /**
      * Maneja las transacciones del modelo
@@ -1143,5 +1128,4 @@ private function obtenerTecnicosPorArea($areaId) {
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
         }
     }
-
 }

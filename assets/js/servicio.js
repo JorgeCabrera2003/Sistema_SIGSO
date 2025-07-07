@@ -755,7 +755,7 @@ function redireccionarHoja(codigo) {
                                 if (response.resultado === 'success' && response.datos && response.datos.length > 0) {
                                     let options = '<option value="">Seleccione un técnico (opcional)</option>';
                                     response.datos.forEach(tecnico => {
-                                        options += `<option value="${tecnico.cedula_empleado}">${tecnico.nombre_empleado} ${tecnico.apellido_empleado || ''}</option>`;
+                                        options += `<option value="${tecnico.cedula_empleado}">${tecnico.nombre} ${tecnico.apellido || ''}</option>`;
                                     });
                                     $tecnicoSelect.html(options);
                                 } else {
