@@ -192,40 +192,35 @@ function inicializarTablaServicios() {
             {
                 data: null,
                 render: function (data, type, row) {
-                    let botones = `
-                        <button onclick="verDetalles(${row.codigo_hoja_servicio})" class="btn btn-info btn-sm" title="Ver Detalles">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>`;
-
-                    // Botón para tomar hoja (solo para técnicos y hojas no asignadas)
-                    if ((userData.rol === 'TECNICO' || userData.rol === 'SUPERUSUARIO') &&
-                        (!row.cedula_tecnico || row.cedula_tecnico === '') &&
-                        row.estatus === 'A') {
-                        botones += `
-                            <button onclick="tomarHoja(${row.codigo_hoja_servicio})" class="btn btn-primary btn-sm ms-1" title="Tomar Servicio">
-                                <i class="fa-solid fa-handshake-angle"></i>
+                    let buttons = `
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-info" onclick="verDetalles(${row.codigo_hoja_servicio})" title="Ver Detalles">
+                                <i class="fa fa-eye"></i>
+                            </button>`;
+                    
+                    // Only show edit/redirect buttons for active records
+                    if (row.estatus === 'A') {
+                        buttons += `
+                            <button class="btn btn-sm btn-primary" onclick="editarHoja(${row.codigo_hoja_servicio})" title="Editar">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="redireccionarHoja(${row.codigo_hoja_servicio})" title="Redireccionar">
+                                <i class="fa fa-share"></i>
                             </button>`;
                     }
-
-                    // Botones para superusuario o técnico asignado SOLO si la hoja está activa
-                    if (row.estatus === 'A') {
-                        if (userData.rol === 'SUPERUSUARIO') {
-                            botones += `
-                                <button onclick="editarHoja(${row.codigo_hoja_servicio})" class="btn btn-warning btn-sm ms-1" title="Editar">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button>
-                                <button onclick="eliminarHoja(${row.codigo_hoja_servicio})" class="btn btn-danger btn-sm ms-1" title="Eliminar">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>`;
-                        } else if (row.cedula_tecnico === userData.cedula && row.estatus === 'A') {
-                            // Si quieres permitir editar al técnico asignado, puedes agregar aquí el botón de editar
-                            // botones += ...;
-                        }
+                    
+                    // Only show delete button for superusers
+                    if (userData.id_rol == 1) {
+                        buttons += `
+                            <button class="btn btn-sm btn-danger" onclick="eliminarHoja(${row.codigo_hoja_servicio})" title="Eliminar">
+                                <i class="fa fa-trash"></i>
+                            </button>`;
                     }
-                    // Si la hoja está finalizada o eliminada, NO se muestran los botones de editar/eliminar
-
-                    return `<div class="btn-group">${botones}</div>`;
-                }
+                    
+                    buttons += `</div>`;
+                    return buttons;
+                },
+                orderable: false
             }
         ],
         responsive: true,
@@ -480,6 +475,16 @@ function verDetalles(codigo) {
         success: function (resp) {
             if (resp.resultado === 'success' && resp.datos) {
                 llenarModalDetalles(resp.datos);
+                
+                // Show/hide redirection button based on status and user role
+                if (userData.id_rol == 1 && resp.datos.estatus === 'A') {
+                    $('#btn-redireccionar').show().off('click').on('click', function() {
+                        redireccionarHoja(codigo);
+                    });
+                } else {
+                    $('#btn-redireccionar').hide();
+                }
+                
                 $('#modalDetalles').modal('show');
             } else {
                 mostrarError(resp.mensaje || 'No se encontraron datos');
@@ -698,6 +703,115 @@ function cargarDetallesHojaEdicion(codigo) {
         error: function () {
             $('#tablaDetallesModal tbody').empty();
             agregarFilaDetalle();
+        }
+    });
+}
+
+function redireccionarHoja(codigo) {
+    Swal.fire({
+        title: 'Redireccionar Hoja de Servicio',
+        html: `
+            <div class="mb-3">
+                <label for="areaDestino" class="form-label">Área de destino</label>
+                <select id="areaDestino" class="form-select">
+                    <option value="">Seleccione un área</option>
+                    ${$('#id_tipo_servicio').html()}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="tecnicoDestino" class="form-label">Técnico asignado</label>
+                <select id="tecnicoDestino" class="form-select" disabled>
+                    <option value="">Primero seleccione un área</option>
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Redireccionar',
+        cancelButtonText: 'Cancelar',
+        focusConfirm: false,
+        preConfirm: () => {
+            const area = $('#areaDestino').val();
+            if (!area) {
+                Swal.showValidationMessage('Debe seleccionar un área de destino');
+                return false;
+            }
+            const tecnico = $('#tecnicoDestino').val() || null;
+            return { area_destino: area, tecnico_destino: tecnico };
+        },
+        didOpen: () => {
+            // Estilos personalizados para los selects
+            $('#areaDestino, #tecnicoDestino').addClass('form-control');
+            $('#areaDestino').on('change', function() {
+                const areaId = $(this).val();
+                const $tecnicoSelect = $('#tecnicoDestino');
+                
+                if (areaId) {
+                    $tecnicoSelect.prop('disabled', true).html('<option value="">Cargando técnicos...</option>');
+                    
+                    $.ajax({
+                        url: '?page=servicios',
+                        type: 'POST',
+                        data: {
+                            peticion: 'obtener_tecnicos_por_area',
+                            area_id: areaId
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.resultado === 'success' && response.datos && response.datos.length > 0) {
+                                let options = '<option value="">Seleccione un técnico (opcional)</option>';
+                                response.datos.forEach(tecnico => {
+                                    options += `<option value="${tecnico.cedula_empleado}">${tecnico.nombre_completo}</option>`;
+                                });
+                                $tecnicoSelect.html(options);
+                            } else {
+                                $tecnicoSelect.html('<option value="">No hay técnicos disponibles</option>');
+                            }
+                            $tecnicoSelect.prop('disabled', false);
+                        },
+                        error: function() {
+                            $tecnicoSelect.html('<option value="">Error al cargar técnicos</option>').prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $tecnicoSelect.html('<option value="">Primero seleccione un área</option>').prop('disabled', true);
+                }
+            });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const datos = {
+                peticion: 'redireccionar',
+                codigo_hoja_servicio: codigo,
+                area_destino: result.value.area_destino,
+                tecnico_destino: result.value.tecnico_destino
+            };
+
+            $.ajax({
+                url: '?page=servicios',
+                type: 'POST',
+                data: datos,
+                dataType: 'json',
+                beforeSend: function() {
+                    Swal.showLoading();
+                },
+                success: function(response) {
+                    if (response.resultado === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Redirección exitosa',
+                            text: response.mensaje,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        tablaServicios.ajax.reload(null, false);
+                    } else {
+                        Swal.fire('Error', response.mensaje || 'Error al redireccionar', 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Error en la conexión al redireccionar', 'error');
+                }
+            });
         }
     });
 }
@@ -1187,3 +1301,15 @@ function vistaPermisoServicios(permisos = null) {
     }
     // Agrega más controles según tus permisos
 }
+
+
+// Ejemplo de función para ocultar botones según permisos (ajusta según tus necesidades)
+function vistaPermisoServicios(permisos = null) {
+    // Ejemplo: ocultar botones de eliminar si no tiene permiso
+    if (!permisos || !permisos['hoja_servicio']) return;
+    if (permisos['hoja_servicio']['eliminar'] && permisos['hoja_servicio']['eliminar']['estado'] == '0') {
+        $('.btn-danger').hide();
+    }
+    // Agrega más controles según tus permisos
+}
+

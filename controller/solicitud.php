@@ -80,6 +80,20 @@ if (is_file("view/" . $page . ".php")) {
                     ]);
                     break;
                     
+                case "redireccionar_hoja":
+                    // Redireccionar hoja: crea una copia y la asigna a otro técnico/área
+                    $hojaServicio = new HojaServicio();
+                    $hojaServicio->set_codigo_hoja_servicio($_POST["id_hoja"]);
+                    $areaDestino = $_POST["area_destino"];
+                    $tecnicoDestino = $_POST["tecnico_destino"];
+                    $result = $hojaServicio->Transaccion([
+                        "peticion" => "redireccionar",
+                        "area_destino" => $areaDestino,
+                        "tecnico_destino" => $tecnicoDestino
+                    ]);
+                    $response = $result;
+                    break;
+                    
                 default:
                     $response = ["resultado" => "error", "mensaje" => "Acción no reconocida"];
             }

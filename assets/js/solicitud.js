@@ -85,12 +85,16 @@ function inicializarComponentes() {
             {
                 data: 'ID',
                 render: function (data, type, row) {
+                    // Agrega el botón de redirección
                     return `<div class="btn-group">
             <button class="btn btn-sm btn-warning" onclick="rellenarSolicitud(this, 0)" title="Editar solicitud">
                 <i class="fa-solid fa-pen-to-square"></i>
             </button>
             <button class="btn btn-sm btn-danger" onclick="rellenarSolicitud(this, 1)" title="Eliminar solicitud">
                 <i class="fa-solid fa-trash"></i>
+            </button>
+            <button class="btn btn-sm btn-info" onclick="redireccionarHoja(${row.ID})" title="Redireccionar hoja">
+                <i class="fa-solid fa-share"></i>
             </button>
         </div>`;
                 },
@@ -802,3 +806,83 @@ async function cargarEquiposPorSolicitante(cedula) {
         mostrarError("Error al cargar equipos del solicitante");
     }
 }
+
+// Función para mostrar modal de redirección
+window.redireccionarHoja = function(idHoja) {
+    // Puedes crear un modal dinámico o reutilizar uno existente
+    // Aquí solo ejemplo básico
+    Swal.fire({
+        title: 'Redireccionar Hoja',
+        html: `
+            <select id="areaDestino" class="form-select mb-2">
+                <option value="">Seleccione área destino</option>
+                <option value="1">Soporte técnico</option>
+                <option value="2">Redes</option>
+                <option value="3">Telefonía</option>
+                <option value="4">Electrónica</option>
+            </select>
+            <select id="tecnicoDestino" class="form-select">
+                <option value="">Seleccione técnico destino</option>
+            </select>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Redireccionar',
+        preConfirm: () => {
+            const area = $('#areaDestino').val();
+            const tecnico = $('#tecnicoDestino').val();
+            if (!area || !tecnico) {
+                Swal.showValidationMessage('Seleccione área y técnico destino');
+                return false;
+            }
+            return { area, tecnico };
+        },
+        didOpen: () => {
+            $('#areaDestino').on('change', function() {
+                // Cargar técnicos del área seleccionada
+                const areaId = $(this).val();
+                if (!areaId) return;
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    data: { action: 'load_tecnicos_por_area', area_id: areaId },
+                    dataType: 'json',
+                    success: function(resp) {
+                        const $tec = $('#tecnicoDestino');
+                        $tec.empty().append('<option value="">Seleccione técnico destino</option>');
+                        if (resp.resultado === 'success' && Array.isArray(resp.datos)) {
+                            resp.datos.forEach(t => {
+                                $tec.append(`<option value="${t.cedula_empleado}">${t.nombre}</option>`);
+                            });
+                        }
+                    }
+                });
+            });
+        }
+    }).then(result => {
+        if (result.isConfirmed && result.value) {
+            // Llama al backend para redireccionar
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    action: 'redireccionar_hoja',
+                    id_hoja: idHoja,
+                    area_destino: result.value.area,
+                    tecnico_destino: result.value.tecnico
+                },
+                dataType: 'json',
+                success: function(resp) {
+                    if (resp.resultado === 'success') {
+                        mostrarExito('Hoja redireccionada correctamente');
+                        recargarTabla();
+                    } else {
+                        mostrarError(resp.mensaje || 'Error al redireccionar');
+                    }
+                },
+                error: function() {
+                    mostrarError('Error al redireccionar');
+                }
+            });
+        }
+    });
+};

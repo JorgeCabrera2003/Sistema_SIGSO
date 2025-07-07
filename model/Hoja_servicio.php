@@ -404,10 +404,25 @@ class HojaServicio extends Conexion
                 $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
 
                 if ($tecnico) {
-                    // Técnicos ven solo hojas de su área o que han tomado
-                    $sql .= " AND (ts.id_tipo_servicio = :id_servicio OR hs.cedula_tecnico = :cedula)";
+                    // Verificar si el técnico es encargado del tipo de servicio
+                    $sqlEncargado = "SELECT COUNT(*) FROM tipo_servicio WHERE cedula_encargado = :cedula AND id_tipo_servicio = :id_servicio";
+                    $stmtEncargado = $this->conex->prepare($sqlEncargado);
+                    $stmtEncargado->bindParam(':cedula', $tecnico['cedula_empleado']);
+                    $stmtEncargado->bindParam(':id_servicio', $tecnico['id_servicio'], PDO::PARAM_INT);
+                    $stmtEncargado->execute();
+                    $esEncargado = $stmtEncargado->fetchColumn() > 0;
+
+                    if ($esEncargado) {
+                        // Puede ver todas las hojas de su área o donde él es técnico
+                        $sql .= " AND (ts.id_tipo_servicio = :id_servicio OR hs.cedula_tecnico = :cedula)";
+                    } else {
+                        // Solo puede ver las hojas donde él es técnico
+                        $sql .= " AND hs.cedula_tecnico = :cedula";
+                    }
                     $stmt = $this->conex->prepare($sql);
-                    $stmt->bindParam(':id_servicio', $tecnico['id_servicio'], PDO::PARAM_INT);
+                    if ($esEncargado) {
+                        $stmt->bindParam(':id_servicio', $tecnico['id_servicio'], PDO::PARAM_INT);
+                    }
                     $stmt->bindParam(':cedula', $tecnico['cedula_empleado']);
                 } else {
                     return ['resultado' => 'error', 'mensaje' => 'Usuario no tiene perfil de técnico'];
@@ -754,8 +769,8 @@ class HojaServicio extends Conexion
                 return ['resultado' => 'error', 'mensaje' => 'Hoja de servicio no encontrada'];
             }
 
-            // Permisos: solo superusuario o técnico asignado
-            $esSuperusuario = isset($usuario['id_rol']);
+            // Permisos: superusuario o técnico asignado pueden modificar y ver todos los botones
+            $esSuperusuario = isset($usuario['id_rol']) && $usuario['id_rol'] == 1;
             $esTecnicoAsignado = isset($usuario['cedula']) && $hoja['cedula_tecnico'] == $usuario['cedula'];
 
             if (!$esSuperusuario && !$esTecnicoAsignado) {
@@ -940,6 +955,62 @@ class HojaServicio extends Conexion
         }
     }
 
+    /**
+     * Redirecciona una hoja de servicio a otro técnico/área
+     */
+    private function redireccionar($area_destino, $tecnico_destino)
+    {
+        try {
+            // Obtener datos de la hoja original
+            $sql = "SELECT * FROM hoja_servicio WHERE codigo_hoja_servicio = :codigo";
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':codigo', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+            $stmt->execute();
+            $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$hoja) {
+                return ['resultado' => 'error', 'mensaje' => 'Hoja original no encontrada'];
+            }
+
+            // Crear nueva hoja con los datos y los nuevos destino
+            $this->conex->beginTransaction();
+            $sqlInsert = "INSERT INTO hoja_servicio (nro_solicitud, id_tipo_servicio, redireccion, cedula_tecnico, estatus)
+                          VALUES (:nro_solicitud, :id_tipo_servicio, :redireccion, :cedula_tecnico, 'A')";
+            $stmtInsert = $this->conex->prepare($sqlInsert);
+            $stmtInsert->bindParam(':nro_solicitud', $hoja['nro_solicitud'], PDO::PARAM_INT);
+            $stmtInsert->bindParam(':id_tipo_servicio', $area_destino, PDO::PARAM_INT);
+            $stmtInsert->bindParam(':redireccion', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+            $stmtInsert->bindParam(':cedula_tecnico', $tecnico_destino);
+            $stmtInsert->execute();
+
+            $nuevoCodigo = $this->conex->lastInsertId();
+            $this->conex->commit();
+
+            return [
+                'resultado' => 'success',
+                'mensaje' => 'Hoja redireccionada correctamente',
+                'codigo_nueva_hoja' => $nuevoCodigo
+            ];
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+        }
+    }
+
+    private function obtenerTecnicosPorArea($areaId) {
+    try {
+        $sql = "SELECT e.cedula_empleado, CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre_completo 
+                FROM empleado e
+                WHERE e.id_servicio = :areaId AND e.estatus = 1 AND e.id_cargo = 1
+                ORDER BY e.nombre_empleado";
+        $stmt = $this->conex->prepare($sql);
+        $stmt->bindParam(':areaId', $areaId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
 
     /**
      * Maneja las transacciones del modelo
@@ -1031,6 +1102,17 @@ class HojaServicio extends Conexion
 
             case 'listar_hoja_equipo':
                 return $this->contarNumeroHoja();
+
+            case 'redireccionar':
+                return $this->redireccionar($peticion['area_destino'], $peticion['tecnico_destino']);
+
+            case 'obtener_tecnicos_por_area':
+                if (empty($_POST['area_id'])) {
+                    return ['resultado' => 'error', 'mensaje' => 'ID de área no especificado'];
+                }
+                $areaId = (int)$_POST['area_id'];
+                $tecnicos = $this->obtenerTecnicosPorArea($areaId);
+                return ['resultado' => 'success', 'datos' => $tecnicos];
 
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
