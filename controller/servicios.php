@@ -173,40 +173,40 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST['redireccionar'])) {
-    try {
-        if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 3) {
-            throw new Exception('No tiene permisos para esta acción');
+        try {
+            if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 2 || $_SESSION['user']['id_rol'] != 3) {
+                throw new Exception('No tiene permisos para esta acción');
+            }
+
+            // Validar datos requeridos
+            if (empty($_POST['codigo_hoja_servicio']) || empty($_POST['area_destino'])) {
+                throw new Exception('Datos incompletos para redireccionar');
+            }
+
+            $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
+
+            $datos = $hojaServicio->Transaccion([
+                'peticion' => 'redireccionar',
+                'area_destino' => $_POST['area_destino'],
+                'tecnico_destino' => $_POST['tecnico_destino'] ?? null
+            ]);
+
+            if ($datos['resultado'] === 'success') {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Redireccionó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
+                Bitacora($msg, "Servicio");
+            } else {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al redireccionar servicio: " . $datos['mensaje'];
+            }
+
+            echo json_encode($datos);
+        } catch (Exception $e) {
+            echo json_encode([
+                'resultado' => 'error',
+                'mensaje' => $e->getMessage()
+            ]);
         }
-
-        // Validar datos requeridos
-        if (empty($_POST['codigo_hoja_servicio']) || empty($_POST['area_destino'])) {
-            throw new Exception('Datos incompletos para redireccionar');
-        }
-
-        $hojaServicio->set_codigo_hoja_servicio($_POST['codigo_hoja_servicio']);
-        
-        $datos = $hojaServicio->Transaccion([
-            'peticion' => 'redireccionar',
-            'area_destino' => $_POST['area_destino'],
-            'tecnico_destino' => $_POST['tecnico_destino'] ?? null
-        ]);
-
-        if ($datos['resultado'] === 'success') {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Redireccionó la hoja de servicio #" . $_POST['codigo_hoja_servicio'];
-            Bitacora($msg, "Servicio");
-        } else {
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al redireccionar servicio: " . $datos['mensaje'];
-        }
-
-        echo json_encode($datos);
-    } catch (Exception $e) {
-        echo json_encode([
-            'resultado' => 'error',
-            'mensaje' => $e->getMessage()
-        ]);
+        exit;
     }
-    exit;
-}
 
     if (isset($_POST['obtener_tecnicos_por_area'])) {
         try {
@@ -219,7 +219,7 @@ if (is_file("view/" . $page . ".php")) {
                 'peticion' => 'obtener_tecnicos_por_area',
                 'area_id' => $areaId
             ];
-            
+
             $tecnicos = $hojaServicio->Transaccion($peticion);
 
             echo json_encode($tecnicos);
@@ -602,6 +602,53 @@ if (is_file("view/" . $page . ".php")) {
                 'mensaje' => $e->getMessage()
             ]);
         }
+        exit;
+    }
+
+    if (isset($_POST['pdf_hoja_servicio'])) {
+        require_once "vendor/autoload.php";
+        $dompdf = new Dompdf\Dompdf();
+
+        $codigo_hoja = $_POST['pdf_hoja_servicio'];
+        $hojaServicio->set_codigo_hoja_servicio($codigo_hoja);
+        $datos = $hojaServicio->Transaccion(['peticion' => 'consultar']);
+
+        // HTML para el PDF individual
+        ob_start();
+        $datos_hoja = $datos['datos'];
+        require "view/Dompdf/hoja_servicio_pdf.php";
+        $html = ob_get_clean();
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $nombreArchivo = "hoja_servicio_" . $codigo_hoja . ".pdf";
+        $dompdf->stream($nombreArchivo, array("Attachment" => false));
+        exit;
+    }
+
+    // Agregar este nuevo if para el caso de imprimir sin finalizar
+    if (isset($_POST['imprimir_hoja_servicio'])) {
+        require_once "vendor/autoload.php";
+        $dompdf = new Dompdf\Dompdf();
+
+        $codigo_hoja = $_POST['imprimir_hoja_servicio'];
+        $hojaServicio->set_codigo_hoja_servicio($codigo_hoja);
+        $datos = $hojaServicio->Transaccion(['peticion' => 'consultar']);
+
+        // HTML para el PDF individual
+        ob_start();
+        $datos_hoja = $datos['datos'];
+        require "view/Dompdf/hoja_servicio_pdf.php";
+        $html = ob_get_clean();
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $nombreArchivo = "hoja_servicio_" . $codigo_hoja . ".pdf";
+        $dompdf->stream($nombreArchivo, array("Attachment" => false));
         exit;
     }
 

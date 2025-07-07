@@ -284,11 +284,6 @@ function configurarEventos() {
     });
 
 
-    $('#btn-imprimir-detalles').on('click', function () {
-        if (modalDetallesAbierto) {
-            window.print();
-        }
-    });
 }
 
 function guardarHojaServicio() {
@@ -469,11 +464,14 @@ function verDetalles(codigo) {
         type: 'POST',
         data: {consultar: true, codigo_hoja_servicio: codigo},
         dataType: 'json',
-        success: function (resp) {
+        success: function(resp) {
             if (resp.resultado === 'success' && resp.datos) {
                 llenarModalDetalles(resp.datos);
+                // Guardar el código en el modal
+                $('#modalDetalles').data('codigo', codigo);
+                
                 if (userData.id_rol == 1 && resp.datos.estatus === 'A') {
-                    $('#btn-redireccionar').show().off('click').on('click', function () {
+                    $('#btn-redireccionar').show().off('click').on('click', function() {
                         redireccionarHoja(codigo);
                     });
                 } else {
@@ -485,7 +483,7 @@ function verDetalles(codigo) {
                 mostrarError(resp.mensaje || 'No se encontraron datos');
             }
         },
-        error: function () {
+        error: function() {
             mostrarError('Error al consultar detalles');
         }
     });
@@ -813,6 +811,32 @@ function redireccionarHoja(codigo) {
         });
     });
 }
+
+$('#btn-imprimir-detalles').on('click', function() {
+    if (modalDetallesAbierto) {
+        const codigoHoja = $('#modalDetalles').data('codigo');
+        if (codigoHoja) {
+            // Crear un formulario temporal para enviar la petición
+            const form = document.createElement('form');
+            form.action = '?page=servicios';
+            form.method = 'POST';
+            form.target = '_blank';
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'imprimir_hoja_servicio';
+            input.value = codigoHoja;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        } else {
+            mostrarError('No se pudo obtener el código de la hoja de servicio');
+        }
+    }
+});
 
 function agregarFilaDetalle(componente = '', detalle = '', id_material = '', cantidad = '') {
     const usarMaterial = id_material && cantidad;
