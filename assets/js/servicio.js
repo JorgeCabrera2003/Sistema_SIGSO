@@ -81,7 +81,7 @@ function inicializarTablaServicios() {
             type: 'POST',
             data: function (d) {
                 // Solo envía 'listar', no los filtros, para obtener todos los datos
-                return { listar: 'listar' };
+                return {listar: 'listar'};
             },
             dataSrc: function (json) {
                 if (json.resultado === 'success') {
@@ -197,8 +197,6 @@ function inicializarTablaServicios() {
                             <button class="btn btn-sm btn-info" onclick="verDetalles(${row.codigo_hoja_servicio})" title="Ver Detalles">
                                 <i class="fa fa-eye"></i>
                             </button>`;
-                    
-                    // Only show edit/redirect buttons for active records
                     if (row.estatus === 'A') {
                         buttons += `
                             <button class="btn btn-sm btn-primary" onclick="editarHoja(${row.codigo_hoja_servicio})" title="Editar">
@@ -208,15 +206,14 @@ function inicializarTablaServicios() {
                                 <i class="fa fa-share"></i>
                             </button>`;
                     }
-                    
-                    // Only show delete button for superusers
+
                     if (userData.id_rol == 1) {
                         buttons += `
                             <button class="btn btn-sm btn-danger" onclick="eliminarHoja(${row.codigo_hoja_servicio})" title="Eliminar">
                                 <i class="fa fa-trash"></i>
                             </button>`;
                     }
-                    
+
                     buttons += `</div>`;
                     return buttons;
                 },
@@ -227,7 +224,7 @@ function inicializarTablaServicios() {
         order: [[1, 'desc']],
         dom: '<"top"lf>rt<"bottom"ip><"clear">',
         processing: true,
-        serverSide: false, // Asegúrate de que esto esté en false
+        serverSide: false,
         language: {
             lengthMenu: "Mostrar _MENU_ registros por página",
             zeroRecords: "No se encontraron registros",
@@ -318,7 +315,7 @@ function guardarHojaServicio() {
     let errorEnDetalles = false;
 
     $('#tablaDetallesModal tbody tr').each(function () {
-        if (errorEnDetalles) return false; 
+        if (errorEnDetalles) return false;
 
         const componente = $(this).find('.componente').val()?.trim();
         const detalle = $(this).find('.detalle').val()?.trim();
@@ -363,7 +360,7 @@ function guardarHojaServicio() {
         detalles: detalles.length > 0 ? detalles : []
     };
 
-    
+
     if (accion === 'finalizar') {
         Swal.fire({
             title: '¿Confirmar finalización?',
@@ -475,16 +472,14 @@ function verDetalles(codigo) {
         success: function (resp) {
             if (resp.resultado === 'success' && resp.datos) {
                 llenarModalDetalles(resp.datos);
-                
-                // Show/hide redirection button based on status and user role
                 if (userData.id_rol == 1 && resp.datos.estatus === 'A') {
-                    $('#btn-redireccionar').show().off('click').on('click', function() {
+                    $('#btn-redireccionar').show().off('click').on('click', function () {
                         redireccionarHoja(codigo);
                     });
                 } else {
                     $('#btn-redireccionar').hide();
                 }
-                
+
                 $('#modalDetalles').modal('show');
             } else {
                 mostrarError(resp.mensaje || 'No se encontraron datos');
@@ -708,111 +703,114 @@ function cargarDetallesHojaEdicion(codigo) {
 }
 
 function redireccionarHoja(codigo) {
-    Swal.fire({
-        title: 'Redireccionar Hoja de Servicio',
-        html: `
-            <div class="mb-3">
-                <label for="areaDestino" class="form-label">Área de destino</label>
-                <select id="areaDestino" class="form-select">
-                    <option value="">Seleccione un área</option>
-                    ${$('#id_tipo_servicio').html()}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="tecnicoDestino" class="form-label">Técnico asignado</label>
-                <select id="tecnicoDestino" class="form-select" disabled>
-                    <option value="">Primero seleccione un área</option>
-                </select>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Redireccionar',
-        cancelButtonText: 'Cancelar',
-        focusConfirm: false,
-        preConfirm: () => {
-            const area = $('#areaDestino').val();
-            if (!area) {
-                Swal.showValidationMessage('Debe seleccionar un área de destino');
-                return false;
-            }
-            const tecnico = $('#tecnicoDestino').val() || null;
-            return { area_destino: area, tecnico_destino: tecnico };
-        },
-        didOpen: () => {
-            // Estilos personalizados para los selects
-            $('#areaDestino, #tecnicoDestino').addClass('form-control');
-            $('#areaDestino').on('change', function() {
-                const areaId = $(this).val();
-                const $tecnicoSelect = $('#tecnicoDestino');
-                
-                if (areaId) {
-                    $tecnicoSelect.prop('disabled', true).html('<option value="">Cargando técnicos...</option>');
-                    
-                    $.ajax({
-                        url: '?page=servicios',
-                        type: 'POST',
-                        data: {
-                            peticion: 'obtener_tecnicos_por_area',
-                            area_id: areaId
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.resultado === 'success' && response.datos && response.datos.length > 0) {
-                                let options = '<option value="">Seleccione un técnico (opcional)</option>';
-                                response.datos.forEach(tecnico => {
-                                    options += `<option value="${tecnico.cedula_empleado}">${tecnico.nombre_completo}</option>`;
-                                });
-                                $tecnicoSelect.html(options);
-                            } else {
-                                $tecnicoSelect.html('<option value="">No hay técnicos disponibles</option>');
-                            }
-                            $tecnicoSelect.prop('disabled', false);
-                        },
-                        error: function() {
-                            $tecnicoSelect.html('<option value="">Error al cargar técnicos</option>').prop('disabled', false);
-                        }
-                    });
-                } else {
-                    $tecnicoSelect.html('<option value="">Primero seleccione un área</option>').prop('disabled', true);
+    // Primero cargar los tipos de servicio para el select de área
+    cargarTiposServicio().then(function() {
+        Swal.fire({
+            title: 'Redireccionar Hoja de Servicio',
+            html: `
+                <div class="mb-3">
+                    <label for="areaDestino" class="form-label">Área de destino</label>
+                    <select id="areaDestino" class="form-select">
+                        <option value="">Seleccione un área</option>
+                        ${$('#id_tipo_servicio').html()}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="tecnicoDestino" class="form-label">Técnico asignado</label>
+                    <select id="tecnicoDestino" class="form-select" disabled>
+                        <option value="">Primero seleccione un área</option>
+                    </select>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Redireccionar',
+            cancelButtonText: 'Cancelar',
+            focusConfirm: false,
+            preConfirm: () => {
+                const area = $('#areaDestino').val();
+                if (!area) {
+                    Swal.showValidationMessage('Debe seleccionar un área de destino');
+                    return false;
                 }
-            });
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const datos = {
-                peticion: 'redireccionar',
-                codigo_hoja_servicio: codigo,
-                area_destino: result.value.area_destino,
-                tecnico_destino: result.value.tecnico_destino
-            };
+                const tecnico = $('#tecnicoDestino').val() || null;
+                return {area_destino: area, tecnico_destino: tecnico};
+            },
+            didOpen: () => {
+                // Evento para cargar técnicos cuando se selecciona un área
+                $('#areaDestino').on('change', function() {
+                    const areaId = $(this).val();
+                    const $tecnicoSelect = $('#tecnicoDestino');
 
-            $.ajax({
-                url: '?page=servicios',
-                type: 'POST',
-                data: datos,
-                dataType: 'json',
-                beforeSend: function() {
-                    Swal.showLoading();
-                },
-                success: function(response) {
-                    if (response.resultado === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Redirección exitosa',
-                            text: response.mensaje,
-                            showConfirmButton: false,
-                            timer: 1500
+                    if (areaId) {
+                        $tecnicoSelect.prop('disabled', true).html('<option value="">Cargando técnicos...</option>');
+
+                        // Llamar al procedimiento almacenado para obtener técnicos por área
+                        $.ajax({
+                            url: '?page=servicios',
+                            type: 'POST',
+                            data: {
+                                obtener_tecnicos_por_area: true,
+                                area_id: areaId
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.resultado === 'success' && response.datos && response.datos.length > 0) {
+                                    let options = '<option value="">Seleccione un técnico (opcional)</option>';
+                                    response.datos.forEach(tecnico => {
+                                        options += `<option value="${tecnico.cedula_empleado}">${tecnico.nombre_empleado} ${tecnico.apellido_empleado || ''}</option>`;
+                                    });
+                                    $tecnicoSelect.html(options);
+                                } else {
+                                    $tecnicoSelect.html('<option value="">No hay técnicos disponibles</option>');
+                                }
+                                $tecnicoSelect.prop('disabled', false);
+                            },
+                            error: function() {
+                                $tecnicoSelect.html('<option value="">Error al cargar técnicos</option>').prop('disabled', false);
+                            }
                         });
-                        tablaServicios.ajax.reload(null, false);
                     } else {
-                        Swal.fire('Error', response.mensaje || 'Error al redireccionar', 'error');
+                        $tecnicoSelect.html('<option value="">Primero seleccione un área</option>').prop('disabled', true);
                     }
-                },
-                error: function() {
-                    Swal.fire('Error', 'Error en la conexión al redireccionar', 'error');
-                }
-            });
-        }
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const datos = {
+                    redireccionar: true,
+                    codigo_hoja_servicio: codigo,
+                    area_destino: result.value.area_destino,
+                    tecnico_destino: result.value.tecnico_destino
+                };
+
+                $.ajax({
+                    url: '?page=servicios',
+                    type: 'POST',
+                    data: datos,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        Swal.showLoading();
+                    },
+                    success: function(response) {
+                        if (response.resultado === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Redirección exitosa',
+                                text: response.mensaje,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            tablaServicios.ajax.reload(null, false);
+                        } else {
+                            Swal.fire('Error', response.mensaje || 'Error al redireccionar', 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Error en la conexión al redireccionar', 'error');
+                    }
+                });
+            }
+        });
     });
 }
 
@@ -1165,7 +1163,7 @@ function finalizarHoja(codigo) {
     });
 }
 
-$(document).on('click', '#btn-finalizar-hoja-modal', function() {
+$(document).on('click', '#btn-finalizar-hoja-modal', function () {
 
     let codigo = $(this).attr('data-codigo') || $('#codigo_hoja_servicio').val();
     const resultado = $('#resultado_hoja_servicio').val();
@@ -1224,7 +1222,7 @@ $(document).on('click', '#btn-finalizar-hoja-modal', function() {
     });
 });
 
-$('#resultado_hoja_servicio').on('change', function() {
+$('#resultado_hoja_servicio').on('change', function () {
     if ($(this).val()) {
         $('#btn-finalizar-hoja-modal').show();
     } else {
@@ -1269,7 +1267,6 @@ function eliminarHoja(codigo) {
     });
 }
 
-// Agrega esta función para consultar permisos del módulo servicios
 function ConsultarPermisosServicios() {
     var datos = new FormData();
     datos.append('permisos', 'permisos');
@@ -1287,29 +1284,25 @@ function ConsultarPermisosServicios() {
                 if (lee.resultado == "permisos_modulo") {
                     vistaPermisoServicios(lee.permisos);
                 }
-            } catch (e) { }
+            } catch (e) {}
         }
     });
 }
 
-// Ejemplo de función para ocultar botones según permisos (ajusta según tus necesidades)
 function vistaPermisoServicios(permisos = null) {
-    // Ejemplo: ocultar botones de eliminar si no tiene permiso
+
     if (!permisos || !permisos['hoja_servicio']) return;
     if (permisos['hoja_servicio']['eliminar'] && permisos['hoja_servicio']['eliminar']['estado'] == '0') {
         $('.btn-danger').hide();
     }
-    // Agrega más controles según tus permisos
+
 }
 
-
-// Ejemplo de función para ocultar botones según permisos (ajusta según tus necesidades)
 function vistaPermisoServicios(permisos = null) {
-    // Ejemplo: ocultar botones de eliminar si no tiene permiso
+
     if (!permisos || !permisos['hoja_servicio']) return;
     if (permisos['hoja_servicio']['eliminar'] && permisos['hoja_servicio']['eliminar']['estado'] == '0') {
         $('.btn-danger').hide();
     }
-    // Agrega más controles según tus permisos
 }
 
