@@ -20,7 +20,7 @@
 		echo'<script>window.location="?page=404"</script>';
 
 	if (is_file("view/".$page.".php")) {
-		require_once "model/Hoja_servicio.php";
+		require_once "model/hoja_servicio.php";
 		$hoja=new hoja;
 		$hoja->set_cod_hoja($_POST["nro_hoja"]);
 		$datos_hoja = $hoja->DatosHoja();

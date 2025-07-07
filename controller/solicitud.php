@@ -9,7 +9,7 @@ if (is_file("view/" . $page . ".php")) {
     require_once "controller/utileria.php";
     require_once "model/solicitud.php";
     require_once "model/empleado.php";
-    require_once "model/Hoja_servicio.php";
+    require_once "model/hoja_servicio.php";
     require_once "model/equipo.php";
     require_once "model/dependencia.php";
 
