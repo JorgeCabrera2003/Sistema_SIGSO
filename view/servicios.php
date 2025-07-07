@@ -39,7 +39,7 @@
                                     <option value="E">Eliminadas</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-none">
                                 <label for="filtroTipo" class="form-label">Tipo de Servicio</label>
                                 <select id="filtroTipo" class="form-select">
                                     <option value="">Todos</option>
