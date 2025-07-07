@@ -12,11 +12,20 @@ class Empleado extends Conexion
     private $telefono;
     private $correo;
     private $id_dependencia;
+    private $conexion;
 
     public function __construct()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->cedula = "";
+        $this->nombre = "";
+        $this->cedula = "";
+        $this->id_cargo = NULL;
+        $this->id_servicio = NULL;
+        $this->id_unidad = NULL;
+        $this->telefono = "";
+        $this->correo = "";
+        $this->id_dependencia = NULL;
+        $this->conexion = NULL;
     }
 
     // Setters y Getters
@@ -107,11 +116,11 @@ class Empleado extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
-                $this->conex->beginTransaction();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
 
-                $stm = $this->conex->prepare("INSERT INTO empleado 
+                $stm = $this->conexion->prepare("INSERT INTO empleado 
                 (cedula_empleado, nombre_empleado, apellido_empleado, id_cargo, id_servicio, id_unidad, telefono_empleado, correo_empleado) 
                 VALUES (:cedula, :nombre, :apellido, :cargo, :servicio, :unidad, :telefono, :correo)");
 
@@ -125,12 +134,12 @@ class Empleado extends Conexion
                 $stm->bindParam(':correo', $this->correo);
 
                 $stm->execute();
-                $this->conex->commit();
+                $this->conexion->commit();
                 $datos['resultado'] = "registrar";
                 $datos['mensaje'] = "Se registró el empleado exitosamente";
                 $datos['estado'] = 1;
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $datos['resultado'] = "error";
                 $datos['estado'] = -1;
                 $datos['mensaje'] = $e->getMessage();
@@ -140,7 +149,7 @@ class Empleado extends Conexion
             $datos['mensaje'] = "Error: registro duplicado";
             $datos['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $datos;
     }
 
@@ -148,9 +157,9 @@ class Empleado extends Conexion
     {
         $datos = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "SELECT 
                 e.cedula_empleado AS cedula,
@@ -171,26 +180,26 @@ class Empleado extends Conexion
             // Filtro por cédula
             if ($filtro && isset($filtro['cedula'])) {
                 $query .= " WHERE e.cedula_empleado = :cedula";
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(':cedula', $filtro['cedula']);
                 // Filtro por rol técnico
             } else if ($filtro && isset($filtro['rol']) && $filtro['rol'] == 'tecnico') {
                 $query .= " WHERE e.id_cargo = 1"; // Cambia 1 por el id_cargo real de técnico si es diferente
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
             } else {
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
             }
 
             $stm->execute();
             $datos['resultado'] = "consultar";
             $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-            $this->conex->commit();
+            $this->conexion->commit();
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $datos['resultado'] = "error";
             $datos['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $datos;
     }
 
@@ -198,9 +207,9 @@ class Empleado extends Conexion
     {
         $datos = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "SELECT 
                 e.cedula_empleado AS cedula, 
@@ -209,13 +218,13 @@ class Empleado extends Conexion
             JOIN unidad AS u ON e.id_unidad = u.id_unidad
             WHERE u.id_dependencia = ?";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(1, $dependenciaId, PDO::PARAM_INT);
             $stm->execute();
 
             $datos['resultado'] = "success";
             $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-            $this->conex->commit();
+            $this->conexion->commit();
         } catch (PDOException $e) {
             $datos['resultado'] = "error";
             $datos['mensaje'] = $e->getMessage();
@@ -228,9 +237,9 @@ class Empleado extends Conexion
         $datos = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "SELECT e.cedula_empleado, e.nombre_empleado, e.apellido_empleado 
                      FROM empleado e
@@ -238,20 +247,20 @@ class Empleado extends Conexion
                      WHERE u.id_dependencia = :idDependencia
                      AND e.cedula_empleado IS NOT NULL";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':idDependencia', $idDependencia);
             $stm->execute();
 
             $datos['resultado'] = 'consultar_solicitantes';
             $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-            $this->conex->commit();
+            $this->conexion->commit();
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $datos['resultado'] = 'error';
             $datos['mensaje'] = $e->getMessage();
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $datos;
     }
 
@@ -259,13 +268,13 @@ class Empleado extends Conexion
     {
         $datos = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
-            $stm = $this->conex->prepare("SELECT * FROM empleado WHERE cedula_empleado = ?");
+            $stm = $this->conexion->prepare("SELECT * FROM empleado WHERE cedula_empleado = ?");
             $stm->execute([$this->cedula]);
-            $this->conex->commit();
+            $this->conexion->commit();
             if ($stm->rowCount() > 0) {
                 $datos['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $datos['bool'] = 1;
@@ -283,12 +292,12 @@ class Empleado extends Conexion
     {
         $datos = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "DELETE FROM empleado WHERE cedula_empleado = :cedula";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":cedula", $this->cedula);
             $stm->execute();
 
@@ -301,14 +310,14 @@ class Empleado extends Conexion
                 $datos['mensaje'] = "Error: No se encontró el registro";
                 $datos['estado'] = -1;
             }
-            $this->conex->commit();
+            $this->conexion->commit();
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $datos['resultado'] = "error";
             $datos['estado'] = -1;
             $datos['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $datos;
     }
 
@@ -316,11 +325,11 @@ class Empleado extends Conexion
     {
         $datos = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
-            $stm = $this->conex->prepare("UPDATE empleado SET 
+            $stm = $this->conexion->prepare("UPDATE empleado SET 
                 nombre_empleado = :nombre, 
                 apellido_empleado = :apellido, 
                 id_cargo = :cargo,
@@ -340,7 +349,7 @@ class Empleado extends Conexion
             $stm->bindParam(':correo', $this->correo);
 
             $stm->execute();
-            
+
             if ($stm->rowCount() > 0) {
                 $datos['resultado'] = "modificar";
                 $datos['mensaje'] = "Se modificó el empleado exitosamente";
@@ -350,24 +359,68 @@ class Empleado extends Conexion
                 $datos['mensaje'] = "Error: No se encontró el registro";
                 $datos['estado'] = -1;
             }
-            $this->conex->commit();
-            
+            $this->conexion->commit();
+
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $datos['resultado'] = "error";
             $datos['estado'] = -1;
             $datos['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $datos;
+    }
+
+    private function ModificarDatosPersonales()
+    {
+        $datos = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+
+            $stm = $this->conexion->prepare("UPDATE empleado SET 
+                nombre_empleado = :nombre, 
+                apellido_empleado = :apellido, 
+                telefono_empleado = :telefono, 
+                correo_empleado = :correo 
+                WHERE cedula_empleado = :cedula");
+
+            $stm->bindParam(':cedula', $this->cedula);
+            $stm->bindParam(':nombre', $this->nombre);
+            $stm->bindParam(':apellido', $this->apellido);
+            $stm->bindParam(':telefono', $this->telefono);
+            $stm->bindParam(':correo', $this->correo);
+
+            $stm->execute();
+
+            if ($stm->rowCount() > 0) {
+                $datos['resultado'] = "modificar";
+                $datos['mensaje'] = "Se modificó el empleado exitosamente";
+                $datos['estado'] = 1;
+            } else {
+                $datos['resultado'] = "modificar";
+                $datos['mensaje'] = "Error: No se encontró el registro";
+                $datos['estado'] = -1;
+            }
+            $this->conexion->commit();
+
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $datos['resultado'] = "error";
+            $datos['estado'] = -1;
+            $datos['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $datos;
     }
 
     private function consultar_solicitantes()
     {
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "SELECT 
                 e.cedula_empleado AS cedula, 
@@ -381,12 +434,12 @@ class Empleado extends Conexion
             JOIN unidad AS u ON e.id_unidad = u.id_unidad
             JOIN dependencia AS d ON u.id_dependencia = d.id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             return $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             return [];
         }
     }
@@ -394,17 +447,17 @@ class Empleado extends Conexion
     private function mis_servicios()
     {
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "SELECT * FROM solicitud WHERE cedula_solicitante = ?";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute([$this->cedula]);
-            $this->conex->commit();
+            $this->conexion->commit();
             return $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             return [];
         }
     }
@@ -414,9 +467,9 @@ class Empleado extends Conexion
     {
         $datos = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT 
                 e.cedula_empleado, 
                 CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre_completo,
@@ -425,15 +478,15 @@ class Empleado extends Conexion
             JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
             WHERE e.id_cargo = 1"; // 1 = Técnico
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
-            $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC); 
-            $this->conex->commit();
-            $datos['resultado'] = "listar_tecnicos"; 
+            $datos['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
+            $datos['resultado'] = "listar_tecnicos";
         } catch (PDOException $e) {
-            $this->conex->rollBack();
-             $datos['resultado'] = 'error';
-             $datos['mensaje'] = $e->getMessage();
+            $this->conexion->rollBack();
+            $datos['resultado'] = 'error';
+            $datos['mensaje'] = $e->getMessage();
         }
         return $datos;
     }
@@ -442,9 +495,9 @@ class Empleado extends Conexion
     private function obtener_tecnico()
     {
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             $query = "SELECT 
             e.cedula_empleado,
@@ -463,10 +516,10 @@ class Empleado extends Conexion
         WHERE e.cedula_empleado = :cedula
         AND e.id_cargo = 1"; // 1 = ID de cargo Técnico
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $datos = $stm->fetch(PDO::FETCH_ASSOC);
 
             if ($datos) {
@@ -475,7 +528,7 @@ class Empleado extends Conexion
                 return ['resultado' => 'error', 'mensaje' => 'Técnico no encontrado'];
             }
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
     }
@@ -486,17 +539,17 @@ class Empleado extends Conexion
     public function obtenerTecnico($cedula)
     {
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $sql = "SELECT cedula_empleado, id_cargo, id_servicio FROM empleado WHERE cedula_empleado = :cedula LIMIT 1";
-            $stmt = $this->conex->prepare($sql); // <-- usar $this->conex
+            $stmt = $this->conexion->prepare($sql); // <-- usar $this->conexion
             $stmt->bindParam(':cedula', $cedula);
             $stmt->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             return null;
         }
     }
@@ -504,11 +557,11 @@ class Empleado extends Conexion
     private function contarEmpleados()
     {
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM filtrado_empleado";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $datos = $stm->fetch(PDO::FETCH_ASSOC);
             if ($datos) {
@@ -525,9 +578,9 @@ class Empleado extends Conexion
     {
         $datos = ['resultado' => 'error', 'mensaje' => '', 'datos' => []];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
             // Técnicos del área, ordenados por hojas finalizadas en el mes (ascendente)
             $sql = "
@@ -549,17 +602,17 @@ class Empleado extends Conexion
                     AND e.estatus = 1
                 ORDER BY hojas_mes ASC, nombre ASC
             ";
-            $stmt = $this->conex->prepare($sql);
+            $stmt = $this->conexion->prepare($sql);
             $stmt->bindParam(':area_id', $area_id, PDO::PARAM_INT);
             $stmt->execute();
             $datos['resultado'] = 'success';
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $this->conex->commit();
+            $this->conexion->commit();
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $datos['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stmt);
+        $this->Cerrar_Conexion($this->conexion, $stmt);
         return $datos;
     }
 
@@ -570,6 +623,8 @@ class Empleado extends Conexion
                 return $this->Registrar();
             case 'modificar':
                 return $this->Modificar();
+            case 'modificar_datos_personal':
+                return $this->ModificarDatosPersonales();
             case 'eliminar':
                 return $this->Eliminar();
             case 'consultar':

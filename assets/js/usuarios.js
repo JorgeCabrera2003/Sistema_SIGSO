@@ -67,7 +67,7 @@ $(document).ready(function () {
 				break;
 			case "Eliminar":
 				if (validarKeyUp(
-					/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
+					/^[VE]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
 					"Cédula no válida, el formato es: V-**********"
 				)) {
 					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");

@@ -64,7 +64,7 @@ if (is_file("view/" . $page . ".php")) {
 			$json['mensaje'] = "Error, Apellido no válido";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
+		} else if (preg_match("/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, Correo no válido";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -142,7 +142,7 @@ if (is_file("view/" . $page . ".php")) {
 			$json['mensaje'] = "Error, Apellido no válido";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-		} else if (preg_match("/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
+		} else if (preg_match("/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, Correo no válido";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";

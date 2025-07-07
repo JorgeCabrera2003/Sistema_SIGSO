@@ -60,7 +60,7 @@ function NotificarUsuarios($msg, $modulo, $parametro = []){
     $peticion['parametro'] = ['modulo' => $parametro['modulo'], 'accion' => $parametro['accion']];
     $arrayUsuario = $usuario->Transaccion($peticion);
     global $notificacion;
-    
+
     $peticion["peticion"] = "registrar";
     $hora = date('H:i:s');
     $fecha = date('Y-m-d');
@@ -70,8 +70,8 @@ function NotificarUsuarios($msg, $modulo, $parametro = []){
     }
 
     $resultados = [];
-    foreach ($usuarios as $usuario) {
-        $notificacion->set_usuario($usuario);
+    foreach ($arrayUsuario['datos'] as $usuario) {
+        $notificacion->set_usuario($usuario['nombre_usuario']);
         $notificacion->set_modulo($modulo);
         $notificacion->set_mensaje($msg);
         $notificacion->set_fecha($fecha);

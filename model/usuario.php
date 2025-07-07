@@ -14,6 +14,7 @@ class Usuario extends Conexion
     private $tipo;
     private $rol;
     private $foto;
+    private $conexion;
 
     public function __construct()
     {
@@ -27,6 +28,7 @@ class Usuario extends Conexion
         $this->tipo = "";
         $this->rol = NULL;
         $this->foto = "";
+        $this->conexion = NULL;
     }
 
     public function set_cedula($cedula)
@@ -119,13 +121,13 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "INSERT INTO usuario(nombre_usuario, cedula, id_rol, nombres, apellidos, telefono, correo, clave)
             VALUES (:nombre_usuario, :cedula, :rol, :nombres, :apellidos, :telefono, :correo, :clave)";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':nombre_usuario', $this->nombre_usuario);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->bindParam(':rol', $this->rol);
@@ -136,17 +138,17 @@ class Usuario extends Conexion
             $stm->bindParam(':clave', $this->clave);
 
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $dato['resultado'] = "registrar";
             $dato['mensaje'] = "Se registro un usuario exitosamente";
             $dato['estado'] = 1;
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -154,16 +156,16 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE usuario SET 
                 nombre_usuario = nombre_usuario, id_rol = :rol,
                 nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
                 correo = :correo, clave = :clave
                 WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':nombre_usuario', $this->nombre_usuario);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->bindParam(':rol', $this->rol);
@@ -174,7 +176,7 @@ class Usuario extends Conexion
             $stm->bindParam(':clave', $this->clave);
 
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             if ($stm->rowCount() > 0) {
                 $dato['mensaje'] = "Se modificó el usuario exitosamente";
                 $dato['bool'] = 1;
@@ -186,12 +188,12 @@ class Usuario extends Conexion
             $dato['estado'] = 1;
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -199,14 +201,14 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE usuario SET
                 nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
                 correo = :correo WHERE cedula = :cedula";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->bindParam(':nombres', $this->nombres);
             $stm->bindParam(':apellidos', $this->apellidos);
@@ -214,7 +216,7 @@ class Usuario extends Conexion
             $stm->bindParam(':correo', $this->correo);
 
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             if ($stm->rowCount() > 0) {
                 $dato['mensaje'] = "Se modificó el usuario exitosamente";
                 $dato['bool'] = 1;
@@ -226,22 +228,22 @@ class Usuario extends Conexion
             $dato['estado'] = 1;
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
     private function Validar()
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
-            $stm = $this->conex->prepare("SELECT * FROM usuario WHERE cedula = :cedula
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $stm = $this->conexion->prepare("SELECT * FROM usuario WHERE cedula = :cedula
             OR nombre_usuario = :nombre_usuario
             OR correo = :correo");
             $stm->bindParam(':correo', $this->correo);
@@ -259,16 +261,16 @@ class Usuario extends Conexion
             }
             $dato['resultado'] = "validar";
             $dato['estado'] = 1;
-            $this->conex->commit();
+            $this->conexion->commit();
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "registrar";
             $dato['mensaje'] = $e->getMessage();
             $dato['estado'] = -1;
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -278,21 +280,21 @@ class Usuario extends Conexion
 
             $dato = [];
             try {
-                $this->conex = new Conexion("usuario");
-                $this->conex = $this->conex->Conex();
-                $this->conex->beginTransaction();
-                $stm = $this->conex->prepare("SELECT * FROM usuario u
+                $this->conexion = new Conexion("usuario");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
+                $stm = $this->conexion->prepare("SELECT * FROM usuario u
                 INNER JOIN rol r ON r.id_rol = u.id_rol
                 INNER JOIN permiso p ON p.id_rol = r.id_rol
                 INNER JOIN modulo m ON m.id_modulo = p.id_modulo
-                WHERE m.id_modulo = :id_modulo AND p.accion_permiso = :permiso AND p.estado = :estado");
-
-                $stm->bindParam(":permiso", $this->cedula);
-                $stm->bindParam(':estado', $this->nombre_usuario);
+                WHERE m.id_modulo = :id_modulo AND p.accion_permiso = :accion AND p.estado = 1");
+                
+                $stm->bindParam(":id_modulo", $parametro['modulo']);
+                $stm->bindParam(':accion', $parametro['accion']);
                 $stm->execute();
 
                 if ($stm->rowCount() > 0) {
-                    $dato['datos'] = $stm->fetch(PDO::FETCH_ASSOC);
+                    $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
                     $dato['bool'] = 1;
                 } else {
                     $dato['bool'] = -1;
@@ -301,11 +303,12 @@ class Usuario extends Conexion
                 }
                 $dato['resultado'] = "validar";
                 $dato['estado'] = 1;
-                $this->conex->commit();
+                $this->conexion->commit();
 
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
+                $dato['datos'] = NULL;
                 $dato['mensaje'] = $e->getMessage();
                 $dato['estado'] = -1;
             }
@@ -314,7 +317,7 @@ class Usuario extends Conexion
             $dato['mensaje'] = 'Parámetros no válidos';
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -339,9 +342,9 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT
                 usuario.nombre_usuario,
                 usuario.cedula,
@@ -357,7 +360,7 @@ class Usuario extends Conexion
                 INNER JOIN rol ON usuario.id_rol = rol.id_rol
                 WHERE usuario.cedula = :cedula";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':cedula', $this->cedula);
             $stm->execute();
 
@@ -370,15 +373,15 @@ class Usuario extends Conexion
             }
             $dato['resultado'] = "perfil";
             $dato['estado'] = 1;
-            $this->conex->commit();
+            $this->conexion->commit();
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -386,10 +389,10 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
-            $stm = $this->conex->prepare("UPDATE usuario SET estatus = 0  WHERE cedula = :cedula");
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $stm = $this->conexion->prepare("UPDATE usuario SET estatus = 0  WHERE cedula = :cedula");
             $stm->bindParam(":cedula", $this->cedula);
             $stm->execute();
 
@@ -403,15 +406,15 @@ class Usuario extends Conexion
             $dato['resultado'] = "eliminar";
             $dato['mensaje'] = "Se eliminó un usuario exitosamente";
             $dato['estado'] = 1;
-            $this->conex->commit();
+            $this->conexion->commit();
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -419,11 +422,11 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
             $query = "UPDATE usuario SET clave= :clave WHERE cedula = :cedula";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":cedula", $this->cedula);
             $stm->bindParam(":clave", $this->clave);
             $stm->execute();
@@ -438,7 +441,7 @@ class Usuario extends Conexion
             $dato['mensaje'] = $e->getMessage();
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -446,8 +449,8 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT
             usuario.nombre_usuario,
                 usuario.cedula,
@@ -463,7 +466,7 @@ class Usuario extends Conexion
             ORDER BY usuario.cedula = :cedula
             ";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindValue(':cedula', $this->cedula);
             $stm->execute();
 
@@ -475,7 +478,7 @@ class Usuario extends Conexion
             $dato['mensaje'] = $e->getMessage();
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
 
         return $dato;
     }
@@ -484,11 +487,11 @@ class Usuario extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
             $query = "UPDATE usuario SET foto=? WHERE cedula = ?";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
 
             if ($stm->execute([$this->foto, $this->cedula])) {
                 $dato['estado'] = true;
@@ -501,7 +504,7 @@ class Usuario extends Conexion
             $dato['mensaje'] = $e->getMessage();
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
