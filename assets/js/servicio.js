@@ -876,6 +876,7 @@ function cargarMaterialesDisponiblesParaFila($select, idMaterialSeleccionado = n
         data: {listar_materiales: true},
         dataType: 'json',
         success: function (response) {
+            console.log(response);
             if (response.resultado === 'success') {
                 $select.empty().append('<option value="">Seleccione material</option>');
 

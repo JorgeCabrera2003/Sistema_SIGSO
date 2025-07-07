@@ -90,6 +90,8 @@ class Material extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $query = "SELECT id_material, nombre_material, stock 
                  FROM material 
                  WHERE estatus = 1 AND stock > 0
@@ -113,6 +115,8 @@ class Material extends Conexion
         $dato = [];
 
         try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
             $query = "SELECT * FROM material WHERE id_material = :id";
 

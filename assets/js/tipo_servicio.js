@@ -279,6 +279,7 @@ function rellenar(pos, accion) {
 
 	$("#id_servicio").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());
+	buscarSelect("#encargado", $(linea).find("td:eq(2)").text(), "value");
 
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Tipo de Servicio")

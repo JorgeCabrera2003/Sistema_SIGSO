@@ -40,6 +40,11 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre del Tipo de Servicio no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
+			} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["encargado"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Encargado no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
 			} else {
 				$tipo_servicio->set_nombre($_POST["nombre"]);
 				$tipo_servicio->set_encargado($_POST["encargado"]);
@@ -81,6 +86,11 @@ if (is_file("view/" . $page . ".php")) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Tipo de Servicio no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["encargado"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Encargado no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
 				$tipo_servicio->set_codigo($_POST["id_servicio"]);
