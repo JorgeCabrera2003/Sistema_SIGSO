@@ -261,7 +261,7 @@ class Empleado extends Conexion
         $this->Cerrar_Conexion($none, $stm);
         return $datos;
     }
-
+    
     private function Eliminar()
     {
         $datos = [];
