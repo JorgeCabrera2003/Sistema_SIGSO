@@ -23,6 +23,12 @@ $(document).ready(function () {
 						datos.append('correo', $("#correo").val());
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
+
+						if($("#check_user").prop('checked')){
+							datos.append('check_usuario', 1);
+						} else {
+							datos.append('check_usuario', 0);
+						}
 						enviaAjax(datos);
 					}
 				}
@@ -74,7 +80,16 @@ $(document).ready(function () {
 
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
 		limpia();
-		$("#idEmpleado").remove();
+
+		$("#Fila1").prepend(`<div class="col-md-4" id="CheckUsuario">
+			<div class="form-check form-switch">
+              <input class="form-check-input permission-checkbox d-flex align-items-center" type="checkbox" role="switch"
+                id="check_user" maxlength="45">
+              <label for="check_user" class="form-label">Registrar como Usuario</label>
+              <span id="scheck_user"></span>
+            </div>
+          </div>`);
+
 		$("#modalTitleId").text("Registrar Empleado");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
@@ -403,6 +418,7 @@ function crearDataTable(arreglo) {
 
 
 function limpia() {
+	$("#CheckUsuario").remove();
 	$("#cedula").removeClass("is-valid is-invalid");
 	$("#cedula").val("");
 	$("#scedula").text("");
@@ -451,14 +467,6 @@ async function rellenar(pos, accion) {
 	limpia();
 	var espera;
 	linea = $(pos).closest('tr');
-
-	$("#idEnte").remove();
-	$("#Fila1").prepend(`<div class="col-md-4" id="CheckUsuario">
-            <div class="form-floating mb-3 mt-4">
-              <input placeholder="" class="form-control" name="id_ente" type="text" id="id_ente" readOnly>
-              <span id="sid_ente"></span>
-              <label for="id_ente" class="form-label">ID del Ente</label>
-            </div>`);
 
 	$("#cedula").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());

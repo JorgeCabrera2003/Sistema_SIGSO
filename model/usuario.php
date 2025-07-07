@@ -195,6 +195,45 @@ class Usuario extends Conexion
         return $dato;
     }
 
+        private function ModificarUsuario_Empleado()
+    {
+        $dato = [];
+        try {
+            $this->conex = new Conexion("usuario");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "UPDATE usuario SET
+                nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
+                correo = :correo WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(':cedula', $this->cedula);
+            $stm->bindParam(':nombres', $this->nombres);
+            $stm->bindParam(':apellidos', $this->apellidos);
+            $stm->bindParam(':telefono', $this->telefono);
+            $stm->bindParam(':correo', $this->correo);
+
+            $stm->execute();
+            $this->conex->commit();
+            if ($stm->rowCount() > 0) {
+                $dato['mensaje'] = "Se modificó el usuario exitosamente";
+                $dato['bool'] = 1;
+            } else {
+                $dato['mensaje'] = "Error al modificar Usuario";
+                $dato['bool'] = 0;
+            }
+            $dato['resultado'] = "modificar";
+            $dato['estado'] = 1;
+
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+            $dato['estado'] = -1;
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
     private function Validar()
     {
         $dato = [];

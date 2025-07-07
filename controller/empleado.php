@@ -75,32 +75,57 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
-				$validarUsuario = NULL;
+
+				$usuario->set_cedula($_POST["cedula"]);
+				if ($_POST["check_usuario"] == 1) {
+					$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
+				} else {
+					$validarUsuario['bool'] = 0;
+				}
 
 				$empleado->set_cedula($_POST["cedula"]);
-				$empleado->set_nombre($_POST["nombre"]);
-				$empleado->set_apellido($_POST["apellido"]);
-				$empleado->set_correo($_POST["correo"]);
-				$empleado->set_telefono($_POST["telefono"]);
-				$empleado->set_id_unidad($_POST["unidad"]);
-				$empleado->set_id_cargo($_POST["cargo"]);
-				$peticion["peticion"] = "registrar";
-				$usuario->set_cedula($_POST["cedula"]);
 				$validarEmpleado = $empleado->Transaccion(['peticion' => 'validar']);
-				$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
 
-				if ($json['estado'] == 1) {
-					$clave = password_hash($_POST['cedula'], PASSWORD_DEFAULT);
+				if ($validarUsuario['bool'] == 0 && $validarEmpleado['bool'] == 0) {
 
-					$usuario->set_cedula($_POST["cedula"]);
-					$usuario->set_nombres($_POST["nombre"]);
-					$usuario->set_apellidos($_POST["apellido"]);
-					$usuario->set_clave($clave);
-					$usuario->set_correo($_POST["correo"]);
-					$usuario->set_telefono($_POST["telefono"]);
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado";
+					$empleado->set_nombre($_POST["nombre"]);
+					$empleado->set_apellido($_POST["apellido"]);
+					$empleado->set_correo($_POST["correo"]);
+					$empleado->set_telefono($_POST["telefono"]);
+					$empleado->set_id_unidad($_POST["unidad"]);
+					$empleado->set_id_cargo($_POST["cargo"]);
+					$peticion["peticion"] = "registrar";
+
+					if ($json['estado'] == 1) {
+
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado";
+
+						if ($_POST["check_usuario"] == 1) {
+							$clave = password_hash($_POST['cedula'], PASSWORD_DEFAULT);
+
+							$usuario->set_cedula($_POST["cedula"]);
+							$usuario->set_nombre_usuario($_POST["cedula"]);
+							$usuario->set_nombres($_POST["nombre"]);
+							$usuario->set_apellidos($_POST["apellido"]);
+							$usuario->set_correo($_POST["correo"]);
+							$usuario->set_telefono($_POST["telefono"]);
+							$usuario->set_clave($clave);
+							$estado = $usuario->Transaccion(['peticion' => 'registrar']);
+							if ($estado['estado'] == 1) {
+								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado y también como usuario";
+							} else {
+								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al registrar el empleado también como usuario";
+							}
+						}
+
+					} else {
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo empleado";
+					}
+
 				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo empleado";
+					$json['resultado'] = "error";
+					$json['mensaje'] = "Error, Empleado ya registrado";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), empleado y/o empleado registrado";
 				}
 			}
 		} else {
@@ -163,6 +188,14 @@ if (is_file("view/" . $page . ".php")) {
 
 			} else {
 
+				$usuario->set_cedula($_POST["cedula"]);
+				
+				if ($_POST["check_usuario"] == 1) {
+					$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
+				} else {
+					$validarUsuario['bool'] = 0;
+				}
+
 				$empleado->set_cedula($_POST["cedula"]);
 				$empleado->set_nombre($_POST["nombre"]);
 				$empleado->set_apellido($_POST["apellido"]);
@@ -174,7 +207,25 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $empleado->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del empleado";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó del empleado con la CI: ". $_POST['cedula'];
+
+					if ($validarUsuario['bool'] == 1) {
+
+						$usuario->set_nombres($_POST["nombre"]);
+						$usuario->set_apellidos($_POST["apellido"]);
+						$usuario->set_correo($_POST["correo"]);
+						$usuario->set_telefono($_POST["telefono"]);
+						$usuario->set_clave($clave);
+						$estado = $usuario->Transaccion($peticion);
+
+						if($estado){
+							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del usuario empleado con la CI: ". $_POST['cedula'];
+						} else {
+							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar al usuario empleado";
+						}
+					}
+
+
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar empleado";
 				}
@@ -202,7 +253,7 @@ if (is_file("view/" . $page . ".php")) {
 				$peticion["peticion"] = "eliminar";
 				$json = $empleado->Transaccion($peticion);
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un empleado";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un empleado con la CI: ". $_POST['cedula'];
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un empleado";
 				}
