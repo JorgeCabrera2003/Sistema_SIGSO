@@ -161,7 +161,7 @@
         public function Validar(){
             $datos = [];
             try {
-                $sql = "SELECT * FROM empleado WHERE cedula_empleado=:cedula AND id_cargo=1";
+                $sql = "SELECT * FROM empleado WHERE cedula_empleado=:cedula";
                 $stmt = $this->conex->prepare($sql);
                 $stmt->bindParam(':cedula', $this->cedula);
                 $stmt->execute();

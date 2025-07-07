@@ -31,6 +31,11 @@ $(document).ready(function () {
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
 						datos.append('servicio', $("#servicio").val()); // <-- Agrega el área
+						if($("#check_user").prop('checked')){
+							datos.append('check_usuario', 1);
+						} else {
+							datos.append('check_usuario', 0);
+						}
 						enviaAjax(datos);
 					}
 				}
@@ -54,7 +59,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
+				if (validarKeyUp(/^[VE]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
 					confirmacion = await confirmarAccion('Se eliminará Técnico', '¿Seguro de realizar la acción?', 'question');
 					if (confirmacion) {
 						var datos = new FormData();
@@ -83,6 +88,14 @@ $(document).ready(function () {
 
 	$("#btn-registrar").on("click", function () {
 		limpia();
+		$("#Fila1").prepend(`<div class="col-md-4" id="CheckUsuario">
+			<div class="form-check form-switch">
+              <input class="form-check-input permission-checkbox d-flex align-items-center" type="checkbox" role="switch"
+                id="check_user" maxlength="45">
+              <label for="check_user" class="form-label">Registrar como Usuario</label>
+              <span id="scheck_user"></span>
+            </div>
+          </div>`);
 		$("#idTecnico").remove();
 		$("#modalTitleId").text("Registrar Técnico");
 		$("#enviar").text("Registrar");
@@ -266,13 +279,13 @@ function capaValidar() {
 	});
 	$("#cedula").on("keyup", function () {
 		validarKeyUp(
-			/^[V]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
+			/^[VE]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
 			"Cédula no válida, el formato es: V-**********"
 		);
 	});
 
 	$("#nombre").on("keypress", function (e) {
-		validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\b]*$/, e);
+		validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]*$/, e);
 	});
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
@@ -296,7 +309,7 @@ function capaValidar() {
 	});
 	$("#correo").on("keyup", function () {
 		validarKeyUp(
-			/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
+			/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $(this), $("#scorreo"),
 			"El formato del correo electrónico es: usuario@servidor.com"
 		);
 	});
@@ -340,7 +353,7 @@ function capaValidar() {
 }
 
 function validarenvio() {
-	if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
+	if (validarKeyUp(/^[VE]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
 
@@ -356,7 +369,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El numero de teléfono debe tener el siguiente formato: ****-*******");
 		return false;
 
-	} else if (validarKeyUp(/^[-0-9a-zç_]{4,15}[@]{1}[0-9a-z]{5,10}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
+	} else if (validarKeyUp(/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;
 
@@ -424,6 +437,7 @@ function crearDataTable(arreglo) {
 }
 
 function limpia() {
+	$("#CheckUsuario").remove();
 	$("#cedula").removeClass("is-valid is-invalid");
 	$("#cedula").val("");
 	$("#scedula").text("");
@@ -460,6 +474,7 @@ function limpia() {
 }
 
 async function rellenar(pos, accion) {
+	limpia();
 	var espera;
 	linea = $(pos).closest('tr');
 

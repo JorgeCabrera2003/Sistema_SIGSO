@@ -11,7 +11,7 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "model/cargo.php";
 	require_once "model/unidad.php";
 	require_once "model/dependencia.php";
-    require_once "model/tipo_servicio.php";
+	require_once "model/tipo_servicio.php";
 
 	$titulo = "Gestionar Técnicos";
 	$cabecera = array('Cédula', "Nombre", "Apellido", "Teléfono", "Correo", "Dependencia", "Unidad", "Cargo", "Área", "Modificar/Eliminar");
@@ -20,7 +20,7 @@ if (is_file("view/" . $page . ".php")) {
 	$cargo = new Cargo();
 	$unidad = new Unidad();
 	$dependencia = new Dependencia();
-    $tipo_servicio = new TipoServicio();
+	$tipo_servicio = new TipoServicio();
 
 	if (!isset($permisos['tecnico']['ver']['estado']) || $permisos['tecnico']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Técnico";
@@ -40,7 +40,7 @@ if (is_file("view/" . $page . ".php")) {
 	// Registrar técnico
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['tecnico']['registrar']['estado']) && $permisos['tecnico']['registrar']['estado'] == '1') {
-			if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -69,20 +69,57 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Id del Cargo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 			} else {
-				$tecnico->set_cedula($_POST["cedula"]);
-				$tecnico->set_nombre($_POST["nombre"]);
-				$tecnico->set_apellido($_POST["apellido"]);
-				$tecnico->set_correo($_POST["correo"]);
-				$tecnico->set_telefono($_POST["telefono"]);
-				$tecnico->set_id_unidad($_POST["unidad"]);
-				$tecnico->set_id_cargo($_POST["cargo"]);
-				$tecnico->set_id_servicio($_POST["servicio"]); // <--- área
-				$peticion["peticion"] = "registrar";
-				$json = $tecnico->Transaccion($peticion);
-				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo técnico";
+
+				$usuario->set_cedula($_POST["cedula"]);
+				if ($_POST["check_usuario"] == 1) {
+					$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
 				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo técnico";
+					$validarUsuario['bool'] = 0;
+				}
+				$tecnico->set_cedula($_POST["cedula"]);
+				$validarEmpleado = $tecnico->Transaccion(['peticion' => 'validar']);
+
+				if ($validarUsuario['bool'] == 0 && $validarEmpleado['bool'] == 0) {
+
+					$tecnico->set_cedula($_POST["cedula"]);
+					$tecnico->set_nombre($_POST["nombre"]);
+					$tecnico->set_apellido($_POST["apellido"]);
+					$tecnico->set_correo($_POST["correo"]);
+					$tecnico->set_telefono($_POST["telefono"]);
+					$tecnico->set_id_unidad($_POST["unidad"]);
+					$tecnico->set_id_cargo($_POST["cargo"]);
+					$tecnico->set_id_servicio($_POST["servicio"]); // <--- área
+					$peticion["peticion"] = "registrar";
+					$json = $tecnico->Transaccion($peticion);
+					if ($json['estado'] == 1) {
+
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo técnico";
+						if ($_POST["check_usuario"] == 1) {
+							$clave = password_hash($_POST['cedula'], PASSWORD_DEFAULT);
+
+							$usuario->set_nombre_usuario($_POST["cedula"]);
+							$usuario->set_rol(5);
+							$usuario->set_nombres($_POST["nombre"]);
+							$usuario->set_apellidos($_POST["apellido"]);
+							$usuario->set_correo($_POST["correo"]);
+							$usuario->set_telefono($_POST["telefono"]);
+							$usuario->set_clave($clave);
+							$estado = $usuario->Transaccion(['peticion' => 'registrar']);
+
+							if ($estado['estado'] == 1) {
+								$json['resultado'] = "registrar";
+								$json['mensaje'] = "Se registró el tecnico exitosamente";
+								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tecnico y también como usuario";
+							} else {
+								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al registrar el tecnico también como usuario";
+							}
+						}
+
+					} else {
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo técnico";
+					}
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Técnico ya registrado";
 				}
 			}
 		} else {
@@ -107,7 +144,7 @@ if (is_file("view/" . $page . ".php")) {
 	// Modificar técnico
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['tecnico']['modificar']['estado']) && $permisos['tecnico']['modificar']['estado'] == '1') {
-			if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -136,6 +173,10 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Id del Cargo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 			} else {
+
+				$usuario->set_cedula($_POST["cedula"]);
+				$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
+
 				$tecnico->set_cedula($_POST["cedula"]);
 				$tecnico->set_nombre($_POST["nombre"]);
 				$tecnico->set_apellido($_POST["apellido"]);
@@ -147,7 +188,20 @@ if (is_file("view/" . $page . ".php")) {
 				$peticion["peticion"] = "modificar";
 				$json = $tecnico->Transaccion($peticion);
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del técnico";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del técnicocon la CI: " . $_POST['cedula'];
+					if ($validarUsuario['bool'] == 1) {
+						$usuario->set_nombres($_POST["nombre"]);
+						$usuario->set_apellidos($_POST["apellido"]);
+						$usuario->set_correo($_POST["correo"]);
+						$usuario->set_telefono($_POST["telefono"]);
+						$estado = $usuario->Transaccion(['peticion' => 'modificar_empleado']);
+
+						if ($estado) {
+							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del usuario tecnico con la CI: " . $_POST['cedula'];
+						} else {
+							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar al usuario empleado";
+						}
+					}
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar técnico";
 				}
@@ -171,8 +225,8 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 			} else {
 				$tecnico->set_cedula($_POST["cedula"]);
-				$tecnico->set_id_cargo(1); 
-                $peticion["peticion"] = "eliminar";
+				$tecnico->set_id_cargo(1);
+				$peticion["peticion"] = "eliminar";
 				$json = $tecnico->Transaccion($peticion);
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un técnico";
