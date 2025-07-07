@@ -92,7 +92,7 @@ if (is_file("view/" . $page . ".php")) {
     // Registrar nueva hoja de servicio (solo superusuario)
     if (isset($_POST["registrar"])) {
         try {
-            if ($_SESSION['user']['id_rol'] != 1) {
+            if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 3) {
                 throw new Exception('No tiene permisos para esta acción');
             }
 
@@ -137,7 +137,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         try {
-            if ($_SESSION['user']['id_rol'] != 1) {
+            if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 3) {
                 throw new Exception('No tiene permisos para esta acción');
             }
 
@@ -174,7 +174,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST['redireccionar'])) {
     try {
-        if ($_SESSION['user']['id_rol'] != 1) {
+        if ($_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 3) {
             throw new Exception('No tiene permisos para esta acción');
         }
 
@@ -303,7 +303,7 @@ if (is_file("view/" . $page . ".php")) {
             $stmt->execute();
             $hoja = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$hoja || ($hoja['cedula_tecnico'] != $_SESSION['user']['cedula'] && $_SESSION['user']['id_rol'] != 1)) {
+            if (!$hoja || ($hoja['cedula_tecnico'] != $_SESSION['user']['cedula'] && $_SESSION['user']['id_rol'] != 1 || $_SESSION['user']['id_rol'] != 3)) {
                 throw new Exception('No tiene permisos para finalizar esta hoja');
             }
 
@@ -336,7 +336,7 @@ if (is_file("view/" . $page . ".php")) {
             }
 
             // Verificar que el usuario es técnico
-            if ($_SESSION['user']['id_rol'] != 2 && $_SESSION['user']['id_rol'] != 1) {
+            if ($_SESSION['user']['id_rol'] != 2 && $_SESSION['user']['id_rol'] != 1 && $_SESSION['user']['id_rol'] != 3) {
                 throw new Exception('Solo los técnicos pueden tomar hojas de servicio');
             }
 
@@ -569,7 +569,7 @@ if (is_file("view/" . $page . ".php")) {
             }
 
             // Solo tecnicos y superusuarios pueden finalizar la hoja
-            if (!in_array($_SESSION['user']['id_rol'], [1, 2])) {
+            if (!in_array($_SESSION['user']['id_rol'], [1, 2, 3])) {
                 throw new Exception('No tiene permisos para esta acción');
             }
 
