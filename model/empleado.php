@@ -484,9 +484,7 @@ class Empleado extends Conexion
                         cedula_tecnico, 
                         COUNT(*) AS cant_hojas
                     FROM hoja_servicio
-                    WHERE estatus = 'I'
-                        AND MONTH(fecha_resultado) = MONTH(CURRENT_DATE())
-                        AND YEAR(fecha_resultado) = YEAR(CURRENT_DATE())
+                    WHERE estatus = 'A'
                     GROUP BY cedula_tecnico
                 ) hs ON hs.cedula_tecnico = e.cedula_empleado
                 WHERE e.id_servicio = :area_id
