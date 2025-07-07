@@ -695,7 +695,7 @@ async function cargarTecnicosPorArea(areaId) {
             response.datos.forEach(tec => {
                 let texto = tec.nombre;
                 if (typeof tec.hojas_mes !== 'undefined') {
-                    texto += ` (${tec.hojas_mes} hojas finalizadas este mes)`;
+                    texto += ` (${tec.hojas_mes} hojas activas este mes)`;
                 }
                 $select.append(new Option(texto, tec.cedula_empleado));
             });
