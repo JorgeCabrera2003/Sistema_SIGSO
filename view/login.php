@@ -1,6 +1,21 @@
 <?php require_once("Componentes/head.php") ?>
 
-<body>
+<body class="bg-light" style="position: relative;">
+  <style>
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('assets/img/gobernacion.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: blur(5px);
+      z-index: -1;
+    }
+  </style>
   <div class="container col-md-4 mb-4 d-flex justify-content-center align-items-center vh-100">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
