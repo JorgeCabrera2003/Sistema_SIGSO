@@ -12,7 +12,7 @@
     if (is_file("view/" . $page . ".php")) {
 
         require_once "controller/utileria.php";
-        require_once "model/Switch_.php";
+        require_once "model/switch_.php";
 
         $titulo = "Gestionar Switch";
         $cabecera = array('Código de Bien', "Cantidad de Puertos", "Serial", "Modificar / Eliminar");

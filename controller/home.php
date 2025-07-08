@@ -18,7 +18,7 @@ if (is_file("view/home.php")) {
   require_once "model/hoja_servicio.php";
   require_once "model/piso.php";
   require_once "model/patch_panel.php";
-  require_once "model/Switch_.php";
+  require_once "model/switch_.php";
   $usuario = new Usuario();
   $empleado = new Empleado();
   $oficina = new Oficina();
