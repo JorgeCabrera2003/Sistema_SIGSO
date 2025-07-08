@@ -120,10 +120,10 @@
               </a>
             </li>
             <ul id="redes-submenu" style="margin-left: 1em"
-              class="nav-content collapse<?php echo in_array($page, ["Switch_", "interconexion", "patch_panel", "punto_conexion"]) ? " show" : "" ?>"
+              class="nav-content collapse<?php echo in_array($page, ["switch_", "interconexion", "patch_panel", "punto_conexion"]) ? " show" : "" ?>"
               data-bs-parent="#sidebar-nav">
               <?php if (isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "Switch_") ? "active" : "" ?>" title="Gestión de Switches">
+                <li class="menu-item <?php echo ($page == "switch_") ? "active" : "" ?>" title="Gestión de Switches">
                   <a href="?page=switch_">
                     <i class="fa-solid fa-server"></i>
                     <span class="ms-2 me-2 menu-text">Switches</span>
