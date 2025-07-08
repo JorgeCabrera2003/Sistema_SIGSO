@@ -54,6 +54,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nueva unidad";
+					$msgN = "Se registró una Nueva Unidad";
+					NotificarUsuarios($msgN, "Usuario", ['modulo' => 1, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nueva unidad";
 				}
@@ -104,6 +106,8 @@ if (is_file("view/" . $page . ".php")) {
 
 			if ($json['estado'] == 1) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la unidad, id:" . $_POST["id_unidad"];
+				$msgN = "Unidad con ID: " . $_POST["id_unidad"] . " fue modificada";
+					NotificarUsuarios($msgN, "Usuario", ['modulo' => 1, 'accion' => 'ver']);
 			} else {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar unidad, id" . $_POST["id_unidad"];
 			}
@@ -132,6 +136,7 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una unidad, id:" . $_POST["id_unidad"];
+					$msgN = "Unidad con ID: " . $_POST["id_unidad"] . " fue eliminada";
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una unidad, id:" . $_POST["id_unidad"];
 				}
