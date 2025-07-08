@@ -65,6 +65,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo piso";
+					$msgN = "Se registró un Nuevo Piso";
+					NotificarUsuarios($msgN, "Piso", ['modulo' => 22, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo piso";
 				}
@@ -128,6 +130,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del piso con el id:" . $_POST["id_piso"];
+					$msgN = "Piso con ID: " . $_POST["id_piso"] . " fue modificado";
+					NotificarUsuarios($msgN, "Piso", ['modulo' => 22, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar piso";
 				}
@@ -157,6 +161,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un piso con el id: " . $_POST["id_piso"];
+					$msgN = "Piso con ID: " . $_POST["id_piso"] . " fue eliminado";
+					NotificarUsuarios($msgN, "Piso", ['modulo' => 22, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un piso";
 				}

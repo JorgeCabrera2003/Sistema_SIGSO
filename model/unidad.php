@@ -50,7 +50,7 @@ class Unidad extends Conexion
     {
         if ($this->dependencia == NULL) {
 
-            $this->dependencia = new Ente();
+            $this->dependencia = new Dependencia();
 
         }
 

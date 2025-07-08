@@ -71,6 +71,8 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $ente->Transaccion($peticion);
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente";
+					$msgN = "Se registró un Nuevo Ente";
+					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo ente";
 				}
@@ -140,6 +142,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó del ente con el id:" . $_POST["id_ente"];
+					$msgN = "Unidad con ID: " . $_POST["id_ente"] . " fue modificado";
+					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Ente";
 				}
@@ -173,6 +177,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un ente con el id:" . $_POST["id_ente"];
+					$msgN = "Unidad con Ente: " . $_POST["id_ente"] . " fue eliminado";
+					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Ente";
 				}

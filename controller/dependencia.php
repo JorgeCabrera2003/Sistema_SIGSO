@@ -62,6 +62,9 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo Depedencia";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente";
+					$msgN = "Se registró una Nueva Dependencia";
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo Depedencia";
 				}
@@ -109,6 +112,8 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $dependencia->Transaccion($peticion);
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó la dependencia con el id:" . $_POST["id_dependencia"];
+					$msgN = "Dependencia con ID: " . $_POST["id_dependencia"] . " fue modificado";
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Depedencia";
 				}
@@ -139,6 +144,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó la dependencia con el id:" . $_POST["id_dependencia"];
+					$msgN = "Dependencia con ID: " . $_POST["id_dependencia"] . " fue eliminada";
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una Depedencia";
 				}

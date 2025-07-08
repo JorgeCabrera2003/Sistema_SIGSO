@@ -52,6 +52,8 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva oficina";
+                    $msgN = "Se registró una Nueva Oficina";
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar una nueva oficina";
                 }
@@ -87,6 +89,8 @@ if (is_file("view/" . $page . ".php")) {
             $json = $oficina->Transaccion($peticion);
             if ($json['estado'] == 1) {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el registro de la oficina con el id: " . $_POST["id_oficina"];
+                $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue restaurada";
+                NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
             } else {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar la oficina";
             }
@@ -130,6 +134,8 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la oficina con el id: " . $_POST["id_oficina"];
+                    $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue modificada";
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar oficina";
                 }
@@ -158,6 +164,8 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una oficina con el id: " . $_POST["id_oficina"];
+                    $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue eliminada";
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una oficina";
                 }

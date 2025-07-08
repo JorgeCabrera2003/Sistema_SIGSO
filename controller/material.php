@@ -53,7 +53,8 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $material->Transaccion($peticion);
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo material";
-					$msgN = "Nuevo material registrado por " . $_SESSION['user']['nombre_usuario'] . ": " . $_POST["nombre"];
+					$msgN = "Se registró un Nuevo Material";
+					NotificarUsuarios($msgN, "Material", ['modulo' => 24, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo material";
 				}
@@ -66,7 +67,7 @@ if (is_file("view/" . $page . ".php")) {
 
 		echo json_encode($json);
 		Bitacora($msg, "Material");
-		Notificar($msgN, "Material");
+
 		exit;
 	}
 
@@ -88,7 +89,7 @@ if (is_file("view/" . $page . ".php")) {
 			$json = $material->Transaccion($peticion);
 			$json['resultado'] = "detalle";
 		}
-		
+
 		echo json_encode($json);
 		exit;
 	}
@@ -120,7 +121,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $material->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Material";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Materia con el id: " . $_POST["id_material"];
+					$msgN = "Material con ID: " . $_POST["id_material"] . " fue modificado";
+					NotificarUsuarios($msgN, "Material", ['modulo' => 24, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Material";
 				}
@@ -163,6 +166,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Material";
+					$msgN = "Material con ID: " . $_POST["id_material"] . " fue eliminado";
+					NotificarUsuarios($msgN, "Material", ['modulo' => 24, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Material";
 				}
