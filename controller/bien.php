@@ -9,12 +9,14 @@ if (is_file("view/" . $page . ".php")) {
     require_once "controller/utileria.php";
     require_once "model/bien.php";
     require_once "model/equipo.php";
+    require_once "model/empleado.php"; // Necesario para notificaciones
 
     $titulo = "Gestionar Bienes";
     $cabecera = array('#', "Código", "Tipo", "Marca", "Descripción", "Estado", "Oficina", "Empleado", "Modificar/Eliminar");
 
     $bien = new Bien();
     $equipo = new Equipo();
+    $empleado = new Empleado(); // Para notificaciones
 
     if (!isset($permisos['bien']['ver']['estado']) || $permisos['bien']['ver']['estado'] == "0") {
         $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Bien";
@@ -31,7 +33,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Agrega este bloque para responder a la petición de permisos (igual que en ente.php)
     if (isset($_POST['permisos'])) {
         $json['resultado'] = 'permisos_modulo';
         $json['permisos'] = $permisos;
@@ -58,17 +59,17 @@ if (is_file("view/" . $page . ".php")) {
 
             } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
+                $json['mensaje'] = "Error, Oficina no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else if (preg_match("/^[a-zA-ZáéíóúüñÑçÇ]{3,45}$/", $_POST["estado"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
+                $json['mensaje'] = "Error, Estado no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.,]{3,100}$/", $_POST["descripcion"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
+                $json['mensaje'] = "Error, Descripción no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
@@ -86,37 +87,63 @@ if (is_file("view/" . $page . ".php")) {
                 $peticion["peticion"] = "registrar";
                 $json = $bien->Transaccion($peticion);
 
-                // Solo si el bien se registró correctamente, registra el equipo si corresponde
-                if ($json['estado'] == 1 && isset($_POST['registrar_equipo']) && $_POST['registrar_equipo'] == '1') {
-                    require_once "model/equipo.php";
-                    $equipo = new Equipo();
-
-                    // Validación igual que en controller/equipo.php
-                    if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
-                        $jsonEquipo['resultado'] = "error";
-                        $jsonEquipo['mensaje'] = "Error, Código de Bien no válido";
-                    } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial_equipo"]) == 0) {
-                        $jsonEquipo['resultado'] = "error";
-                        $jsonEquipo['mensaje'] = "Error, Serial no válido";
-                    } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
-                        $jsonEquipo['resultado'] = "error";
-                        $jsonEquipo['mensaje'] = "Error, Tipo de Equipo no válido";
-                    } else if (!isset($_POST["id_unidad_equipo"]) || $_POST["id_unidad_equipo"] == "default") {
-                        $jsonEquipo['resultado'] = "error";
-                        $jsonEquipo['mensaje'] = "Debe seleccionar una unidad para el equipo";
-                    } else {
-                        $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
-                        $equipo->set_serial($_POST["serial_equipo"]);
-                        $equipo->set_codigo_bien($_POST["codigo_bien"]);
-                        $equipo->set_id_unidad($_POST["id_unidad_equipo"]);
-                        $peticionEquipo["peticion"] = "registrar";
-                        $jsonEquipo = $equipo->Transaccion($peticionEquipo);
-                    }
-                    $json['equipo'] = $jsonEquipo;
-                }
-
+                // Solo si el bien se registró correctamente
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo bien";
+                    
+                    // Notificación al usuario que registró el bien
+                    $Nmsg = "Has registrado exitosamente el bien con código: " . $_POST["codigo_bien"];
+                    Notificar($Nmsg, "Bien", $_SESSION['user']['cedula']);
+                    
+                    // Si se asignó a un empleado, notificar al empleado
+                    if ($ci_empleado !== NULL) {
+                        $Nmsg = "Se te ha asignado el bien con código: " . $_POST["codigo_bien"];
+                        Notificar($Nmsg, "Bien", $ci_empleado);
+                    }
+
+                    // Registrar equipo si corresponde
+                    if (isset($_POST['registrar_equipo']) && $_POST['registrar_equipo'] == '1') {
+                        require_once "model/equipo.php";
+                        $equipo = new Equipo();
+
+                        if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
+                            $jsonEquipo['resultado'] = "error";
+                            $jsonEquipo['mensaje'] = "Error, Código de Bien no válido";
+                        } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial_equipo"]) == 0) {
+                            $jsonEquipo['resultado'] = "error";
+                            $jsonEquipo['mensaje'] = "Error, Serial no válido";
+                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
+                            $jsonEquipo['resultado'] = "error";
+                            $jsonEquipo['mensaje'] = "Error, Tipo de Equipo no válido";
+                        } else if (!isset($_POST["id_unidad_equipo"]) || $_POST["id_unidad_equipo"] == "default") {
+                            $jsonEquipo['resultado'] = "error";
+                            $jsonEquipo['mensaje'] = "Debe seleccionar una unidad para el equipo";
+                        } else {
+                            $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
+                            $equipo->set_serial($_POST["serial_equipo"]);
+                            $equipo->set_codigo_bien($_POST["codigo_bien"]);
+                            $equipo->set_id_unidad($_POST["id_unidad_equipo"]);
+                            $peticionEquipo["peticion"] = "registrar";
+                            $jsonEquipo = $equipo->Transaccion($peticionEquipo);
+                            
+                            // Si el equipo se registró correctamente
+                            if ($jsonEquipo['estado'] == 1) {
+                                $msgEquipo = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo equipo asociado al bien " . $_POST["codigo_bien"];
+                                Bitacora($msgEquipo, "Bien");
+                                
+                                // Notificación al usuario que registró el equipo
+                                $Nmsg = "Has registrado exitosamente el equipo con serial: " . $_POST["serial_equipo"] . " asociado al bien: " . $_POST["codigo_bien"];
+                                Notificar($Nmsg, "Equipo", $_SESSION['user']['cedula']);
+                                
+                                // Si el bien está asignado a un empleado, notificar también al empleado
+                                if ($ci_empleado !== NULL) {
+                                    $Nmsg = "Se ha asociado un equipo (serial: " . $_POST["serial_equipo"] . ") al bien " . $_POST["codigo_bien"] . " que tienes asignado";
+                                    Notificar($Nmsg, "Bien", $ci_empleado);
+                                }
+                            }
+                        }
+                        $json['equipo'] = $jsonEquipo;
+                    }
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo bien";
                 }
@@ -132,8 +159,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-
-
+    // Resto del código del controlador (consultar, modificar, eliminar, etc.) se mantiene igual
     if (isset($_POST['consultar'])) {
         $peticion["peticion"] = "consultar";
         $json = $bien->Transaccion($peticion);
@@ -161,6 +187,10 @@ if (is_file("view/" . $page . ".php")) {
                 $json = $bien->Transaccion($peticion);
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un bien";
+                    
+                    // Notificación al usuario que restauró el bien
+                    $Nmsg = "Has restaurado el bien con código: " . $_POST["codigo_bien"];
+                    Notificar($Nmsg, "Bien", $_SESSION['user']['cedula']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar un nuevo bien";
                 }
@@ -174,8 +204,6 @@ if (is_file("view/" . $page . ".php")) {
         Bitacora($msg, "Bien");
         exit;
     }
-
-
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['bien']['modificar']['estado']) && $permisos['bien']['modificar']['estado'] == '1') {
@@ -196,21 +224,23 @@ if (is_file("view/" . $page . ".php")) {
 
             } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
+                $json['mensaje'] = "Error, Oficina no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else if (preg_match("/^[a-zA-ZáéíóúüñÑçÇ]{3,45}$/", $_POST["estado"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
+                $json['mensaje'] = "Error, Estado no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.,]{3,100}$/", $_POST["descripcion"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
+                $json['mensaje'] = "Error, Descripción no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
                 $ci_empleado = $_POST["cedula_empleado"];
+                $ci_empleado_anterior = $_POST["cedula_empleado_anterior"] ?? null;
+                
                 if (preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula_empleado"]) == 0) {
                     $ci_empleado = NULL;
                 }
@@ -226,6 +256,22 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó un bien";
+                    
+                    // Notificación al usuario que modificó el bien
+                    $Nmsg = "Has modificado el bien con código: " . $_POST["codigo_bien"];
+                    Notificar($Nmsg, "Bien", $_SESSION['user']['cedula']);
+                    
+                    // Notificar al nuevo empleado asignado (si cambió)
+                    if ($ci_empleado !== NULL && $ci_empleado !== $ci_empleado_anterior) {
+                        $Nmsg = "Se te ha asignado el bien con código: " . $_POST["codigo_bien"];
+                        Notificar($Nmsg, "Bien", $ci_empleado);
+                    }
+                    
+                    // Notificar al empleado anterior (si fue removido del bien)
+                    if ($ci_empleado_anterior !== NULL && $ci_empleado !== $ci_empleado_anterior) {
+                        $Nmsg = "Se te ha removido la asignación del bien con código: " . $_POST["codigo_bien"];
+                        Notificar($Nmsg, "Bien", $ci_empleado_anterior);
+                    }
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar un bien";
                 }
@@ -254,6 +300,17 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un bien";
+                    
+                    // Notificación al usuario que eliminó el bien
+                    $Nmsg = "Has eliminado el bien con código: " . $_POST["codigo_bien"];
+                    Notificar($Nmsg, "Bien", $_SESSION['user']['cedula']);
+                    
+                    // Notificar al empleado asignado (si tenía uno)
+                    $ci_empleado = $_POST["cedula_empleado"] ?? null;
+                    if ($ci_empleado !== NULL && preg_match("/^[V]{1}[-]{1}[0-9]{7,10}$/", $ci_empleado)) {
+                        $Nmsg = "Se ha eliminado el bien con código: " . $_POST["codigo_bien"] . " que tenías asignado";
+                        Notificar($Nmsg, "Bien", $ci_empleado);
+                    }
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un bien";
                 }
@@ -300,7 +357,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Endpoint para consultar bienes de un empleado (AJAX)
     if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
         $peticion = [
             'peticion' => 'consultar_bienes_empleado',
@@ -312,7 +368,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Agrega este bloque para responder a la petición de unidades
     if (isset($_POST['consultar_unidades'])) {
         require_once "model/unidad.php";
         $unidad = new Unidad();
