@@ -350,7 +350,7 @@ class Usuario extends Conexion
                 usuario.nombres,
                 usuario.apellidos,
                 usuario.id_rol,
-                rol.nombre_rol as rol,
+                rol.nombre_rol AS rol,
                 usuario.telefono,
                 usuario.correo,
                 usuario.clave,
