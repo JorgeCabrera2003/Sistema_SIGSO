@@ -185,14 +185,14 @@ class recuperar extends Conexion {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'bokorarcangel447@gmail.com';
-            $mail->Password = 'uobm ccsv vfor hzqu';
+            $mail->Username = 'sigso.sistema@gmail.com';
+            $mail->Password = 'nxmg qbxg ecfb vnrm';
             $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
             $mail->CharSet = 'UTF-8';
 
-            $mail->setFrom('bokorarcangel447@gmail.com', 'OFITIC');
+            $mail->setFrom('sigso.sistema@gmail.com', 'OFITIC');
             $mail->addAddress($correo, $nombre);
 
             $mail->isHTML(true);
