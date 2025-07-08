@@ -124,7 +124,7 @@
               data-bs-parent="#sidebar-nav">
               <?php if (isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1") { ?>
                 <li class="menu-item <?php echo ($page == "Switch_") ? "active" : "" ?>" title="Gestión de Switches">
-                  <a href="?page=Switch_">
+                  <a href="?page=switch_">
                     <i class="fa-solid fa-server"></i>
                     <span class="ms-2 me-2 menu-text">Switches</span>
                   </a>
