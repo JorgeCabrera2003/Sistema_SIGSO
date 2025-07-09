@@ -53,6 +53,8 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio";
+					$msgN = "Se registró una Nuevo Tipo de Servicio";
+                    NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo tipo de servicio";
 				}
@@ -100,7 +102,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del servicio";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del servicio con el id:".$_POST['id_servicio'];
+					$msgN = "Cargo con ID: " . $_POST["id_servicio"] . " fue modificado";
+                    NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar servicio";
 				}
@@ -128,7 +132,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un servicio";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un servicio con el id:".$_POST['id_servicio'];
+					$msgN = "Cargo con ID: " . $_POST["id_servicio"] . " fue eliminado";
+                    NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un servicio";
 				}

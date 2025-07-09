@@ -99,7 +99,8 @@ if (is_file("view/" . $page . ".php")) {
 					if ($json['estado'] == 1) {
 						$json['resultado'] = "registrar";
 						$json['mensaje'] = "Se registró el empleado exitosamente";
-
+						$msgN = "Se registró un Nuevo Empleado";
+                    
 						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado";
 
 						if ($_POST["check_usuario"] == 1) {
@@ -118,11 +119,12 @@ if (is_file("view/" . $page . ".php")) {
 								$json['resultado'] = "registrar";
 								$json['mensaje'] = "Se registró el empleado exitosamente";
 								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado y también como usuario";
+								$msgN = "Se registró un Nuevo Empleado tambien como Usuario";
 							} else {
 								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al registrar el empleado también como usuario";
 							}
 						}
-
+						NotificarUsuarios($msgN, "Empleado", ['modulo' => 5, 'accion' => 'ver']);
 					} else {
 						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo empleado";
 					}

@@ -44,6 +44,8 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo cargo";
+                    $msgN = "Se registró una Nuevo Cargo";
+                    NotificarUsuarios($msgN, "Cargo", ['modulo' => 12, 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo cargo";
                 }
@@ -98,6 +100,8 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del cargo con el id: " . $_POST["id_cargo"];
+                    $msgN = "Cargo con ID: " . $_POST["id_cargo"] . " fue modificado";
+                    NotificarUsuarios($msgN, "Cargo", ['modulo' => 12, 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar cargo";
                 }
@@ -127,6 +131,8 @@ if (is_file("view/" . $page . ".php")) {
                 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un cargocon el id: " . $_POST["id_cargo"];
+                    $msgN = "Cargo con ID: " . $_POST["id_cargo"] . " fue eliminado";
+                    NotificarUsuarios($msgN, "Cargo", ['modulo' => 12, 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un cargo";
                 }
