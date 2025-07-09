@@ -12,11 +12,17 @@ $equipo = new Equipo();
 // Endpoint para consultar equipos del empleado
 if (isset($_POST['peticion']) && $_POST['peticion'] === 'consultar_equipos_empleado' && isset($_POST['cedula_empleado'])) {
     $cedula = $_POST['cedula_empleado'];
-    // Usa el método Transaccion del modelo Equipo
-    $json = $equipo->Transaccion([
+    $data = [
         'peticion' => 'equipos_por_empleado',
         'cedula_empleado' => $cedula
-    ]);
+    ];
+
+    if (isset($_POST['nro_solicitud'])) {
+        $data['nro_solicitud'] = $_POST['nro_solicitud'];
+    }
+
+    // Usa el método Transaccion del modelo Equipo
+    $json = $equipo->Transaccion($data);
     echo json_encode(['resultado' => 'consultar_equipos_empleado', 'datos' => $json]);
     exit;
 }

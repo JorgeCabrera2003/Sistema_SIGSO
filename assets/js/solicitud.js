@@ -452,8 +452,8 @@ async function rellenarSolicitud(pos, accion) {
             if (datos.cedula_solicitante) {
                 $('#solicitante').val(datos.cedula_solicitante).trigger('change');
 
-                // Cargar equipos específicos del solicitante
-                await cargarEquiposPorSolicitante(datos.cedula_solicitante);
+                // Cargar equipos específicos del solicitante, pasando el nro de solicitud actual
+                await cargarEquiposPorSolicitante(datos.cedula_solicitante, datos.nro_solicitud);
                 if (datos.id_equipo) {
                     $('#equipo').val(datos.id_equipo).trigger('change');
                 }
@@ -465,10 +465,13 @@ async function rellenarSolicitud(pos, accion) {
         if (datos.id_tipo_servicio) {
             $('#area').val(datos.id_tipo_servicio).trigger('change');
 
-            // Cargar técnicos del área seleccionada
+            // Cargar técnicos del área seleccionada y luego seleccionar el técnico guardado
             await cargarTecnicosPorArea(datos.id_tipo_servicio);
             if (datos.cedula_tecnico) {
-                $('#tecnico').val(datos.cedula_tecnico).trigger('change');
+                // Usar un pequeño retardo para asegurar que el select2 se haya renderizado completamente
+                setTimeout(function() {
+                    $('#tecnico').val(datos.cedula_tecnico).trigger('change');
+                }, 100);
             }
         }
 
@@ -707,7 +710,14 @@ async function cargarTecnicosPorArea(areaId) {
             width: '100%',
             placeholder: 'Seleccione un técnico'
         });
-        $select.val('').trigger('change');
+
+        // Si hay técnicos, seleccionar el primero por defecto
+        if (response && response.resultado === 'success' && response.datos.length > 0) {
+            const primerTecnico = response.datos[0].cedula_empleado;
+            $select.val(primerTecnico).trigger('change');
+        } else {
+            $select.val('').trigger('change');
+        }
     } catch (error) {
         $select.empty().append('<option value="">Error al cargar técnicos</option>');
         $select.val('').trigger('change');
@@ -895,19 +905,25 @@ function mostrarError(mensaje) {
 }
 
 // Nueva función: cargar equipos por solicitante (como en mis_servicios)
-async function cargarEquiposPorSolicitante(cedula) {
+async function cargarEquiposPorSolicitante(cedula, nro_solicitud = null) {
     const $select = $('#equipo');
     $select.empty().append('<option value="">Cargando equipos...</option>');
     $select.val('').trigger('change');
 
     try {
+        const ajaxData = {
+            peticion: 'consultar_equipos_empleado',
+            cedula_empleado: cedula
+        };
+
+        if (nro_solicitud) {
+            ajaxData.nro_solicitud = nro_solicitud;
+        }
+
         const response = await $.ajax({
             type: 'POST',
             url: '?page=mis_servicios',
-            data: {
-                peticion: 'consultar_equipos_empleado',
-                cedula_empleado: cedula
-            },
+            data: ajaxData,
             dataType: 'json'
         });
 
