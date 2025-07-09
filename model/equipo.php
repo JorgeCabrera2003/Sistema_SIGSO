@@ -395,9 +395,11 @@ class Equipo extends Conexion
             $sql = "SELECT e.id_equipo, e.tipo_equipo, e.serial, e.codigo_bien, b.descripcion
                 FROM equipo e
                 INNER JOIN bien b ON e.codigo_bien = b.codigo_bien
+                LEFT JOIN solicitud s ON e.id_equipo = s.id_equipo AND s.estado_solicitud IN ('Pendiente', 'En proceso')
                 WHERE b.cedula_empleado = :cedula 
                 AND e.estatus = 1 
-                AND b.estatus = 1";
+                AND b.estatus = 1
+                AND s.id_equipo IS NULL";
 
             $stm = $this->conex->prepare($sql);
             $stm->bindParam(':cedula', $cedula_empleado);

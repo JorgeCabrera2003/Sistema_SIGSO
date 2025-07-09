@@ -155,7 +155,7 @@ class Solicitud extends Conexion
                 FROM solicitud s
                 LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
                 LEFT JOIN equipo eq ON s.id_equipo = eq.id_equipo
-                WHERE s.cedula_solicitante = :cedula
+                WHERE s.cedula_solicitante = :cedula AND s.estado_solicitud <> 'Eliminado'
                 ORDER BY s.fecha_solicitud DESC";
 
             $stmt = $this->conexion->prepare($sql);
@@ -309,7 +309,7 @@ class Solicitud extends Conexion
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
 
-            $sql = "UPDATE solicitud SET estatus = 0 WHERE nro_solicitud = :nro";
+            $sql = "UPDATE solicitud SET estado_solicitud = 'Eliminado', estatus = 0 WHERE nro_solicitud = :nro";
             $stmt = $this->conexion->prepare($sql);
             $stmt->bindParam(':nro', $this->nro_solicitud);
 
@@ -622,7 +622,7 @@ class Solicitud extends Conexion
                     LEFT JOIN empleado e ON s.cedula_solicitante = e.cedula_empleado
                     LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
                     LEFT JOIN dependencia d ON u.id_dependencia = d.id
-                    WHERE s.estatus = 0";
+                    WHERE s.estado_solicitud = 'Eliminado'";
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute();
             $datos['datos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -646,7 +646,7 @@ class Solicitud extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
-            $sql = "UPDATE solicitud SET estatus = 1 WHERE nro_solicitud = :nro";
+            $sql = "UPDATE solicitud SET estado_solicitud = 'Pendiente', estatus = 1 WHERE nro_solicitud = :nro";
             $stmt = $this->conexion->prepare($sql);
             $stmt->bindParam(':nro', $this->nro_solicitud);
             if ($stmt->execute()) {
