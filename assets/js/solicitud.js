@@ -399,6 +399,20 @@ function restaurarSolicitud(nro_solicitud) {
     });
 }
 
+function gestionarEstadoCampos(habilitar) {
+    const campos = ['#dependencia', '#solicitante', '#equipo', '#area', '#tecnico', '#motivo'];
+
+    campos.forEach(selector => {
+        const elemento = $(selector);
+        // Para Select2, se debe usar 'disabled' y luego refrescar si es necesario
+        if (elemento.hasClass('select2-hidden-accessible')) {
+            elemento.prop('disabled', !habilitar).trigger('change');
+        } else {
+            elemento.prop('disabled', !habilitar);
+        }
+    });
+}
+
 async function rellenarSolicitud(pos, accion) {
     try {
         const linea = $(pos).closest('tr');
@@ -430,9 +444,11 @@ async function rellenarSolicitud(pos, accion) {
         if (accion === 0) { // Editar
             $("#modalSolicitudLabel").text("Editar Solicitud");
             $("#btnGuardar").text("Actualizar").attr("name", "modificar");
+            gestionarEstadoCampos(true); // Habilitar campos
         } else { // Eliminar
             $("#modalSolicitudLabel").text("Eliminar Solicitud");
             $("#btnGuardar").text("Eliminar").attr("name", "eliminar");
+            gestionarEstadoCampos(false); // Deshabilitar campos
         }
 
         limpiarFormulario();
@@ -673,6 +689,7 @@ async function cargarAreas() {
 
 $('#btn-nueva-solicitud').on('click', function () {
     limpiarFormulario();
+    gestionarEstadoCampos(true); // Habilitar campos para nuevo registro
     $('#modalSolicitud').modal('show');
     $('#modalSolicitudLabel').text('Nueva Solicitud');
     $('#btnGuardar').text('Guardar').attr('name', 'registrar');
@@ -726,9 +743,14 @@ async function cargarTecnicosPorArea(areaId) {
 }
 
 function enviarFormulario() {
-    if (validarFormulario()) {
-        const formData = new FormData($('#formSolicitud')[0]);
-        const accion = $('#btnGuardar').attr('name');
+    const accion = $('#btnGuardar').attr('name');
+
+    // Solo validar si la acción no es 'eliminar'
+    if (accion !== 'eliminar' && !validarFormulario()) {
+        return; // Detener si la validación falla
+    }
+
+    const formData = new FormData($('#formSolicitud')[0]);
 
         // Asegurarnos de incluir el nroSolicitud aunque esté oculto
         if ($('#nroSolicitud').val()) {
@@ -769,10 +791,16 @@ function enviarFormulario() {
                 }
             },
             complete: function () {
-                $('#btnGuardar').prop('disabled', false).text(accion === 'registrar' ? 'Guardar' : 'Actualizar');
+                // Restaurar el texto del botón según la acción
+                let buttonText = 'Guardar';
+                if (accion === 'modificar') {
+                    buttonText = 'Actualizar';
+                } else if (accion === 'eliminar') {
+                    buttonText = 'Eliminar';
+                }
+                $('#btnGuardar').prop('disabled', false).text(buttonText);
             }
         });
-    }
 }
 
 function validarFormulario() {
