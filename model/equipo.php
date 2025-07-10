@@ -219,28 +219,31 @@ class Equipo extends Conexion
 
     private function Consultar()
     {
+        $dato = [];
+
         try {
-            $con = new Conexion("sistema");
-            $con = $con->Conex();
-            $con->beginTransaction();
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+            $query = "SELECT e.*, u.nombre_unidad, CONCAT(et.nombre,' - ', d.nombre) AS dependencia
+                     FROM equipo e 
+                     JOIN unidad u ON e.id_unidad = u.id_unidad
+                     JOIN dependencia d ON u.id_dependencia = d.id
+                     JOIN ente et ON d.id_ente = et.id
+                     WHERE u.estatus = 1 AND e.estatus = 1";
 
-            $query = "SELECT e.*, b.descripcion AS bien_descripcion, 
-            d.nombre AS dependencia_nombre, u.nombre_unidad AS unidad_nombre
-            FROM equipo e
-            LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
-            LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
-            LEFT JOIN piso p ON o.id_piso = p.id_piso
-            LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
-            LEFT JOIN dependencia d ON u.id_dependencia = d.id
-            WHERE e.estatus = 1";
-
-            $stm = $con->prepare($query);
+            $stm = $this->conex->prepare($query);
             $stm->execute();
-            $con->commit();
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conex->commit();
+            $dato['resultado'] = "consultar";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return $e->getMessage();
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
         }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
     }
 
     private function ConsultarEliminadas()
