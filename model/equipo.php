@@ -224,12 +224,15 @@ class Equipo extends Conexion
             $con = $con->Conex();
             $con->beginTransaction();
 
-            $query = "SELECT e.*, b.descripcion AS bien_descripcion, d.nombre AS dependencia_nombre, u.nombre AS unidad_nombre
-                      FROM equipo e
-                      LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
-                      LEFT JOIN dependencia d ON b.id_dependencia = d.id_dependencia
-                      LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
-                      WHERE e.estatus = 1";
+            $query = "SELECT e.*, b.descripcion AS bien_descripcion, 
+            d.nombre AS dependencia_nombre, u.nombre_unidad AS unidad_nombre
+            FROM equipo e
+            LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
+            LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+            LEFT JOIN piso p ON o.id_piso = p.id_piso
+            LEFT JOIN unidad u ON e.id_unidad = u.id_unidad
+            LEFT JOIN dependencia d ON u.id_dependencia = d.id
+            WHERE e.estatus = 1";
 
             $stm = $con->prepare($query);
             $stm->execute();

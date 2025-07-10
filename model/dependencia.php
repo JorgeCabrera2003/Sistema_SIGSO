@@ -245,6 +245,25 @@ class Dependencia extends Conexion
         return $dato;
     }
 
+    private function ConsultarAreas()
+    {
+        $dato = [];
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $query = "SELECT id_tipo_servicio, nombre_tipo_servicio AS nombre_servicio FROM tipo_servicio WHERE estatus = 1";
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "consultar_areas";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
     public function Transaccion($peticion)
     {
 
@@ -260,6 +279,9 @@ class Dependencia extends Conexion
 
             case 'consultar':
                 return $this->Consultar();
+
+            case 'consultar_areas':
+                return $this->ConsultarAreas();
 
             case 'actualizar':
                 return $this->Actualizar();

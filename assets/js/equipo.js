@@ -179,30 +179,8 @@ async function enviaAjax(datos) {
 
 		},
 	});
+
 }
-
-function vistaPermiso(permisos = null) {
-
-	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
-
-		$('.modificar').remove();
-		$('.eliminar').remove();
-
-	} else {
-
-		if (permisos['equipo']['modificar']['estado'] == '0') {
-			$('.modificar').remove();
-		}
-
-		if (permisos['equipo']['eliminar']['estado'] == '0') {
-			$('.eliminar').remove();
-		}
-
-		if (permisos['equipo']['historial']['estado'] == '0') {
-			$('.historial').remove();
-		}
-	}
-};
 
 function capaValidar() {
 	$("#tipo_equipo").on("keypress", function (e) {

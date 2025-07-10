@@ -1,76 +1,129 @@
-$(document).ready(function () {
-    // Inicialización
-    inicializarComponentes();
-    cargarDatosIniciales();
-    configurarEventos();
+let areaSeleccionadaManualmente = false;
 
+$(document).ready(function () {
     // Arrays de palabras clave para cada área de servicio
     const palabrasClave = {
         soporte: ['computador', 'pc', 'equipo', 'laptop', 'monitor', 'teclado', 'mouse', 'impresora', 'software', 'windows', 'office', 'excel', 'word', 'encender', 'apagar', 'reiniciar', 'pantalla', 'sonido', 'altavoz', 'bocina', 'disco', 'ram', 'procesador', 'virus', 'antivirus', 'lentitud', 'internet', 'navegador', 'chrome', 'firefox', 'aplicación', 'programa', 'instalar', 'desinstalar'],
         electronica: ['circuito', 'soldadura', 'multímetro', 'osciloscopio', 'fuente', 'alimentación', 'voltaje', 'corriente', 'resistencia', 'capacitor', 'diodo', 'transistor', 'placa', 'pcb', 'protoboard', 'arduino', 'raspberry', 'microcontrolador', 'sensor', 'actuador', 'motor', 'reparación', 'corto circuito', 'quemado', 'falla eléctrica'],
-        telefonia: ['teléfono', 'celular', 'central', 'pbx', 'extensión', 'tono', 'llamada', 'marcar', 'auricular', 'handset', 'voip', 'ip', 'sip', 'conmutador', 'interno', 'externo', 'fax', 'conferencia', 'buzón', 'mensaje', 'contestador', 'inalámbrico', 'inalambrico', 'inalámbrica', 'inalambrica', 'senitel', 'senitel'],
-        redes: ['red', 'wifi', 'ethernet', 'cable', 'conexión', 'conexion', 'ip', 'dns', 'dhcp', 'router', 'switch', 'acceso', 'inalámbrico', 'inalambrico', 'punto', 'acceso', 'velocidad', 'ping', 'latencia', 'caída', 'caida', 'intermitente', 'cortes', 'cortes', 'proxy', 'vpn', 'firewall', 'servidor', 'dominio', 'dominio']
+        telefonia: ['teléfono', 'celular', 'central', 'pbx', 'extensión', 'tono', 'llamada', 'marcar', 'auricular', 'handset', 'voip', 'ip', 'sip', 'conmutador', 'interno', 'externo', 'fax', 'conferencia', 'buzón', 'mensaje', 'contestador', 'inalámbrico', 'inalambrico', 'inalámbrica', 'inalambrica', 'senitel'],
+        redes: ['red', 'wifi', 'ethernet', 'cable', 'conexión', 'conexion', 'ip', 'dns', 'dhcp', 'router', 'switch', 'acceso', 'inalámbrico', 'inalambrico', 'punto', 'acceso', 'velocidad', 'ping', 'latencia', 'caída', 'caida', 'intermitente', 'cortes', 'proxy', 'vpn', 'firewall', 'servidor', 'dominio']
     };
 
-     function detectarAreaPorMotivo(motivo) {
-        // Convertir a minúsculas y eliminar acentos
-        const texto = motivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // --- INICIALIZACIÓN ---
+    inicializarComponentes();
+    cargarDatosIniciales();
+    configurarEventos(palabrasClave);
+});
 
-        // Contador de coincidencias
-        const conteo = {
-            soporte: 0,
-            electronica: 0,
-            telefonia: 0,
-            redes: 0
-        };
+// --- FUNCIONES DE CONFIGURACIÓN Y EVENTOS ---
+function configurarEventos(palabrasClave) {
+    $('#btn-refrescar').on('click', recargarTabla);
 
-        // Contar coincidencias para cada área
-        for (const area in palabrasClave) {
-            palabrasClave[area].forEach(palabra => {
-                const palabraNormalizada = palabra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const regex = new RegExp(`\\b${palabraNormalizada}\\b`, 'i');
-                if (regex.test(texto)) {
-                    conteo[area]++;
-                }
-            });
+    $('#btn-solicitudes-eliminadas').on('click', () => {
+        consultarEliminadas();
+        $('#modalEliminadas').modal('show');
+    });
+
+    $('#btnNuevaSolicitud').on('click', () => {
+        // Resetea el tracker para la nueva solicitud
+        areaSeleccionadaManualmente = false;
+
+        // 1. Resetear el formulario base
+        $('#formSolicitud')[0].reset();
+
+        // 2. Limpiar los select2 que no deben tener valor por defecto
+        $('#dependencia, #solicitante, #equipo, #tecnico').val(null).trigger('change');
+
+        // 3. Establecer el área por defecto (con un breve retardo para asegurar la renderización de select2)
+        setTimeout(function() {
+            $('#area').val(1).trigger('change');
+        }, 50); // 50ms de retardo
+
+        // 4. Configurar el modal para una nueva solicitud
+        $('#modalSolicitudLabel').text('Nueva Solicitud');
+        $('#btnGuardar').text('Guardar').attr('name', 'registrar');
+        gestionarEstadoCampos(true);
+    });
+
+    $('#dependencia').on('change', function () {
+        const dependenciaId = $(this).val();
+        if (dependenciaId) {
+            cargarSolicitantes(dependenciaId);
+        } else {
+            $('#solicitante').empty().append('<option value="" selected disabled>Seleccione un solicitante</option>').trigger('change');
+            $('#equipo').empty().append('<option value="">No especificar equipo</option>').trigger('change');
         }
+    });
 
-        // Encontrar el área con más coincidencias
-        let areaSeleccionada = 'soporte'; // Valor por defecto
-        let maxCoincidencias = 0;
-
-        for (const area in conteo) {
-            if (conteo[area] > maxCoincidencias) {
-                maxCoincidencias = conteo[area];
-                areaSeleccionada = area;
-            }
+    $('#solicitante').on('change', function () {
+        const cedula = $(this).val();
+        const nro_solicitud = $('#nro_solicitud').val();
+        if (cedula) {
+            cargarEquiposPorSolicitante(cedula, nro_solicitud);
+        } else {
+            $('#equipo').empty().append('<option value="">No especificar equipo</option>').trigger('change');
         }
+    });
 
-        // Mapear el nombre del área al ID correspondiente
-        const mapAreaToId = {
-            'soporte': 1,
-            'redes': 2,
-            'telefonia': 3,
-            'electronica': 4
-        };
+    $('#area').on('change', function (event) {
+        // Chequeo de seguridad para el evento
+        if (event && event.originalEvent) { 
+            areaSeleccionadaManualmente = true;
+        }
+        const areaId = $(this).val();
+        if (areaId) {
+            cargarTecnicosPorArea(areaId);
+        } else {
+            $('#tecnico').empty().append('<option value="" selected disabled>Seleccione un técnico</option>').trigger('change');
+        }
+    });
 
-        return mapAreaToId[areaSeleccionada];
-    }
-
-    // Evento para el campo motivo
-    $('#motivo').on('input', function() {
+    $('#motivo').on('input', function () {
         validarMotivo($(this).val());
-        
-        // Solo detectar área si la solicitud está pendiente y no se ha seleccionado un área manualmente
-        const estadoSolicitud = $('#estado_solicitud').val() || 'Pendiente';
-        if (estadoSolicitud === 'Pendiente' && !$('#area').val()) {
-            const areaId = detectarAreaPorMotivo($(this).val());
+        if (!areaSeleccionadaManualmente) {
+            const areaId = detectarAreaPorMotivo($(this).val(), palabrasClave);
             if (areaId) {
                 $('#area').val(areaId).trigger('change');
             }
         }
     });
-});
+
+    $('#formSolicitud').on('submit', e => {
+        e.preventDefault();
+        enviarFormulario();
+    });
+}
+
+// --- FUNCIONES DE LÓGICA ---
+function detectarAreaPorMotivo(motivo, palabrasClave) {
+    const texto = motivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const conteo = { soporte: 0, electronica: 0, telefonia: 0, redes: 0 };
+
+    for (const area in palabrasClave) {
+        palabrasClave[area].forEach(palabra => {
+            const palabraNormalizada = palabra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const regex = new RegExp(`\\b${palabraNormalizada}\\b`, 'gi');
+            const matches = texto.match(regex);
+            if (matches) {
+                conteo[area] += matches.length;
+            }
+        });
+    }
+
+    let areaSeleccionada = null;
+    let maxCoincidencias = 0;
+    for (const area in conteo) {
+        if (conteo[area] > maxCoincidencias) {
+            maxCoincidencias = conteo[area];
+            areaSeleccionada = area;
+        }
+    }
+
+    if (!areaSeleccionada) return null;
+
+    const mapAreaToId = { 'soporte': 1, 'redes': 2, 'telefonia': 3, 'electronica': 4 };
+    return mapAreaToId[areaSeleccionada];
+}
 
 function inicializarComponentes() {
     // Inicializar DataTable
@@ -221,53 +274,8 @@ function inicializarComponentes() {
 }
 
 function cargarDatosIniciales() {
-    // Cargar dependencias
     cargarDependencias();
-}
-
-
-function configurarEventos() {
-    // Evento para el botón de refrescar
-    $('#btn-refrescar').on('click', function () {
-        recargarTabla();
-    });
-
-    // Evento para cambio de dependencia
-    $('#dependencia').on('change', function () {
-        const dependenciaId = $(this).val();
-        if (dependenciaId) {
-            cargarSolicitantes(dependenciaId);
-            cargarEquipos(dependenciaId);
-        } else {
-            $('#solicitante').empty().append('<option value="" selected disabled>Seleccione un solicitante</option>');
-            $('#equipo').empty().append('<option value="" selected>No especificar equipo</option>');
-        }
-    });
-
-    // Evento para enviar el formulario
-    $('#formSolicitud').on('submit', function (e) {
-        e.preventDefault();
-        enviarFormulario();
-    });
-
-    // Validación del campo motivo
-    $('#motivo').on('input', function() {
-    validarMotivo($(this).val());
-    
-    // Solo detectar área si la solicitud está pendiente y no se ha seleccionado un área manualmente
-    if ($('#estado_solicitud').val() === 'Pendiente' && !$('#area').val()) {
-        const areaId = detectarAreaPorMotivo($(this).val());
-        if (areaId) {
-            $('#area').val(areaId).trigger('change');
-        }
-    }
-});
-
-    // Reemplazar botón de actualizar por solicitudes eliminadas
-    $('#btn-solicitudes-eliminadas').on('click', function () {
-        consultarEliminadas();
-        $('#modalEliminadas').modal('show');
-    });
+    cargarAreas(); // Cargar áreas al inicializar
 }
 
 // --- NUEVAS FUNCIONES PARA PAPELERA DE SOLICITUDES ---
@@ -345,6 +353,36 @@ function TablaEliminados(arreglo) {
                 "next": "Siguiente",
                 "previous": "Anterior"
             }
+        }
+    });
+}
+
+// --- FUNCIONES DE CARGA DE DATOS ---
+function cargarAreas(areaActual = null) {
+    $.ajax({
+        url: '?page=solicitud',
+        type: 'POST',
+        data: { action: 'load_areas' },
+        dataType: 'json',
+        success: function (response) {
+            if (response.resultado === 'consultar_areas') {
+                const $areaSelect = $('#area');
+                $areaSelect.empty().append('<option value="" selected disabled>Seleccione un área</option>');
+                response.datos.forEach(area => {
+                    $areaSelect.append(`<option value="${area.id_tipo_servicio}">${area.nombre_servicio}</option>`);
+                });
+                if (areaActual) {
+                    $areaSelect.val(areaActual).trigger('change');
+                } else {
+                    // Por defecto, seleccionar 'Soporte Técnico' si no hay un área actual
+                    $areaSelect.val(1).trigger('change');
+                }
+            } else {
+                mostrarError('Error al cargar áreas: ' + (response.mensaje || 'Respuesta inesperada'));
+            }
+        },
+        error: function (xhr) {
+            mostrarError('Error de red al cargar áreas: ' + xhr.responseText);
         }
     });
 }
@@ -678,7 +716,7 @@ async function cargarAreas() {
             $select.empty().append('<option value="" selected disabled>Seleccione un área</option>');
 
             response.datos.forEach(area => {
-                $select.append(`<option value="${area.id_tipo_servicio}">${area.nombre_tipo_servicio}</option>`);
+                $select.append(`<option value="${area.id_tipo_servicio}">${area.nombre_servicio}</option>`);
             });
         }
     } catch (error) {
