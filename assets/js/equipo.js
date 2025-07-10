@@ -179,8 +179,30 @@ async function enviaAjax(datos) {
 
 		},
 	});
-
 }
+
+function vistaPermiso(permisos = null) {
+
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+
+		$('.modificar').remove();
+		$('.eliminar').remove();
+
+	} else {
+
+		if (permisos['equipo']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['equipo']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+
+		if (permisos['equipo']['historial']['estado'] == '0') {
+			$('.historial').remove();
+		}
+	}
+};
 
 function capaValidar() {
 	$("#tipo_equipo").on("keypress", function (e) {
@@ -341,39 +363,45 @@ function vistaPermiso(permisos = null) {
 };
 
 function crearDataTable(arreglo) {
-	if ($.fn.DataTable.isDataTable('#tabla1')) {
-		$('#tabla1').DataTable().destroy();
-	}
+    if ($.fn.DataTable.isDataTable('#tabla1')) {
+        $('#tabla1').DataTable().destroy();
+    }
 
-	$('#tabla1').DataTable({
-		data: arreglo,
-		columns: [
-			{ data: 'id_equipo' },
-			{ data: 'tipo_equipo' },
-			{ data: 'serial' },
-			{ data: 'codigo_bien' },
-			{ data: 'dependencia' },
-			{ data: 'nombre_unidad' },
-			{
-				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar">
-					<i class="fa-solid fa-pen-to-square"></i>
-					</button>
-					<button onclick="rellenar(this, 1)" class="btn btn-info historial">
-					<i class="fa-solid fa-clock"></i>
-					</button>
-					<button onclick="rellenar(this, 2)" class="btn btn-danger">
-					<i class="fa-solid fa-trash eliminar"></i>
-					</button>`;
-					return botones;
-				}
-			}],
-		language: {
-			url: idiomaTabla,
-		}
-	});
+    $('#tabla1').DataTable({
+        data: arreglo,
+        columns: [
+            { data: 'id_equipo' },
+            { data: 'tipo_equipo' },
+            { data: 'serial' },
+            { data: 'codigo_bien' },
+            { data: 'dependencia' },
+            { data: 'nombre_unidad' },
+            {
+                data: null, 
+                render: function(data, type, row) {
+                    return `
+                        <button onclick="rellenar(this, 0)" class="btn btn-update modificar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="rellenar(this, 1)" class="btn btn-info historial">
+                            <i class="fa-solid fa-clock"></i>
+                        </button>
+                        <button onclick="rellenar(this, 2)" class="btn btn-danger eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>`;
+                }
+            }
+        ],
+        language: {
+            url: idiomaTabla,
+        },
+        responsive: true,
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    });
 }
-
 function limpia() {
 	filtrarBien();
 	$("#tipo_equipo").removeClass("is-valid is-invalid");
