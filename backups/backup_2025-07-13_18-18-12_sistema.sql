@@ -393,7 +393,7 @@ CREATE TABLE `hoja_servicio` (
   CONSTRAINT `hoja_servicio_ibfk_2` FOREIGN KEY (`cedula_tecnico`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `hoja_servicio_ibfk_3` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `hoja_servicio_ibfk_4` FOREIGN KEY (`redireccion`) REFERENCES `hoja_servicio` (`codigo_hoja_servicio`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -402,7 +402,7 @@ CREATE TABLE `hoja_servicio` (
 
 LOCK TABLES `hoja_servicio` WRITE;
 /*!40000 ALTER TABLE `hoja_servicio` DISABLE KEYS */;
-INSERT INTO `hoja_servicio` VALUES (44,166,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(45,167,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(46,167,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(47,168,1,NULL,'V-30454597',NULL,NULL,NULL,'A');
+INSERT INTO `hoja_servicio` VALUES (44,166,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(45,167,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(46,167,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(47,168,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(48,171,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(49,171,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(50,172,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(51,173,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(52,173,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(53,174,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(54,175,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(55,176,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(56,175,2,NULL,'V-30587785',NULL,NULL,NULL,'E'),(57,176,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(58,177,1,NULL,'V-31843937',NULL,NULL,NULL,'A');
 /*!40000 ALTER TABLE `hoja_servicio` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -711,7 +711,7 @@ CREATE TABLE `solicitud` (
   KEY `solicitud_ibfk_1` (`cedula_solicitante`),
   KEY `solicitud_ibfk_2` (`id_equipo`),
   CONSTRAINT `solicitud_ibfk_1` FOREIGN KEY (`cedula_solicitante`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -720,7 +720,7 @@ CREATE TABLE `solicitud` (
 
 LOCK TABLES `solicitud` WRITE;
 /*!40000 ALTER TABLE `solicitud` DISABLE KEYS */;
-INSERT INTO `solicitud` VALUES (165,'V-31843937','Prueba',14,'2025-07-08 23:57:50','Eliminado',NULL,0),(166,'V-31843937','Computadora no enciended',14,'2025-07-09 00:06:40','Eliminado',NULL,0),(167,'V-31843937','Necesito super rapida',23,'2025-07-09 00:08:22','Eliminado',NULL,0),(168,'V-31843937','Necesito mas ram',23,'2025-07-09 00:24:52','Eliminado',NULL,0),(169,'V-31843937','No tengo internet',14,'2025-07-09 00:49:26','Eliminado',NULL,0);
+INSERT INTO `solicitud` VALUES (165,'V-31843937','Prueba',14,'2025-07-08 23:57:50','Eliminado',NULL,0),(166,'V-31843937','Computadora no enciended',14,'2025-07-09 00:06:40','Eliminado',NULL,0),(167,'V-31843937','Necesito super rapida',23,'2025-07-09 00:08:22','Eliminado',NULL,0),(168,'V-31843937','Necesito mas ram',23,'2025-07-09 00:24:52','Eliminado',NULL,0),(169,'V-31843937','No tengo internet',14,'2025-07-09 00:49:26','Eliminado',NULL,0),(170,'V-31843937','Prueba',14,'2025-07-09 17:43:47','Eliminado',NULL,0),(171,'V-31843937','prueba',23,'2025-07-09 20:07:13','Eliminado',NULL,0),(172,'V-31843937','Prueba',14,'2025-07-10 19:09:40','Eliminado',NULL,0),(173,'V-31843937','Prueba 2',23,'2025-07-10 19:38:10','Eliminado',NULL,0),(174,'V-31843937','Prueba 2 frank',23,'2025-07-10 19:42:21','Eliminado',NULL,0),(175,'V-31843937','Prueba del selectw2 con jor',14,'2025-07-10 19:44:47','Eliminado',NULL,0),(176,'V-31843937','Prueba frank',23,'2025-07-10 19:45:12','En proceso',NULL,1),(177,'V-31843937','Preuba jorguin',14,'2025-07-10 19:47:48','En proceso',NULL,1);
 /*!40000 ALTER TABLE `solicitud` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1121,4 +1121,4 @@ USE `sigso_sistema`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-09 17:41:10
+-- Dump completed on 2025-07-13 18:18:15
