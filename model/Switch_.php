@@ -2,43 +2,51 @@
 
 require_once "model/conexion.php";
 
-class Switch_ extends Conexion {
+class Switch_ extends Conexion
+{
 
     private $codigo_bien;
     private $cantidad_puertos;
     private $serial_switch;
 
-    public function __construct() {
+    public function __construct()
+    {
 
         $this->codigo_bien = "";
         $this->cantidad_puertos = "";
         $this->serial_switch = "";
-
     }
 
 
-    public function get_codigo_bien() {
+    public function get_codigo_bien()
+    {
         return $this->codigo_bien;
     }
-    public function set_codigo_bien($codigo_bien) {
+    public function set_codigo_bien($codigo_bien)
+    {
         $this->codigo_bien = $codigo_bien;
     }
 
-    public function get_cantidad_puertos() {
+    public function get_cantidad_puertos()
+    {
         return $this->cantidad_puertos;
     }
-    public function set_cantidad_puertos($cantidad_puertos) {
+    public function set_cantidad_puertos($cantidad_puertos)
+    {
         $this->cantidad_puertos = $cantidad_puertos;
     }
 
-    public function get_serial_switch() {
+    public function get_serial_switch()
+    {
         return $this->serial_switch;
     }
-    public function set_serial_switch($serial_switch) {
+    public function set_serial_switch($serial_switch)
+    {
         $this->serial_switch = $serial_switch;
     }
 
-    private function Validar() {
+    private function Validar()
+    {
 
         $dato = [];
 
@@ -61,22 +69,21 @@ class Switch_ extends Conexion {
             } else {
                 $dato['bool'] = 0;
             }
-
         } catch (PDOException $e) {
 
             $this->conex->rollBack();
             $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
-
         }
 
-       $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
     }
 
-    private function Registrar() {
-        
+    private function Registrar()
+    {
+
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
 
@@ -101,7 +108,6 @@ class Switch_ extends Conexion {
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Registró el Switch Exitosamente";
-
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
@@ -120,7 +126,8 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-    private function Actualizar() {
+    private function Actualizar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -145,7 +152,6 @@ class Switch_ extends Conexion {
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Modificaron los datos del Switch Exitosamente";
-
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['estado'] = -1;
@@ -164,7 +170,8 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-    private function Eliminar() {
+    private function Eliminar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -191,14 +198,12 @@ class Switch_ extends Conexion {
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Eliminó el Switch Exitosamente";
-
             } catch (PDOException $e) {
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
-
         } else {
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
@@ -210,7 +215,8 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-    private function Consultar() {
+    private function Consultar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -228,12 +234,10 @@ class Switch_ extends Conexion {
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
 
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -241,7 +245,8 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-    public function ConsultarBien() {
+    public function ConsultarBien()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -263,7 +268,6 @@ class Switch_ extends Conexion {
             $stm = $this->conex->prepare($query);
             $stm->execute();
             $result = $stm->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             $result = [];
         }
@@ -273,7 +277,8 @@ class Switch_ extends Conexion {
         return $result;
     }
 
-    private function ConsultarEliminadas() {
+    private function ConsultarEliminadas()
+    {
 
         $dato = [];
 
@@ -291,12 +296,10 @@ class Switch_ extends Conexion {
             $stm->execute();
             $dato['resultado'] = "consultar_eliminadas";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
 
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -304,8 +307,9 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-        
-    private function Restaurar() {
+
+    private function Restaurar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -330,14 +334,12 @@ class Switch_ extends Conexion {
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se Restauro el Patch Panel exitosamente";
-
         } catch (PDOException $e) {
 
             $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -345,7 +347,8 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-    private function reporteSwitchPanel($id_piso) {
+    private function reporteSwitchPanel($id_piso)
+    {
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
 
@@ -367,7 +370,8 @@ class Switch_ extends Conexion {
         return $dato;
     }
 
-    public function Transaccion($peticion) {
+    public function Transaccion($peticion)
+    {
 
         switch ($peticion['peticion']) {
 
@@ -400,11 +404,6 @@ class Switch_ extends Conexion {
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
-
         }
-
     }
-
 }
-
-?>
