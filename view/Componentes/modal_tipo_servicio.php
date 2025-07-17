@@ -25,8 +25,31 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-12">
+          <fieldset class="permission-group">
+            <legend class="group-header">
+              <div class="form-check form-check-inline text-center">
+                <label class="" for="servicios">Servicios Prestados</label>
+              </div>
+            </legend>
+            <div class="table-responsive">
+              <table class="table" id="tabla_servicio">
+                <thead>
+                  <tr>
+                    <th scope='col'>#</th>
+                    <th scope='col'>Nombre del Servico</th>
+                    <th scope='col'>Modificar/Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody>
 
-
+                </tbody>
+              </table>
+            </div>
+          </fieldset>
+        </div>
+      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         <button id="enviar" name="" class="btn btn-primary"></button>

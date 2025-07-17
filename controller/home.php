@@ -8,7 +8,7 @@ ob_start();
 
 if (is_file("view/home.php")) {
 
-  $titulo = "Home";
+ 
   $css = ["alert", "style"];
   require_once "controller/utileria.php";
   require_once "model/usuario.php";
@@ -125,10 +125,8 @@ if (isset($_POST['pisoFiltradoSwitch'])) {
     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Ingresó al Módulo de Dashboard";
     Bitacora($msg, "Dashboard");
     exit;
-  }
-  
-
-  
+  } 
+   $titulo = "Home";
   
   require_once "view/home.php";
 } else {
