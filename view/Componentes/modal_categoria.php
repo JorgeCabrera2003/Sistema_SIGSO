@@ -12,14 +12,14 @@
                         <div class="form-floating mb-3 mt-4">
                             <input placeholder="" class="form-control" name="id_tipo_bien" type="text" id="id_tipo_bien" readonly>
                             <span id="sid_tipo_bien"></span>
-                            <label for="id_tipo_bien" class="form-label">ID Tipo de Bien</label>
+                            <label for="id_tipo_bien" class="form-label">ID Categoría</label>
                         </div>
                     </div>
                     <div class="col-8">
                         <div class="form-floating mb-3 mt-4">
                             <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="45">
                             <span id="snombre"></span>
-                            <label for="nombre" class="form-label">Nombre del Tipo de Bien</label>
+                            <label for="nombre" class="form-label">Nombre de la Categoría</label>
                         </div>
                     </div>
                 </div>

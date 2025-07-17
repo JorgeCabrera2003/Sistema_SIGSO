@@ -7,16 +7,16 @@ if (!$_SESSION) {
 ob_start();
 if (is_file("view/" . $page . ".php")) {
     require_once "controller/utileria.php";
-    require_once "model/tipo_bien.php";
+    require_once "model/categoria.php";
 
     $titulo = "Gestionar Tipos de Bien";
     $cabecera = array('#', "Nombre", "Modificar/Eliminar");
 
-    $tipoBien = new TipoBien();
+    $tipoBien = new Categoria();
 
-    if (!isset($permisos['tipo_bien']['ver']['estado']) || $permisos['tipo_bien']['ver']['estado'] == "0") {
-        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Tipo de Bien";
-        Bitacora($msg, "TipoBien");
+    if (!isset($permisos['categoria']['ver']['estado']) || $permisos['categoria']['ver']['estado'] == "0") {
+        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Categoria";
+        Bitacora($msg, "Categoria");
         header('Location: ?page=home');
         exit;
     }
@@ -25,15 +25,15 @@ if (is_file("view/" . $page . ".php")) {
         $json['resultado'] = "entrada";
         echo json_encode($json);
         $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Ingresó al Módulo de Tipos de Bien";
-        Bitacora($msg, "TipoBien");
+        Bitacora($msg, "Categoria");
         exit;
     }
 
     if (isset($_POST["registrar"])) {
-        if (isset($permisos['tipo_bien']['registrar']['estado']) && $permisos['tipo_bien']['registrar']['estado'] == '1') {
+        if (isset($permisos['categoria']['registrar']['estado']) && $permisos['categoria']['registrar']['estado'] == '1') {
             if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Nombre del Tipo de Bien no válido";
+                $json['mensaje'] = "Error, Nombre de la Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
@@ -42,20 +42,20 @@ if (is_file("view/" . $page . ".php")) {
                 $json = $tipoBien->Transaccion($peticion);
 
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de bien";
-                    $msgN = "Se registró una Nuevo Tipo de Bien";
-                    NotificarUsuarios($msgN, "Tipo de Bien", ['modulo' => 13, 'accion' => 'ver']);
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo Categoria";
+                    $msgN = "Se registró una Nueva Categoria";
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 13, 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo tipo de bien";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nueva Categoria";
                 }
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para registrar un Tipo de Bien";
+            $json['mensaje'] = "Error, No tienes permiso para registrar un Categoria";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
         }
         echo json_encode($json);
-        Bitacora($msg, "TipoBien");
+        Bitacora($msg, "Categoria");
         exit;
     }
 
@@ -74,10 +74,10 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["restaurar"])) {
-        if (isset($permisos['tipo_bien']['restaurar']['estado']) && $permisos['tipo_bien']['restaurar']['estado'] == '1') {
+        if (isset($permisos['categoria']['restaurar']['estado']) && $permisos['categoria']['restaurar']['estado'] == '1') {
             if (preg_match("/^[0-9]{1,11}$/", $_POST["id_tipo_bien"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Id del Tipo de Bien no válido";
+                $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
@@ -85,33 +85,33 @@ if (is_file("view/" . $page . ".php")) {
                 $peticion["peticion"] = "restaurar";
                 $json = $tipoBien->Transaccion($peticion);
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un tipo de bien con el id" . $_POST["id_tipo_bien"];
-                    $msgN = "Se registró una Nuevo Tipo de Bien";
-                    NotificarUsuarios($msgN, "Tipo de Bien", ['modulo' => 15, 'accion' => 'ver']);
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Categoria con el id" . $_POST["id_tipo_bien"];
+                    $msgN = "Se registró una Nuevo Categoria";
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar un nuevo tipo de bien";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar un nuevo Categoria";
                 }
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para restaurar un Tipo de Bien";
+            $json['mensaje'] = "Error, No tienes permiso para restaurar un Categoria";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
         }
         echo json_encode($json);
-        Bitacora($msg, "TipoBien");
+        Bitacora($msg, "Categoria");
         exit;
     }
 
     if (isset($_POST["modificar"])) {
-        if (isset($permisos['tipo_bien']['modificar']['estado']) && $permisos['tipo_bien']['modificar']['estado'] == '1') {
+        if (isset($permisos['categoria']['modificar']['estado']) && $permisos['categoria']['modificar']['estado'] == '1') {
             if (preg_match("/^[0-9]{1,11}$/", $_POST["id_tipo_bien"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Id del Tipo de Bien no válido";
+                $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Nombre del Tipo de Bien no válido";
+                $json['mensaje'] = "Error, Nombre de la Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
@@ -121,43 +121,43 @@ if (is_file("view/" . $page . ".php")) {
                 $json = $tipoBien->Transaccion($peticion);
 
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del tipo de bien con el id: " . $_POST["id_tipo_bien"];
-                    $msgN = "Tipo de Bien con ID: " . $_POST["id_tipo_bien"] . " fue modificado";
-                    NotificarUsuarios($msgN, "Tipo de Bien", ['modulo' => 15, 'accion' => 'ver']);
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Categoria con el id: " . $_POST["id_tipo_bien"];
+                    $msgN = "Categoria con ID: " . $_POST["id_tipo_bien"] . " fue modificado";
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar tipo de bien";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Categoria";
                 }
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para modificar un Tipo de Bien";
+            $json['mensaje'] = "Error, No tienes permiso para modificar un Categoria";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
         }
         echo json_encode($json);
-        Bitacora($msg, "TipoBien");
+        Bitacora($msg, "Categoria");
         exit;
     }
 
     if (isset($_POST["eliminar"])) {
-        if (isset($permisos['tipo_bien']['eliminar']['estado']) && $permisos['tipo_bien']['eliminar']['estado'] == '1') {
+        if (isset($permisos['categoria']['eliminar']['estado']) && $permisos['categoria']['eliminar']['estado'] == '1') {
             $tipoBien->set_id($_POST["id_tipo_bien"]);
             $peticion["peticion"] = "eliminar";
             $json = $tipoBien->Transaccion($peticion);
 
             if ($json['estado'] == 1) {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un tipo de bien con el id" . $_POST["id_tipo_bien"];
-                $msgN = "Tipo de Bien con ID: " . $_POST["id_tipo_bien"] . " fue eliminado";
-                NotificarUsuarios($msgN, "Tipo de Bien", ['modulo' => 15, 'accion' => 'ver']);
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Categoria con el id" . $_POST["id_tipo_bien"];
+                $msgN = "Categoria con ID: " . $_POST["id_tipo_bien"] . " fue eliminado";
+                NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
             } else {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un tipo de bien";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Categoria";
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para eliminar un Tipo de Bien";
+            $json['mensaje'] = "Error, No tienes permiso para eliminar un Categoria";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
         }
         echo json_encode($json);
-        Bitacora($msg, "TipoBien");
+        Bitacora($msg, "Categoria");
         exit;
     }
 

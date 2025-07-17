@@ -171,7 +171,7 @@ class reporte extends Conexion
         $dato = [];
 
         try {
-            $query = "SELECT * FROM tipo_bien WHERE estatus = 1";
+            $query = "SELECT * FROM categoria WHERE estatus = 1";
             $stm = $this->conex->prepare($query);
             $stm->execute();
             

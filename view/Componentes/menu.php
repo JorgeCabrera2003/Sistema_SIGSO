@@ -239,7 +239,7 @@
         $permiso_marca = isset($permisos['marca']['ver']['estado']) && $permisos['marca']['ver']['estado'] == "1";
         $permiso_tipo_servicio = isset($permisos['tipo_servicio']['ver']['estado']) && $permisos['tipo_servicio']['ver']['estado'] == "1";
         $permiso_cargo = isset($permisos['cargo']['ver']['estado']) && $permisos['cargo']['ver']['estado'] == "1";
-        $permiso_tipo_bien = isset($permisos['tipo_bien']['ver']['estado']) && $permisos['tipo_bien']['ver']['estado'] == "1";
+        $permiso_tipo_bien = isset($permisos['categoria']['ver']['estado']) && $permisos['categoria']['ver']['estado'] == "1";
         if ($permiso_unidad || $permiso_dependencia || $permiso_ente || $permiso_marca || $permiso_tipo_servicio || $permiso_cargo || $permiso_tipo_bien) { ?>
           <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
           <li class="menu-title">
@@ -305,11 +305,11 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['tipo_bien']['ver']['estado']) && $permisos['tipo_bien']['ver']['estado'] == "1") { ?>
-              <li class="menu-item <?php echo ($page == "tipo_bien") ? "active" : "" ?>" title="Tipo de Bien">
-                <a href="?page=tipo_bien">
+            <?php if (isset($permisos['categoria']['ver']['estado']) && $permisos['categoria']['ver']['estado'] == "1") { ?>
+              <li class="menu-item <?php echo ($page == "categoria") ? "active" : "" ?>" title="Categorías">
+                <a href="?page=categoria">
                   <i class="fa-solid fa-tag"></i>
-                  <span class="ms-2 me-2 menu-text">Tipos de Bien</span>
+                  <span class="ms-2 me-2 menu-text">Categorías</span>
                 </a>
               </li>
             <?php } ?>
@@ -353,7 +353,7 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "1") { ?>
+            <?php if (isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "0") { ?>
               <li class="menu-item <?php echo ($page == "modulo_sistema") ? "active" : "" ?>" title="Módulos del Sistema">
                 <a href="?page=modulo_sistema">
                   <i class="fa-solid fa-microchip"></i>

@@ -111,16 +111,16 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre del Rol no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if ($_POST["id_rol"] == 1) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} /*else if ($_POST["id_rol"] == 1) {
+			   $json['resultado'] = "error";
+			   $json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
+			   $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if ($_POST["id_rol"] == $_SESSION['user']['id_rol']) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			} else {
+		   } else if ($_POST["id_rol"] == $_SESSION['user']['id_rol']) {
+			   $json['resultado'] = "error";
+			   $json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
+			   $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+		   }*/ else {
 				$rol->set_id($_POST["id_rol"]);
 				$rol->set_nombre($_POST["nombre"]);
 				$peticion["peticion"] = "actualizar";

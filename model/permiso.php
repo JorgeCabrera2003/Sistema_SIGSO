@@ -10,13 +10,19 @@ class Permiso extends Conexion
     private $accion;
     private $estado;
     private $modulo_sistema;
+    private $conexion;
 
 
     public function __construct()
     {
 
-        $this->conex = new Conexion("usuario");
-        $this->conex = $this->conex->Conex();
+        $this->id = NULL;
+        $this->id_rol = 0;
+        $this->modulo = "";
+        $this->accion = "";
+        $this->estado = 0;
+        $this->modulo_sistema = NULL;
+        $this->conexion = NULL;
     }
 
     public function set_id($id)
@@ -68,10 +74,19 @@ class Permiso extends Conexion
         return $this->estado;
     }
 
-    private function Instancia_ModuloSistema()
+    private function LlamarModuloSistema()
     {
-        $this->modulo_sistema = new Modulo_Sistema();
+        if ($this->modulo_sistema == NULL) {
+            $this->modulo_sistema = new Modulo_Sistema();
+        }
+        return $this->modulo_sistema;
     }
+
+    private function DestruirModuloSistema()
+    {
+        $this->modulo_sistema = NULL;
+    }
+
     private function objetoToArray($objeto)
     {
         if (is_object($objeto)) {
@@ -111,19 +126,19 @@ class Permiso extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT p.id_permiso, p.id_rol, p.id_modulo, p.accion_permiso, p.estado, m.nombre_modulo
             FROM permiso AS p 
             INNER JOIN modulo AS m ON p.id_modulo = m.id_modulo
             WHERE p.id_rol = :rol";
 
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':rol', $this->id_rol);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $resultadoQuery = $stm->fetchAll(PDO::FETCH_ASSOC);
             $permisos = [];
 
@@ -144,28 +159,29 @@ class Permiso extends Conexion
             $dato['permiso'] = $permisos;
         } catch (PDOException $e) {
             $dato['permiso'] = [];
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
     private function CargarPermiso($datos)
     {
         $dato = [];
         $permisos = $this->objetoToArray($datos);
-        $this->Instancia_ModuloSistema();
-        $boolPermiso = $this->modulo_sistema->Transaccion(['peticion' => 'comprobar']);
+
+        $boolPermiso = $this->LlamarModuloSistema()->Transaccion(['peticion' => 'comprobar']);
 
         $query = "INSERT INTO permiso (id_permiso, id_rol, id_modulo, accion_permiso, estado)
                 VALUES (:id_permiso, :rol, :modulo, :accion, :estado)
                 ON DUPLICATE KEY UPDATE estado = VALUES(estado)";
-
-        $this->conex->beginTransaction();
+        $this->conexion = new Conexion("usuario");
+        $this->conexion = $this->conexion->Conex();
+        $this->conexion->beginTransaction();
         if ($boolPermiso['bool'] == true) {
             try {
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 foreach ($permisos as $key) {
                     foreach ($key['permisos'] as $accion) {
                         $params[] = [
@@ -186,23 +202,23 @@ class Permiso extends Conexion
                     $stm->bindParam(":estado", $param['estado']);
                     $stm->execute();
                 }
-                $this->conex->commit();
+                $this->conexion->commit();
                 $dato['mensaje'] = 'Se cargaron los permisos';
                 $dato['resultado'] = 'permiso';
                 $dato['estado'] = 1;
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = 'error_permiso';
                 $dato['mensaje'] = $e->getMessage();
                 $dato['estado'] = -1;
             }
         } else {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = 'error_modulo';
             $dato['mensaje'] = $boolPermiso['mensaje'];
             $dato['estado'] = -1;
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
     private function Validar()
@@ -210,15 +226,15 @@ class Permiso extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM permiso WHERE id = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
 
             if ($stm->rowCount() > 0) {
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
@@ -228,12 +244,12 @@ class Permiso extends Conexion
             }
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -244,32 +260,32 @@ class Permiso extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $this->conex = new Conexion("usuario");
-                $this->conex = $this->conex->Conex();
-                $this->conex->beginTransaction();
+                $this->conexion = new Conexion("usuario");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "INSERT INTO permiso (id, modulo) VALUES 
             (NULL, :modulo)";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":modulo", $this->modulo);
                 $stm->execute();
-                $this->conex->commit();
+                $this->conexion->commit();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se registró la permisos exitosamente";
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -278,26 +294,26 @@ class Permiso extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE permiso SET modulo = :modulo WHERE id = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":modulo", $this->modulo);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se modificaron los permisos con éxito";
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -308,31 +324,31 @@ class Permiso extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $this->conex = new Conexion("usuario");
-                $this->conex = $this->conex->Conex();
-                $this->conex->beginTransaction();
+                $this->conexion = new Conexion("usuario");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "UPDATE permiso SET estatus = 0 WHERE id = :id";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
-                $this->conex->commit();
+                $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el permisos exitosamente";
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el permiso";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -341,22 +357,22 @@ class Permiso extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM permiso WHERE estatus = 1";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 

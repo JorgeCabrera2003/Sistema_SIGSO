@@ -199,6 +199,41 @@
                       </div>
                     </fieldset>
                   </div>
+                  <div class="col-md-6">
+                    <!-- Grupo Modulo del Sistema -->
+                    <fieldset class="permission-group">
+                      <legend class="group-header">
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input group-checkbox" type="checkbox" id="group-modulo_sistema"
+                            data-modulo="25">
+                          <label class="form-check-label" for="group-mantenimiento">Módulos del Sistema</label>
+                        </div>
+                      </legend>
+                      <div class="row permission-options" data-modulo-string="25">
+                        <div class="col-lg-6">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
+                              role="switch" value="ver" id="modulo_sistema-ver">
+                            <label class="form-check-label" for="modulo_sistema-ver">Ver</label>
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
+                              role="switch" value="cargar" id="modulo_sistema-cargar">
+                            <label class="form-check-label" for="modulo_sistema-cargar">Cargar</label>
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
+                              role="switch" value="comprobar" id="modulo_sistema-comprobar">
+                            <label class="form-check-label" for="modulo_sistema-comprobar">Comprobar</label>
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
                 </div>
               </div>
             </div>
@@ -778,13 +813,13 @@
                     </fieldset>
                   </div>
                   <div class="col-md-6">
-                    <!-- Grupo Tipo de Bien -->
+                    <!-- Grupo Categoría -->
                     <fieldset class="permission-group">
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input group-checkbox" type="checkbox" id="group-tipo_bien"
+                          <input class="form-check-input group-checkbox" type="checkbox" id="group-categoria"
                             data-modulo="15">
-                          <label class="form-check-label" for="group-bien">Gestionar Tipo de Bien</label>
+                          <label class="form-check-label" for="group-categoria">Gestionar Categoría</label>
                         </div>
                       </legend>
                       <div class="row permission-options" data-modulo-string="15">
@@ -792,36 +827,36 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="registrar" id="tipo_bien-registrar">
-                            <label class="form-check-label" for="tipo_bien-registrar">Registrar</label>
+                              role="switch" value="registrar" id="categoria-registrar">
+                            <label class="form-check-label" for="categoria-registrar">Registrar</label>
                           </div>
                         </div>
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="ver" id="tipo_bien-ver">
-                            <label class="form-check-label" for="tipo_bien-ver">Ver</label>
+                              role="switch" value="ver" id="categoria-ver">
+                            <label class="form-check-label" for="categoria-ver">Ver</label>
                           </div>
                         </div>
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="modificar" id="tipo_bien-modificar">
-                            <label class="form-check-label" for="tipo_bien-modificar">Modificar</label>
+                              role="switch" value="modificar" id="categoria-modificar">
+                            <label class="form-check-label" for="categoria-modificar">Modificar</label>
                           </div>
                         </div>
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="eliminar" id="tipo_bien-eliminar">
-                            <label class="form-check-label" for="tipo_bien-eliminar">Eliminar</label>
+                              role="switch" value="eliminar" id="categoria-eliminar">
+                            <label class="form-check-label" for="categoria-eliminar">Eliminar</label>
                           </div>
                         </div>
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="tipo_bien-restaurar">
-                            <label class="form-check-label" for="tipo_bien-restaurar">Restaurar</label>
+                              role="switch" value="restaurar" id="categoria-restaurar">
+                            <label class="form-check-label" for="categoria-restaurar">Restaurar</label>
                           </div>
                         </div>
                       </div>

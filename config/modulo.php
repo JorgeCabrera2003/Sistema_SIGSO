@@ -59,7 +59,7 @@ const modulos = [
     ],
     [
         'id' => 15,
-        'modulo' => 'tipo_bien'
+        'modulo' => 'categoria'
     ],
     [
         'id' => 16,
@@ -96,6 +96,10 @@ const modulos = [
     [
         'id' => 24,
         'modulo' => 'material'
+    ],
+    [
+        'id' => 25,
+        'modulo' => 'modulo_sistema'
     ]
 ];
 

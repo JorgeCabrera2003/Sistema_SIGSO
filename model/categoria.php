@@ -1,10 +1,11 @@
 <?php
 require_once "model/conexion.php";
-class TipoBien extends Conexion
+class Categoria extends Conexion
 {
     private $id;
     private $nombre;
     private $estatus;
+    private $conexion;
 
     public function __construct()
     {
@@ -48,10 +49,10 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $query = "SELECT * FROM tipo_bien WHERE id_tipo_bien = :id";
-            $stm = $this->conex->prepare($query);
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "SELECT * FROM categoria WHERE id_categoria = :id";
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
 
@@ -76,12 +77,12 @@ class TipoBien extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
-                $query = "INSERT INTO tipo_bien(id_tipo_bien, nombre_tipo_bien, estatus) VALUES 
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $query = "INSERT INTO categoria(id_categoria, nombre_categoria, estatus) VALUES 
                 (NULL, :nombre, 1)";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
@@ -97,7 +98,7 @@ class TipoBien extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -106,11 +107,11 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $query = "UPDATE tipo_bien SET nombre_tipo_bien = :nombre WHERE id_tipo_bien = :id";
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "UPDATE categoria SET nombre_categoria = :nombre WHERE id_categoria = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
@@ -122,7 +123,7 @@ class TipoBien extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -133,11 +134,11 @@ class TipoBien extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
-                $query = "UPDATE tipo_bien SET estatus = 0 WHERE id_tipo_bien = :id";
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $query = "UPDATE categoria SET estatus = 0 WHERE id_categoria = :id";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
@@ -153,7 +154,7 @@ class TipoBien extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -162,10 +163,10 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $query = "SELECT * FROM tipo_bien WHERE estatus = 1";
-            $stm = $this->conex->prepare($query);
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "SELECT * FROM categoria WHERE estatus = 1";
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -173,7 +174,7 @@ class TipoBien extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -182,10 +183,10 @@ class TipoBien extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $query = "SELECT * FROM tipo_bien WHERE estatus = 0";
-            $stm = $this->conex->prepare($query);
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "SELECT * FROM categoria WHERE estatus = 0";
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminadas";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -193,7 +194,7 @@ class TipoBien extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -201,11 +202,11 @@ class TipoBien extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $query = "UPDATE tipo_bien SET estatus = 1 WHERE id_tipo_bien = :id";
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "UPDATE categoria SET estatus = 1 WHERE id_categoria = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
             $dato['resultado'] = "restaurar";
@@ -219,7 +220,7 @@ class TipoBien extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
