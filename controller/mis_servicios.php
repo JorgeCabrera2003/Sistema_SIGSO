@@ -11,32 +11,32 @@ $equipo = new Equipo();
 
 // Endpoint para consultar equipos del empleado
 if (isset($_POST['peticion']) && $_POST['peticion'] === 'consultar_equipos_empleado' && isset($_POST['cedula_empleado'])) {
-    $cedula = $_POST['cedula_empleado'];
-    $data = [
-        'peticion' => 'equipos_por_empleado',
-        'cedula_empleado' => $cedula
-    ];
+	$cedula = $_POST['cedula_empleado'];
+	$data = [
+		'peticion' => 'equipos_por_empleado',
+		'cedula_empleado' => $cedula
+	];
 
-    if (isset($_POST['nro_solicitud'])) {
-        $data['nro_solicitud'] = $_POST['nro_solicitud'];
-    }
+	if (isset($_POST['nro_solicitud'])) {
+		$data['nro_solicitud'] = $_POST['nro_solicitud'];
+	}
 
-    // Usa el método Transaccion del modelo Equipo
-    $json = $equipo->Transaccion($data);
-    echo json_encode(['resultado' => 'consultar_equipos_empleado', 'datos' => $json]);
-    exit;
+	// Usa el método Transaccion del modelo Equipo
+	$json = $equipo->Transaccion($data);
+	echo json_encode(['resultado' => 'consultar_equipos_empleado', 'datos' => $json]);
+	exit;
 }
 
 if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
-    $peticion = [
-        'peticion' => 'consultar_bienes_empleado',
-        'cedula_empleado' => $_POST['cedula_empleado']
-    ];
-    $json = $bien->Transaccion($peticion);
-    $json['resultado'] = 'consultar_bienes_empleado';
-    header('Content-Type: application/json');
-    echo json_encode($json);
-    exit;
+	$peticion = [
+		'peticion' => 'consultar_bienes_empleado',
+		'cedula_empleado' => $_POST['cedula_empleado']
+	];
+	$json = $bien->Transaccion($peticion);
+	$json['resultado'] = 'consultar_bienes_empleado';
+	header('Content-Type: application/json');
+	echo json_encode($json);
+	exit;
 }
 
 if (is_file("view/" . $page . ".php")) {
@@ -89,51 +89,104 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["solicitud"]) && $_POST["motivo"] != NULL) {
-		if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/", $_POST["motivo"]) == 0) {
-
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, datos no válidos";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-
-		} else {
+		try {
+			// Validar motivo
+			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/", $_POST["motivo"]) == 0) {
+				throw new Exception("Error, datos no válidos");
+			}
 
 			$solicitud->set_cedula_solicitante($datos["cedula"]);
 			$solicitud->set_motivo($_POST["motivo"]);
+
 			// Registrar el equipo si viene en el POST
 			if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
 				$solicitud->set_id_equipo($_POST["id_equipo"]);
 			} else {
 				$solicitud->set_id_equipo(null);
 			}
-			$peticion["peticion"] = "registrar";
-			$json = $solicitud->Transaccion($peticion);
-			
-			if ($json['bool'] == 1) {
+
+			// Registrar la solicitud
+			$peticion = ["peticion" => "registrar"];
+			$resultado = $solicitud->Transaccion($peticion);
+
+			if ($resultado['bool'] == 1) {
+				// Obtener tipo de servicio basado en el equipo (si existe)
+				$id_tipo_servicio = 1; // Default a Soporte Técnico
+				if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
+					$resultadoTipoServicio = $equipo->Transaccion([
+						'peticion' => 'obtener_tipo_servicio',
+						'id_equipo' => $_POST["id_equipo"]
+					]);
+					$id_tipo_servicio = $resultadoTipoServicio['id_tipo_servicio'] ?? 1;
+				}
+
+				// Crear hoja de servicio
+				$hojaServicio = new HojaServicio();
+				$hojaServicio->set_nro_solicitud($resultado['datos']);
+				$hojaServicio->set_id_tipo_servicio($id_tipo_servicio);
+				$resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
+
+				if ($resultHoja['resultado'] !== 'success') {
+					throw new Exception("Error al crear hoja de servicio: " . $resultHoja['mensaje']);
+				}
+
+				$json = [
+					'resultado' => 'success',
+					'mensaje' => 'Solicitud registrada correctamente',
+					'nro_solicitud' => $resultado['datos'],
+					'tecnico_asignado' => $resultHoja['tecnico_asignado'] ?? null
+				];
+
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Realizó una solicitud exitosamente";
-                $msgN = "Nueva solicitud creada por " . $_SESSION['user']['nombres'] ." ". $_SESSION['user']['apellidos'] ."(". $_SESSION['user']['nombre_usuario'] ."): " . $_POST["motivo"];
+				$msgN = "Nueva solicitud #{$resultado['datos']} creada por " .
+					$_SESSION['user']['nombres'] . " " . $_SESSION['user']['apellidos'] .
+					"(" . $_SESSION['user']['nombre_usuario'] . "): " . $_POST["motivo"];
+
+				// Notificar al técnico si fue asignado
+				if (!empty($resultHoja['tecnico_asignado'])) {
+					$msgTecnico = "Se le ha asignado una nueva solicitud (#{$resultado['datos']})";
+					Notificar($msgTecnico, "Solicitud", $resultHoja['tecnico_asignado']);
+				}
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al enviar la solicitud";
+				throw new Exception($resultado['mensaje']);
 			}
-			
+		} catch (Exception $e) {
+			$json = [
+				'resultado' => 'error',
+				'mensaje' => $e->getMessage()
+			];
 		}
-		
+
 		echo json_encode($json);
 		Bitacora($msg, "Solicitud");
 		NotificarUsuarios($msgN, "Solicitud", ['modulo' => 7, 'accion' => 'ver_solicitud']);
 		exit;
 	}
 
+	// Método auxiliar para obtener el tipo de servicio por equipo
+	function obtenerTipoServicioPorEquipo($idEquipo)
+	{
+		require_once "model/equipo.php";
+		$equipoModel = new Equipo();
+		$result = $equipoModel->Transaccion([
+			'peticion' => 'obtener_tipo_servicio',
+			'id_equipo' => $idEquipo
+		]);
 
-    if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
-        $peticion = [
-            'peticion' => 'consultar_bienes_empleado',
-            'cedula_empleado' => $_POST['cedula_empleado']
-        ];
-        $json = $bien->Transaccion($peticion);
-        $json['resultado'] = 'consultar_bienes_empleado';
-        echo json_encode($json);
-        exit;
-    }
+		return $result['id_tipo_servicio'] ?? 1; // Default a Soporte Técnico
+	}
+
+
+	if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
+		$peticion = [
+			'peticion' => 'consultar_bienes_empleado',
+			'cedula_empleado' => $_POST['cedula_empleado']
+		];
+		$json = $bien->Transaccion($peticion);
+		$json['resultado'] = 'consultar_bienes_empleado';
+		echo json_encode($json);
+		exit;
+	}
 
 	if (isset($_POST["reporte"])) {
 
@@ -160,4 +213,3 @@ if (is_file("view/" . $page . ".php")) {
 } else {
 	require_once "view/404.php";
 }
-

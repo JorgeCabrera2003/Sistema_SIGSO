@@ -34,22 +34,25 @@ DROP TABLE IF EXISTS `bien`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bien` (
   `codigo_bien` varchar(20) NOT NULL,
-  `id_tipo_bien` int(11) NOT NULL,
+  `id_categoria` int(11) NOT NULL,
   `id_marca` int(11) DEFAULT NULL,
   `descripcion` varchar(100) DEFAULT NULL,
   `estado` varchar(45) NOT NULL,
   `cedula_empleado` varchar(12) DEFAULT NULL,
   `id_oficina` int(11) NOT NULL,
+  `id_tipo_servicio` int(11) DEFAULT NULL,
   `estatus` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`codigo_bien`),
-  KEY `id_tipo_bien` (`id_tipo_bien`),
+  KEY `id_tipo_bien` (`id_categoria`),
   KEY `cedula_empleado` (`cedula_empleado`),
   KEY `id_marca` (`id_marca`),
   KEY `id_oficina` (`id_oficina`),
+  KEY `tipo_servicio` (`id_tipo_servicio`),
   CONSTRAINT `bien_ibfk_1` FOREIGN KEY (`cedula_empleado`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE SET NULL ON UPDATE SET NULL,
   CONSTRAINT `bien_ibfk_4` FOREIGN KEY (`id_marca`) REFERENCES `marca` (`id_marca`) ON DELETE SET NULL ON UPDATE SET NULL,
-  CONSTRAINT `bien_ibfk_5` FOREIGN KEY (`id_tipo_bien`) REFERENCES `tipo_bien` (`id_tipo_bien`) ON UPDATE CASCADE,
-  CONSTRAINT `bien_ibfk_6` FOREIGN KEY (`id_oficina`) REFERENCES `oficina` (`id_oficina`) ON DELETE CASCADE
+  CONSTRAINT `bien_ibfk_5` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON UPDATE CASCADE,
+  CONSTRAINT `bien_ibfk_6` FOREIGN KEY (`id_oficina`) REFERENCES `oficina` (`id_oficina`) ON DELETE CASCADE,
+  CONSTRAINT `tipo_servicio` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -59,7 +62,7 @@ CREATE TABLE `bien` (
 
 LOCK TABLES `bien` WRITE;
 /*!40000 ALTER TABLE `bien` DISABLE KEYS */;
-INSERT INTO `bien` VALUES ('0001',1,1,'Impresora rh200','Nuevo','V-21140325',1,1),('00014',1,1,'Computador 32GB','Usado','V-31843937',2,1),('0002',1,4,'Computador Oficina','Nuevo','V-31843937',2,1),('0003',2,1,'Mesa ejecutiva','Usado','V-21140325',3,1),('0004',1,2,'Patch panel rojo 45k','Nuevo','V-30587785',5,1),('0005',1,2,'Pacth panel 500tc','Nuevo','V-30587785',4,1),('0006',1,1,'Switch prt24','null','V-30587785',3,1),('0007',1,2,'Switch prt27','null','V-30587785',3,1),('0008',1,2,'Switch rt45','null','V-30587785',3,1),('0009',1,1,'Laptop','Dañado','V-30266398',4,1),('0010',1,3,'Equipo','Dañado','V-1234567',3,1),('0011',1,3,'Equipo','Usado','V-30266398',4,1);
+INSERT INTO `bien` VALUES ('0001',1,1,'Impresora rh200','Nuevo','V-21140325',1,NULL,1),('00014',1,1,'Computador 32GB','Usado','V-31843937',2,1,1),('0002',1,4,'Computador Oficina','Nuevo','V-31843937',2,1,1),('0003',2,1,'Mesa ejecutiva','Usado','V-21140325',3,NULL,1),('0004',1,2,'Patch panel rojo 45k','Nuevo','V-30587785',5,NULL,1),('0005',1,2,'Pacth panel 500tc','Nuevo','V-30587785',4,NULL,1),('0006',1,1,'Switch prt24','null','V-30587785',3,NULL,1),('0007',1,2,'Switch prt27','null','V-30587785',3,NULL,1),('0008',1,2,'Switch rt45','null','V-30587785',3,NULL,1),('0009',1,1,'Laptop','Dañado','V-30266398',4,1,1),('0010',1,3,'Equipo','Dañado','V-1234567',3,NULL,1),('0011',1,3,'Equipo','Usado','V-30266398',4,NULL,1);
 /*!40000 ALTER TABLE `bien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -86,6 +89,34 @@ LOCK TABLES `cargo` WRITE;
 /*!40000 ALTER TABLE `cargo` DISABLE KEYS */;
 INSERT INTO `cargo` VALUES (1,'Técnico',1),(2,'Director de Telefonía',1),(3,'Secretaria',1);
 /*!40000 ALTER TABLE `cargo` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `categoria`
+--
+
+DROP TABLE IF EXISTS `categoria`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `categoria` (
+  `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_categoria` varchar(45) NOT NULL,
+  `id_tipo_servicio` int(11) DEFAULT NULL,
+  `estatus` int(11) NOT NULL,
+  PRIMARY KEY (`id_categoria`),
+  KEY `id_tipo_servicio` (`id_tipo_servicio`),
+  CONSTRAINT `categoria_ibfk_1` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categoria`
+--
+
+LOCK TABLES `categoria` WRITE;
+/*!40000 ALTER TABLE `categoria` DISABLE KEYS */;
+INSERT INTO `categoria` VALUES (1,'Electrónico',NULL,1),(2,'Mueble',NULL,1);
+/*!40000 ALTER TABLE `categoria` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -151,14 +182,11 @@ UNLOCK TABLES;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER tr_before_insert_detalle_hoja
-BEFORE INSERT ON detalle_hoja
-FOR EACH ROW
-BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tr_before_insert_detalle_hoja` BEFORE INSERT ON `detalle_hoja` FOR EACH ROW BEGIN
     DECLARE v_stock_actual INT;
     
     -- Solo validar si hay un movimiento de material asociado
@@ -393,7 +421,7 @@ CREATE TABLE `hoja_servicio` (
   CONSTRAINT `hoja_servicio_ibfk_2` FOREIGN KEY (`cedula_tecnico`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `hoja_servicio_ibfk_3` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `hoja_servicio_ibfk_4` FOREIGN KEY (`redireccion`) REFERENCES `hoja_servicio` (`codigo_hoja_servicio`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -402,7 +430,7 @@ CREATE TABLE `hoja_servicio` (
 
 LOCK TABLES `hoja_servicio` WRITE;
 /*!40000 ALTER TABLE `hoja_servicio` DISABLE KEYS */;
-INSERT INTO `hoja_servicio` VALUES (44,166,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(45,167,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(46,167,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(47,168,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(48,171,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(49,171,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(50,172,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(51,173,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(52,173,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(53,174,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(54,175,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(55,176,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(56,175,2,NULL,'V-30587785',NULL,NULL,NULL,'E'),(57,176,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(58,177,1,NULL,'V-31843937',NULL,NULL,NULL,'A');
+INSERT INTO `hoja_servicio` VALUES (44,166,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(45,167,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(46,167,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(47,168,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(48,171,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(49,171,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(50,172,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(51,173,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(52,173,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(53,174,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(54,175,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(55,176,1,NULL,'V-30454597',NULL,NULL,NULL,'A'),(56,175,2,NULL,'V-30587785',NULL,NULL,NULL,'E'),(57,176,2,NULL,'V-30587785',NULL,NULL,NULL,'A'),(58,177,1,NULL,'V-31843937',NULL,NULL,NULL,'A'),(60,179,1,NULL,'V-30454597',NULL,NULL,NULL,'A');
 /*!40000 ALTER TABLE `hoja_servicio` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -410,14 +438,11 @@ UNLOCK TABLES;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER tr_after_insert_hoja_servicio
-AFTER INSERT ON hoja_servicio
-FOR EACH ROW
-BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tr_after_insert_hoja_servicio` AFTER INSERT ON `hoja_servicio` FOR EACH ROW BEGIN
     -- Actualizar estado de la solicitud a "En proceso" cuando se crea una hoja
     UPDATE solicitud 
     SET estado_solicitud = 'En proceso'
@@ -433,14 +458,11 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER tr_after_update_hoja_servicio
-AFTER UPDATE ON hoja_servicio
-FOR EACH ROW
-BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tr_after_update_hoja_servicio` AFTER UPDATE ON `hoja_servicio` FOR EACH ROW BEGIN
     DECLARE v_hojas_pendientes INT;
     
     -- Solo actuar si la hoja se marcó como finalizada
@@ -692,6 +714,61 @@ LOCK TABLES `punto_conexion` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `servicio_prestado`
+--
+
+DROP TABLE IF EXISTS `servicio_prestado`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `servicio_prestado` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tipo_servicio` int(11) NOT NULL,
+  `nombre` varchar(65) NOT NULL,
+  `estado` int(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `id_tipo_servicio` (`id_tipo_servicio`),
+  CONSTRAINT `servicio_prestado_ibfk_1` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `servicio_prestado`
+--
+
+LOCK TABLES `servicio_prestado` WRITE;
+/*!40000 ALTER TABLE `servicio_prestado` DISABLE KEYS */;
+/*!40000 ALTER TABLE `servicio_prestado` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `servicio_realizado`
+--
+
+DROP TABLE IF EXISTS `servicio_realizado`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `servicio_realizado` (
+  `id_servicio_realizado` int(11) NOT NULL AUTO_INCREMENT,
+  `id_servicio_prestado` int(11) NOT NULL,
+  `id_hoja_servicio` int(11) NOT NULL,
+  PRIMARY KEY (`id_servicio_realizado`),
+  KEY `id_servicio_prestado` (`id_servicio_prestado`),
+  KEY `id_hoja_servicio` (`id_hoja_servicio`),
+  CONSTRAINT `servicio_realizado_ibfk_1` FOREIGN KEY (`id_servicio_prestado`) REFERENCES `servicio_prestado` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `servicio_realizado_ibfk_2` FOREIGN KEY (`id_hoja_servicio`) REFERENCES `hoja_servicio` (`codigo_hoja_servicio`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `servicio_realizado`
+--
+
+LOCK TABLES `servicio_realizado` WRITE;
+/*!40000 ALTER TABLE `servicio_realizado` DISABLE KEYS */;
+/*!40000 ALTER TABLE `servicio_realizado` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `solicitud`
 --
 
@@ -711,7 +788,7 @@ CREATE TABLE `solicitud` (
   KEY `solicitud_ibfk_1` (`cedula_solicitante`),
   KEY `solicitud_ibfk_2` (`id_equipo`),
   CONSTRAINT `solicitud_ibfk_1` FOREIGN KEY (`cedula_solicitante`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -720,7 +797,7 @@ CREATE TABLE `solicitud` (
 
 LOCK TABLES `solicitud` WRITE;
 /*!40000 ALTER TABLE `solicitud` DISABLE KEYS */;
-INSERT INTO `solicitud` VALUES (165,'V-31843937','Prueba',14,'2025-07-08 23:57:50','Eliminado',NULL,0),(166,'V-31843937','Computadora no enciended',14,'2025-07-09 00:06:40','Eliminado',NULL,0),(167,'V-31843937','Necesito super rapida',23,'2025-07-09 00:08:22','Eliminado',NULL,0),(168,'V-31843937','Necesito mas ram',23,'2025-07-09 00:24:52','Eliminado',NULL,0),(169,'V-31843937','No tengo internet',14,'2025-07-09 00:49:26','Eliminado',NULL,0),(170,'V-31843937','Prueba',14,'2025-07-09 17:43:47','Eliminado',NULL,0),(171,'V-31843937','prueba',23,'2025-07-09 20:07:13','Eliminado',NULL,0),(172,'V-31843937','Prueba',14,'2025-07-10 19:09:40','Eliminado',NULL,0),(173,'V-31843937','Prueba 2',23,'2025-07-10 19:38:10','Eliminado',NULL,0),(174,'V-31843937','Prueba 2 frank',23,'2025-07-10 19:42:21','Eliminado',NULL,0),(175,'V-31843937','Prueba del selectw2 con jor',14,'2025-07-10 19:44:47','Eliminado',NULL,0),(176,'V-31843937','Prueba frank',23,'2025-07-10 19:45:12','En proceso',NULL,1),(177,'V-31843937','Preuba jorguin',14,'2025-07-10 19:47:48','En proceso',NULL,1);
+INSERT INTO `solicitud` VALUES (165,'V-31843937','Prueba',14,'2025-07-08 23:57:50','Eliminado',NULL,0),(166,'V-31843937','Computadora no enciended',14,'2025-07-09 00:06:40','Eliminado',NULL,0),(167,'V-31843937','Necesito super rapida',23,'2025-07-09 00:08:22','Eliminado',NULL,0),(168,'V-31843937','Necesito mas ram',23,'2025-07-09 00:24:52','Eliminado',NULL,0),(169,'V-31843937','No tengo internet',14,'2025-07-09 00:49:26','Eliminado',NULL,0),(170,'V-31843937','Prueba',14,'2025-07-09 17:43:47','Eliminado',NULL,0),(171,'V-31843937','prueba',23,'2025-07-09 20:07:13','Eliminado',NULL,0),(172,'V-31843937','Prueba',14,'2025-07-10 19:09:40','Eliminado',NULL,0),(173,'V-31843937','Prueba 2',23,'2025-07-10 19:38:10','Eliminado',NULL,0),(174,'V-31843937','Prueba 2 frank',23,'2025-07-10 19:42:21','Eliminado',NULL,0),(175,'V-31843937','Prueba del selectw2 con jor',14,'2025-07-10 19:44:47','Eliminado',NULL,0),(176,'V-31843937','Prueba frank',23,'2025-07-10 19:45:12','Eliminado',NULL,0),(177,'V-31843937','Preuba jorguin',14,'2025-07-10 19:47:48','Eliminado',NULL,0),(178,'V-31843937','Prueba',14,'2025-07-13 22:04:20','Eliminado',NULL,0),(179,'V-31843937','Prueba',23,'2025-07-13 22:04:32','Eliminado',NULL,0),(180,'V-31843937','Prueba',23,'2025-07-18 13:59:10','Eliminado',NULL,0);
 /*!40000 ALTER TABLE `solicitud` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -739,14 +816,11 @@ CREATE TABLE `solicitud_compra` (
   `motivo` varchar(200) NOT NULL,
   `estado` varchar(20) NOT NULL DEFAULT 'Pendiente',
   `observaciones` varchar(200) DEFAULT NULL,
-  `id_tipo_servicio` int(11) DEFAULT NULL,
   `estatus` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_solicitud_compra`),
   UNIQUE KEY `codigo_solicitud` (`codigo_solicitud`),
   KEY `cedula_solicitante` (`cedula_solicitante`),
-  KEY `id_tipo_servicio` (`id_tipo_servicio`),
-  CONSTRAINT `solicitud_compra_ibfk_1` FOREIGN KEY (`cedula_solicitante`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `solicitud_compra_ibfk_2` FOREIGN KEY (`id_tipo_servicio`) REFERENCES `tipo_servicio` (`id_tipo_servicio`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `solicitud_compra_ibfk_1` FOREIGN KEY (`cedula_solicitante`) REFERENCES `empleado` (`cedula_empleado`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -785,32 +859,8 @@ CREATE TABLE `switch` (
 
 LOCK TABLES `switch` WRITE;
 /*!40000 ALTER TABLE `switch` DISABLE KEYS */;
+INSERT INTO `switch` VALUES ('0008','12234',52,NULL);
 /*!40000 ALTER TABLE `switch` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `tipo_bien`
---
-
-DROP TABLE IF EXISTS `tipo_bien`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tipo_bien` (
-  `id_tipo_bien` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre_tipo_bien` varchar(45) NOT NULL,
-  `estatus` int(11) NOT NULL,
-  PRIMARY KEY (`id_tipo_bien`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `tipo_bien`
---
-
-LOCK TABLES `tipo_bien` WRITE;
-/*!40000 ALTER TABLE `tipo_bien` DISABLE KEYS */;
-INSERT INTO `tipo_bien` VALUES (1,'Electrónico',1),(2,'Mueble',1);
-/*!40000 ALTER TABLE `tipo_bien` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -835,7 +885,7 @@ CREATE TABLE `tipo_servicio` (
 
 LOCK TABLES `tipo_servicio` WRITE;
 /*!40000 ALTER TABLE `tipo_servicio` DISABLE KEYS */;
-INSERT INTO `tipo_servicio` VALUES (1,'Soporte Técnico',NULL,1),(2,'Redes',NULL,1),(3,'Telefonía',NULL,1),(4,'Electrónica',NULL,1);
+INSERT INTO `tipo_servicio` VALUES (1,'Soporte Técnico','V-31843937',1),(2,'Redes',NULL,1),(3,'Telefonía',NULL,1),(4,'Electrónica',NULL,1);
 /*!40000 ALTER TABLE `tipo_servicio` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -996,10 +1046,10 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `filtrado_empleado` AS select (select count(0) from `sigso_usuario`.`usuario` `u` where `u`.`estatus` = 1) AS `Total usuario`,(select count(0) from `sigso_sistema`.`oficina` `o` where `o`.`estatus` = 1) AS `Total oficina`,(select count(0) from ((`sigso_sistema`.`empleado` `e` join `sigso_sistema`.`unidad` `u` on(`u`.`id_unidad` = `e`.`id_unidad`)) join `sigso_sistema`.`dependencia` `d` on(`d`.`id` = `u`.`id_dependencia`)) where `e`.`estatus` = 1 and `d`.`id` = 1) AS `Total empleados OFITIC`,(select count(0) from `sigso_sistema`.`empleado` `e` where `e`.`estatus` = 1) AS `Total empleados general` from `sigso_sistema`.`empleado` `e` where `e`.`estatus` = 1 limit 1 */;
+/*!50001 VIEW `filtrado_empleado` AS select (select count(0) from `sigso_usuario`.`usuario` `u` where `u`.`estatus` = 1) AS `Total usuario`,(select count(0) from `sigso_sistema`.`oficina` `o` where `o`.`estatus` = 1) AS `Total oficina`,(select count(0) from ((`sigso_sistema`.`empleado` `e` join `sigso_sistema`.`unidad` `u` on(`u`.`id_unidad` = `e`.`id_unidad`)) join `sigso_sistema`.`dependencia` `d` on(`d`.`id` = `u`.`id_dependencia`)) where `e`.`estatus` = 1 and `d`.`id` = 1) AS `Total empleados OFITIC`,(select count(0) from `sigso_sistema`.`empleado` `e` where `e`.`estatus` = 1) AS `Total empleados general` from `sigso_sistema`.`empleado` `e` where `e`.`estatus` = 1 limit 0,1 */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1014,10 +1064,10 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `filtrado_hoja` AS select `ts`.`nombre_tipo_servicio` AS `Área con más hojas`,count(`hs`.`codigo_hoja_servicio`) AS `Cantidad de hojas`,(select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'E' and `s`.`estatus` = 1) AS `Hojas eliminadas`,(select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'A' and `s`.`estatus` = 1) AS `Hojas activas`,(select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'I' and `s`.`estatus` = 1) AS `Hojas finalizadas` from ((`hoja_servicio` `hs` join `solicitud` `s` on(`s`.`nro_solicitud` = `hs`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) where `s`.`estatus` = 1 group by `hs`.`id_tipo_servicio`,`ts`.`nombre_tipo_servicio` order by count(`hs`.`codigo_hoja_servicio`) desc limit 1 */;
+/*!50001 VIEW `filtrado_hoja` AS select `ts`.`nombre_tipo_servicio` AS `Área con más hojas`,count(`hs`.`codigo_hoja_servicio`) AS `Cantidad de hojas`,(select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'E' and `s`.`estatus` = 1) AS `Hojas eliminadas`,(select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'A' and `s`.`estatus` = 1) AS `Hojas activas`,(select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'I' and `s`.`estatus` = 1) AS `Hojas finalizadas` from ((`hoja_servicio` `hs` join `solicitud` `s` on(`s`.`nro_solicitud` = `hs`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) where `s`.`estatus` = 1 group by `hs`.`id_tipo_servicio`,`ts`.`nombre_tipo_servicio` order by count(`hs`.`codigo_hoja_servicio`) desc limit 0,1 */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1032,10 +1082,10 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `filtrado_tecnico` AS select (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1) AS `Total tecnicos`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 1) AS `Total soporte`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 2) AS `Total redes`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 3) AS `Total telefono`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 4) AS `Total electronica`,(select concat('CI: ',`e`.`cedula_empleado`,' - Nombre: ',`e`.`nombre_empleado`) from `empleado` `e` where `e`.`cedula_empleado` = (select `hs`.`cedula_tecnico` from `hoja_servicio` `hs` where `hs`.`estatus` = 'I' group by `hs`.`cedula_tecnico` order by count(0) desc limit 1)) AS `Tecnico eficiente` from `empleado` `e` where `e`.`estatus` = 1 limit 1 */;
+/*!50001 VIEW `filtrado_tecnico` AS select (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1) AS `Total tecnicos`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 1) AS `Total soporte`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 2) AS `Total redes`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 3) AS `Total telefono`,(select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 4) AS `Total electronica`,(select concat('CI: ',`e`.`cedula_empleado`,' - Nombre: ',`e`.`nombre_empleado`) from `empleado` `e` where `e`.`cedula_empleado` = (select `hs`.`cedula_tecnico` from `hoja_servicio` `hs` where `hs`.`estatus` = 'I' group by `hs`.`cedula_tecnico` order by count(0) desc limit 1)) AS `Tecnico eficiente` from `empleado` `e` where `e`.`estatus` = 1 limit 0,1 */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1050,7 +1100,7 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `vista_detalles_hoja` AS select `dh`.`id_detalle_` AS `id_detalle_`,`dh`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`,`dh`.`componente` AS `componente`,`dh`.`detalle` AS `detalle`,`dh`.`id_movimiento_material` AS `id_movimiento_material`,`mm`.`id_material` AS `id_material`,`mm`.`cantidad` AS `cantidad`,`mat`.`nombre_material` AS `nombre_material` from ((`detalle_hoja` `dh` left join `movimiento_materiales` `mm` on(`dh`.`id_movimiento_material` = `mm`.`id_movimiento_material`)) left join `material` `mat` on(`mm`.`id_material` = `mat`.`id_material`)) */;
@@ -1068,7 +1118,7 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `vista_hoja_servicio_completa` AS select `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`,`hs`.`nro_solicitud` AS `nro_solicitud`,`hs`.`id_tipo_servicio` AS `id_tipo_servicio`,`ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`,`hs`.`redireccion` AS `redireccion`,`hs`.`cedula_tecnico` AS `cedula_tecnico`,concat(coalesce(`tec`.`nombre_empleado`,''),' ',coalesce(`tec`.`apellido_empleado`,'')) AS `nombre_tecnico`,`hs`.`fecha_resultado` AS `fecha_resultado`,`hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`,`hs`.`observacion` AS `observacion`,`hs`.`estatus` AS `estatus`,`s`.`motivo` AS `motivo`,`s`.`fecha_solicitud` AS `fecha_solicitud`,`s`.`estado_solicitud` AS `estado_solicitud`,concat(coalesce(`sol`.`nombre_empleado`,''),' ',coalesce(`sol`.`apellido_empleado`,'')) AS `nombre_solicitante`,coalesce(`sol`.`telefono_empleado`,'N/A') AS `telefono_empleado`,coalesce(`sol`.`correo_empleado`,'N/A') AS `correo_empleado`,coalesce(`u`.`nombre_unidad`,'N/A') AS `nombre_unidad`,coalesce(`d`.`nombre`,'N/A') AS `nombre_dependencia`,coalesce(`e`.`tipo_equipo`,'N/A') AS `tipo_equipo`,coalesce(`e`.`serial`,'N/A') AS `serial`,coalesce(`b`.`codigo_bien`,'N/A') AS `codigo_bien`,coalesce(`m`.`nombre_marca`,'N/A') AS `nombre_marca`,coalesce(`b`.`descripcion`,'N/A') AS `descripcion` from (((((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `empleado` `tec` on(`hs`.`cedula_tecnico` = `tec`.`cedula_empleado`)) left join `unidad` `u` on(`sol`.`id_unidad` = `u`.`id_unidad`)) left join `dependencia` `d` on(`u`.`id_dependencia` = `d`.`id`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) */;
@@ -1086,7 +1136,7 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `vista_hojas_servicio_completa` AS select `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`,`hs`.`nro_solicitud` AS `nro_solicitud`,`hs`.`id_tipo_servicio` AS `id_tipo_servicio`,`ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`,`hs`.`redireccion` AS `redireccion`,`hs`.`cedula_tecnico` AS `cedula_tecnico`,concat(coalesce(`tec`.`nombre_empleado`,''),' ',coalesce(`tec`.`apellido_empleado`,'')) AS `nombre_tecnico`,`hs`.`fecha_resultado` AS `fecha_resultado`,`hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`,`hs`.`observacion` AS `observacion`,`hs`.`estatus` AS `estatus`,`s`.`motivo` AS `motivo`,`s`.`fecha_solicitud` AS `fecha_solicitud`,`s`.`estado_solicitud` AS `estado_solicitud`,concat(coalesce(`sol`.`nombre_empleado`,''),' ',coalesce(`sol`.`apellido_empleado`,'')) AS `nombre_solicitante`,coalesce(`sol`.`telefono_empleado`,'N/A') AS `telefono_empleado`,coalesce(`sol`.`correo_empleado`,'N/A') AS `correo_empleado`,coalesce(`u`.`nombre_unidad`,'N/A') AS `nombre_unidad`,coalesce(`d`.`nombre`,'N/A') AS `nombre_dependencia`,coalesce(`e`.`tipo_equipo`,'N/A') AS `tipo_equipo`,coalesce(`e`.`serial`,'N/A') AS `serial`,coalesce(`b`.`codigo_bien`,'N/A') AS `codigo_bien`,coalesce(`m`.`nombre_marca`,'N/A') AS `nombre_marca`,coalesce(`b`.`descripcion`,'N/A') AS `descripcion` from (((((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `empleado` `tec` on(`hs`.`cedula_tecnico` = `tec`.`cedula_empleado`)) left join `unidad` `u` on(`sol`.`id_unidad` = `u`.`id_unidad`)) left join `dependencia` `d` on(`u`.`id_dependencia` = `d`.`id`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) */;
@@ -1104,7 +1154,7 @@ USE `sigso_sistema`;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `vista_reporte_hojas_servicio` AS select `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`,`hs`.`nro_solicitud` AS `nro_solicitud`,`ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`,concat(`sol`.`nombre_empleado`,' ',`sol`.`apellido_empleado`) AS `solicitante`,`e`.`tipo_equipo` AS `tipo_equipo`,`m`.`nombre_marca` AS `nombre_marca`,`e`.`serial` AS `serial`,`b`.`codigo_bien` AS `codigo_bien`,`s`.`motivo` AS `motivo`,`s`.`fecha_solicitud` AS `fecha_solicitud`,`hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`,`hs`.`observacion` AS `observacion`,`hs`.`estatus` AS `estatus` from ((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) */;
@@ -1121,4 +1171,4 @@ USE `sigso_sistema`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-13 18:18:15
+-- Dump completed on 2025-07-18 14:15:46

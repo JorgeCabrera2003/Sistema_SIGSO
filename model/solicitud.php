@@ -84,54 +84,75 @@ class Solicitud extends Conexion
         return $this->estado;
     }
 
-    /**
-     * Registra una nueva solicitud
-     */
-    private function registrarSolicitud() {
-    $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => -1];
+    private function registrarSolicitud()
+    {
+        $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => -1];
 
-    try {
-        $this->conexion = new Conexion("sistema");
-        $this->conexion = $this->conexion->Conex();
-        $this->conexion->beginTransaction();
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
 
-        // Detectar área automáticamente si no se especificó
-        if (empty($this->id_tipo_servicio)) {
-            $this->id_tipo_servicio = $this->detectarAreaPorMotivo($this->motivo);
-        }
+            // Asegurarse de que el ID no se establece manualmente
+            $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
+                VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', 1)";
 
-        $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
-                VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', :estatus)";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bindParam(':solicitante', $this->cedula_solicitante);
+            $stmt->bindParam(':motivo', $this->motivo);
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->bindParam(':solicitante', $this->cedula_solicitante);
-        $stmt->bindParam(':motivo', $this->motivo);
+            // Manejar el caso cuando no se selecciona un equipo
+            $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
+            $stmt->bindParam(':equipo', $idEquipo, PDO::PARAM_INT);
 
-        // Manejar el caso cuando no se selecciona un equipo (puede ser NULL)
-        $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
-        $stmt->bindParam(':equipo', $idEquipo);
+            if ($stmt->execute()) {
+                $nro = $this->conexion->lastInsertId();
 
-        $stmt->bindValue(':estatus', 1);
-
-        if ($stmt->execute()) {
-            $nro = $this->conexion->lastInsertId();
-
-            $datos['resultado'] = 'registrar';
-            $datos['datos'] = $nro;
-            $datos['bool'] = 1;
-            $this->conexion->commit();
-        } else {
-            $datos['mensaje'] = 'Error al ejecutar la consulta';
+                $datos['resultado'] = 'registrar';
+                $datos['datos'] = $nro;
+                $datos['bool'] = 1;
+                $this->conexion->commit();
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                $datos['mensaje'] = 'Error al ejecutar la consulta: ' . $errorInfo[2];
+                $this->conexion->rollBack();
+            }
+        } catch (PDOException $e) {
+            $datos['mensaje'] = 'Error en la base de datos: ' . $e->getMessage();
             $this->conexion->rollBack();
         }
-    } catch (PDOException $e) {
-        $datos['mensaje'] = $e->getMessage();
-        $this->conexion->rollBack();
+
+        $this->Cerrar_Conexion($this->conexion, $stmt);
+        return $datos;
     }
 
-    $this->Cerrar_Conexion($this->conexion, $stmt);
-    return $datos;
-}
+    // Nuevo método para detectar área basado en el equipo
+    private function detectarAreaPorEquipo($idEquipo)
+    {
+        if (empty($idEquipo)) {
+            return 1; // Default a Soporte Técnico si no hay equipo
+        }
+
+        try {
+            // Obtener categoría del equipo a través del bien
+            $sql = "SELECT c.id_tipo_servicio 
+                FROM equipo e
+                JOIN bien b ON e.codigo_bien = b.codigo_bien
+                JOIN categoria c ON b.id_categoria = c.id_categoria
+                WHERE e.id_equipo = :id_equipo";
+
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bindParam(':id_equipo', $idEquipo, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $resultado['id_tipo_servicio'] ?? 1; // Default a Soporte Técnico
+        } catch (PDOException $e) {
+            error_log('Error al detectar área por equipo: ' . $e->getMessage());
+            return 1; // Default a Soporte Técnico
+        }
+    }
 
     /**
      * Obtiene las solicitudes de un usuario específico

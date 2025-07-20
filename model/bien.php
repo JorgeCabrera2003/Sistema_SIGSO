@@ -3,32 +3,40 @@ require_once "model/conexion.php";
 require_once "model/empleado.php";
 require_once "model/oficina.php";
 require_once "model/marca.php";
-require_once "model/tipo_bien.php";
+require_once "model/categoria.php";
 class Bien extends Conexion
 {
+    private $id_equipo;
     private $codigo_bien;
-    private $id_tipo_bien;
-    private $id_marca;
-    private $descripcion;
+    private $id_tipo_equipo;
+    private $id_tipo_servicio; // Nuevo campo para el tipo de servicio
+    private $serial;
+    private $modelo;
     private $estado;
-    private $cedula_empleado;
-    private $id_oficina;
     private $estatus;
+    private $fecha_instalacion;
+    private $fecha_compra;
+    private $garantia;
+    private $observaciones;
     private $empleado;
     private $oficina;
     private $marca;
-    private $tipo_bien;
+    private $tipo_equipo;
 
     public function __construct()
     {
-        $this->codigo_bien = 0;
-        $this->id_tipo_bien = NULL;
-        $this->id_marca = NULL;
-        $this->descripcion = "";
+        $this->id_equipo = 0;
+        $this->codigo_bien = NULL;
+        $this->id_tipo_equipo = NULL;
+        $this->id_tipo_servicio = NULL;
+        $this->serial = "";
+        $this->modelo = "";
         $this->estado = "";
-        $this->cedula_empleado = NULL;
-        $this->id_oficina = NULL;
         $this->estatus = 0;
+        $this->fecha_instalacion = NULL;
+        $this->fecha_compra = NULL;
+        $this->garantia = NULL;
+        $this->observaciones = "";
     }
 
     public function set_codigo_bien($codigo_bien)
@@ -462,8 +470,6 @@ class Bien extends Conexion
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
-    
-    // Nueva función para consultar bienes por cédula de empleado
     private function ConsultarPorEmpleado($cedula_empleado)
     {
         $dato = [];
@@ -473,7 +479,7 @@ class Bien extends Conexion
             $this->conex->beginTransaction();
             $query = "SELECT b.codigo_bien, b.descripcion, tb.nombre_tipo_bien, m.nombre_marca
                       FROM bien b
-                      LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
+                      LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_categoria
                       LEFT JOIN marca m ON b.id_marca = m.id_marca
                       WHERE b.estatus = 1 AND b.cedula_empleado = :cedula_empleado";
             $stm = $this->conex->prepare($query);
@@ -494,6 +500,43 @@ class Bien extends Conexion
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
+
+    public function obtenerTipoServicioPorEquipo($idEquipo)
+    {
+        $dato = [];
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+            $this->conex->beginTransaction();
+
+            $query = "SELECT id_tipo_servicio FROM equipo WHERE id_equipo = :id_equipo AND estatus = 1";
+            
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_equipo", $idEquipo);
+            $stm->execute();
+            $this->conex->commit();
+            
+            $resultado = $stm->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado) {
+                $dato['id_tipo_servicio'] = $resultado['id_tipo_servicio'] ?? 1; // Default a Soporte Técnico
+                $dato['resultado'] = 'success';
+            } else {
+                $dato['id_tipo_servicio'] = 1; // Default si no encuentra
+                $dato['resultado'] = 'warning';
+                $dato['mensaje'] = 'Equipo no encontrado, usando valor por defecto';
+            }
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['id_tipo_servicio'] = 1; // Default en caso de error
+            $dato['resultado'] = 'error';
+            $dato['mensaje'] = $e->getMessage();
+        }
+        
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
     public function Transaccion($peticion)
     {
         switch ($peticion['peticion']) {
@@ -532,6 +575,9 @@ class Bien extends Conexion
 
             case 'consultar_bienes_empleado':
                 return $this->ConsultarPorEmpleado($peticion['cedula_empleado']);
+
+            case 'obtener_tipo_servicio':
+                return $this->obtenerTipoServicioPorEquipo($peticion['id_equipo']);
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
         }
