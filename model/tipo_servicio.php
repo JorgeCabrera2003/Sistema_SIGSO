@@ -6,12 +6,15 @@ class TipoServicio extends Conexion
     private $id_tipo_servicio;
     private $nombre_tipo_servicio;
     private $encargado;
+    private $conexion;
 
 
     public function __construct()
     {
         $this->id_tipo_servicio = 0;
         $this->nombre_tipo_servicio = "";
+        $this->encargado = NULL;
+        $this->conexionion = NULL;
     }
 
     public function set_codigo($codigo)
@@ -48,11 +51,11 @@ class TipoServicio extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT * FROM tipo_servicio WHERE id_tipo_servicio = :codigo";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":codigo", $this->id_tipo_servicio);
             $stm->execute();
 
@@ -77,11 +80,11 @@ class TipoServicio extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
                 $query = "INSERT INTO tipo_servicio (nombre_tipo_servicio, cedula_encargado, estatus) VALUES (:nombre, :encargado, 1)";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
                 $stm->bindParam(":encargado", $this->encargado);
                 $stm->execute();
@@ -98,7 +101,7 @@ class TipoServicio extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -107,11 +110,11 @@ class TipoServicio extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "UPDATE tipo_servicio SET nombre_tipo_servicio = :nombre, cedula_encargado = :encargado WHERE id_tipo_servicio = :codigo";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":codigo", $this->id_tipo_servicio);
             $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
             $stm->bindParam(":encargado", $this->encargado);
@@ -124,14 +127,14 @@ class TipoServicio extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
     private function Eliminar()
     {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
+        $this->conexion = new Conexion("sistema");
+        $this->conexion = $this->conexion->Conex();
         $dato = [];
         $bool = $this->Validar();
 
@@ -139,7 +142,7 @@ class TipoServicio extends Conexion
             try {
                 $query = "UPDATE tipo_servicio SET estatus = 0 WHERE id_tipo_servicio = :codigo";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":codigo", $this->id_tipo_servicio);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
@@ -155,7 +158,7 @@ class TipoServicio extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -164,8 +167,8 @@ class TipoServicio extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT ts.id_tipo_servicio, ts.nombre_tipo_servicio,
             ts.cedula_encargado, CONCAT(emp.nombre_empleado,' ', emp.apellido_empleado) AS encargado
             FROM tipo_servicio ts
@@ -173,7 +176,7 @@ class TipoServicio extends Conexion
             WHERE ts.estatus = 1
             ORDER BY ts.nombre_tipo_servicio";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
 
             $dato['resultado'] = "consultar";
@@ -183,7 +186,7 @@ class TipoServicio extends Conexion
             $dato['mensaje'] = $e->getMessage();
         }
 
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -197,6 +200,11 @@ class TipoServicio extends Conexion
 
             case 'consultar':
                 return $this->Consultar();
+
+            case 'validar':
+                $datos = $this->Validar();
+                $this->conexion = NULL;
+                return $datos;
 
             case 'actualizar':
                 return $this->Actualizar();

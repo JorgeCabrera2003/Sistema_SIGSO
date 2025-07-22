@@ -2,6 +2,7 @@ $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
+	consultarTipoServicio();
 
 	$("#enviar").on("click", async function () {
 		var confirmacion = false;
@@ -11,36 +12,35 @@ $(document).ready(function () {
 
 			case "Registrar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se registrará un Tipo de Bien", "¿Está seguro de realizar la acción?", "question");
-					if (confirmacion) {
-						var datos = new FormData();
-						datos.append('registrar', 'registrar');
-						datos.append('nombre', $("#nombre").val());
-						enviaAjax(datos);
-						envio = true;
-					}
+					var datos = new FormData();
+					datos.append('registrar', 'registrar');
+					datos.append('nombre', $("#nombre").val());
+					datos.append('id_tipoServicio', $("#tipo_servicio").val());
+					enviaAjax(datos);
+					envio = true;
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se modificará un Tipo de Bien", "¿Está seguro de realizar la acción?", "question");
+					confirmacion = await confirmarAccion("Se modificará un Categoría", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('modificar', 'modificar');
-						datos.append('id_tipo_bien', $("#id_tipo_bien").val());
+						datos.append('id_categoria', $("#id_categoria").val());
 						datos.append('nombre', $("#nombre").val());
+						datos.append('id_tipoServicio', $("#tipo_servicio").val());
 						enviaAjax(datos);
 						envio = true;
 					}
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_tipo_bien"), $("#sid_tipo_bien"), "") == 1) {
-					confirmacion = await confirmarAccion("Se eliminará un Tipo de Bien", "¿Está seguro de realizar la acción?", "question");
+				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_categoria"), $("#sid_categoria"), "") == 1) {
+					confirmacion = await confirmarAccion("Se eliminará un Categoría", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
-						datos.append('id_tipo_bien', $("#id_tipo_bien").val());
+						datos.append('id_categoria', $("#id_categoria").val());
 						enviaAjax(datos);
 					}
 				}
@@ -64,9 +64,9 @@ $(document).ready(function () {
 
 	$("#btn-registrar").on("click", function () {
 		limpia();
-		$("#id_tipo_bien").parent().parent().remove();
+		$("#id_categoria").parent().parent().remove();
 		$("#nombre").parent().parent().show();
-		$("#modalTitleId").text("Registrar Tipo de Bien");
+		$("#modalTitleId").text("Registrar Categoría");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	});
@@ -76,6 +76,13 @@ $(document).ready(function () {
 		$("#modalEliminadas").modal("show");
 	});
 });
+
+function consultarTipoServicio() {
+	var datos = new FormData();
+	datos.append('consultar_tipoServicio', 'consultar_tipoServicio');
+
+	enviaAjax(datos);
+}
 
 function enviaAjax(datos) {
 	$.ajax({
@@ -115,13 +122,17 @@ function enviaAjax(datos) {
 				} else if (lee.resultado == "permisos_modulo") {
 					vistaPermiso(lee.permisos);
 
+				} else if (lee.resultado == "consultar_tipoServicio") {
+					selectTipoServicio(lee.datos);
+
 				} else if (lee.resultado == "entrada") {
 
 				} else if (lee.resultado == "error") {
-					mensajes("error", null, lee.mensaje, null);
+					console.log(lee.mensaje)
+					mensajes("error", null, "Ups, a ocurrido un error...", null);
 				}
 			} catch (e) {
-				mensajes("error", null, "Error en JSON Tipo: " + e.name + "\n" +
+				console.log("error", null, "Error en JSON Tipo: " + e.name + "\n" +
 					"Mensaje: " + e.message + "\n" +
 					"Posición: " + e.lineNumber);
 			}
@@ -144,14 +155,26 @@ function capaValidar() {
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
 			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#snombre"),
-			"El nombre del tipo de bien debe tener de 3 a 45 carácteres"
+			"El nombre de la categoria debe tener de 3 a 45 carácteres"
 		);
 	});
+
+	$("#tipo_servicio").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#stipo_servicio", "Debe seleccionar una opción", 0);
+		} else {
+			estadoSelect(this, "#stipo_servicio", "", 1);
+		}
+	});
+
 }
 
 function validarenvio() {
 	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
-		mensajes("error", 10000, "Verifica", "El nombre del tipo de bien debe tener de 3 a 45 carácteres");
+		mensajes("error", 10000, "Verifica", "El nombre de la categoria debe tener de 3 a 45 carácteres");
+		return false;
+	} else if ($("#rol").val() == "default") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar una opción");
 		return false;
 	}
 	return true;
@@ -167,15 +190,15 @@ function vistaPermiso(permisos = null) {
 
 	} else {
 
-		if (permisos['tipo_bien']['modificar']['estado'] == '0') {
+		if (permisos['categoria']['modificar']['estado'] == '0') {
 			$('.modificar').remove();
 		}
 
-		if (permisos['tipo_bien']['eliminar']['estado'] == '0') {
+		if (permisos['categoria']['eliminar']['estado'] == '0') {
 			$('.eliminar').remove();
 		}
 
-		if (permisos['tipo_bien']['restaurar']['estado'] == '0') {
+		if (permisos['categoria']['restaurar']['estado'] == '0') {
 			$('.restaurar').remove();
 		}
 	}
@@ -185,11 +208,24 @@ function crearDataTable(arreglo) {
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
+	console.log(arreglo);
 	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'id_tipo_bien' },
-			{ data: 'nombre_tipo_bien' },
+			{ data: 'id_categoria' },
+			{ data: 'nombre_categoria' },
+			{
+				data: 'servicio',
+				render: function (data) {
+					var texto;
+					if (data == null) {
+						texto = "Ninguno";
+					} else {
+						texto = data;
+					};
+					return texto;
+				}
+			},
 			{
 				data: null, render: function () {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -212,8 +248,20 @@ function iniciarTablaEliminadas(arreglo) {
 	$('#tablaEliminadas').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'id_tipo_bien' },
-			{ data: 'nombre_tipo_bien' },
+			{ data: 'id_categoria' },
+			{ data: 'nombre_categoria' },
+			{
+				data: 'servicio',
+				render: function (data) {
+					var texto;
+					if (data == null) {
+						texto = "Ninguno";
+					} else {
+						texto = data;
+					};
+					return texto;
+				}
+			},
 			{
 				data: null,
 				render: function () {
@@ -230,6 +278,22 @@ function iniciarTablaEliminadas(arreglo) {
 	ConsultarPermisos();
 }
 
+function selectTipoServicio(arreglo) {
+	$("#tipo_servicio").empty();
+
+	$("#tipo_servicio").append(
+		new Option('Seleccione un Tipo de Servicio', 'default')
+	);
+	$("#tipo_servicio").append(
+		new Option('No asignar Servicio', 'none')
+	);
+	arreglo.forEach(item => {
+		$("#tipo_servicio").append(
+			new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
+		);
+	});
+}
+
 function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
@@ -240,26 +304,28 @@ function limpia() {
 function rellenar(pos, accion) {
 	linea = $(pos).closest('tr');
 
-	if (!$("#id_tipo_bien").length) {
+	if (!$("#id_categoria").length) {
 		$("#Fila1").prepend(`<div class="col-4">
             <div class="form-floating mb-3 mt-4">
-                <input placeholder="" class="form-control" name="id_tipo_bien" type="text" id="id_tipo_bien" readonly>
-                <span id="sid_tipo_bien"></span>
-                <label for="id_tipo_bien" class="form-label">ID Tipo de Bien</label>
+                <input placeholder="" class="form-control" name="id_categoria" type="text" id="id_categoria" readonly>
+                <span id="sid_categoria"></span>
+                <label for="id_categoria" class="form-label">ID Categoría</label>
             </div>`);
 	}
 
-	$("#id_tipo_bien").val($(linea).find("td:eq(0)").text());
+	$("#id_categoria").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());
+	buscarSelect("#tipo_servicio", "none", "value");
+	buscarSelect("#tipo_servicio", $(linea).find("td:eq(2)").text(), "text");
 
-	$("#id_tipo_bien").prop('readOnly', true);
+	$("#id_categoria").prop('readOnly', true);
 	if (accion == 0) {
-		$("#modalTitleId").text("Modificar Tipo de Bien")
+		$("#modalTitleId").text("Modificar Categoría")
 		$("#enviar").text("Modificar");
 	}
 	else {
 		$("#nombre").prop('readOnly', true);
-		$("#modalTitleId").text("Eliminar Tipo de Bien")
+		$("#modalTitleId").text("Eliminar Categoría")
 		$("#enviar").text("Eliminar");
 	}
 	$('#enviar').prop('disabled', false);
@@ -277,8 +343,8 @@ function restaurarTipoBien(boton) {
 	var id = $(linea).find('td:eq(0)').text();
 
 	Swal.fire({
-		title: '¿Restaurar Tipo de Bien?',
-		text: "¿Está seguro que desea restaurar este tipo de bien?",
+		title: '¿Restaurar Categoría?',
+		text: "¿Está seguro que desea restaurar esta categoría?",
 		icon: 'question',
 		showCancelButton: true,
 		confirmButtonColor: '#3085d6',
@@ -289,7 +355,7 @@ function restaurarTipoBien(boton) {
 		if (result.isConfirmed) {
 			var datos = new FormData();
 			datos.append('restaurar', 'restaurar');
-			datos.append('id_tipo_bien', id);
+			datos.append('id_categoria', id);
 
 			$.ajax({
 				url: "",
@@ -312,7 +378,7 @@ function restaurarTipoBien(boton) {
 					}
 				},
 				error: function () {
-					mensajes("error", null, "Error", "No se pudo restaurar el tipo de bien");
+					mensajes("error", null, "Error", "No se pudo restaurar el categoria");
 				}
 			});
 		}

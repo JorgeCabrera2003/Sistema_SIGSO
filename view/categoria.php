@@ -23,12 +23,12 @@
                     <div class="card-body">
                         <h5 class="card-title">Gestionar Categorías</h5>
                         <div class="d-flex justify-content-between">
-                            <?php if (isset($permisos['tipo_bien']['registrar']['estado']) && $permisos['tipo_bien']['registrar']['estado'] == '1') {?>
+                            <?php if (isset($permisos['categoria']['registrar']['estado']) && $permisos['categoria']['registrar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar">
                                 Registrar Categoría
                             </button>
                             <?php }?>
-                            <?php if (isset($permisos['tipo_bien']['restaurar']['estado']) && $permisos['tipo_bien']['restaurar']['estado'] == '1') {?>
+                            <?php if (isset($permisos['categoria']['restaurar']['estado']) && $permisos['categoria']['restaurar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Categorías Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>

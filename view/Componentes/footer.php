@@ -82,11 +82,11 @@ function actualizarContadorMenu() {
             try {
                 var data = JSON.parse(response);
                 if(data.resultado == 'contar') {
-                    $('.notification-badge').text(data.total);
+                    $('#badge-notificacion').text(data.total);
                     if(data.total > 0) {
-                        $('.notification-badge').show();
+                        $('#badge-notificacion').show();
                     } else {
-                        $('.notification-badge').hide();
+                        $('#badge-notificacion').hide();
                     }
                 }
             } catch(e) {

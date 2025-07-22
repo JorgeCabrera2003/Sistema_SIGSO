@@ -8,18 +8,28 @@
             </div>
             <div class="modal-body">
                 <div class="row justify-content-center" id="Fila1">
-                    <div class="col-4">
+                    <div class="col-md-4">
                         <div class="form-floating mb-3 mt-4">
-                            <input placeholder="" class="form-control" name="id_tipo_bien" type="text" id="id_tipo_bien" readonly>
-                            <span id="sid_tipo_bien"></span>
-                            <label for="id_tipo_bien" class="form-label">ID Categoría</label>
+                            <input placeholder="" class="form-control" name="id_categoria" type="text" id="id_categoria"
+                                readonly>
+                            <span id="sid_categoria"></span>
+                            <label for="id_categoria" class="form-label">ID Categoría</label>
                         </div>
                     </div>
-                    <div class="col-8">
+                    <div class="col-md-6">
                         <div class="form-floating mb-3 mt-4">
-                            <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="45">
+                            <input placeholder="" class="form-control" name="nombre" type="text" id="nombre"
+                                maxlength="45">
                             <span id="snombre"></span>
                             <label for="nombre" class="form-label">Nombre de la Categoría</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3 mt-4">
+                            <select class="form-select" name="tipo_servicio" id="tipo_servicio">
+                            </select>
+                            <span id="stipo_servicio"></span>
+                            <label for="tipo_servicio" class="form-label">Servicio asignado</label>
                         </div>
                     </div>
                 </div>

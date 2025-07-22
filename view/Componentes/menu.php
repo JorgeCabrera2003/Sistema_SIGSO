@@ -1,4 +1,3 @@
-
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar">
   <div class="sidebar-header">
@@ -72,7 +71,8 @@
             <span>Equipos</span>
           </li>
 
-          <li class="menu-item <?php echo in_array($page, ["bien", "equipo", "material"]) ? "active" : "" ?>" title="Gestión de Equipos">
+          <li class="menu-item <?php echo in_array($page, ["bien", "equipo", "material"]) ? "active" : "" ?>"
+            title="Gestión de Equipos">
             <a class="nav-link collapsed" data-bs-target="#equipos-submenu" data-bs-toggle="collapse" href="#">
               <i class="fas fa-laptop"></i>
               <span class="ms-2 me-2 menu-text">Gestión de Equipos</span>
@@ -120,7 +120,8 @@
             <span>Infraestructura</span>
           </li>
           <?php if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion) { ?>
-            <li class="menu-item <?php echo in_array($page, ["Switch_", "interconexion", "patch_panel", "punto_conexion"]) ? "active" : "" ?>"
+            <li
+              class="menu-item <?php echo in_array($page, ["Switch_", "interconexion", "patch_panel", "punto_conexion"]) ? "active" : "" ?>"
               title="Gestión de Redes">
               <a class="nav-link collapsed" data-bs-target="#redes-submenu" data-bs-toggle="collapse" href="#">
                 <i class="fas fa-network-wired"></i>
@@ -140,7 +141,8 @@
                 </li>
               <?php } ?>
               <?php if (isset($permisos['interconexion']['ver']['estado']) && $permisos['interconexion']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "interconexion") ? "active" : "" ?>" title="Gestión de Interconexiones">
+                <li class="menu-item <?php echo ($page == "interconexion") ? "active" : "" ?>"
+                  title="Gestión de Interconexiones">
                   <a href="?page=interconexion">
                     <i class="fa-solid fa-network-wired"></i>
                     <span class="ms-2 me-2 menu-text">Interconexiones</span>
@@ -156,7 +158,8 @@
                 </li>
               <?php } ?>
               <?php if (isset($permisos['punto_conexion']['ver']['estado']) && $permisos['punto_conexion']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "punto_conexion") ? "active" : "" ?>" title="Gestión de Puntos de Conexión">
+                <li class="menu-item <?php echo ($page == "punto_conexion") ? "active" : "" ?>"
+                  title="Gestión de Puntos de Conexión">
                   <a href="?page=punto_conexion">
                     <i class="fa-solid fa-ethernet"></i>
                     <span class="ms-2 me-2 menu-text">Puntos de Conexión</span>
@@ -214,7 +217,8 @@
           </li>
 
           <ul id="personal-submenu" style="margin-left: 1em"
-            class="nav-content collapse<?php echo in_array($page, ["empleado", "tecnico"]) ? " show" : "" ?>" data-bs-parent="#sidebar-nav">
+            class="nav-content collapse<?php echo in_array($page, ["empleado", "tecnico"]) ? " show" : "" ?>"
+            data-bs-parent="#sidebar-nav">
             <?php if (isset($permisos['empleado']['ver']['estado']) && $permisos['empleado']['ver']['estado'] == "1") { ?>
               <li class="menu-item <?php echo ($page == "empleado") ? "active" : "" ?>" title="Gestión de Empleados">
                 <a href="?page=empleado">
@@ -246,7 +250,8 @@
             <span>Configuración</span>
           </li>
 
-          <li class="menu-item <?php echo in_array($page, ["unidad", "dependencia", "ente", "marca", "tipo_servicio", "cargo", "tipo_bien"]) ? "active" : "" ?>"
+          <li
+            class="menu-item <?php echo in_array($page, ["unidad", "dependencia", "ente", "marca", "tipo_servicio", "cargo", "tipo_bien"]) ? "active" : "" ?>"
             title="Configuración General">
             <a class="nav-link collapsed" data-bs-target="#config-submenu" data-bs-toggle="collapse" href="#">
               <i class="fas fa-cog"></i>
@@ -256,7 +261,8 @@
           </li>
 
           <ul id="config-submenu" style="margin-left: 1em"
-            class="nav-content collapse<?php echo in_array($page, ["unidad", "dependencia", "ente", "marca", "tipo_servicio", "cargo", "tipo_bien"]) ? " show" : "" ?>" data-bs-parent="#sidebar-nav">
+            class="nav-content collapse<?php echo in_array($page, ["unidad", "dependencia", "ente", "marca", "tipo_servicio", "cargo", "tipo_bien"]) ? " show" : "" ?>"
+            data-bs-parent="#sidebar-nav">
             <?php if (isset($permisos['unidad']['ver']['estado']) && $permisos['unidad']['ver']['estado'] == "1") { ?>
               <li class="menu-item <?php echo ($page == "unidad") ? "active" : "" ?>" title="Unidad">
                 <a href="?page=unidad">
@@ -326,7 +332,8 @@
             <span>Seguridad</span>
           </li>
 
-          <li class="menu-item <?php echo in_array($page, ["usuario", "rol", "modulo_sistema", "bitacora", "backup"]) ? "active" : "" ?>"
+          <li
+            class="menu-item <?php echo in_array($page, ["usuario", "rol", "modulo_sistema", "bitacora", "backup"]) ? "active" : "" ?>"
             title="Módulo de Seguridad">
             <a class="nav-link collapsed" data-bs-target="#seguridad-submenu" data-bs-toggle="collapse" href="#">
               <i class="fa-solid fa-shield-halved"></i>
@@ -336,7 +343,8 @@
           </li>
 
           <ul id="seguridad-submenu" style="margin-left: 1em;"
-            class="nav-content collapse<?php echo in_array($page, ["usuario", "rol", "modulo_sistema", "bitacora", "backup"]) ? " show" : "" ?>" data-bs-parent="#sidebar-nav">
+            class="nav-content collapse<?php echo in_array($page, ["usuario", "rol", "modulo_sistema", "bitacora", "backup"]) ? " show" : "" ?>"
+            data-bs-parent="#sidebar-nav">
             <?php if (isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1") { ?>
               <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Gestión de Usuarios">
                 <a href="?page=usuario">
@@ -423,7 +431,8 @@
             <div class="action-item notification-dropdown">
               <button class="notification-btn">
                 <i class="fas fa-bell"></i>
-                <span class="notification-badge"></span>
+                <span id="badge-notificacion"
+                class="badge badge-notificacion position-absolute top-0 start-100 translate-middle bg-danger"></span>
               </button>
               <div class="dropdown-menu notification-menu">
                 <div class="dropdown-header">
@@ -498,6 +507,5 @@
     </head>
     <link rel="icon" href="assets/img/favicon.ico">
 
-    <head></head>
-    </head>
 
+    </head>

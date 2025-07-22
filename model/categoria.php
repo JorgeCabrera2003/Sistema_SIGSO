@@ -1,22 +1,32 @@
 <?php
 require_once "model/conexion.php";
+require_once "model/tipo_servicio.php";
 class Categoria extends Conexion
 {
     private $id;
     private $nombre;
+    private $id_tipo_servicio;
     private $estatus;
     private $conexion;
+    private $tipo_servicio;
 
     public function __construct()
     {
         $this->id = 0;
         $this->nombre = "";
         $this->estatus = 0;
+        $this->id_tipo_servicio = NULL;
+        $this->tipo_servicio = NULL;
     }
 
     public function set_id($id)
     {
         $this->id = $id;
+    }
+
+    public function set_id_servicio($tipo_servicio)
+    {
+        $this->id_tipo_servicio = $tipo_servicio;
     }
 
     public function set_nombre($nombre)
@@ -34,6 +44,11 @@ class Categoria extends Conexion
         return $this->id;
     }
 
+    public function get_id_servicio()
+    {
+        return $this->id_tipo_servicio;
+    }
+
     public function get_nombre()
     {
         return $this->nombre;
@@ -42,6 +57,14 @@ class Categoria extends Conexion
     public function get_estatus()
     {
         return $this->estatus;
+    }
+
+    private function LlamarTipoServicio()
+    {
+        if ($this->tipo_servicio == NULL) {
+            $this->tipo_servicio = new TipoServicio();
+        }
+        return $this->tipo_servicio;
     }
 
     private function Validar()
@@ -74,16 +97,29 @@ class Categoria extends Conexion
     {
         $dato = [];
         $bool = $this->Validar();
+        $boolServicio = NULL;
 
         if ($bool['bool'] == 0) {
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
-                $query = "INSERT INTO categoria(id_categoria, nombre_categoria, estatus) VALUES 
-                (NULL, :nombre, 1)";
+
+                $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
+                $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+
+                if ($boolServicio['bool'] == 1) {
+                    $dato['servicio_asignado'] == 1;
+                } else {
+                    $this->set_id_servicio(NULL);
+                    $dato['servicio_asignado'] == 0;
+                }
+
+                $query = "INSERT INTO categoria(id_categoria, nombre_categoria, id_tipo_servicio, estatus) VALUES 
+                (NULL, :nombre, :tipo_servicio, 1)";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
+                $stm->bindParam(":tipo_servicio", $this->tipo_servicio);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
@@ -105,15 +141,27 @@ class Categoria extends Conexion
     private function Actualizar()
     {
         $dato = [];
+        $boolServicio = NULL;
 
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-            $query = "UPDATE categoria SET nombre_categoria = :nombre WHERE id_categoria = :id";
+
+            $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
+            $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+
+            if ($boolServicio['bool'] == 1) {
+                $dato['servicio_asignado'] == 1;
+            } else {
+                $this->set_id_servicio(NULL);
+                $dato['servicio_asignado'] == 0;
+            }
+            $query = "UPDATE categoria SET nombre_categoria = :nombre, id_tipo_servicio = :tipo_servicio WHERE id_categoria = :id";
 
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
+            $stm->bindParam(":tipo_servicio", $this->tipo_servicio);
             $stm->execute();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
@@ -165,7 +213,10 @@ class Categoria extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-            $query = "SELECT * FROM categoria WHERE estatus = 1";
+            $query = "SELECT c.id_categoria, c.nombre_categoria, c.id_tipo_servicio, c.id_tipo_servicio, ts.nombre_tipo_servicio AS servicio
+            FROM categoria c 
+            LEFT JOIN tipo_servicio ts ON ts.id_tipo_servicio = c.id_tipo_servicio
+            WHERE c.estatus = 1";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";

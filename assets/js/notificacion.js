@@ -134,8 +134,9 @@ function actualizarContador() {
 }
 
 function actualizarBadge(total) {
-    var badge = $('.notification-badge');
+    var badge = $('.badge-notificacion');
     if (total > 0) {
+        console.log("hola");
         badge.text(total).show();
     } else {
         badge.hide();
