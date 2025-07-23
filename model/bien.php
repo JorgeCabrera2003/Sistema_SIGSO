@@ -22,6 +22,8 @@ class Bien extends Conexion
     private $oficina;
     private $marca;
     private $tipo_equipo;
+    private $id_tipo_bien;
+    private $categoria;
 
     public function __construct()
     {
@@ -37,6 +39,7 @@ class Bien extends Conexion
         $this->fecha_compra = NULL;
         $this->garantia = NULL;
         $this->observaciones = "";
+        $this->id_tipo_bien = 0;
     }
 
     public function set_codigo_bien($codigo_bien)
@@ -169,13 +172,13 @@ class Bien extends Conexion
 
     private function LlamarTipoBien()
     {
-        if ($this->tipo_bien == NULL) {
+        if ($this->categoria == NULL) {
 
-            $this->tipo_bien = new TipoBien();
+            $this->categoria = new Categoria();
 
         }
 
-        return $this->tipo_bien;
+        return $this->categoria;
     }
 
     private function DestruirTipoBien()
@@ -225,12 +228,12 @@ class Bien extends Conexion
                 $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
 
-                $query = "INSERT INTO bien(codigo_bien, id_tipo_bien, id_marca, descripcion, estado, cedula_empleado, id_oficina, estatus) VALUES 
+                $query = "INSERT INTO bien(codigo_bien, id_categoria, id_marca, descripcion, estado, cedula_empleado, id_oficina, estatus) VALUES 
                 (:codigo, :tipo_bien, :marca, :descripcion, :estado, :empleado, :oficina, 1)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo", $this->codigo_bien);
-                $stm->bindParam(":tipo_bien", $this->id_tipo_bien);
+                $stm->bindParam(":categoria", $this->id_categoria);
                 $stm->bindParam(":marca", $this->id_marca);
                 $stm->bindParam(":descripcion", $this->descripcion);
                 $stm->bindParam(":estado", $this->estado);
@@ -371,10 +374,10 @@ class Bien extends Conexion
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
-            $query = "SELECT b.*, tb.nombre_tipo_bien, m.nombre_marca, o.nombre_oficina, 
+            $query = "SELECT b.*, tb.nombre_categoria, m.nombre_marca, o.nombre_oficina, 
                      CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS empleado
                      FROM bien b 
-                     LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
+                     LEFT JOIN categoria tb ON b.id_categoria = tb.id_categoria
                      LEFT JOIN marca m ON b.id_marca = m.id_marca
                      LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
                      LEFT JOIN empleado e ON b.cedula_empleado = e.cedula_empleado

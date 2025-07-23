@@ -553,7 +553,7 @@ function crearDataTable(arreglo) {
                 }
             },
             { data: 'codigo_bien' },
-            { data: 'nombre_tipo_bien' },
+            { data: 'nombre_categoria' },
             { data: 'nombre_marca' },
             { data: 'descripcion' },
             { data: 'estado' },
@@ -587,7 +587,7 @@ function TablaEliminados(arreglo) {
                 }
             },
             { data: 'codigo_bien' },
-            { data: 'nombre_tipo_bien' },
+            { data: 'nombre_categoria' },
             { data: 'nombre_marca' },
             { data: 'descripcion' },
             { data: 'estado' },

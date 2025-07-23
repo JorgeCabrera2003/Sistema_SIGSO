@@ -12,7 +12,7 @@ if (is_file("view/" . $page . ".php")) {
     require_once "model/empleado.php"; // Necesario para notificaciones
 
     $titulo = "Gestionar Bienes";
-    $cabecera = array('#', "Código", "Tipo", "Marca", "Descripción", "Estado", "Oficina", "Empleado", "Modificar/Eliminar");
+    $cabecera = array('#', "Código", "Categoria", "Marca", "Descripción", "Estado", "Oficina", "Empleado", "Modificar/Eliminar");
 
     $bien = new Bien();
     $equipo = new Equipo();
