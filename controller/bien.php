@@ -119,6 +119,7 @@ if (is_file("view/" . $page . ".php")) {
                             $jsonEquipo['resultado'] = "error";
                             $jsonEquipo['mensaje'] = "Debe seleccionar una unidad para el equipo";
                         } else {
+                            //gey este comentario lo hizo gustavo, el pato ese
                             $equipo->set_tipo_equipo($_POST["tipo_equipo"]);
                             $equipo->set_serial($_POST["serial_equipo"]);
                             $equipo->set_codigo_bien($_POST["codigo_bien"]);
