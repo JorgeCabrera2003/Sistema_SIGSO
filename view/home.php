@@ -225,7 +225,7 @@
         var servicioId = $(this).find('td:first').text();
         
         // Redirigir a la página de detalle (ajusta la URL según tu estructura)
-        window.location.href = '?page=ser';
+        window.location.href = '?page=servicios';
     });
 
     // Opcional: Cambiar el cursor al pasar sobre las filas
