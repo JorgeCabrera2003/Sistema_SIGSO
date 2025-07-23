@@ -89,79 +89,79 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["solicitud"]) && $_POST["motivo"] != NULL) {
-		try {
-			// Validar motivo
-			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/", $_POST["motivo"]) == 0) {
-				throw new Exception("Error, datos no válidos");
-			}
+    try {
+        // Validar motivo
+        if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/", $_POST["motivo"]) == 0) {
+            throw new Exception("Error, datos no válidos");
+        }
 
-			$solicitud->set_cedula_solicitante($datos["cedula"]);
-			$solicitud->set_motivo($_POST["motivo"]);
+        $solicitud->set_cedula_solicitante($datos["cedula"]);
+        $solicitud->set_motivo($_POST["motivo"]);
 
-			// Registrar el equipo si viene en el POST
-			if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
-				$solicitud->set_id_equipo($_POST["id_equipo"]);
-			} else {
-				$solicitud->set_id_equipo(null);
-			}
+        // Registrar el equipo si viene en el POST
+        if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
+            $solicitud->set_id_equipo($_POST["id_equipo"]);
+        } else {
+            $solicitud->set_id_equipo(null);
+        }
 
-			// Registrar la solicitud
-			$peticion = ["peticion" => "registrar"];
-			$resultado = $solicitud->Transaccion($peticion);
+        // Registrar la solicitud
+        $peticion = ["peticion" => "registrar"];
+        $resultado = $solicitud->Transaccion($peticion);
 
-			if ($resultado['bool'] == 1) {
-				// Obtener tipo de servicio basado en el equipo (si existe)
-				$id_tipo_servicio = 1; // Default a Soporte Técnico
-				if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
-					$resultadoTipoServicio = $equipo->Transaccion([
-						'peticion' => 'obtener_tipo_servicio',
-						'id_equipo' => $_POST["id_equipo"]
-					]);
-					$id_tipo_servicio = $resultadoTipoServicio['id_tipo_servicio'] ?? 1;
-				}
+        if ($resultado['bool'] == 1) {
+            // Obtener tipo de servicio basado en el equipo (si existe)
+            $id_tipo_servicio = 1; // Default a Soporte Técnico
+            if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
+                $resultadoTipoServicio = $equipo->Transaccion([
+                    'peticion' => 'obtener_tipo_servicio',
+                    'id_equipo' => $_POST["id_equipo"]
+                ]);
+                $id_tipo_servicio = $resultadoTipoServicio['id_tipo_servicio'] ?? 1;
+            }
 
-				// Crear hoja de servicio
-				$hojaServicio = new HojaServicio();
-				$hojaServicio->set_nro_solicitud($resultado['datos']);
-				$hojaServicio->set_id_tipo_servicio($id_tipo_servicio);
-				$resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
+            // Crear hoja de servicio
+            $hojaServicio = new HojaServicio();
+            $hojaServicio->set_nro_solicitud($resultado['datos']);
+            $hojaServicio->set_id_tipo_servicio($id_tipo_servicio);
+            $resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
 
-				if ($resultHoja['resultado'] !== 'success') {
-					throw new Exception("Error al crear hoja de servicio: " . $resultHoja['mensaje']);
-				}
+            if ($resultHoja['resultado'] !== 'success') {
+                throw new Exception("Error al crear hoja de servicio: " . $resultHoja['mensaje']);
+            }
 
-				$json = [
-					'resultado' => 'success',
-					'mensaje' => 'Solicitud registrada correctamente',
-					'nro_solicitud' => $resultado['datos'],
-					'tecnico_asignado' => $resultHoja['tecnico_asignado'] ?? null
-				];
+            $json = [
+                'resultado' => 'success',
+                'mensaje' => 'Solicitud registrada correctamente',
+                'nro_solicitud' => $resultado['datos'],
+                'tecnico_asignado' => $resultHoja['tecnico_asignado'] ?? null
+            ];
 
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Realizó una solicitud exitosamente";
-				$msgN = "Nueva solicitud #{$resultado['datos']} creada por " .
-					$_SESSION['user']['nombres'] . " " . $_SESSION['user']['apellidos'] .
-					"(" . $_SESSION['user']['nombre_usuario'] . "): " . $_POST["motivo"];
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Realizó una solicitud exitosamente";
+            $msgN = "Nueva solicitud #{$resultado['datos']} creada por " .
+                $_SESSION['user']['nombres'] . " " . $_SESSION['user']['apellidos'] .
+                "(" . $_SESSION['user']['nombre_usuario'] . "): " . $_POST["motivo"];
 
-				// Notificar al técnico si fue asignado
-				if (!empty($resultHoja['tecnico_asignado'])) {
-					$msgTecnico = "Se le ha asignado una nueva solicitud (#{$resultado['datos']})";
-					Notificar($msgTecnico, "Solicitud", $resultHoja['tecnico_asignado']);
-				}
-			} else {
-				throw new Exception($resultado['mensaje']);
-			}
-		} catch (Exception $e) {
-			$json = [
-				'resultado' => 'error',
-				'mensaje' => $e->getMessage()
-			];
-		}
+            // Notificar al técnico si fue asignado
+            if (!empty($resultHoja['tecnico_asignado'])) {
+                $msgTecnico = "Se le ha asignado una nueva solicitud (#{$resultado['datos']})";
+                Notificar($msgTecnico, "Solicitud", $resultHoja['tecnico_asignado']);
+            }
+        } else {
+            throw new Exception($resultado['mensaje']);
+        }
+    } catch (Exception $e) {
+        $json = [
+            'resultado' => 'error',
+            'mensaje' => $e->getMessage()
+        ];
+    }
 
-		echo json_encode($json);
-		Bitacora($msg, "Solicitud");
-		NotificarUsuarios($msgN, "Solicitud", ['modulo' => 7, 'accion' => 'ver_solicitud']);
-		exit;
-	}
+    echo json_encode($json);
+    Bitacora($msg, "Solicitud");
+    NotificarUsuarios($msgN, "Solicitud", ['modulo' => 7, 'accion' => 'ver_solicitud']);
+    exit;
+}
 
 	// Método auxiliar para obtener el tipo de servicio por equipo
 	function obtenerTipoServicioPorEquipo($idEquipo)

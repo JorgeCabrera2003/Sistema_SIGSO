@@ -129,49 +129,73 @@ $(document).ready(function () {
     }
 
     function enviaAjax(datos) {
-        $.ajax({
-            async: true,
-            url: "",
-            type: "POST",
-            contentType: false,
-            data: datos,
-            processData: false,
-            cache: false,
-            beforeSend: function () { },
-            timeout: 10000,
-            success: function (respuesta) {
-                console.log(respuesta);
-                try {
-                    var lee = JSON.parse(respuesta);
-                    if (lee.resultado == "registrar") {
-                        $("#modal1").modal("hide");
-                        mensajes("success", 10000, "Se envió la solicitud exitosamente", null);
+    $.ajax({
+        async: true,
+        url: "",
+        type: "POST",
+        contentType: false,
+        data: datos,
+        processData: false,
+        cache: false,
+        beforeSend: function () { },
+        timeout: 10000,
+        success: function (respuesta) {
+            console.log(respuesta);
+            try {
+                var lee = JSON.parse(respuesta);
+                if (lee.resultado === "success") {
+                    $("#modal1").modal("hide");
+                    
+                    // Mostrar SweetAlert de éxito
+                    Swal.fire({
+                        title: '¡Solicitud creada!',
+                        text: lee.mensaje,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        // Recargar la tabla después de cerrar el alert
                         consultar();
-                    } else if (lee.resultado == "consultar") {
-                        iniciarTabla(lee.datos);
-                    } else if (lee.resultado == "entrada") {
-                        // No hacer nada específico
-                    } else if (lee.resultado == "error") {
-                        mensajes("error", null, lee.mensaje, null);
-                    }
-                } catch (e) {
-                    mensajes("error", null, "Error en JSON Tipo: " + e.name + "\n" +
-                        "Mensaje: " + e.message + "\n" +
-                        "Posición: " + e.lineNumber + ":" + e.columnNumber + "\n" +
-                        "Stack: " + e.stack, null);
+                    });
+                    
+                    // Limpiar el formulario
+                    limpia();
+                } else if (lee.resultado === "consultar") {
+                    iniciarTabla(lee.datos);
+                } else if (lee.resultado === "entrada") {
+                    // No hacer nada específico
+                } else if (lee.resultado === "error") {
+                    // Mostrar SweetAlert de error
+                    Swal.fire({
+                        title: 'Error',
+                        text: lee.mensaje,
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
                 }
-            },
-            error: function (request, status, err) {
-                if (status == "timeout") {
-                    mensajes("error", null, "Servidor ocupado", "Intente de nuevo");
-                } else {
-                    mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
-                }
-            },
-            complete: function () { },
-        });
-    }
-
+            } catch (e) {
+                Swal.fire({
+                    title: 'Error',
+                    html: `Error en JSON Tipo: ${e.name}<br>Mensaje: ${e.message}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        },
+        error: function (request, status, err) {
+            let errorMsg = "Servidor ocupado. Intente de nuevo";
+            if (status !== "timeout") {
+                errorMsg = `Ocurrió un error: ${status} - ${err}`;
+            }
+            
+            Swal.fire({
+                title: 'Error',
+                text: errorMsg,
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    });
+}
     function capaValidar() {
         $("#motivo").on("keypress", function (e) {
             validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
