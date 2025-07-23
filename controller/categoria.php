@@ -14,7 +14,7 @@ if (is_file("view/" . $page . ".php")) {
     $cabecera = array('#', "Nombre", "Servico Dirigido", "Modificar/Eliminar");
 
     $categoria = new Categoria();
-    $tipo_serivio = new TipoServicio();
+    $tipo_servicio = new TipoServicio();
 
     if (!isset($permisos['categoria']['ver']['estado']) || $permisos['categoria']['ver']['estado'] == "0") {
         $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Categoria";
@@ -31,9 +31,9 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if(isset($_POST['consultar_tipoServicio'])){
+    if (isset($_POST['consultar_tipoServicio'])) {
         $peticion['peticion'] = "consultar";
-        $json = $tipo_serivio->Transaccion($peticion);
+        $json = $tipo_servicio->Transaccion($peticion);
         $json['resultado'] = "consultar_tipoServicio";
         echo json_encode($json);
         exit;
@@ -48,14 +48,23 @@ if (is_file("view/" . $page . ".php")) {
 
             } else {
                 $categoria->set_nombre($_POST["nombre"]);
-                $categoria->set_id_servicio($_POST);
+                $categoria->set_id_servicio($_POST['id_tipoServicio']);
+                $tipo_servicio->set_codigo($_POST['id_tipoServicio']);
                 $peticion["peticion"] = "registrar";
                 $json = $categoria->Transaccion($peticion);
 
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nueva Categoria";
                     $msgN = "Se registró una Nueva Categoria";
                     NotificarUsuarios($msgN, "Categoria", ['modulo' => 13, 'accion' => 'ver']);
+
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria";
+                    $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
+                    if ($json['servicio_asignado'] == 1) {
+                        $msgPropio = "Se le asignó está Categoria: " . $_POST["nombre"] . " a su Área de Servicio";
+                        Notificar($msgPropio, "Categoria", $texto['arreglo']['cedula_encargado']);
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria y fue asignada al Servicio: " . $texto['arreglo']['nombre_tipo_servicio'];
+                    }
+
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nueva Categoria";
                 }
@@ -128,13 +137,24 @@ if (is_file("view/" . $page . ".php")) {
             } else {
                 $categoria->set_id($_POST["id_categoria"]);
                 $categoria->set_nombre($_POST["nombre"]);
+                $categoria->set_id_servicio($_POST['id_tipoServicio']);
+                $buscarServicio = $categoria->Transaccion(['peticion' => 'validar']);
+                $tipo_servicio->set_codigo($_POST['id_tipoServicio']);
                 $peticion["peticion"] = "actualizar";
                 $json = $categoria->Transaccion($peticion);
 
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Categoria con el id: " . $_POST["id_categoria"];
                     $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue modificado";
+                    
                     NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
+                    $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
+
+                    if ($json['servicio_asignado'] == 1 && ($buscarServicio['arreglo']['id_tipo_servicio'] != $texto['arreglo']['id_tipo_servicio'])) {
+                        $msgPropio = "Se le asignó está Categoria: " . $_POST["nombre"] . " a su Área de Servicio";
+                        Notificar($msgPropio, "Categoria", $texto['arreglo']['cedula_encargado']);
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó una Categoria y fue asignada al Servicio: " . $texto['arreglo']['nombre_tipo_servicio'];
+                    }
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Categoria";
                 }

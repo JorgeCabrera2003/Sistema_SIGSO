@@ -37,7 +37,10 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button id="enviar" name="" class="btn btn-primary"></button>
+                <button id="enviar" name="" class="btn btn-primary">
+                    <span id="spinner" class="" aria-hidden="true"></span>
+                    <span id="senviar"role="status"></span>
+                </button>
             </div>
         </div>
     </div>

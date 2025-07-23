@@ -87,6 +87,7 @@ class Categoria extends Conexion
             }
 
         } catch (PDOException $e) {
+            $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -108,10 +109,10 @@ class Categoria extends Conexion
                 $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
 
                 if ($boolServicio['bool'] == 1) {
-                    $dato['servicio_asignado'] == 1;
+                    $dato['servicio_asignado'] = 1;
                 } else {
                     $this->set_id_servicio(NULL);
-                    $dato['servicio_asignado'] == 0;
+                    $dato['servicio_asignado'] = 0;
                 }
 
                 $query = "INSERT INTO categoria(id_categoria, nombre_categoria, id_tipo_servicio, estatus) VALUES 
@@ -119,7 +120,7 @@ class Categoria extends Conexion
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
-                $stm->bindParam(":tipo_servicio", $this->tipo_servicio);
+                $stm->bindParam(":tipo_servicio", $this->id_tipo_servicio);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
@@ -151,17 +152,17 @@ class Categoria extends Conexion
             $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
 
             if ($boolServicio['bool'] == 1) {
-                $dato['servicio_asignado'] == 1;
+                $dato['servicio_asignado'] = 1;
             } else {
                 $this->set_id_servicio(NULL);
-                $dato['servicio_asignado'] == 0;
+                $dato['servicio_asignado'] = 0;
             }
             $query = "UPDATE categoria SET nombre_categoria = :nombre, id_tipo_servicio = :tipo_servicio WHERE id_categoria = :id";
 
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
-            $stm->bindParam(":tipo_servicio", $this->tipo_servicio);
+            $stm->bindParam(":tipo_servicio", $this->id_tipo_servicio);
             $stm->execute();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
@@ -280,6 +281,11 @@ class Categoria extends Conexion
         switch ($peticion['peticion']) {
             case 'registrar':
                 return $this->Registrar();
+
+            case 'validar':
+                $dato = $this->Validar();
+                $this->conexion = NULL;
+                return $dato;
 
             case 'consultar':
                 return $this->Consultar();

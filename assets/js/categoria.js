@@ -8,7 +8,7 @@ $(document).ready(function () {
 		var confirmacion = false;
 		var envio = false;
 
-		switch ($(this).text()) {
+		switch ($("#senviar").text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
@@ -18,6 +18,7 @@ $(document).ready(function () {
 					datos.append('id_tipoServicio', $("#tipo_servicio").val());
 					enviaAjax(datos);
 					envio = true;
+					confirmacion = true;
 				}
 				break;
 			case "Modificar":
@@ -67,7 +68,7 @@ $(document).ready(function () {
 		$("#id_categoria").parent().parent().remove();
 		$("#nombre").parent().parent().show();
 		$("#modalTitleId").text("Registrar Categoría");
-		$("#enviar").text("Registrar");
+		$("#senviar").text("Registrar");
 		$("#modal1").modal("show");
 	});
 
@@ -93,10 +94,13 @@ function enviaAjax(datos) {
 		data: datos,
 		processData: false,
 		cache: false,
-		beforeSend: function () { },
+		beforeSend: function () {
+			$("#spinner").addClass("spinner-border spinner-border-sm");
+		},
 		timeout: 10000,
 		success: function (respuesta) {
 			try {
+				$("#spinner").removeClass("spinner-border spinner-border-sm");
 				var lee = JSON.parse(respuesta);
 				if (lee.resultado == "registrar") {
 					$("#modal1").modal("hide");
@@ -132,6 +136,7 @@ function enviaAjax(datos) {
 					mensajes("error", null, "Ups, a ocurrido un error...", null);
 				}
 			} catch (e) {
+				mensajes("error", null, "Ups, a ocurrido un error...", null);
 				console.log("error", null, "Error en JSON Tipo: " + e.name + "\n" +
 					"Mensaje: " + e.message + "\n" +
 					"Posición: " + e.lineNumber);
@@ -321,12 +326,12 @@ function rellenar(pos, accion) {
 	$("#id_categoria").prop('readOnly', true);
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Categoría")
-		$("#enviar").text("Modificar");
+		$("#senviar").text("Modificar");
 	}
 	else {
 		$("#nombre").prop('readOnly', true);
 		$("#modalTitleId").text("Eliminar Categoría")
-		$("#enviar").text("Eliminar");
+		$("#senviar").text("Eliminar");
 	}
 	$('#enviar').prop('disabled', false);
 	$("#modal1").modal("show");
