@@ -10,6 +10,7 @@ let tiposGraficos = {
 $(document).ready(function () {
   registrarEntrada();
   cargarGraficos();
+  inicializarTablaServicios();
 
   // Seleccionar por defecto el piso 5 si existe
   function seleccionarPisoPorDefecto(selector) {
@@ -42,6 +43,103 @@ $(document).ready(function () {
     renderGrafico('hojas', tiposGraficos['hojas'], datosGraficos['hojas']);
   });
 
+  function inicializarTablaServicios() {
+    $('#tablaServicios').DataTable({
+      ajax: {
+        url: '?page=home',
+        type: 'POST',
+        data: {listar: 'listar'},
+        dataSrc: 'datos' // Directamente usa el array 'datos' de la respuesta
+      },
+      columns: [
+        {
+          data: null,
+          render: function (data, type, row, meta) {
+            return meta.row + 1;
+          }
+        },
+        {data: 'nro_solicitud'},
+        {data: 'nombre_tipo_servicio'},
+        {
+          data: 'solicitante',
+          render: function (data) {
+            return data || 'N/A';
+          }
+        },
+        {
+          data: 'tipo_equipo',
+          render: function (data) {
+            return data || 'N/A';
+          }
+        },
+        {
+          data: 'serial',
+          render: function (data) {
+            return data || 'N/A';
+          }
+        },
+        {
+          data: 'codigo_bien',
+          render: function (data) {
+            return data || 'N/A';
+          }
+        },
+        {data: 'motivo'},
+        {
+          data: 'fecha_solicitud',
+          render: function (data) {
+            return data ? new Date(data).toLocaleString() : 'N/A';
+          }
+        },
+        {
+          data: 'estatus',
+          render: function (data) {
+            let badgeClass = 'secondary';
+            let text = 'Desconocido';
+
+            if (data === 'A') {
+              badgeClass = 'info';
+              text = 'Activo';
+            } else if (data === 'I') {
+              badgeClass = 'success';
+              text = 'Finalizado';
+            } else if (data === 'E') {
+              badgeClass = 'danger';
+              text = 'Eliminado';
+            }
+
+            return `<span class="badge bg-${badgeClass}">${text}</span>`;
+          }
+        }
+      ],
+      responsive: true,
+      order: [[0, 'desc']],
+      language: {
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        zeroRecords: "No se encontraron registros",
+        info: "Mostrando página _PAGE_ de _PAGES_",
+        infoEmpty: "No hay registros disponibles",
+        infoFiltered: "(filtrados de _MAX_ registros totales)",
+        search: "Buscar:",
+        paginate: {
+          first: "Primero",
+          last: "Último",
+          next: "Siguiente",
+          previous: "Anterior"
+        }
+      },
+      initComplete: function () {
+        console.log('Tabla inicializada correctamente');
+      },
+      drawCallback: function () {
+        console.log('Tabla redibujada');
+      },
+      error: function (xhr, error, thrown) {
+        console.error('Error al cargar datos:', error);
+      }
+    });
+  }
+
   // Evento para el select de pisos de Patch Panel
   $(document).on('change', '#pisoFiltrado', function () {
     let idPiso = $(this).val();
@@ -50,7 +148,7 @@ $(document).ready(function () {
       $.ajax({
         url: "",
         type: "POST",
-        data: { pisoFiltrado: idPiso },
+        data: {pisoFiltrado: idPiso},
         success: function (respuesta) {
           $('#patchPanelLoading').hide();
           try {
@@ -191,7 +289,7 @@ $(document).ready(function () {
       $.ajax({
         url: "",
         type: "POST",
-        data: { pisoFiltradoSwitch: idPiso },
+        data: {pisoFiltradoSwitch: idPiso},
         success: function (respuesta) {
           $('#switchPanelLoading').hide();
           try {
