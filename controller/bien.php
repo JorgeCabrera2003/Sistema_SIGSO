@@ -47,7 +47,7 @@ if (is_file("view/" . $page . ".php")) {
                 $json['mensaje'] = "Error, Código de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_tipo_bien"]) == 0) {
+            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Tipo de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -78,7 +78,7 @@ if (is_file("view/" . $page . ".php")) {
                     $ci_empleado = NULL;
                 }
                 $bien->set_codigo_bien($_POST["codigo_bien"]);
-                $bien->set_id_tipo_bien($_POST["id_tipo_bien"]);
+                $bien->set_id_categoria($_POST["id_categoria"]);
                 $bien->set_id_marca($_POST["id_marca"]);
                 $bien->set_id_oficina($_POST["id_oficina"]);
                 $bien->set_cedula_empleado($ci_empleado);
@@ -127,7 +127,7 @@ if (is_file("view/" . $page . ".php")) {
                             $jsonEquipo = $equipo->Transaccion($peticionEquipo);
                             
                             // Si el equipo se registró correctamente
-                            if ($jsonEquipo['estado'] == 1) {
+                            if ($jsonEquipo['bool'] == 1) {
                                 $msgEquipo = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo equipo asociado al bien " . $_POST["codigo_bien"];
                                 Bitacora($msgEquipo, "Bien");
                                 
@@ -212,7 +212,7 @@ if (is_file("view/" . $page . ".php")) {
                 $json['mensaje'] = "Error, Código de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_tipo_bien"]) == 0) {
+            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Tipo de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -245,7 +245,7 @@ if (is_file("view/" . $page . ".php")) {
                     $ci_empleado = NULL;
                 }
                 $bien->set_codigo_bien($_POST["codigo_bien"]);
-                $bien->set_id_tipo_bien($_POST["id_tipo_bien"]);
+                $bien->set_id_categoria($_POST["id_categoria"]);
                 $bien->set_id_marca($_POST["id_marca"]);
                 $bien->set_id_oficina($_POST["id_oficina"]);
                 $bien->set_cedula_empleado($ci_empleado);

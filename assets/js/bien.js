@@ -16,7 +16,7 @@ $(document).ready(function () {
         dropdownParent: $('#modal1'),
         width: '100%'
     });
-    $("#id_tipo_bien").select2({
+    $("#id_categoria").select2({
         dropdownParent: $('#modal1'),
         width: '100%'
     });
@@ -91,7 +91,7 @@ $(document).ready(function () {
                         var datos = new FormData();
                         datos.append('registrar', 'registrar');
                         datos.append('codigo_bien', $("#codigo_bien").val());
-                        datos.append('id_tipo_bien', $("#id_tipo_bien").val());
+                        datos.append('id_categoria', $("#id_categoria").val());
                         datos.append('id_marca', $("#id_marca").val());
                         datos.append('descripcion', $("#descripcion").val());
                         datos.append('estado', $("#estado").val());
@@ -157,7 +157,7 @@ $(document).ready(function () {
                         var datos = new FormData();
                         datos.append('modificar', 'modificar');
                         datos.append('codigo_bien', $("#codigo_bien").val());
-                        datos.append('id_tipo_bien', $("#id_tipo_bien").val());
+                        datos.append('id_categoria', $("#id_categoria").val());
                         datos.append('id_marca', $("#id_marca").val());
                         datos.append('descripcion', $("#descripcion").val());
                         datos.append('estado', $("#estado").val());
@@ -204,11 +204,11 @@ $(document).ready(function () {
     $('#modal1').on('hidden.bs.modal', function () {
         $("#id_oficina").val('default').removeClass('is-valid is-invalid').trigger('change');
         $("#cedula_empleado").val('default').removeClass('is-valid is-invalid').trigger('change');
-        $("#id_tipo_bien").val('default').removeClass('is-valid is-invalid').trigger('change');
+        $("#id_categoria").val('default').removeClass('is-valid is-invalid').trigger('change');
         $("#id_marca").val('default').removeClass('is-valid is-invalid').trigger('change');
         syncSelect2Validation("#id_oficina");
         syncSelect2Validation("#cedula_empleado");
-        syncSelect2Validation("#id_tipo_bien");
+        syncSelect2Validation("#id_categoria");
         syncSelect2Validation("#id_marca");
         ocultarEquipoOpcional();
     });
@@ -363,13 +363,13 @@ function capaValidar() {
         );
     });
 
-    $("#id_tipo_bien").on("change", function () {
+    $("#id_categoria").on("change", function () {
         if ($(this).val() === 'default') {
 
-            estadoSelect(this, '#sid_tipo_bien', "Debe seleccionar un tipo de bien", 0);
+            estadoSelect(this, '#sid_categoria', "Debe seleccionar un tipo de bien", 0);
         } else {
 
-            estadoSelect(this, '#sid_tipo_bien', "", 1);
+            estadoSelect(this, '#sid_categoria', "", 1);
         }
     });
 
@@ -421,7 +421,7 @@ function validarenvio() {
     } else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.,]{3,100}$/, $("#descripcion"), $("#sdescripcion"), "") == 0) {
         mensajes("error", 10000, "Verifica", "La descripción debe tener de 3 a 100 caracteres");
         return false;
-    } else if ($("#id_tipo_bien").val() == "default") {
+    } else if ($("#id_categoria").val() == "default") {
         mensajes("error", 10000, "Verifica", "Debe seleccionar un tipo de bien");
         return false;
     } else if ($("#estado").val() == "default") {
@@ -438,22 +438,22 @@ function validarenvio() {
 }
 
 function selectTipoBien(arreglo) {
-    $("#id_tipo_bien").empty();
+    $("#id_categoria").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-        $("#id_tipo_bien").append(
+        $("#id_categoria").append(
             new Option('Seleccione un Tipo de Bien', 'default')
         );
         arreglo.forEach(item => {
-            $("#id_tipo_bien").append(
-                new Option(item.nombre_tipo_bien, item.id_tipo_bien)
+            $("#id_categoria").append(
+                new Option(item.nombre_categoria, item.id_categoria)
             );
         });
     } else {
-        $("#id_tipo_bien").append(
+        $("#id_categoria").append(
             new Option('No Hay Tipos de Bien', 'default')
         );
     }
-    $("#id_tipo_bien").val('default');
+    $("#id_categoria").val('default');
 }
 
 function selectMarca(arreglo) {
@@ -614,8 +614,8 @@ function limpia() {
     $("#descripcion").removeClass("is-valid is-invalid");
     $("#descripcion").val("");
 
-    $("#id_tipo_bien").removeClass("is-valid is-invalid");
-    $("#id_tipo_bien").val("default");
+    $("#id_categoria").removeClass("is-valid is-invalid");
+    $("#id_categoria").val("default");
 
     $("#id_marca").removeClass("is-valid is-invalid");
     $("#id_marca").val("default");
@@ -643,7 +643,7 @@ function rellenar(pos, accion) {
     limpia();
 
     $("#codigo_bien").val($(linea).find("td:eq(1)").text());
-    buscarSelect("#id_tipo_bien", $(linea).find("td:eq(2)").text(), "text");
+    buscarSelect("#id_categoria", $(linea).find("td:eq(2)").text(), "text");
     buscarSelect("#id_marca", $(linea).find("td:eq(3)").text(), "text");
     $("#descripcion").val($(linea).find("td:eq(4)").text());
     buscarSelect("#estado", $(linea).find("td:eq(5)").text(), "text");

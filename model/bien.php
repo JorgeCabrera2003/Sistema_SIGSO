@@ -22,7 +22,7 @@ class Bien extends Conexion
     private $oficina;
     private $marca;
     private $tipo_equipo;
-    private $id_tipo_bien;
+    private $id_categoria;
     private $categoria;
 
     public function __construct()
@@ -47,9 +47,9 @@ class Bien extends Conexion
         $this->codigo_bien = $codigo_bien;
     }
 
-    public function set_id_tipo_bien($id_tipo_bien)
+    public function set_id_categoria($id_categoria)
     {
-        $this->id_tipo_bien = $id_tipo_bien;
+        $this->id_categoria = $id_categoria;
     }
 
     public function set_id_marca($id_marca)
@@ -87,9 +87,9 @@ class Bien extends Conexion
         return $this->codigo_bien;
     }
 
-    public function get_id_tipo_bien()
+    public function get_id_categoria()
     {
-        return $this->id_tipo_bien;
+        return $this->id_categoria;
     }
 
     public function get_id_marca()
@@ -183,7 +183,7 @@ class Bien extends Conexion
 
     private function DestruirTipoBien()
     {
-        $this->tipo_bien = NULL;
+        $this->categoria = NULL;
     }
 
     private function Validar()
@@ -229,7 +229,7 @@ class Bien extends Conexion
                 $this->conex->beginTransaction();
 
                 $query = "INSERT INTO bien(codigo_bien, id_categoria, id_marca, descripcion, estado, cedula_empleado, id_oficina, estatus) VALUES 
-                (:codigo, :tipo_bien, :marca, :descripcion, :estado, :empleado, :oficina, 1)";
+                (:codigo, :categoria, :marca, :descripcion, :estado, :empleado, :oficina, 1)";
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo", $this->codigo_bien);
@@ -271,13 +271,13 @@ class Bien extends Conexion
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
-            $query = "UPDATE bien SET id_tipo_bien=:tipo_bien, id_marca=:marca, descripcion=:descripcion, 
+            $query = "UPDATE bien SET id_categoria=:categoria, id_marca=:marca, descripcion=:descripcion, 
                      estado=:estado, cedula_empleado=:empleado, id_oficina=:oficina 
                      WHERE codigo_bien = :codigo";
 
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":codigo", $this->codigo_bien);
-            $stm->bindParam(":tipo_bien", $this->id_tipo_bien);
+            $stm->bindParam(":categoria", $this->id_categoria);
             $stm->bindParam(":marca", $this->id_marca);
             $stm->bindParam(":descripcion", $this->descripcion);
             $stm->bindParam(":estado", $this->estado);
@@ -343,9 +343,9 @@ class Bien extends Conexion
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
-            $query = "SELECT b.codigo_bien, CONCAT(tb.nombre_tipo_bien, ' ', m.nombre_marca) AS nombre_bien
+            $query = "SELECT b.codigo_bien, CONCAT(tb.nombre_categoria, ' ', m.nombre_marca) AS nombre_bien
             FROM bien b
-            LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
+            LEFT JOIN categoria tb ON b.id_categoria = tb.id_categoria
             LEFT JOIN marca m ON b.id_marca = m.id_marca
             WHERE b.estatus = 1
             AND b.codigo_bien NOT IN (
@@ -426,9 +426,9 @@ class Bien extends Conexion
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
-            $query = "SELECT b.*, tb.nombre_tipo_bien, m.nombre_marca
+            $query = "SELECT b.*, tb.nombre_categoria, m.nombre_marca
                      FROM bien b 
-                     LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_tipo_bien
+                     LEFT JOIN categoria tb ON b.id_categoria = tb.id_categoria
                      LEFT JOIN marca m ON b.id_marca = m.id_marca
                      WHERE b.estatus = 0";
 
@@ -480,9 +480,9 @@ class Bien extends Conexion
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "SELECT b.codigo_bien, b.descripcion, tb.nombre_tipo_bien, m.nombre_marca
+            $query = "SELECT b.codigo_bien, b.descripcion, tb.nombre_categoria, m.nombre_marca
                       FROM bien b
-                      LEFT JOIN tipo_bien tb ON b.id_tipo_bien = tb.id_categoria
+                      LEFT JOIN categoria tb ON b.id_categoria = tb.id_categoria
                       LEFT JOIN marca m ON b.id_marca = m.id_marca
                       WHERE b.estatus = 1 AND b.cedula_empleado = :cedula_empleado";
             $stm = $this->conex->prepare($query);

@@ -68,12 +68,12 @@
                 <div class="row justify-content-center">
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
-                            <select class="form-select" name="id_tipo_bien" id="id_tipo_bien">
+                            <select class="form-select" name="id_categoria" id="id_categoria">
                                 <option value="default">Seleccione un tipo</option>
 
                             </select>
-                            <span id="sid_tipo_bien"></span>
-                            <label for="id_tipo_bien" class="form-label">Tipo de Bien</label>
+                            <span id="sid_categoria"></span>
+                            <label for="id_categoria" class="form-label">Categoria</label>
                         </div>
                     </div>
                     <div class="col-6">
