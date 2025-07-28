@@ -22,7 +22,7 @@
         $bien = $patch_panel->Transaccion(['peticion' => 'consultar_bien']);
 
         
-        if (!isset($permisos['patch_panel']['ver']['estado']) || $permisos['patch_panel']['ver']['estado'] !== 1) {
+        if (!isset($permisos['patch_panel']['ver']['estado']) || $permisos['patch_panel']['ver']['estado'] == 0) {
 
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Patch Panel";
 

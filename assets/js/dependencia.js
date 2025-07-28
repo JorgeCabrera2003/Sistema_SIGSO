@@ -78,7 +78,7 @@ $(document).ready(function () {
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
 		limpia();
 		$("#idDependencia").remove();
-		$("#modalTitleId").text("Registrar Ente");
+		$("#modalTitleId").text("Registrar Dependencia");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar

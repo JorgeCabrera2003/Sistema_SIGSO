@@ -206,6 +206,76 @@ function vistaPermiso(permisos = null) {
 	}
 };
 
+$("#btn-agregarC").on("click", async function () {
+	crearInput(this)
+})
+
+$("#btn-agregarS").on("click", async function () {
+	crearInput(this)
+})
+var idC = null;
+var idS = null;
+function crearInput(etiqueta){
+	var id;
+	var labelStr;
+	var idInput;
+	var grupo;
+	console.log(etiqueta);
+	console.log($(etiqueta).attr('id'));
+	id = $(etiqueta).attr('id');
+	console.log($("."+id));
+
+	if(id == 'btn-agregarS'){
+				
+		idS = idS+1;
+		labelStr = 'Servicio Ofrecido';
+		grupo = 'servicio';
+		console.log(idS);
+		idInput = idS;
+	}
+
+	if(id == 'btn-agregarC'){
+		
+		idC = idC+1;
+		labelStr = 'Nombre del Componente';
+		grupo = 'componente';
+		console.log(idC);
+		idInput = idC;
+	}
+
+	console.log(id +": "+$("."+id).find('.row-'+id).length);
+
+	$("."+id).append(`<div id="${grupo}${idInput}" class="row text-center d-flex align-items-center row-${id}">
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3 mt-4">
+                      <input placeholder="" class="form-control grupo-${grupo}" name="nombre" type="text" id="nombre-${grupo}${idInput}"
+                        maxlength="20">
+                      <span id="snombre-${grupo}${idInput}"></span>
+                      <label for="nombre-${grupo}${idInput}" class="form-label">${labelStr}</label>
+                    </div>
+                  </div>
+                  <div class="col-md-3 align-self-center d-flex justify-content-center">
+                    <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id=""><br>
+                      <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
+                    </div>
+                    </button>
+                  </div>
+                  <div class="col-md-3 align-self-center">
+                    <button type="button" id="boton-${grupo}${idInput}" onclick="eliminarItem('boton-${grupo}${idInput}')" class="btn btn-primary btn-sm mx-auto my-4 ">
+                      <i class="fa-solid fa-minus"></i>
+                    </button>
+                  </div>
+                </div>`);
+}
+
+function eliminarItem(id){
+	const input = $("#"+id);
+	const contenedorPadre = input.parent().parent();
+	console.log(contenedorPadre);
+	contenedorPadre.remove();
+};
+
 function selectTecnico(arreglo) {
 	$("#encargado").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {

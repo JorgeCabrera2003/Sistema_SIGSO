@@ -62,10 +62,10 @@
                   <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Cambiar
                     Contraseña</button>
                 </li>
-                <li class="nav-item <?php echo $active3; ?>">
+                <!--<li class="nav-item <?php echo $active3; ?>">
                   <button class="nav-link" data-bs-toggle="tab"
                     data-bs-target="#profile-notification">Notificaciones</button>
-                </li>
+                </li> -->
               </ul>
               <div class="tab-content pt-2">
                 <div class="tab-pane fade <?php echo $active2; ?> profile-overview" id="profile-overview">
@@ -192,7 +192,7 @@
 
                 </div>
 
-                <div class="tab-pane fade <?php echo $active4; ?> pt-3" id="profile-notification">
+                <!-- <div class="tab-pane fade <?php echo $active4; ?> pt-3" id="profile-notification">
                   <section class="section">
                     <div class="row">
                       <div class="col-md-4">
@@ -244,7 +244,7 @@
                         </div>
                       </div>
                     </div>
-                  </section>
+                  </section> -->
 
                 </div>
 

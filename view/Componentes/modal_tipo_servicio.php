@@ -1,6 +1,6 @@
 <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true"
   data-bs-backdrop="static">
-  <div class="modal-dialog modal-lg dialog-scrollable" role="document">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     <div class="modal-content card">
       <div class="modal-header card-header">
         <h5 class="modal-title" id="modalTitleId"></h5>
@@ -8,14 +8,14 @@
       </div>
       <div class="modal-body">
         <div class="row justify-content-center" id="Fila1">
-          <div class="col-8">
+          <div class="col-6">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="200">
               <span id="snombre"></span>
               <label for="nombre" class="form-label">Nombre del Servicio</label>
             </div>
           </div>
-          <div class="col-8">
+          <div class="col-6">
             <div class="form-floating mb-3 mt-4">
               <select class="form-select" name="encargado" id="encargado">
               </select>
@@ -24,8 +24,38 @@
             </div>
           </div>
         </div>
+        <div class="row mt-4" id="inputs_servicios">
+          <div class="col-md-6">
+            <fieldset class="permission-group">
+              <legend class="group-header">
+                <label class="" for="servicios">Servicios Prestados: </label>
+                <button type="button" class="btn btn-primary mx-auto my-4 " id="btn-agregarS">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </legend>
+              <div class="container btn-agregarS">
+
+              </div>
+            </fieldset>
+          </div>
+          <div class="col-md-6">
+            <fieldset class="permission-group">
+              <legend class="group-header">
+                <label class="" for="servicios">Componentes a Atender: </label>
+                <button type="button" class="btn btn-primary mx-auto my-4 " id="btn-agregarC">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </legend>
+              <div class="container btn-agregarC">
+
+              </div>
+            </fieldset>
+          </div>
+        </div>
       </div>
-      <div class="row">
+
+
+      <div class="row d-none" id="tabla_servicios">
         <div class="col-md-12">
           <fieldset class="permission-group">
             <legend class="group-header">
@@ -33,6 +63,9 @@
                 <label class="" for="servicios">Servicios Prestados</label>
               </div>
             </legend>
+            <button type="button" class="btn btn-primary mx-auto my-4" id="btn-añadir">
+              Añadir Servicio
+            </button>
             <div class="table-responsive">
               <table class="table" id="tabla_servicio">
                 <thead>

@@ -3,12 +3,9 @@
 <body>
     <?php require_once("Componentes/menu.php"); ?>
 
-    <div class="pagetitle">
-        <h1><?php echo $titulo ?></h1>
+    <div class="pagetitle mb-4">
+        <h1>Reportes Estadísticos</h1>
         <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item active"><a href="">Dashboard</a></li>
-            </ol>
         </nav>
     </div><!-- End Page Title -->
 

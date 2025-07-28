@@ -124,7 +124,7 @@ class Categoria extends Conexion
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registró el tipo de bien exitosamente";
+                $dato['mensaje'] = "Se registró la categoria exitosamente";
             } catch (PDOException $e) {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
@@ -166,7 +166,7 @@ class Categoria extends Conexion
             $stm->execute();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos del tipo de bien con éxito";
+            $dato['mensaje'] = "Se modificaron los datos dla categoria con éxito";
         } catch (PDOException $e) {
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
@@ -192,7 +192,7 @@ class Categoria extends Conexion
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el tipo de bien exitosamente";
+                $dato['mensaje'] = "Se eliminó la categoria exitosamente";
             } catch (PDOException $e) {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
@@ -263,9 +263,9 @@ class Categoria extends Conexion
             $stm->execute();
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
-            $dato['mensaje'] = "Tipo de bien restaurado exitosamente";
+            $dato['mensaje'] = "categoria restaurado exitosamente";
 
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el tipo de bien ID: " . $this->id;
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró la categoria ID: " . $this->id;
             Bitacora($msg, "TipoBien");
         } catch (PDOException $e) {
             $dato['resultado'] = "error";

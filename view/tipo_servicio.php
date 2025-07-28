@@ -9,15 +9,10 @@
     <div class="pagetitle">
       <h1>Gestionar Tipos de Servicios</h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="">Home</a></li>
-          <li class="breadcrumb-item active"><a href="">Gestionar Tipos de Servicios</a>
-          </li>
-        </ol>
       </nav>
     </div>                                          <!-- End Page Title -->
 
-    <section class="section">
+    <section class="section mt-4">
       <div class="row">
         <div class="col-lg-12">
 

@@ -21,10 +21,10 @@
           </a>
         </li>
         <?php if (isset($permisos['solicitud']['ver_mi_solicitud']['estado']) && $permisos['solicitud']['ver_mi_solicitud']['estado'] == "1") { ?>
-          <li class="menu-item <?php echo ($page == "mis_servicios") ? "active" : "" ?>" title="Mis Solicitudes">
+          <li class="menu-item <?php echo ($page == "estadistica") ? "active" : "" ?>" title="Reportes Estadísticos">
             <a href="?page=estadistica">
               <i class="fa-solid fa-list-check"></i>
-              <span class="ms-2 me-2 menu-text">Reportes estadisticos</span>
+              <span class="ms-2 me-2 menu-text">Reportes Estadísticos</span>
             </a>
           </li>
         <?php } ?>
@@ -121,7 +121,7 @@
           </li>
           <?php if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion) { ?>
             <li
-              class="menu-item <?php echo in_array($page, ["Switch_", "interconexion", "patch_panel", "punto_conexion"]) ? "active" : "" ?>"
+              class="menu-item <?php echo in_array($page, ["switch_", "interconexion", "patch_panel", "punto_conexion"]) ? "active" : "" ?>"
               title="Gestión de Redes">
               <a class="nav-link collapsed" data-bs-target="#redes-submenu" data-bs-toggle="collapse" href="#">
                 <i class="fas fa-network-wired"></i>
@@ -419,9 +419,7 @@
 
         <div class="col d-none d-md-block">
           <nav class="breadcrumb-nav">
-            <a href="#" class="breadcrumb-item">Home</a>
-            <span class="breadcrumb-separator">/</span>
-            <a href="#" class="breadcrumb-item">Dashboard</a>
+            <a href="?page=home" class="breadcrumb-item">Home</a>
           </nav>
         </div>
 

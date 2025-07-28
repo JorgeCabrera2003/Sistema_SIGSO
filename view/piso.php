@@ -6,14 +6,10 @@
 
 
   <main id="main" class="main">
-    <div class="pagetitle">
+    <div class="pagetitle mb-4">
       <h1>Gestionar Pisos</h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="">Home</a></li>
-          <li class="breadcrumb-item active"><a href="">Gestionar Pisos </a>
-          </li>
-        </ol>
+
       </nav>
     </div><!-- End Page Title -->
 
