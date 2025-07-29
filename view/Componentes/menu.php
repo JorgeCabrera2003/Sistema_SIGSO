@@ -2,7 +2,7 @@
 <aside id="sidebar" class="sidebar">
   <div class="sidebar-header">
     <h1 class="logo">
-      <img src="assets/img/logo.jpg" style="width: 1.5em; border-radius: 2px" alt="Logo" class="img-logo">
+      <img src="assets/img/logo.png" style="width: 1.5em; border-radius: 2px" alt="Logo" class="img-logo">
       <span class="ms-2" id="logo-text">OFITIC</span>
     </h1>
     <button id="collapse-btn" class="collapse-btn">

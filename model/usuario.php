@@ -14,6 +14,7 @@ class Usuario extends Conexion
     private $tipo;
     private $rol;
     private $foto;
+    private $tema;
     private $conexion;
 
     public function __construct()
@@ -28,6 +29,7 @@ class Usuario extends Conexion
         $this->tipo = "";
         $this->rol = NULL;
         $this->foto = "";
+        $this->tema = "";
         $this->conexion = NULL;
     }
 
@@ -104,6 +106,15 @@ class Usuario extends Conexion
     public function get_telefono()
     {
         return $this->telefono;
+    }
+
+    public function set_tema($tema)
+    {
+        $this->tema = $tema;
+    }
+    public function get_tema()
+    {
+        return $this->tema;
     }
 
     private function ValidarPermiso($usuario, $permitidos)
@@ -186,7 +197,6 @@ class Usuario extends Conexion
             }
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";
@@ -226,7 +236,6 @@ class Usuario extends Conexion
             }
             $dato['resultado'] = "modificar_empleado";
             $dato['estado'] = 1;
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";
@@ -262,7 +271,6 @@ class Usuario extends Conexion
             $dato['resultado'] = "validar";
             $dato['estado'] = 1;
             $this->conexion->commit();
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "registrar";
@@ -288,7 +296,7 @@ class Usuario extends Conexion
                 INNER JOIN permiso p ON p.id_rol = r.id_rol
                 INNER JOIN modulo m ON m.id_modulo = p.id_modulo
                 WHERE m.id_modulo = :id_modulo AND p.accion_permiso = :accion AND p.estado = 1");
-                
+
                 $stm->bindParam(":id_modulo", $parametro['modulo']);
                 $stm->bindParam(':accion', $parametro['accion']);
                 $stm->execute();
@@ -303,7 +311,6 @@ class Usuario extends Conexion
                 }
                 $dato['resultado'] = "validar";
                 $this->conexion->commit();
-
             } catch (PDOException $e) {
                 $this->conexion->rollBack();
                 $dato['resultado'] = "error";
@@ -354,7 +361,8 @@ class Usuario extends Conexion
                 usuario.telefono,
                 usuario.correo,
                 usuario.clave,
-                usuario.foto
+                usuario.foto,
+                usuario.tema
                 FROM usuario
                 INNER JOIN rol ON usuario.id_rol = rol.id_rol
                 WHERE usuario.cedula = :cedula";
@@ -373,7 +381,6 @@ class Usuario extends Conexion
             $dato['resultado'] = "perfil";
             $dato['estado'] = 1;
             $this->conexion->commit();
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";
@@ -406,7 +413,6 @@ class Usuario extends Conexion
             $dato['mensaje'] = "Se eliminó un usuario exitosamente";
             $dato['estado'] = 1;
             $this->conexion->commit();
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";
@@ -458,6 +464,7 @@ class Usuario extends Conexion
                 usuario.telefono,
                 usuario.correo,
                 usuario.foto,
+                usuario.tema,
                 rol.nombre_rol as rol
             FROM usuario
             INNER JOIN rol ON usuario.id_rol = rol.id_rol
@@ -471,7 +478,6 @@ class Usuario extends Conexion
 
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -498,6 +504,34 @@ class Usuario extends Conexion
                 $dato['estado'] = false;
             }
             $dato['resultado'] = "cambiar_foto";
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
+    private function ActualizarTema()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $query = "UPDATE usuario SET tema = :tema WHERE cedula = :cedula";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":cedula", $this->cedula);
+            $stm->bindParam(":tema", $this->tema);
+            $stm->execute();
+
+            if ($stm->rowCount()) {
+                $dato['bool'] = true;
+            } else {
+                $dato['bool'] = false;
+            }
+            $dato['resultado'] = "cambiar_tema";
         } catch (PDOException $e) {
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -557,6 +591,9 @@ class Usuario extends Conexion
 
             case 'permiso':
                 return $this->ValidarPermiso($peticion['user'], $peticion['rol']);
+
+            case 'actualizarTema':
+                return $this->ActualizarTema();
 
             default:
                 return "error " . $peticion['peticion'] . " no valida";

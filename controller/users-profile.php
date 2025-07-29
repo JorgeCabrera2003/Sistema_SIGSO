@@ -134,6 +134,29 @@ if (is_file("view/" . $page . ".php")) {
         }
     }
 
+    // Manejo de cambio de tema
+if (isset($_POST['cambiarTema'])) {
+    $tema = $_POST['cambiTema'];
+    $usuario->set_tema($tema);
+    
+    if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
+        $_SESSION['user']['user']['tema'] = $tema;
+        $_SESSION['alert'] = [
+            'type' => 'success',
+            'title' => 'Tema actualizado',
+            'message' => 'El tema se ha cambiado correctamente'
+        ];
+    } else {
+        $_SESSION['alert'] = [
+            'type' => 'error',
+            'title' => 'Error',
+            'message' => 'No se pudo cambiar el tema'
+        ];
+    }
+    header("Location: ?page=users-profile");
+    exit();
+}
+
     // En users-profile.php (línea ~59)
     if (isset($datos['clave']) && $datos['clave'] == $datos['cedula']) {
         $active3 = "active";

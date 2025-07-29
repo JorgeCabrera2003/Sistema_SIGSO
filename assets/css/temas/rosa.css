@@ -1,0 +1,66 @@
+:root {
+  /* Light theme variables - Estilo Barbie */
+  --background: #fff0f5;
+  --background: linear-gradient(152deg, rgba(255, 240, 245, 1) 0%, rgba(255, 214, 229, 1) 67%, rgba(255, 192, 203, 1) 100%);
+  --foreground: #d81b60; /* Rosa oscuro para texto */
+  --light: #ff69b4; /* Rosa fuerte */
+  --mate: #ffc0cb; /* Rosa claro */
+  --muted: #ffebf1;
+  --muted-foreground: #e83e8c;
+  --popover: #fff0f5;
+  --popover-foreground: #d81b60;
+  --card: #fff0f5;
+  --card-foreground: #d81b60;
+  --border: #ffb6c1;
+  --input: #ffd7e5;
+  --primary: #d81b60; /* Rosa oscuro */
+  --primary-foreground: #ffffff;
+  --update: #c71585; /* Rosa violeta */
+  --update-foreground: #ffffff;
+  --secondary: #ff69b4; /* Rosa fuerte */
+  --secondary-foreground: #ffffff;
+  --accent: #ffc0cb; /* Rosa claro */
+  --accent-foreground: #d81b60;
+  --destructive: #ff4d6d;
+  --destructive-foreground: #ffffff;
+  --ring: #ffb6c1;
+  --radius: 0.5rem;
+  --sidebar-width: 16rem;
+  --sidebar-collapsed-width: 4.5rem;
+  --bg-switch: #ffb6c1;
+  --sidebar-bg: #d81b60; /* Rosa oscuro */
+  --sidebar-foreground: #ffffff;
+  --sidebar-hover-bg: #e83e8c; /* Rosa medio */
+}
+
+.dark {
+  /* Dark theme variables - Versión oscura del estilo Barbie */
+  --background: #2a0a1a;
+  --background: linear-gradient(152deg, rgba(42, 10, 26, 1) 0%, rgba(70, 20, 45, 1) 67%, rgba(100, 30, 60, 1) 100%);
+  --foreground: #ffb6c1; /* Rosa claro para texto */
+  --light: #e83e8c; /* Rosa medio */
+  --mate: #2a0a1a;
+  --muted: #3a1a2a;
+  --muted-foreground: #ffb6c1;
+  --popover: #3a1a2a;
+  --popover-foreground: #ffb6c1;
+  --card: #3a1a2a;
+  --card-foreground: #ffb6c1;
+  --border: #5a2a4a;
+  --input: #4a2a3a;
+  --primary: #e83e8c; /* Rosa medio */
+  --primary-foreground: #ffffff;
+  --update: #d94d9d;
+  --update-foreground: #ffffff;
+  --secondary: #ff69b4; /* Rosa fuerte */
+  --secondary-foreground: #ffffff;
+  --accent: #d81b60; /* Rosa oscuro */
+  --accent-foreground: #ffb6c1;
+  --destructive: #ff4d6d;
+  --destructive-foreground: #ffffff;
+  --ring: #5a2a4a;
+  --bg-switch: #5a2a4a;
+  --sidebar-bg: #d81b60; /* Rosa oscuro */
+  --sidebar-foreground: #ffffff;
+  --sidebar-hover-bg: #e83e8c; /* Rosa medio */
+}

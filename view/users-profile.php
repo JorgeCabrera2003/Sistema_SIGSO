@@ -1,20 +1,7 @@
 <?php require_once("Componentes/head.php"); ?>
 
 <body>
-  <script>
-    // Detectar modo oscuro del sistema y aplicar clase 'dark' al body
-    function setDarkModeClass() {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const bootstrapDark = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
-      if (prefersDark || bootstrapDark) {
-        document.body.classList.add('dark');
-      } else {
-        document.body.classList.remove('dark');
-      }
-    }
-    setDarkModeClass();
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setDarkModeClass);
-  </script>
+
   <?php require_once("Componentes/menu.php"); ?>
 
   <main id="main" class="main mb-5">
@@ -61,6 +48,9 @@
                 <li class="nav-item <?php echo $active3; ?>">
                   <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Cambiar
                     Contraseña</button>
+                </li>
+                <li class="nav-item <?php echo $active4; ?>">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tema">Temas</button>
                 </li>
                 <!--<li class="nav-item <?php echo $active3; ?>">
                   <button class="nav-link" data-bs-toggle="tab"
@@ -192,6 +182,30 @@
 
                 </div>
 
+                <div class="tab-pane fade <?php echo $active4; ?> pt-3" id="tema">
+                  <!-- Change themes Form -->
+                  <form method="POST" action="" autocomplete="off">
+                    <div class="row mb-3">
+                      <label for="cambiTema" class="col-md-4 col-lg-3 col-form-label">Selecciona un tema</label>
+                      <div class="col-md-8 col-lg-9">
+                        <select name="cambiTema" id="cambiTema" class="form-select">
+                          <option value="0" <?php echo ($datos['tema'] == 0) ? 'selected' : ''; ?>>Tema por defecto</option>
+                          <option value="1" <?php echo ($datos['tema'] == 1) ? 'selected' : ''; ?>>Rosa</option>
+                          <option value="2" <?php echo ($datos['tema'] == 2) ? 'selected' : ''; ?>>Azul</option>
+                          <option value="3" <?php echo ($datos['tema'] == 3) ? 'selected' : ''; ?>>Verde</option>
+                          <option value="4" <?php echo ($datos['tema'] == 4) ? 'selected' : ''; ?>>Rojo</option>
+                          <option value="5" <?php echo ($datos['tema'] == 5) ? 'selected' : ''; ?>>Morado</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <button type="submit" name="cambiarTema" class="btn btn-primary">Aplicar Tema</button>
+                    </div>
+                  </form>
+                </div>
+
+
+
                 <!-- <div class="tab-pane fade <?php echo $active4; ?> pt-3" id="profile-notification">
                   <section class="section">
                     <div class="row">
@@ -246,14 +260,14 @@
                     </div>
                   </section> -->
 
-                </div>
+              </div>
 
-              </div><!-- End Bordered Tabs -->
+            </div><!-- End Bordered Tabs -->
 
-            </div>
           </div>
-
         </div>
+
+      </div>
       </div>
     </section>
 
@@ -296,12 +310,12 @@
           const form = document.createElement('form');
           form.method = 'POST';
           form.action = '?page=users-profile';
-          
+
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = 'eliminarF';
           input.value = '1';
-          
+
           form.appendChild(input);
           document.body.appendChild(form);
           form.submit();
@@ -312,10 +326,10 @@
     // Confirmación para cambiar contraseña
     document.getElementById('passwordForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      
+
       const newPassword = document.getElementById('newPassword').value;
       const renewPassword = document.getElementById('renewPassword').value;
-      
+
       if (newPassword !== renewPassword) {
         Swal.fire({
           icon: 'error',
@@ -325,7 +339,7 @@
         });
         return;
       }
-      
+
       Swal.fire({
         title: '¿Cambiar contraseña?',
         text: "¿Estás seguro de que deseas cambiar tu contraseña?",
@@ -345,7 +359,7 @@
     // Confirmación para guardar cambios en el perfil
     document.getElementById('profileForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      
+
       Swal.fire({
         title: '¿Guardar cambios?',
         text: "¿Estás seguro de que deseas guardar los cambios en tu perfil?",
@@ -372,4 +386,5 @@
   </script>
 
 </body>
+
 </html>

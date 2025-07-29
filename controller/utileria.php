@@ -21,6 +21,28 @@ $datos = $_SESSION['user'];
 $perfil = $usuario->Transaccion(['peticion' => 'perfil']);
 $datos = $datos + $perfil['datos'];
 
+
+switch ($datos['tema']) {
+    case '1':
+        $tema = "<link rel='stylesheet' href='assets/css/temas/rosa.css' />";
+        break;
+    case '2':
+        $tema = "<link rel='stylesheet' href='assets/css/temas/azul.css' />";
+        break;
+    case '3':
+        $tema = "<link rel='stylesheet' href='assets/css/temas/verde.css' />";
+        break;
+    case '4':
+        $tema = "<link rel='stylesheet' href='assets/css/temas/rojo.css' />";
+        break;
+    case '5':
+        $tema = "<link rel='stylesheet' href='assets/css/temas/morado.css' />";
+        break;
+    default:
+        $tema = "<link rel='stylesheet' href='assets/css/temas/default.css' />";
+        break;
+}
+
 if (is_file($foto = $datos['foto'])) {
     $foto = $datos['foto'];
 } else {
