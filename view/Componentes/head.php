@@ -14,7 +14,7 @@
     />
     <!-- Custom Ya estoy en esta wea!!!!! -->
     
-    <?php echo $tema?>
+    <?php echo $tema ?? "<link rel='stylesheet' href='assets/css/temas/default.css' />"?>
     <link rel="stylesheet" href="assets/css/main.css" />
     <!-- Font Awesome for icons -->
     <link

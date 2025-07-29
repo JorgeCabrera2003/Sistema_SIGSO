@@ -61,7 +61,7 @@ if (is_file("view/" . $page . ".php")) {
             $extension = pathinfo($_FILES["foto_perfil"]["name"], PATHINFO_EXTENSION);
             $nuevoNombre = $datos['cedula'] . '.' . $extension;
             $targetFile = $targetDir . $nuevoNombre;
-    
+
             if (move_uploaded_file($_FILES["foto_perfil"]["tmp_name"], $targetFile)) {
                 $usuario->set_foto($targetFile);
                 $usuario->Transaccion(['peticion' => 'actualizarFoto']);
@@ -85,8 +85,8 @@ if (is_file("view/" . $page . ".php")) {
         $usuario->set_apellidos($apellido);
         $usuario->set_correo($correo);
         $usuario->set_telefono($tlf);
-        $peticion['peticion']='modificar';
-        
+        $peticion['peticion'] = 'modificar';
+
         if ($usuario->Transaccion($peticion)) {
             $_SESSION['alert'] = [
                 'type' => 'success',
@@ -135,27 +135,47 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     // Manejo de cambio de tema
-if (isset($_POST['cambiarTema'])) {
-    $tema = $_POST['cambiTema'];
-    $usuario->set_tema($tema);
-    
-    if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
-        $_SESSION['user']['user']['tema'] = $tema;
-        $_SESSION['alert'] = [
-            'type' => 'success',
-            'title' => 'Tema actualizado',
-            'message' => 'El tema se ha cambiado correctamente'
-        ];
-    } else {
-        $_SESSION['alert'] = [
-            'type' => 'error',
-            'title' => 'Error',
-            'message' => 'No se pudo cambiar el tema'
-        ];
+    if (isset($_POST['cambiarTema'])) {
+        $tema = $_POST['cambiTema'];
+        $usuario->set_tema($tema);
+
+        if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
+            // Guardar datos importantes de la sesión actual
+            $old_session_data = $_SESSION;
+
+            // Destruir completamente la sesión actual
+            session_unset();
+            session_destroy();
+
+            // Iniciar una nueva sesión
+            session_start();
+
+            // Restaurar los datos importantes de la sesión
+            $_SESSION = $old_session_data;
+
+            // Actualizar el tema en la nueva sesión
+            $_SESSION['user']['user']['tema'] = 5;
+
+            // Configurar la alerta
+            $_SESSION['alert'] = [
+                'type' => 'success',
+                'title' => 'Tema actualizado',
+                'message' => 'El tema se ha cambiado correctamente'
+            ];
+
+            // Redirigir manteniendo el anchor #tema
+            header("Location: ?page=users-profile");
+            exit();
+        } else {
+            $_SESSION['alert'] = [
+                'type' => 'error',
+                'title' => 'Error',
+                'message' => 'No se pudo cambiar el tema'
+            ];
+            header("Location: ?page=users-profile");
+            exit();
+        }
     }
-    header("Location: ?page=users-profile");
-    exit();
-}
 
     // En users-profile.php (línea ~59)
     if (isset($datos['clave']) && $datos['clave'] == $datos['cedula']) {

@@ -190,7 +190,7 @@
                       <div class="col-md-8 col-lg-9">
                         <select name="cambiTema" id="cambiTema" class="form-select">
                           <option value="0" <?php echo ($datos['tema'] == 0) ? 'selected' : ''; ?>>Tema por defecto</option>
-                          <option value="1" <?php echo ($datos['tema'] == 1) ? 'selected' : ''; ?>>Rosa</option>
+                          <option value="1" <?php echo ($datos['tema'] == 1) ? 'selected' : ''; ?>>Scarly</option>
                           <option value="2" <?php echo ($datos['tema'] == 2) ? 'selected' : ''; ?>>Azul</option>
                           <option value="3" <?php echo ($datos['tema'] == 3) ? 'selected' : ''; ?>>Verde</option>
                           <option value="4" <?php echo ($datos['tema'] == 4) ? 'selected' : ''; ?>>Rojo</option>

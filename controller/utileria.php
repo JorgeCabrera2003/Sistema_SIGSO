@@ -16,26 +16,63 @@ $usuario = new Usuario();
 $bitacora = new Bitacora();
 $notificacion = new Notificacion();
 
+// Manejo del cambio de tema
+if (isset($_POST['cambiarTema'])) {
+    $tema = $_POST['cambiTema'];
+    $usuario->set_cedula($_SESSION['user']['cedula']);
+    $usuario->set_tema($tema);
+    
+    if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
+        // Guardar datos importantes de la sesión actual
+        $old_session_data = $_SESSION;
+        
+        // Destruir completamente la sesión actual
+        session_unset();
+        session_destroy();
+        
+        // Iniciar una nueva sesión
+        session_start();
+        
+        // Restaurar los datos importantes de la sesión
+        $_SESSION = $old_session_data;
+        
+        // Actualizar el tema en la nueva sesión
+        $_SESSION['user']['tema'] = $tema;
+        
+        // Recargar los datos del usuario
+        $usuario->set_cedula($_SESSION['user']['cedula']);
+        $perfil = $usuario->Transaccion(['peticion' => 'perfil']);
+        $_SESSION['user'] = array_merge($_SESSION['user'], $perfil['datos']);
+        
+        // Redirigir manteniendo el anchor #tema
+        header("Location: ?page=users-profile#tema");
+        exit();
+    }
+}
+
+// Cargar datos del usuario
 $usuario->set_cedula($_SESSION['user']['cedula']);
 $datos = $_SESSION['user'];
 $perfil = $usuario->Transaccion(['peticion' => 'perfil']);
-$datos = $datos + $perfil['datos'];
+$datos = array_merge($datos, $perfil['datos']);
 
+// Cargar el tema actual
+$tema_actual = isset($_SESSION['user']['tema']) ? $_SESSION['user']['tema'] : 0;
 
-switch ($datos['tema']) {
-    case '1':
+switch ($tema_actual) {
+    case 1:
         $tema = "<link rel='stylesheet' href='assets/css/temas/rosa.css' />";
         break;
-    case '2':
+    case 2:
         $tema = "<link rel='stylesheet' href='assets/css/temas/azul.css' />";
         break;
-    case '3':
+    case 3:
         $tema = "<link rel='stylesheet' href='assets/css/temas/verde.css' />";
         break;
-    case '4':
+    case 4:
         $tema = "<link rel='stylesheet' href='assets/css/temas/rojo.css' />";
         break;
-    case '5':
+    case 5:
         $tema = "<link rel='stylesheet' href='assets/css/temas/morado.css' />";
         break;
     default:
@@ -43,6 +80,7 @@ switch ($datos['tema']) {
         break;
 }
 
+// Cargar foto de perfil
 if (is_file($foto = $datos['foto'])) {
     $foto = $datos['foto'];
 } else {
@@ -61,6 +99,7 @@ function ObtenerPermisos()
 
     return $permisos_rol['permiso'];
 }
+
 function Bitacora($msg, $modulo)
 {
     global $bitacora;
@@ -94,7 +133,6 @@ function NotificarUsuarios($msg, $modulo, $parametro = [])
 
     $resultados = [];
     if ($arrayUsuario['bool'] == 1) {
-
         foreach ($arrayUsuario['datos'] as $usuario) {
             $notificacion->set_usuario($usuario['nombre_usuario']);
             $notificacion->set_modulo($modulo);
@@ -142,7 +180,3 @@ if (isset($_POST['permisos'])) {
 }
 
 $permisos = ObtenerPermisos();
-
-
-
-?>
