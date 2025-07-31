@@ -160,6 +160,20 @@ function capaValidar() {
 			estadoSelect(this, '#sencargado', "", 1);
 		}
 	});
+
+
+	$(".input-grupo").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+	})
+
+	$(".input-grupo").on("keyup", function () {
+		console.log($(this).attr('id'));
+		var idSpan = $(this).attr('id');
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#s"+idSpan),
+			"El nombre debe contener entre 3 a 20 carácteres"
+		);
+	})
 }
 
 function validarenvio() {
@@ -215,7 +229,7 @@ $("#btn-agregarS").on("click", async function () {
 })
 var idC = null;
 var idS = null;
-function crearInput(etiqueta){
+function crearInput(etiqueta) {
 	var id;
 	var labelStr;
 	var idInput;
@@ -223,32 +237,34 @@ function crearInput(etiqueta){
 	console.log(etiqueta);
 	console.log($(etiqueta).attr('id'));
 	id = $(etiqueta).attr('id');
-	console.log($("."+id));
+	console.log($("." + id));
 
-	if(id == 'btn-agregarS'){
-				
-		idS = idS+1;
-		labelStr = 'Servicio Ofrecido';
-		grupo = 'servicio';
-		console.log(idS);
-		idInput = idS;
-	}
+	console.log(id + ": " + $("." + id).find('.row-' + id).length);
 
-	if(id == 'btn-agregarC'){
-		
-		idC = idC+1;
-		labelStr = 'Nombre del Componente';
-		grupo = 'componente';
-		console.log(idC);
-		idInput = idC;
-	}
+	if ($("." + id).find('.row-' + id).length < 10) {
 
-	console.log(id +": "+$("."+id).find('.row-'+id).length);
+		if (id == 'btn-agregarS') {
 
-	$("."+id).append(`<div id="${grupo}${idInput}" class="row text-center d-flex align-items-center row-${id}">
+			idS = idS + 1;
+			labelStr = 'Servicio Ofrecido';
+			grupo = 'servicio';
+			console.log(idS);
+			idInput = idS;
+		}
+
+		if (id == 'btn-agregarC') {
+
+			idC = idC + 1;
+			labelStr = 'Nombre del Componente';
+			grupo = 'componente';
+			console.log(idC);
+			idInput = idC;
+		}
+
+		$("." + id).append(`<div id="${grupo}${idInput}" class="row text-center d-flex align-items-center row-${id}">
                   <div class="col-md-6">
                     <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" class="form-control grupo-${grupo}" name="nombre" type="text" id="nombre-${grupo}${idInput}"
+                      <input placeholder="" class="form-control input-grupo grupo-${grupo}" name="nombre" type="text" id="nombre-${grupo}${idInput}"
                         maxlength="20">
                       <span id="snombre-${grupo}${idInput}"></span>
                       <label for="nombre-${grupo}${idInput}" class="form-label">${labelStr}</label>
@@ -267,10 +283,14 @@ function crearInput(etiqueta){
                     </button>
                   </div>
                 </div>`);
+	} else {
+
+	}
+	capaValidar();
 }
 
-function eliminarItem(id){
-	const input = $("#"+id);
+function eliminarItem(id) {
+	const input = $("#" + id);
 	const contenedorPadre = input.parent().parent();
 	console.log(contenedorPadre);
 	contenedorPadre.remove();
@@ -330,6 +350,8 @@ function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
 
+	$("#contaioner-servicio").empty();
+	$("#contaioner-componente").empty();
 	$('#enviar').prop('disabled', false);
 }
 

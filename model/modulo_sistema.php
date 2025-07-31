@@ -86,7 +86,7 @@ class Modulo_Sistema extends Conexion
             foreach (modulos as $key) {
                 $this->set_id($key['id']);
                 $this->set_modulo($key['modulo']);
-                $busqueda = $this->Validar(true);
+                $busqueda = $this->Validar();
 
                 if ($busqueda['bool'] == 0) {
 
@@ -96,6 +96,7 @@ class Modulo_Sistema extends Conexion
                     $stmR->bindParam(":id", $this->id);
                     $stmR->bindParam(":modulo", $this->modulo);
                     $stmR->execute();
+
                 } else {
 
                     $queryModificar = "UPDATE modulo m SET m.nombre_modulo = :modulo WHERE m.id_modulo = :id";
@@ -123,23 +124,25 @@ class Modulo_Sistema extends Conexion
         return $dato;
     }
 
-    private function Validar($transaccionActiva = false)
+    private function Validar()
     {
         $dato = [];
+        $transaccion = false;
 
         try {
 
-            if (!$transaccionActiva) {
+            if ($this->conexion === NULL || !$this->conexion->inTransaction()) {
                 $this->conexion = new Conexion("usuario");
                 $this->conexion = $this->conexion->Conex();
                 $this->conexion->beginTransaction();
+                $transaccion = true;
             }
             $query = "SELECT * FROM modulo WHERE id_modulo = :id";
 
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
-            if (!$transaccionActiva) {
+            if ($transaccion) {
                 $this->conexion->commit();
             }
 
@@ -151,14 +154,14 @@ class Modulo_Sistema extends Conexion
             }
 
         } catch (PDOException $e) {
-            if (!$transaccionActiva) {
+            if ($transaccion) {
                 $this->conexion->rollBack();
             }
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
         }
-        if (!$transaccionActiva) {
+        if ($transaccion) {
             $this->Cerrar_Conexion($this->conexion, $stm);
         }
         return $dato;

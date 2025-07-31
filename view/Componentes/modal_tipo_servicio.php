@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="row mt-4" id="inputs_servicios">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <fieldset class="permission-group">
               <legend class="group-header">
                 <label class="" for="servicios">Servicios Prestados: </label>
