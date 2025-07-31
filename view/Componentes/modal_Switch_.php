@@ -11,8 +11,7 @@
         <div class="row justify-content-center">
           <div class="col-6">
             <div class="mb-3"> <!-- class="form-floating mb-3" -->
-              
-            <label for="codigo_bien">Código de Bien</label>
+
               <select class="form-select" name="codigo_bien" id="codigo_bien" title="Seleccionar el Código del Bien del Switch">
                 <option selected value="default" disabled>Seleccione un Código de Bien</option>
                 <?php foreach ($bien as $bien): ?>
@@ -26,7 +25,7 @@
             </div>
           </div>
 
-          <div class="col-4">
+          <div class="col-6">
             <div class="form-floating mb-3">
                 <select class="form-select" name="cantidad_puertos" id="cantidad_puertos" title="Ingresar Cantidad de Puertos del Switch">
 
@@ -49,7 +48,7 @@
         </div>
         <div class="row justify-content-center">
 
-          <div class="col-8">
+          <div class="col-12">
             <div class="form-floating mb-3">
               <input placeholder="" class="form-control" name="serial_switch" type="text" id="serial_switch" maxlength="45" title="Ingresar Serial del Switch">
               <span id="sserial_switch"></span>

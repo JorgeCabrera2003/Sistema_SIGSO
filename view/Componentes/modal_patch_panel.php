@@ -7,37 +7,25 @@
         <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close" title="Cerrar Modal"></button>
       </div>
       <div class="modal-body">
-        <div class="row justify-content-center" id="Fila1">
-
-        </div>
+        <div class="row justify-content-center" id="Fila1"></div>
         <div class="row justify-content-center">
-
-          <div class="col-6" id="">
-            <div class="mb-3"> <!-- class="form-floating mb-3" -->
-              
-<label for="codigo_bien">Código de Bien</label>
-              <select class="form-select" name="codigo_bien" id="codigo_bien" title="Seleccionar el Código del Bien del Patch Panel">
+          <div class="col-5">
+            <div class="mb-3">
+              <select class="form-select w-100" name="codigo_bien" id="codigo_bien"
+                title="Seleccionar el Código del Bien del Patch Panel" style="min-width: 100%">
                 <option selected value="default" disabled>Seleciones un Código de Bien</option>
-                 
                 <?php foreach ($bien['datos'] as $bien): ?>
-                    <option value="<?= $bien['codigo_bien'] ?>">
-                        <?= $bien['codigo_bien'] . " - " .  $bien['descripcion']?>
-                    </option>
+                  <option value="<?= $bien['codigo_bien'] ?>">
+                    <?= $bien['codigo_bien'] . " - " .  $bien['descripcion'] ?>
+                  </option>
                 <?php endforeach; ?>
-
               </select>
-
               <span id="scodigo_bien"></span>
-              
             </div>
           </div>
-                
-          
-                  
 
           <div class="col-5">
             <div class="form-floating mb-3 ">
-
               <input placeholder="" class="form-control" name="serial_patch_panel" type="text" id="serial_patch_panel" title="Ingresar Serial del Patch Panel" maxlength="45">
               <span id="sserial_patch_panel"></span>
               <label for="serial_patch_panel" class="form-label">Serial del Patch Panel</label>
@@ -46,10 +34,10 @@
           </div>
 
         </div>
-        
+
         <div class="row justify-content-center">
 
-           <div class="col-5">
+          <div class="col-5">
             <div class="form-floating mb-3 ">
 
               <select class="form-select" name="cantidad_puertos" id="cantidad_puertos" title="Ingresar Cantidad de Puertos del Patch Panel">
@@ -69,7 +57,7 @@
           </div>
 
 
-           <div class="col-6">
+          <div class="col-6">
             <div class="form-floating mb-3">
 
               <select class="form-select" name="tipo_patch_panel" id="tipo_patch_panel" maxlength="45" title="Ingresar Tipo de Patch Panel">
