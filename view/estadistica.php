@@ -131,7 +131,7 @@
                 let piso5 = $select.find('option').filter(function() {
                     return $(this).text().trim().endsWith('5');
                 }).first();
-                
+
                 if (piso5.length) {
                     $select.val(piso5.val());
                     // Cargar automáticamente la infraestructura del piso 5
@@ -140,27 +140,27 @@
                     }, 500);
                 }
             }
-            
+
             seleccionarPisoPorDefecto();
         });
 
         function cargarInfraestructura() {
             const tipoDispositivo = $('#tipoDispositivo').val();
             const idPiso = $('#pisoFiltro').val();
-            
+
             if (!idPiso || idPiso === "0") {
                 mostrarAlerta('warning', 'Por favor seleccione un piso');
                 return;
             }
-            
+
             // Obtener información del piso seleccionado
             const pisoTexto = $('#pisoFiltro option:selected').text();
             $('#tituloPiso').html(`Infraestructura de ${tipoDispositivo === 'patch' ? 'Patch Panels' : 'Switches'} - ${pisoTexto}`);
             $('#infoPiso').text('Cargando información de puertos...');
-            
+
             $('#loadingInfraestructura').show();
             $('#contenedorDispositivos').html('');
-            
+
             // Realizar petición AJAX
             $.ajax({
                 url: "",
@@ -193,7 +193,7 @@
 
         function mostrarDispositivos(dispositivos, tipo, pisoTexto) {
             let html = '';
-            
+
             if (!dispositivos || dispositivos.length === 0) {
                 html = `<div class="col-12 text-center">
                             <div class="alert alert-warning">
@@ -203,16 +203,16 @@
                 $('#infoPiso').text('No hay dispositivos en este piso');
             } else {
                 $('#infoPiso').text(`${dispositivos.length} ${tipo === 'patch' ? 'patch panels' : 'switches'} encontrados`);
-                
+
                 dispositivos.forEach(dispositivo => {
-                    html += `<div class="col-md-6 col-lg-4 mb-4">
+                    html += `<div class="col-md-6 col-lg-6 mb-4">
                                 <div class="card h-100 dispositivo-card">
                                     <div class="card-header">
                                         <h6 class="card-title mb-0">${dispositivo.nombre || 'Dispositivo'}</h6>
                                         <small class="text-muted">Serial: ${dispositivo.serial || 'N/A'}</small>
                                     </div>
                                     <div class="card-body">
-                                        <div class="d-flex justify-content-between mb-3">
+                                        <div class="d-flex justify-content-between mb-4">
                                             <span class="badge bg-info">${dispositivo.cantidad_puertos} Puertos</span>
                                             <span class="badge bg-secondary">${dispositivo.puertos_ocupados} Ocupados</span>
                                         </div>
@@ -224,9 +224,9 @@
                             </div>`;
                 });
             }
-            
+
             $('#contenedorDispositivos').html(html);
-            
+
             // Reinicializar tooltips para los nuevos elementos
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -238,65 +238,87 @@
             if (!puertos || puertos.length === 0) {
                 return '<div class="alert alert-secondary text-center">No hay información de puertos</div>';
             }
-            
-            let html = '<div class="row g-1">';
-            
-            puertos.forEach((puerto, index) => {
-                // Determinar clase CSS según el estado
-                let claseEstado = 'disponible';
-                let icono = 'fa-ethernet';
-                let tooltip = 'Puerto disponible';
-                
-                if (puerto.ocupado) {
-                    claseEstado = 'ocupado';
-                    tooltip = 'Puerto ocupado';
-                    if (puerto.con_equipo) {
-                        tooltip += ` - Equipo: ${puerto.equipo_nombre || 'N/A'}`;
+
+            const totalPuertos = puertos.length;
+            let filas = 1;
+
+            if (totalPuertos >= 96) {
+                filas = 4;
+            } else if (totalPuertos > 24 && totalPuertos <= 48) {
+                filas = 2;
+            }
+
+            // calcular cuántos puertos por fila
+            const puertosPorFila = Math.ceil(totalPuertos / filas);
+
+            // Definir tamaño del grupo (6 o 8)
+            let grupo = 6;
+            if (totalPuertos % 6 !== 0 && totalPuertos % 8 === 0) {
+                grupo = 8;
+            }
+
+            let html = '';
+
+            for (let f = 0; f < filas; f++) {
+                html += '<div class="d-flex mb-2 flex-wrap fila-puertos">';
+
+                for (let i = f * puertosPorFila; i < (f + 1) * puertosPorFila && i < totalPuertos; i++) {
+                    const puerto = puertos[i];
+
+                    // Determinar clase CSS según el estado
+                    let claseEstado = 'disponible';
+                    let icono = 'fa-ethernet';
+                    let tooltip = 'Puerto disponible';
+
+                    if (puerto.ocupado) {
+                        claseEstado = 'ocupado';
+                        tooltip = 'Puerto ocupado';
+                        if (puerto.con_equipo) {
+                            tooltip += ` - Equipo: ${puerto.equipo_nombre || 'N/A'}`;
+                        }
+                    } else if (puerto.danado) {
+                        claseEstado = 'danado';
+                        tooltip = 'Puerto dañado';
                     }
-                } else if (puerto.danado) {
-                    claseEstado = 'danado';
-                    tooltip = 'Puerto dañado';
+
+                    let infoExtra = '';
+                    if (puerto.equipo_nombre) {
+                        infoExtra += `<div><strong>Equipo:</strong> ${puerto.equipo_nombre}</div>`;
+                    }
+                    if (puerto.empleado_nombre) {
+                        infoExtra += `<div><strong>Empleado:</strong> ${puerto.empleado_nombre}</div>`;
+                    }
+                    if (puerto.oficina_nombre) {
+                        infoExtra += `<div><strong>Oficina:</strong> ${puerto.oficina_nombre}</div>`;
+                    }
+
+                    // separación cada X puertos (6 o 8 según corresponda)
+                    if ((i - f * puertosPorFila) % grupo === 0 && i % puertosPorFila !== 0) {
+                        html += `<div class="grupo-separador"></div>`;
+                    }
+
+                    html += `<div class="puerto ${claseEstado}" 
+                        data-bs-toggle="tooltip" 
+                        data-bs-html="true"
+                        data-bs-title="<div><strong>Puerto #${puerto.numero}</strong></div>
+                                       <div><strong>Estado:</strong> ${tooltip}</div>
+                                       ${infoExtra}"
+                        onclick="mostrarDetallesPuerto('${codigoDispositivo}', ${puerto.numero}, '${tipoDispositivo}')">
+                        <i class="fa-solid ${icono}"></i>
+                        <small>${puerto.numero}</small>
+                     </div>`;
                 }
-                
-                // Información adicional para el tooltip
-                let infoExtra = '';
-                if (puerto.equipo_nombre) {
-                    infoExtra += `<div><strong>Equipo:</strong> ${puerto.equipo_nombre}</div>`;
-                }
-                if (puerto.empleado_nombre) {
-                    infoExtra += `<div><strong>Empleado:</strong> ${puerto.empleado_nombre}</div>`;
-                }
-                if (puerto.oficina_nombre) {
-                    infoExtra += `<div><strong>Oficina:</strong> ${puerto.oficina_nombre}</div>`;
-                }
-                
-                html += `<div class="col-2 col-sm-1">
-                            <div class="puerto ${claseEstado}" 
-                                 data-bs-toggle="tooltip" 
-                                 data-bs-html="true"
-                                 data-bs-title="<div><strong>Puerto #${puerto.numero}</strong></div>
-                                                 <div><strong>Estado:</strong> ${tooltip}</div>
-                                                 ${infoExtra}"
-                                 onclick="mostrarDetallesPuerto('${codigoDispositivo}', ${puerto.numero}, '${tipoDispositivo}')">
-                                <i class="fa-solid ${icono}"></i>
-                                <small>${puerto.numero}</small>
-                            </div>
-                         </div>`;
-                
-                // Salto de línea cada 12 puertos para mejor visualización
-                if ((index + 1) % 12 === 0) {
-                    html += '</div><div class="row g-1">';
-                }
-            });
-            
-            html += '</div>';
+
+                html += '</div>';
+            }
+
             return html;
         }
 
         function mostrarDetallesPuerto(codigoDispositivo, numeroPuerto, tipoDispositivo) {
             $('#modalDetallesTitulo').text(`Detalles del Puerto #${numeroPuerto}`);
             $('#modalDetallesCuerpo').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando detalles...</p></div>');
-            
+
             $.ajax({
                 url: "",
                 type: "POST",
@@ -317,7 +339,7 @@
                                                 <p><strong>Estado:</strong> ${data.datos.ocupado ? '<span class="badge bg-danger">Ocupado</span>' : (data.datos.danado ? '<span class="badge bg-warning">Dañado</span>' : '<span class="badge bg-success">Disponible</span>')}</p>
                                                 <p><strong>Dispositivo:</strong> ${data.datos.dispositivo_nombre || 'N/A'}</p>
                                             </div>`;
-                                            
+
                             if (data.datos.ocupado && data.datos.con_equipo) {
                                 html += `<div class="col-md-6">
                                             <h6>Información de Conexión</h6>
@@ -347,7 +369,7 @@
                                         </div>
                                     </div>`;
                             }
-                            
+
                             $('#modalDetallesCuerpo').html(html);
                         } else {
                             $('#modalDetallesCuerpo').html(`<div class="alert alert-danger">${data.mensaje || 'Error al cargar los detalles'}</div>`);
@@ -361,7 +383,7 @@
                     $('#modalDetallesCuerpo').html('<div class="alert alert-danger">Error de conexión con el servidor</div>');
                 }
             });
-            
+
             $('#modalDetalles').modal('show');
         }
 
@@ -382,61 +404,88 @@
 
     <style>
         .puerto {
+            flex: 1;
+            /* que todos los puertos ocupen el mismo espacio */
+            min-width: 0;
+            /* evitar que se rompa el contenedor */
+            aspect-ratio: 1/1;
+            /* mantiene forma cuadrada */
             border: 1px solid #dee2e6;
             border-radius: 4px;
-            padding: 5px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            height: 50px;
+            margin: 2px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
-        
+
+        .grupo-separador {
+            flex: 0 0 10px;
+            /* espacio fijo entre grupos */
+        }
+
         .puerto:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        
+
+
         .puerto i {
             font-size: 1.2rem;
             margin-bottom: 3px;
         }
-        
+
         .puerto small {
             font-size: 0.7rem;
         }
-        
+
         .puerto.disponible {
             background-color: #d4edda;
             color: #155724;
         }
-        
+
         .puerto.ocupado {
             background-color: #f8d7da;
             color: #721c24;
         }
-        
+
         .puerto.danado {
             background-color: #fff3cd;
             color: #856404;
         }
-        
+
         .dispositivo-card {
             transition: transform 0.3s ease;
         }
-        
+
         .dispositivo-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-        
+
         .puertos-container {
-            max-height: 300px;
-            overflow-y: auto;
+            width: 100%;
+            overflow: visible;
+            /* sin scroll */
+            max-height: none;
+        }
+
+        .d-flex.flex-wrap {
+            flex-wrap: nowrap !important;
+            /* evitar saltos de fila */
+            width: 100%;
+        }
+
+        .fila-puertos {
+            width: 100%;
+            display: flex;
+            flex-wrap: nowrap;
+            /* una sola fila */
         }
     </style>
 </body>
+
 </html>
