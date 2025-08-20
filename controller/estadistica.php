@@ -7,7 +7,7 @@ if (!$_SESSION) {
 ob_start();
 
 if (is_file("view/estadistica.php")) {
-    $titulo = "Reportes Estadisticos";
+    $titulo = "Gestión de Infraestructura de Red";
     $css = ["alert", "style"];
     require_once "controller/utileria.php";
     require_once "model/estadistica.php";
@@ -65,6 +65,44 @@ if (is_file("view/estadistica.php")) {
             ]
         ];
         echo json_encode($grafico);
+        exit;
+    }
+    
+    // Procesar solicitud de infraestructura
+    if (isset($_POST['peticion']) && $_POST['peticion'] === 'obtener_infraestructura') {
+        $tipo = $_POST['tipo'];
+        $id_piso = intval($_POST['id_piso']);
+        
+        if ($tipo === 'patch') {
+            $reporte = $reporteModel->Transaccion([
+                'peticion' => 'obtener_patch_panels',
+                'id_piso' => $id_piso
+            ]);
+        } else {
+            $reporte = $reporteModel->Transaccion([
+                'peticion' => 'obtener_switches',
+                'id_piso' => $id_piso
+            ]);
+        }
+        
+        echo json_encode($reporte);
+        exit;
+    }
+
+    // Procesar solicitud de detalles de puerto
+    if (isset($_POST['peticion']) && $_POST['peticion'] === 'detalles_puerto') {
+        $codigo_dispositivo = $_POST['codigo_dispositivo'];
+        $numero_puerto = intval($_POST['numero_puerto']);
+        $tipo = $_POST['tipo'];
+        
+        $detalles = $reporteModel->Transaccion([
+            'peticion' => 'detalles_puerto',
+            'codigo_dispositivo' => $codigo_dispositivo,
+            'numero_puerto' => $numero_puerto,
+            'tipo' => $tipo
+        ]);
+        
+        echo json_encode($detalles);
         exit;
     }
     
@@ -154,3 +192,4 @@ if (is_file("view/estadistica.php")) {
 } else {
     require_once "view/404.php";
 }
+?>

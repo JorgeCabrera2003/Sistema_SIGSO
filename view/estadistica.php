@@ -4,492 +4,439 @@
     <?php require_once("Componentes/menu.php"); ?>
 
     <div class="pagetitle mb-4">
-        <h1>Reportes Estadísticos</h1>
+        <h1>Gestión de Infraestructura de Red</h1>
         <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="?page=home">Home</a></li>
+                <li class="breadcrumb-item active">Infraestructura</li>
+            </ol>
         </nav>
     </div><!-- End Page Title -->
 
-    <!-- Filtros Generales -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">Filtros Generales</h5>
-        </div>
-        <div class="card-body">
-            <form id="filtrosGenerales">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="fechaInicio" class="form-label">Fecha Inicio</label>
-                        <input type="date" class="form-control" id="fechaInicio" name="fechaInicio">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="fechaFin" class="form-label">Fecha Fin</label>
-                        <input type="date" class="form-control" id="fechaFin" name="fechaFin">
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="button" class="btn btn-primary" onclick="aplicarFiltrosGenerales()">
-                            <i class="bi bi-funnel"></i> Aplicar Filtros
-                        </button>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="button" class="btn btn-secondary" onclick="resetearFiltros()">
-                            <i class="bi bi-arrow-counterclockwise"></i> Resetear
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div class="row">
-        <!-- Tarjeta de Patch Panel -->
-        <?php if ($permiso_interconexion || $permiso_punto_conexion) : ?>
-        <div class="col-md-6 mb-4" id="card-puntos-red">
+        <!-- Filtros -->
+        <div class="col-md-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Patch Panel</h5>
-                    <i class="fa-solid fa-server text-muted"></i>
+                <div class="card-header">
+                    <h5 class="card-title">Filtros</h5>
                 </div>
                 <div class="card-body">
-                    <select class="form-select mb-3" name="pisoFiltrado" id="pisoFiltrado">
-                        <option value="0">Seleccione un piso</option>
-                        <?php foreach ($piso as $pisoItem) : ?>
-                            <option value="<?= $pisoItem['id_piso'] ?>">
-                                <?= $pisoItem['tipo_piso'] . ' ' . $pisoItem['nro_piso'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div id="patchPanelLoading" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Cargando datos...</p>
-                    </div>
-                    <div id="patchPanelInfo">
-                        <div class="alert alert-info">Seleccione un piso para ver el reporte</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Tarjeta de Switches -->
-        <?php if ($permiso_switch) : ?>
-        <div class="col-md-6 mb-4" id="card-switch-red">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Switches</h5>
-                    <i class="fa-solid fa-network-wired text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <select class="form-select mb-3" name="pisoFiltradoSwitch" id="pisoFiltradoSwitch">
-                        <option value="0">Seleccione un piso</option>
-                        <?php foreach ($piso as $pisoItem) : ?>
-                            <option value="<?= $pisoItem['id_piso'] ?>">
-                                <?= $pisoItem['tipo_piso'] . ' ' . $pisoItem['nro_piso'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div id="switchPanelLoading" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Cargando datos...</p>
-                    </div>
-                    <div id="switchPanelInfo">
-                        <div class="alert alert-info">Seleccione un piso para ver el reporte</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Tarjeta de Usuarios -->
-        <?php if ($permiso_usuario) : ?>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Usuarios</h5>
-                    <i class="fas fa-users text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <h2 class="total-balance mb-3">
-                        <?= number_format($cantidadEmpleados['datos']['Total usuario']) ?> Usuarios
-                    </h2>
-                    <div class="account-list">
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Empleados de OFITIC</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadEmpleados['datos']['Total empleados OFITIC']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Total Empleados</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadEmpleados['datos']['Total empleados general']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between">
-                            <span class="account-name">Oficinas</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadEmpleados['datos']['Total oficina']) ?>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <canvas id="GraUsuario" height="250"></canvas>
-                    </div>
-                    <div class="mt-3">
-                        <select class="form-select" id="tipoGraficoUsuario">
-                            <option value="bar">Gráfico de Barras</option>
-                            <option value="pie">Gráfico Circular</option>
-                            <option value="line">Gráfico de Líneas</option>
-                            <option value="doughnut">Gráfico de Donut</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Tarjeta de Técnicos -->
-        <?php if ($permiso_tecnico) : ?>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Técnicos</h5>
-                    <i class="fas fa-user-cog text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <h2 class="total-balance mb-3">
-                        <?= number_format($cantidadTecnicos['datos'][0]['Total tecnicos']) ?> Técnicos
-                    </h2>
-                    <div class="account-list">
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Soporte Técnico</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadTecnicos['datos'][0]['Total soporte']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Redes</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadTecnicos['datos'][0]['Total redes']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Telefonía</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadTecnicos['datos'][0]['Total telefono']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between">
-                            <span class="account-name">Electrónica</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadTecnicos['datos'][0]['Total electronica']) ?>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <canvas id="Graftecnicos" height="250"></canvas>
-                    </div>
-                    <div class="mt-3">
-                        <select class="form-select" id="tipoGraficoTecnicos">
-                            <option value="bar">Gráfico de Barras</option>
-                            <option value="pie">Gráfico Circular</option>
-                            <option value="line">Gráfico de Líneas</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Tarjeta de Hojas de Servicio -->
-        <?php if ($permiso_hoja_servicio) : ?>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Hojas de Servicio</h5>
-                    <i class="fas fa-file-alt text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <h2 class="total-balance mb-3">
-                        <?= number_format($cantidadHojas['datos'][0]['Cantidad de hojas']) ?> Registradas
-                    </h2>
-                    <div class="account-list">
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Área con más hojas</span>
-                            <span class="account-balance">
-                                <?= htmlspecialchars($cantidadHojas['datos'][0]['Área con más hojas']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Hojas activas</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadHojas['datos'][0]['Hojas activas']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between mb-2">
-                            <span class="account-name">Hojas finalizadas</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadHojas['datos'][0]['Hojas finalizadas']) ?>
-                            </span>
-                        </div>
-                        <div class="account-item d-flex justify-content-between">
-                            <span class="account-name">Hojas eliminadas</span>
-                            <span class="account-balance">
-                                <?= number_format($cantidadHojas['datos'][0]['Hojas eliminadas']) ?>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <canvas id="hojas" height="250"></canvas>
-                    </div>
-                    <div class="mt-3">
-                        <select class="form-select" id="tipoGraficoHojas">
-                            <option value="bar">Gráfico de Barras</option>
-                            <option value="pie">Gráfico Circular</option>
-                            <option value="doughnut">Gráfico de Donut</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Tarjeta de Reporte de Bienes -->
-        <?php if ($permiso_bien) : ?>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Reporte de Bienes</h5>
-                    <i class="fas fa-laptop text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <form id="filtroBienes">
+                    <form id="filtrosInfraestructura">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="tipoBien" class="form-label">Tipo de Bien</label>
-                                <select class="form-select" id="tipoBien" name="tipoBien">
-                                    <option value="">Todos los tipos</option>
-                                    <?php foreach ($tiposBien as $tipo) : ?>
-                                        <option value="<?= $tipo['id_tipo_bien'] ?>">
-                                            <?= htmlspecialchars($tipo['nombre_tipo_bien']) ?>
+                            <div class="col-md-4">
+                                <label for="tipoDispositivo" class="form-label">Tipo de Dispositivo</label>
+                                <select class="form-select" id="tipoDispositivo" name="tipoDispositivo">
+                                    <option value="patch">Patch Panel</option>
+                                    <option value="switch">Switch</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="pisoFiltro" class="form-label">Piso</label>
+                                <select class="form-select" id="pisoFiltro" name="pisoFiltro">
+                                    <option value="0">Seleccione un piso</option>
+                                    <?php foreach ($piso as $pisoItem) : ?>
+                                        <option value="<?= $pisoItem['id_piso'] ?>">
+                                            <?= $pisoItem['tipo_piso'] . ' ' . $pisoItem['nro_piso'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="estadoBien" class="form-label">Estado</label>
-                                <select class="form-select" id="estadoBien" name="estadoBien">
-                                    <option value="">Todos los estados</option>
-                                    <option value="Nuevo">Nuevo</option>
-                                    <option value="Usado">Usado</option>
-                                    <option value="Dañado">Dañado</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="oficinaBien" class="form-label">Oficina</label>
-                                <select class="form-select" id="oficinaBien" name="oficinaBien">
-                                    <option value="">Todas las oficinas</option>
-                                    <?php foreach ($oficinas as $oficina) : ?>
-                                        <option value="<?= $oficina['id_oficina'] ?>">
-                                            <?= htmlspecialchars($oficina['nombre_oficina']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary w-100" onclick="generarReporteBienes()">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Generar Reporte
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary" onclick="cargarInfraestructura()">
+                                    <i class="bi bi-search"></i> Buscar
                                 </button>
                             </div>
                         </div>
                     </form>
-                    <div id="reporteBienesLoading" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Generando reporte...</p>
-                    </div>
-                    <div id="reporteBienesResultado" class="mt-3">
-                        <div class="alert alert-info">
-                            Seleccione los filtros y haga clic en "Generar Reporte"
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-        <?php endif; ?>
 
-        <!-- Tarjeta de Reporte de Solicitudes -->
-        <?php if ($permiso_solicitud) : ?>
-        <div class="col-md-6 mb-4">
+        <!-- Información del Piso -->
+        <div class="col-md-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Reporte de Solicitudes</h5>
-                    <i class="fas fa-tasks text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <form id="filtroSolicitudes">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="tecnicoSolicitud" class="form-label">Técnico</label>
-                                <select class="form-select" id="tecnicoSolicitud" name="tecnicoSolicitud">
-                                    <option value="">Todos los técnicos</option>
-                                    <?php foreach ($tecnicos as $tecnico) : ?>
-                                        <option value="<?= $tecnico['cedula_empleado'] ?>">
-                                            <?= htmlspecialchars($tecnico['nombre']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tipoServicio" class="form-label">Tipo de Servicio</label>
-                                <select class="form-select" id="tipoServicio" name="tipoServicio">
-                                    <option value="">Todos los servicios</option>
-                                    <?php foreach ($tiposServicio as $servicio) : ?>
-                                        <option value="<?= $servicio['id_tipo_servicio'] ?>">
-                                            <?= htmlspecialchars($servicio['nombre_tipo_servicio']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="estadoSolicitud" class="form-label">Estado</label>
-                                <select class="form-select" id="estadoSolicitud" name="estadoSolicitud">
-                                    <option value="">Todos los estados</option>
-                                    <option value="A">Activas</option>
-                                    <option value="I">Finalizadas</option>
-                                    <option value="E">Eliminadas</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary w-100" onclick="generarReporteSolicitudes()">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Generar Reporte
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <div id="reporteSolicitudesLoading" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Generando reporte...</p>
-                    </div>
-                    <div id="reporteSolicitudesResultado" class="mt-3">
-                        <div class="alert alert-info">
-                            Seleccione los filtros y haga clic en "Generar Reporte"
-                        </div>
-                    </div>
+                <div class="card-body text-center">
+                    <h4 id="tituloPiso" class="card-title">Seleccione un piso para ver la infraestructura</h4>
+                    <p id="infoPiso" class="card-text text-muted">Los puertos se mostrarán según su disponibilidad</p>
                 </div>
             </div>
         </div>
-        <?php endif; ?>
 
-        <!-- Tarjeta de Reporte de Materiales -->
-        <?php if ($permiso_material) : ?>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Reporte de Materiales</h5>
-                    <i class="fas fa-boxes text-muted"></i>
-                </div>
-                <div class="card-body">
-                    <form id="filtroMateriales">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="material" class="form-label">Material</label>
-                                <select class="form-select" id="material" name="material">
-                                    <option value="">Todos los materiales</option>
-                                    <?php foreach ($materiales as $material) : ?>
-                                        <option value="<?= $material['id_material'] ?>">
-                                            <?= htmlspecialchars($material['nombre_material']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="oficinaMaterial" class="form-label">Ubicación</label>
-                                <select class="form-select" id="oficinaMaterial" name="oficinaMaterial">
-                                    <option value="">Todas las ubicaciones</option>
-                                    <?php foreach ($oficinas as $oficina) : ?>
-                                        <option value="<?= $oficina['id_oficina'] ?>">
-                                            <?= htmlspecialchars($oficina['nombre_oficina']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="fechaInicioMaterial" class="form-label">Fecha Inicio</label>
-                                <input type="date" class="form-control" id="fechaInicioMaterial" name="fechaInicioMaterial">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="fechaFinMaterial" class="form-label">Fecha Fin</label>
-                                <input type="date" class="form-control" id="fechaFinMaterial" name="fechaFinMaterial">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 mb-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary w-100" onclick="generarReporteMateriales()">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Generar Reporte
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <div id="reporteMaterialesLoading" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-2">Generando reporte...</p>
-                    </div>
-                    <div id="reporteMaterialesResultado" class="mt-3">
-                        <div class="alert alert-info">
-                            Seleccione los filtros y haga clic en "Generar Reporte"
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Vista cuando no hay permisos -->
-        <?php if (!$permiso_interconexion && !$permiso_punto_conexion && !$permiso_usuario && 
-                  !$permiso_tecnico && !$permiso_hoja_servicio && !$permiso_switch && 
-                  !$permiso_bien && !$permiso_solicitud && !$permiso_material) : ?>
+        <!-- Contenedor de dispositivos -->
         <div class="col-md-12 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Bienvenido al Sistema</h5>
-                    <i class="fas fa-home text-muted"></i>
+                    <h5 class="card-title mb-0">Dispositivos de Red</h5>
+                    <div class="d-flex">
+                        <span class="badge bg-success me-2"><i class="fas fa-circle"></i> Disponible</span>
+                        <span class="badge bg-danger me-2"><i class="fas fa-circle"></i> Ocupado</span>
+                        <span class="badge bg-warning"><i class="fas fa-circle"></i> Dañado</span>
+                    </div>
                 </div>
-                <div class="card-body text-center">
-                    <img src="assets/img/OFITIC.png" class="img-fluid mb-4" style="max-width: 300px;" alt="Logo OFITIC">
-                    <h4 class="mb-3">Sistema de Gestión de Servicios OFITIC</h4>
-                    <p class="text-muted">No tienes permisos para visualizar los reportes. Contacta al administrador.</p>
+                <div class="card-body">
+                    <div id="loadingInfraestructura" class="text-center my-5" style="display:none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando dispositivos...</p>
+                    </div>
+                    <div id="contenedorDispositivos" class="row">
+                        <div class="col-12 text-center">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Utilice los filtros para visualizar los dispositivos de red
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <?php endif; ?>
     </div>
 
-    </main>
+    <!-- Modal para detalles del puerto -->
+    <div class="modal fade" id="modalDetalles" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetallesTitulo">Detalles del Puerto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalDetallesCuerpo">
+                    <!-- Contenido dinámico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- ======= Footer ======= -->
     <?php require_once "Componentes/footer.php"; ?>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
         <i class="bi bi-arrow-up-short"></i>
     </a>
 
-    <!-- JavaScript para las gráficas y filtros -->
-    <script src="assets/js/estadistica.js"></script>
+    <!-- JavaScript para la gestión de infraestructura -->
+    <script>
+        $(document).ready(function() {
+            // Inicializar tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
 
+            // Seleccionar por defecto el piso 5 si existe
+            function seleccionarPisoPorDefecto() {
+                let $select = $('#pisoFiltro');
+                let piso5 = $select.find('option').filter(function() {
+                    return $(this).text().trim().endsWith('5');
+                }).first();
+                
+                if (piso5.length) {
+                    $select.val(piso5.val());
+                    // Cargar automáticamente la infraestructura del piso 5
+                    setTimeout(function() {
+                        cargarInfraestructura();
+                    }, 500);
+                }
+            }
+            
+            seleccionarPisoPorDefecto();
+        });
+
+        function cargarInfraestructura() {
+            const tipoDispositivo = $('#tipoDispositivo').val();
+            const idPiso = $('#pisoFiltro').val();
+            
+            if (!idPiso || idPiso === "0") {
+                mostrarAlerta('warning', 'Por favor seleccione un piso');
+                return;
+            }
+            
+            // Obtener información del piso seleccionado
+            const pisoTexto = $('#pisoFiltro option:selected').text();
+            $('#tituloPiso').html(`Infraestructura de ${tipoDispositivo === 'patch' ? 'Patch Panels' : 'Switches'} - ${pisoTexto}`);
+            $('#infoPiso').text('Cargando información de puertos...');
+            
+            $('#loadingInfraestructura').show();
+            $('#contenedorDispositivos').html('');
+            
+            // Realizar petición AJAX
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: {
+                    peticion: 'obtener_infraestructura',
+                    tipo: tipoDispositivo,
+                    id_piso: idPiso
+                },
+                success: function(respuesta) {
+                    $('#loadingInfraestructura').hide();
+                    try {
+                        const data = JSON.parse(respuesta);
+                        if (data.resultado === "success") {
+                            mostrarDispositivos(data.datos, tipoDispositivo, pisoTexto);
+                        } else {
+                            mostrarErrorInfraestructura(data.mensaje || 'Error al cargar los datos');
+                        }
+                    } catch (e) {
+                        console.error("Error parsing JSON: ", e);
+                        mostrarErrorInfraestructura('Error al procesar la respuesta del servidor');
+                    }
+                },
+                error: function() {
+                    $('#loadingInfraestructura').hide();
+                    mostrarErrorInfraestructura('Error de conexión con el servidor');
+                }
+            });
+        }
+
+        function mostrarDispositivos(dispositivos, tipo, pisoTexto) {
+            let html = '';
+            
+            if (!dispositivos || dispositivos.length === 0) {
+                html = `<div class="col-12 text-center">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> No se encontraron ${tipo === 'patch' ? 'patch panels' : 'switches'} en este piso
+                            </div>
+                        </div>`;
+                $('#infoPiso').text('No hay dispositivos en este piso');
+            } else {
+                $('#infoPiso').text(`${dispositivos.length} ${tipo === 'patch' ? 'patch panels' : 'switches'} encontrados`);
+                
+                dispositivos.forEach(dispositivo => {
+                    html += `<div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 dispositivo-card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">${dispositivo.nombre || 'Dispositivo'}</h6>
+                                        <small class="text-muted">Serial: ${dispositivo.serial || 'N/A'}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="badge bg-info">${dispositivo.cantidad_puertos} Puertos</span>
+                                            <span class="badge bg-secondary">${dispositivo.puertos_ocupados} Ocupados</span>
+                                        </div>
+                                        <div class="puertos-container">
+                                            ${generarPuertos(dispositivo.puertos, dispositivo.codigo_bien, tipo)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                });
+            }
+            
+            $('#contenedorDispositivos').html(html);
+            
+            // Reinicializar tooltips para los nuevos elementos
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        function generarPuertos(puertos, codigoDispositivo, tipoDispositivo) {
+            if (!puertos || puertos.length === 0) {
+                return '<div class="alert alert-secondary text-center">No hay información de puertos</div>';
+            }
+            
+            let html = '<div class="row g-1">';
+            
+            puertos.forEach((puerto, index) => {
+                // Determinar clase CSS según el estado
+                let claseEstado = 'disponible';
+                let icono = 'fa-ethernet';
+                let tooltip = 'Puerto disponible';
+                
+                if (puerto.ocupado) {
+                    claseEstado = 'ocupado';
+                    tooltip = 'Puerto ocupado';
+                    if (puerto.con_equipo) {
+                        tooltip += ` - Equipo: ${puerto.equipo_nombre || 'N/A'}`;
+                    }
+                } else if (puerto.danado) {
+                    claseEstado = 'danado';
+                    tooltip = 'Puerto dañado';
+                }
+                
+                // Información adicional para el tooltip
+                let infoExtra = '';
+                if (puerto.equipo_nombre) {
+                    infoExtra += `<div><strong>Equipo:</strong> ${puerto.equipo_nombre}</div>`;
+                }
+                if (puerto.empleado_nombre) {
+                    infoExtra += `<div><strong>Empleado:</strong> ${puerto.empleado_nombre}</div>`;
+                }
+                if (puerto.oficina_nombre) {
+                    infoExtra += `<div><strong>Oficina:</strong> ${puerto.oficina_nombre}</div>`;
+                }
+                
+                html += `<div class="col-2 col-sm-1">
+                            <div class="puerto ${claseEstado}" 
+                                 data-bs-toggle="tooltip" 
+                                 data-bs-html="true"
+                                 data-bs-title="<div><strong>Puerto #${puerto.numero}</strong></div>
+                                                 <div><strong>Estado:</strong> ${tooltip}</div>
+                                                 ${infoExtra}"
+                                 onclick="mostrarDetallesPuerto('${codigoDispositivo}', ${puerto.numero}, '${tipoDispositivo}')">
+                                <i class="fa-solid ${icono}"></i>
+                                <small>${puerto.numero}</small>
+                            </div>
+                         </div>`;
+                
+                // Salto de línea cada 12 puertos para mejor visualización
+                if ((index + 1) % 12 === 0) {
+                    html += '</div><div class="row g-1">';
+                }
+            });
+            
+            html += '</div>';
+            return html;
+        }
+
+        function mostrarDetallesPuerto(codigoDispositivo, numeroPuerto, tipoDispositivo) {
+            $('#modalDetallesTitulo').text(`Detalles del Puerto #${numeroPuerto}`);
+            $('#modalDetallesCuerpo').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Cargando detalles...</p></div>');
+            
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: {
+                    peticion: 'detalles_puerto',
+                    codigo_dispositivo: codigoDispositivo,
+                    numero_puerto: numeroPuerto,
+                    tipo: tipoDispositivo
+                },
+                success: function(respuesta) {
+                    try {
+                        const data = JSON.parse(respuesta);
+                        if (data.resultado === "success") {
+                            let html = `<div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Información del Puerto</h6>
+                                                <p><strong>Número:</strong> ${data.datos.numero || 'N/A'}</p>
+                                                <p><strong>Estado:</strong> ${data.datos.ocupado ? '<span class="badge bg-danger">Ocupado</span>' : (data.datos.danado ? '<span class="badge bg-warning">Dañado</span>' : '<span class="badge bg-success">Disponible</span>')}</p>
+                                                <p><strong>Dispositivo:</strong> ${data.datos.dispositivo_nombre || 'N/A'}</p>
+                                            </div>`;
+                                            
+                            if (data.datos.ocupado && data.datos.con_equipo) {
+                                html += `<div class="col-md-6">
+                                            <h6>Información de Conexión</h6>
+                                            <p><strong>Equipo:</strong> ${data.datos.equipo_nombre || 'N/A'}</p>
+                                            <p><strong>Tipo:</strong> ${data.datos.equipo_tipo || 'N/A'}</p>
+                                            <p><strong>Serial:</strong> ${data.datos.equipo_serial || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <h6>Información del Empleado</h6>
+                                            <p><strong>Nombre:</strong> ${data.datos.empleado_nombre || 'N/A'}</p>
+                                            <p><strong>Cédula:</strong> ${data.datos.empleado_cedula || 'N/A'}</p>
+                                            <p><strong>Correo:</strong> ${data.datos.empleado_correo || 'N/A'}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Ubicación</h6>
+                                            <p><strong>Oficina:</strong> ${data.datos.oficina_nombre || 'N/A'}</p>
+                                            <p><strong>Piso:</strong> ${data.datos.piso_nombre || 'N/A'}</p>
+                                        </div>
+                                    </div>`;
+                            } else {
+                                html += `<div class="col-md-6">
+                                            <h6>Disponible para conexión</h6>
+                                            <p>Este puerto está disponible para conectar nuevos equipos.</p>
+                                            <button class="btn btn-sm btn-outline-primary">Reservar Puerto</button>
+                                        </div>
+                                    </div>`;
+                            }
+                            
+                            $('#modalDetallesCuerpo').html(html);
+                        } else {
+                            $('#modalDetallesCuerpo').html(`<div class="alert alert-danger">${data.mensaje || 'Error al cargar los detalles'}</div>`);
+                        }
+                    } catch (e) {
+                        console.error("Error parsing JSON: ", e);
+                        $('#modalDetallesCuerpo').html('<div class="alert alert-danger">Error al procesar la respuesta del servidor</div>');
+                    }
+                },
+                error: function() {
+                    $('#modalDetallesCuerpo').html('<div class="alert alert-danger">Error de conexión con el servidor</div>');
+                }
+            });
+            
+            $('#modalDetalles').modal('show');
+        }
+
+        function mostrarErrorInfraestructura(mensaje) {
+            $('#contenedorDispositivos').html(`<div class="col-12 text-center">
+                                                <div class="alert alert-danger">
+                                                    <i class="bi bi-exclamation-triangle"></i> ${mensaje}
+                                                </div>
+                                              </div>`);
+            $('#infoPiso').text('Error al cargar la información');
+        }
+
+        function mostrarAlerta(tipo, mensaje) {
+            // Implementar función de alerta si es necesario
+            console.log(`${tipo}: ${mensaje}`);
+        }
+    </script>
+
+    <style>
+        .puerto {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .puerto:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .puerto i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        .puerto small {
+            font-size: 0.7rem;
+        }
+        
+        .puerto.disponible {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .puerto.ocupado {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .puerto.danado {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .dispositivo-card {
+            transition: transform 0.3s ease;
+        }
+        
+        .dispositivo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .puertos-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
 </body>
 </html>

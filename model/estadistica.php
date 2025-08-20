@@ -80,6 +80,347 @@ class reporte extends Conexion
         }
     }
 
+    // Método para obtener patch panels con sus puertos
+    public function obtenerPatchPanels($id_piso)
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+
+        try {
+            $query = "SELECT 
+                        pp.codigo_bien,
+                        b.descripcion as nombre,
+                        pp.serial,
+                        pp.cantidad_puertos,
+                        (SELECT COUNT(*) FROM punto_conexion pc WHERE pc.codigo_patch_panel = pp.codigo_bien) as puertos_ocupados
+                      FROM patch_panel pp
+                      JOIN bien b ON pp.codigo_bien = b.codigo_bien
+                      WHERE pp.id_piso = :id_piso AND b.estatus = 1";
+                      
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_piso", $id_piso, PDO::PARAM_INT);
+            $stm->execute();
+            
+            $patchPanels = $stm->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Obtener información de los puertos para cada patch panel
+            foreach ($patchPanels as &$panel) {
+                $panel['puertos'] = $this->obtenerPuertosPatchPanel($panel['codigo_bien']);
+            }
+            
+            $dato['resultado'] = "success";
+            $dato['datos'] = $patchPanels;
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) {
+                $stm->closeCursor();
+            }
+            $this->conex = null;
+        }
+
+        return $dato;
+    }
+
+    // Método para obtener los puertos de un patch panel
+    private function obtenerPuertosPatchPanel($codigo_patch_panel)
+    {
+        $stm = null;
+        $puertos = [];
+        
+        try {
+            $this->conex = $this->Conex();
+            
+            // Primero crear array con todos los puertos posibles
+            $queryInfo = "SELECT cantidad_puertos FROM patch_panel WHERE codigo_bien = :codigo";
+            $stm = $this->conex->prepare($queryInfo);
+            $stm->bindParam(":codigo", $codigo_patch_panel, PDO::PARAM_STR);
+            $stm->execute();
+            $info = $stm->fetch(PDO::FETCH_ASSOC);
+            
+            $cantidadPuertos = $info['cantidad_puertos'] ?? 0;
+            
+            // Obtener puertos ocupados
+            $queryOcupados = "SELECT 
+                                pc.puerto_patch_panel as numero,
+                                e.tipo_equipo as equipo_nombre,
+                                CONCAT(emp.nombre_empleado, ' ', emp.apellido_empleado) as empleado_nombre,
+                                o.nombre_oficina as oficina_nombre,
+                                1 as ocupado,
+                                0 as danado
+                              FROM punto_conexion pc
+                              LEFT JOIN equipo e ON pc.id_equipo = e.id_equipo
+                              LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
+                              LEFT JOIN empleado emp ON b.cedula_empleado = emp.cedula_empleado
+                              LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                              WHERE pc.codigo_patch_panel = :codigo";
+                              
+            $stm = $this->conex->prepare($queryOcupados);
+            $stm->bindParam(":codigo", $codigo_patch_panel, PDO::PARAM_STR);
+            $stm->execute();
+            $ocupados = $stm->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Crear array completo de puertos
+            for ($i = 1; $i <= $cantidadPuertos; $i++) {
+                $encontrado = false;
+                
+                foreach ($ocupados as $ocupado) {
+                    if ($ocupado['numero'] == $i) {
+                        $puertos[] = $ocupado;
+                        $encontrado = true;
+                        break;
+                    }
+                }
+                
+                if (!$encontrado) {
+                    $puertos[] = [
+                        'numero' => $i,
+                        'ocupado' => 0,
+                        'danado' => 0,
+                        'equipo_nombre' => null,
+                        'empleado_nombre' => null,
+                        'oficina_nombre' => null
+                    ];
+                }
+            }
+            
+        } catch (PDOException $e) {
+            error_log("Error obteniendo puertos: " . $e->getMessage());
+        } finally {
+            if ($stm !== null) {
+                $stm->closeCursor();
+            }
+        }
+        
+        return $puertos;
+    }
+
+    // Método para obtener switches con sus puertos
+    public function obtenerSwitches($id_piso)
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+
+        try {
+            $query = "SELECT 
+                        s.codigo_bien,
+                        b.descripcion as nombre,
+                        s.serial,
+                        s.cantidad_puertos,
+                        (SELECT COUNT(*) FROM interconexion i WHERE i.codigo_switch = s.codigo_bien) as puertos_ocupados
+                      FROM switch s
+                      JOIN bien b ON s.codigo_bien = b.codigo_bien
+                      WHERE s.id_piso = :id_piso AND b.estatus = 1";
+                      
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_piso", $id_piso, PDO::PARAM_INT);
+            $stm->execute();
+            
+            $switches = $stm->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Obtener información de los puertos para cada switch
+            foreach ($switches as &$switch) {
+                $switch['puertos'] = $this->obtenerPuertosSwitch($switch['codigo_bien']);
+            }
+            
+            $dato['resultado'] = "success";
+            $dato['datos'] = $switches;
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) {
+                $stm->closeCursor();
+            }
+            $this->conex = null;
+        }
+
+        return $dato;
+    }
+
+    // Método para obtener los puertos de un switch
+    private function obtenerPuertosSwitch($codigo_switch)
+    {
+        $stm = null;
+        $puertos = [];
+        
+        try {
+            $this->conex = $this->Conex();
+            
+            // Primero crear array con todos los puertos posibles
+            $queryInfo = "SELECT cantidad_puertos FROM switch WHERE codigo_bien = :codigo";
+            $stm = $this->conex->prepare($queryInfo);
+            $stm->bindParam(":codigo", $codigo_switch, PDO::PARAM_STR);
+            $stm->execute();
+            $info = $stm->fetch(PDO::FETCH_ASSOC);
+            
+            $cantidadPuertos = $info['cantidad_puertos'] ?? 0;
+            
+            // Obtener puertos ocupados
+            $queryOcupados = "SELECT 
+                                i.puerto_switch as numero,
+                                pp.tipo_patch_panel as equipo_nombre,
+                                'Conexión a Patch Panel' as empleado_nombre,
+                                p.nro_piso as oficina_nombre,
+                                1 as ocupado,
+                                0 as danado
+                              FROM interconexion i
+                              LEFT JOIN patch_panel pp ON i.codigo_patch_panel = pp.codigo_bien
+                              LEFT JOIN piso p ON pp.id_piso = p.id_piso
+                              WHERE i.codigo_switch = :codigo";
+                              
+            $stm = $this->conex->prepare($queryOcupados);
+            $stm->bindParam(":codigo", $codigo_switch, PDO::PARAM_STR);
+            $stm->execute();
+            $ocupados = $stm->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Crear array completo de puertos
+            for ($i = 1; $i <= $cantidadPuertos; $i++) {
+                $encontrado = false;
+                
+                foreach ($ocupados as $ocupado) {
+                    if ($ocupado['numero'] == $i) {
+                        $puertos[] = $ocupado;
+                        $encontrado = true;
+                        break;
+                    }
+                }
+                
+                if (!$encontrado) {
+                    $puertos[] = [
+                        'numero' => $i,
+                        'ocupado' => 0,
+                        'danado' => 0,
+                        'equipo_nombre' => null,
+                        'empleado_nombre' => null,
+                        'oficina_nombre' => null
+                    ];
+                }
+            }
+            
+        } catch (PDOException $e) {
+            error_log("Error obteniendo puertos switch: " . $e->getMessage());
+        } finally {
+            if ($stm !== null) {
+                $stm->closeCursor();
+            }
+        }
+        
+        return $puertos;
+    }
+
+    // Método para obtener detalles de un puerto específico
+    public function obtenerDetallesPuerto($codigo_dispositivo, $numero_puerto, $tipo)
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+
+        try {
+            if ($tipo === 'patch') {
+                $query = "SELECT 
+                            pc.puerto_patch_panel as numero,
+                            pp.tipo_patch_panel as dispositivo_nombre,
+                            pp.serial as dispositivo_serial,
+                            e.tipo_equipo as equipo_nombre,
+                            e.serial as equipo_serial,
+                            CONCAT(emp.nombre_empleado, ' ', emp.apellido_empleado) as empleado_nombre,
+                            emp.cedula_empleado as empleado_cedula,
+                            emp.correo_empleado as empleado_correo,
+                            o.nombre_oficina as oficina_nombre,
+                            p.nro_piso as piso_nombre,
+                            1 as ocupado,
+                            0 as danado,
+                            1 as con_equipo
+                          FROM punto_conexion pc
+                          JOIN patch_panel pp ON pc.codigo_patch_panel = pp.codigo_bien
+                          LEFT JOIN equipo e ON pc.id_equipo = e.id_equipo
+                          LEFT JOIN bien b ON e.codigo_bien = b.codigo_bien
+                          LEFT JOIN empleado emp ON b.cedula_empleado = emp.cedula_empleado
+                          LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                          LEFT JOIN piso p ON o.id_piso = p.id_piso
+                          WHERE pc.codigo_patch_panel = :codigo AND pc.puerto_patch_panel = :puerto";
+            } else {
+                $query = "SELECT 
+                            i.puerto_switch as numero,
+                            s.serial as dispositivo_serial,
+                            'Switch' as dispositivo_nombre,
+                            pp.tipo_patch_panel as equipo_nombre,
+                            pp.serial as equipo_serial,
+                            'Sistema' as empleado_nombre,
+                            'N/A' as empleado_cedula,
+                            'N/A' as empleado_correo,
+                            p.nro_piso as oficina_nombre,
+                            p.nro_piso as piso_nombre,
+                            1 as ocupado,
+                            0 as danado,
+                            1 as con_equipo
+                          FROM interconexion i
+                          JOIN switch s ON i.codigo_switch = s.codigo_bien
+                          LEFT JOIN patch_panel pp ON i.codigo_patch_panel = pp.codigo_bien
+                          LEFT JOIN piso p ON s.id_piso = p.id_piso
+                          WHERE i.codigo_switch = :codigo AND i.puerto_switch = :puerto";
+            }
+            
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":codigo", $codigo_dispositivo, PDO::PARAM_STR);
+            $stm->bindParam(":puerto", $numero_puerto, PDO::PARAM_INT);
+            $stm->execute();
+            
+            $detalles = $stm->fetch(PDO::FETCH_ASSOC);
+            
+            if ($detalles) {
+                $dato['resultado'] = "success";
+                $dato['datos'] = $detalles;
+            } else {
+                // Si no hay detalles, es un puerto disponible
+                if ($tipo === 'patch') {
+                    $queryInfo = "SELECT 
+                                    cantidad_puertos,
+                                    tipo_patch_panel as dispositivo_nombre,
+                                    serial as dispositivo_serial
+                                  FROM patch_panel 
+                                  WHERE codigo_bien = :codigo";
+                } else {
+                    $queryInfo = "SELECT 
+                                    cantidad_puertos,
+                                    serial as dispositivo_serial,
+                                    'Switch' as dispositivo_nombre
+                                  FROM switch 
+                                  WHERE codigo_bien = :codigo";
+                }
+                
+                $stm = $this->conex->prepare($queryInfo);
+                $stm->bindParam(":codigo", $codigo_dispositivo, PDO::PARAM_STR);
+                $stm->execute();
+                $info = $stm->fetch(PDO::FETCH_ASSOC);
+                
+                $dato['resultado'] = "success";
+                $dato['datos'] = [
+                    'numero' => $numero_puerto,
+                    'dispositivo_nombre' => $info['dispositivo_nombre'] ?? 'N/A',
+                    'dispositivo_serial' => $info['dispositivo_serial'] ?? 'N/A',
+                    'ocupado' => 0,
+                    'danado' => 0,
+                    'con_equipo' => 0
+                ];
+            }
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) {
+                $stm->closeCursor();
+            }
+            $this->conex = null;
+        }
+
+        return $dato;
+    }
+
     // Método para reporte de patch panel por número de piso
     public function reportePatchPanelPorNro($id_piso)
     {
@@ -413,6 +754,19 @@ class reporte extends Conexion
                 
             case 'contar_tecnicos':
                 return $this->contarTecnicos();
+                
+            case 'obtener_patch_panels':
+                return $this->obtenerPatchPanels($peticion['id_piso']);
+                
+            case 'obtener_switches':
+                return $this->obtenerSwitches($peticion['id_piso']);
+                
+            case 'detalles_puerto':
+                return $this->obtenerDetallesPuerto(
+                    $peticion['codigo_dispositivo'],
+                    $peticion['numero_puerto'],
+                    $peticion['tipo']
+                );
                 
             case 'reporte_patch_panel':
                 return $this->reportePatchPanelPorNro($peticion['id_piso']);
