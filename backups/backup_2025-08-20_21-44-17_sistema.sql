@@ -55,7 +55,7 @@ CREATE TABLE `bien` (
 
 LOCK TABLES `bien` WRITE;
 /*!40000 ALTER TABLE `bien` DISABLE KEYS */;
-INSERT INTO `bien` VALUES ('0001',1,1,'Impresora rh200','Nuevo','V-21140325',1,1),('00014',1,1,'Computador 32GB','Usado','V-31843937',2,1),('0002',4,4,'Computador Oficina','Nuevo','V-31843937',2,1),('0003',2,1,'Mesa ejecutiva','Usado','V-21140325',3,1),('0004',1,2,'Patch panel rojo 45k','Nuevo','V-30587785',5,1),('0005',1,2,'Pacth panel 500tc','Nuevo','V-30587785',4,1),('0006',1,1,'Switch prt24','null','V-30587785',3,1),('0007',1,2,'Switch prt27','null','V-30587785',3,1),('0008',1,2,'Switch rt45','null','V-30587785',3,0),('00082',1,1,'Pacth panel 500tcs','Nuevo','V-1234567',5,1),('000889',1,1,'yguhgf','Nuevo','V-1234567',3,1),('0009',1,1,'Laptop','Dañado','V-30266398',4,1),('00092',2,3,'1212','Dañado','V-30266398',4,1),('00093',1,1,'Switch rt45','Usado','V-21140325',3,1),('0010',1,3,'Equipo','Dañado','V-1234567',3,1),('0011',1,3,'Equipo','Usado','V-30266398',4,1),('1213',1,3,'croqueta','Usado','V-21140325',1,1),('123123',1,1,'REDES','Nuevo','V-1234567',1,1),('213',4,3,'Wifi casero','Nuevo','V-31843937',2,1),('2343',1,1,'Equipo Escritorio','Usado','V-31843937',2,1),('PP-001',1,2,'Patch Panel 24 Puertos CAT6','Nuevo','V-30587785',1,1),('PP-002',1,2,'Patch Panel 48 Puertos CAT6','Nuevo','V-30587785',1,1),('PP-003',1,1,'Patch Panel 24 Puertos CAT5e','Usado','V-30587785',2,1),('PP-004',1,3,'Patch Panel 12 Puertos Fibra','Nuevo','V-30587785',3,1),('PP-005',1,2,'Patch Panel 36 Puertos CAT6','Nuevo','V-30587785',4,1),('SW-001',1,2,'Switch 24 Puertos Gigabit','Nuevo','V-30587785',1,1),('SW-002',1,1,'Switch 48 Puertos Gigabit','Nuevo','V-30587785',1,1),('SW-003',1,3,'Switch 16 Puertos POE','Usado','V-30587785',2,1),('SW-004',1,2,'Switch 8 Puertos Managed','Nuevo','V-30587785',3,1),('SW-005',1,1,'Switch 24 Puertos POE+','Nuevo','V-30587785',5,1);
+INSERT INTO `bien` VALUES ('0001',1,1,'Impresora rh200','Nuevo','V-21140325',1,1),('00014',1,1,'Computador 32GB','Usado','V-31843937',2,1),('0002',4,4,'Computador Oficina','Nuevo','V-31843937',2,1),('0003',2,1,'Mesa ejecutiva','Usado','V-21140325',3,1),('0004',1,2,'Patch panel rojo 45k','Nuevo','V-30587785',5,1),('0005',1,2,'Pacth panel 500tc','Nuevo','V-30587785',4,1),('0006',1,1,'Switch prt24','null','V-30587785',3,1),('0007',1,2,'Switch prt27','null','V-30587785',3,1),('0008',1,2,'Switch rt45','null','V-30587785',3,0),('00082',1,1,'Pacth panel 500tcs','Nuevo','V-1234567',5,1),('000889',1,1,'yguhgf','Nuevo','V-1234567',3,1),('0009',1,1,'Laptop','Dañado','V-30266398',4,1),('00092',2,3,'1212','Dañado','V-30266398',4,1),('00093',1,1,'Switch rt45','Usado','V-21140325',3,1),('0010',1,3,'Equipo','Dañado','V-1234567',3,1),('0011',1,3,'Equipo','Usado','V-30266398',4,1),('1213',1,3,'croqueta','Usado','V-21140325',1,1),('123123',1,1,'REDES','Nuevo','V-1234567',1,1),('213',4,3,'Wifi casero','Nuevo','V-31843937',2,1),('2343',1,1,'Equipo Escritorio','Usado','V-31843937',2,1),('PP-101',1,2,'Patch Panel 24 Puertos CAT6 - Piso 1 Oficina A','Nuevo','V-30587785',1,1),('PP-102',1,2,'Patch Panel 48 Puertos CAT6 - Piso 1 Sala Servers','Nuevo','V-30587785',1,1),('PP-103',1,1,'Patch Panel 24 Puertos CAT5e - Piso 1 Recepción','Usado','V-30587785',3,1),('PP-104',1,3,'Patch Panel 12 Puertos Fibra - Piso 1 Datacenter','Nuevo','V-30587785',4,1),('PP-105',1,2,'Patch Panel 36 Puertos CAT6 - Piso 1 Área TI','Nuevo','V-30587785',1,1),('PP-201',1,2,'Patch Panel 24 Puertos CAT6 - Piso 2 Oficina B','Nuevo','V-30587785',2,1),('PP-202',1,1,'Patch Panel 48 Puertos CAT6 - Piso 2 Conferencias','Nuevo','V-30587785',2,1),('PP-203',1,3,'Patch Panel 24 Puertos CAT5e - Piso 2 Cubículos','Usado','V-30587785',2,1),('PP-204',1,2,'Patch Panel 12 Puertos Fibra - Piso 2 Servidores','Nuevo','V-30587785',2,1),('PP-205',1,1,'Patch Panel 36 Puertos CAT6 - Piso 2 Administración','Nuevo','V-30587785',2,1),('PP-301',1,2,'Patch Panel 24 Puertos CAT6 - Piso 3 Oficina C','Nuevo','V-30587785',5,1),('PP-302',1,1,'Patch Panel 48 Puertos CAT6 - Piso 3 Laboratorio','Nuevo','V-30587785',5,1),('PP-303',1,3,'Patch Panel 24 Puertos CAT5e - Piso 3 Desarrollo','Usado','V-30587785',5,1),('PP-304',1,2,'Patch Panel 12 Puertos Fibra - Piso 3 Testing','Nuevo','V-30587785',5,1),('PP-305',1,1,'Patch Panel 36 Puertos CAT6 - Piso 3 Diseño','Nuevo','V-30587785',5,1),('PP-401',1,2,'Patch Panel 24 Puertos CAT6 - Piso 4 Contabilidad','Nuevo','V-30587785',4,1),('PP-402',1,1,'Patch Panel 48 Puertos CAT6 - Piso 4 Finanzas','Nuevo','V-30587785',4,1),('PP-403',1,3,'Patch Panel 24 Puertos CAT5e - Piso 4 RH','Usado','V-30587785',4,1),('PP-404',1,2,'Patch Panel 12 Puertos Fibra - Piso 4 Dirección','Nuevo','V-30587785',4,1),('PP-405',1,1,'Patch Panel 36 Puertos CAT6 - Piso 4 Gerencia','Nuevo','V-30587785',4,1),('PP-501',1,2,'Patch Panel 24 Puertos CAT6 - Piso 5 Marketing','Nuevo','V-30587785',3,1),('PP-502',1,1,'Patch Panel 48 Puertos CAT6 - Piso 5 Ventas','Nuevo','V-30587785',3,1),('PP-503',1,3,'Patch Panel 24 Puertos CAT5e - Piso 5 Comercial','Usado','V-30587785',3,1),('PP-504',1,2,'Patch Panel 12 Puertos Fibra - Piso 5 Atención Cliente','Nuevo','V-30587785',3,1),('PP-505',1,1,'Patch Panel 36 Puertos CAT6 - Piso 5 Soporte','Nuevo','V-30587785',3,1),('PP-601',1,2,'Patch Panel 24 Puertos CAT6 - Piso 6 Almacén','Nuevo','V-30587785',4,1),('PP-602',1,1,'Patch Panel 48 Puertos CAT6 - Piso 6 Logística','Nuevo','V-30587785',4,1),('PP-603',1,3,'Patch Panel 24 Puertos CAT5e - Piso 6 Producción','Usado','V-30587785',4,1),('PP-604',1,2,'Patch Panel 12 Puertos Fibra - Piso 6 Calidad','Nuevo','V-30587785',4,1),('PP-605',1,1,'Patch Panel 36 Puertos CAT6 - Piso 6 Operaciones','Nuevo','V-30587785',4,1),('SW-101',1,2,'Switch 24 Puertos Gigabit - Piso 1 Core','Nuevo','V-30587785',1,1),('SW-102',1,1,'Switch 48 Puertos Gigabit - Piso 1 Distribución','Nuevo','V-30587785',1,1),('SW-103',1,3,'Switch 16 Puertos POE - Piso 1 VoIP','Usado','V-30587785',3,1),('SW-104',1,2,'Switch 8 Puertos Managed - Piso 1 Servidores','Nuevo','V-30587785',4,1),('SW-105',1,1,'Switch 24 Puertos POE+ - Piso 1 Acceso','Nuevo','V-30587785',1,1),('SW-201',1,2,'Switch 24 Puertos Gigabit - Piso 2 Core','Nuevo','V-30587785',2,1),('SW-202',1,1,'Switch 48 Puertos Gigabit - Piso 2 Distribución','Nuevo','V-30587785',2,1),('SW-203',1,3,'Switch 16 Puertos POE - Piso 2 VoIP','Usado','V-30587785',2,1),('SW-204',1,2,'Switch 8 Puertos Managed - Piso 2 Servidores','Nuevo','V-30587785',2,1),('SW-205',1,1,'Switch 24 Puertos POE+ - Piso 2 Acceso','Nuevo','V-30587785',2,1),('SW-301',1,2,'Switch 24 Puertos Gigabit - Piso 3 Core','Nuevo','V-30587785',5,1),('SW-302',1,1,'Switch 48 Puertos Gigabit - Piso 3 Distribución','Nuevo','V-30587785',5,1),('SW-303',1,3,'Switch 16 Puertos POE - Piso 3 VoIP','Usado','V-30587785',5,1),('SW-304',1,2,'Switch 8 Puertos Managed - Piso 3 Servidores','Nuevo','V-30587785',5,1),('SW-305',1,1,'Switch 24 Puertos POE+ - Piso 3 Acceso','Nuevo','V-30587785',5,1),('SW-401',1,2,'Switch 24 Puertos Gigabit - Piso 4 Core','Nuevo','V-30587785',4,1),('SW-402',1,1,'Switch 48 Puertos Gigabit - Piso 4 Distribución','Nuevo','V-30587785',4,1),('SW-403',1,3,'Switch 16 Puertos POE - Piso 4 VoIP','Usado','V-30587785',4,1),('SW-404',1,2,'Switch 8 Puertos Managed - Piso 4 Servidores','Nuevo','V-30587785',4,1),('SW-405',1,1,'Switch 24 Puertos POE+ - Piso 4 Acceso','Nuevo','V-30587785',4,1),('SW-501',1,2,'Switch 24 Puertos Gigabit - Piso 5 Core','Nuevo','V-30587785',3,1),('SW-502',1,1,'Switch 48 Puertos Gigabit - Piso 5 Distribución','Nuevo','V-30587785',3,1),('SW-503',1,3,'Switch 16 Puertos POE - Piso 5 VoIP','Usado','V-30587785',3,1),('SW-504',1,2,'Switch 8 Puertos Managed - Piso 5 Servidores','Nuevo','V-30587785',3,1),('SW-505',1,1,'Switch 24 Puertos POE+ - Piso 5 Acceso','Nuevo','V-30587785',3,1),('SW-601',1,2,'Switch 24 Puertos Gigabit - Piso 6 Core','Nuevo','V-30587785',4,1),('SW-602',1,1,'Switch 48 Puertos Gigabit - Piso 6 Distribución','Nuevo','V-30587785',4,1),('SW-603',1,3,'Switch 16 Puertos POE - Piso 6 VoIP','Usado','V-30587785',4,1),('SW-604',1,2,'Switch 8 Puertos Managed - Piso 6 Servidores','Nuevo','V-30587785',4,1),('SW-605',1,1,'Switch 24 Puertos POE+ - Piso 6 Acceso','Nuevo','V-30587785',4,1);
 /*!40000 ALTER TABLE `bien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -512,7 +512,6 @@ CREATE TABLE `interconexion` (
 
 LOCK TABLES `interconexion` WRITE;
 /*!40000 ALTER TABLE `interconexion` DISABLE KEYS */;
-INSERT INTO `interconexion` VALUES (3,'123123','00093',2,1);
 /*!40000 ALTER TABLE `interconexion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -649,7 +648,7 @@ CREATE TABLE `patch_panel` (
 
 LOCK TABLES `patch_panel` WRITE;
 /*!40000 ALTER TABLE `patch_panel` DISABLE KEYS */;
-INSERT INTO `patch_panel` VALUES ('00082','123124232','Red',32,1),('000889','123124239','Red',8,1),('00093','12312423','Red',24,NULL),('PP-001','SN-PP001-2024','CAT6',24,1),('PP-002','SN-PP002-2024','CAT6',48,1),('PP-003','SN-PP003-2023','CAT5e',24,2),('PP-004','SN-PP004-2024','Fibra Óptica',12,3),('PP-005','SN-PP005-2024','CAT6',36,5);
+INSERT INTO `patch_panel` VALUES ('PP-101','SN-PP101-2024','CAT6',24,1),('PP-102','SN-PP102-2024','CAT6',48,1),('PP-103','SN-PP103-2023','CAT5e',24,1),('PP-104','SN-PP104-2024','Fibra Óptica',12,1),('PP-105','SN-PP105-2024','CAT6',36,1),('PP-201','SN-PP201-2024','CAT6',24,2),('PP-202','SN-PP202-2024','CAT6',48,2),('PP-203','SN-PP203-2023','CAT5e',24,2),('PP-204','SN-PP204-2024','Fibra Óptica',12,2),('PP-205','SN-PP205-2024','CAT6',36,2),('PP-301','SN-PP301-2024','CAT6',24,3),('PP-302','SN-PP302-2024','CAT6',48,3),('PP-303','SN-PP303-2023','CAT5e',24,3),('PP-304','SN-PP304-2024','Fibra Óptica',12,3),('PP-305','SN-PP305-2024','CAT6',36,3),('PP-401','SN-PP401-2024','CAT6',24,4),('PP-402','SN-PP402-2024','CAT6',48,4),('PP-403','SN-PP403-2023','CAT5e',24,4),('PP-404','SN-PP404-2024','Fibra Óptica',12,4),('PP-405','SN-PP405-2024','CAT6',36,4),('PP-501','SN-PP501-2024','CAT6',24,5),('PP-502','SN-PP502-2024','CAT6',48,5),('PP-503','SN-PP503-2023','CAT5e',24,5),('PP-504','SN-PP504-2024','Fibra Óptica',12,5),('PP-505','SN-PP505-2024','CAT6',36,5),('PP-601','SN-PP601-2024','CAT6',24,6),('PP-602','SN-PP602-2024','CAT6',48,6),('PP-603','SN-PP603-2023','CAT5e',24,6),('PP-604','SN-PP604-2024','Fibra Óptica',12,6),('PP-605','SN-PP605-2024','CAT6',36,6);
 /*!40000 ALTER TABLE `patch_panel` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -687,14 +686,14 @@ DROP TABLE IF EXISTS `punto_conexion`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `punto_conexion` (
-  `id_punto_conexion` int(11) NOT NULL,
+  `id_punto_conexion` int(11) NOT NULL AUTO_INCREMENT,
   `codigo_patch_panel` varchar(20) NOT NULL,
   `id_equipo` int(11) DEFAULT NULL,
   `puerto_patch_panel` int(11) NOT NULL,
   PRIMARY KEY (`id_punto_conexion`),
   KEY `codigo_patch` (`codigo_patch_panel`),
   KEY `id_equipo` (`id_equipo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -703,7 +702,7 @@ CREATE TABLE `punto_conexion` (
 
 LOCK TABLES `punto_conexion` WRITE;
 /*!40000 ALTER TABLE `punto_conexion` DISABLE KEYS */;
-INSERT INTO `punto_conexion` VALUES (0,'00093',18,1),(100,'PP-001',14,1),(101,'PP-001',15,3),(102,'PP-001',16,5),(103,'PP-001',17,7),(104,'PP-002',18,2),(105,'PP-002',19,4),(106,'PP-002',20,6),(107,'PP-003',21,1),(108,'PP-003',22,3),(109,'PP-005',23,10);
+INSERT INTO `punto_conexion` VALUES (1,'PP-504',18,9),(2,'PP-404',14,3),(3,'PP-404',25,4),(4,'PP-105',15,5),(5,'PP-504',17,4),(6,'PP-504',26,6),(7,'PP-502',16,46),(8,'PP-502',13,7),(9,'PP-502',19,8);
 /*!40000 ALTER TABLE `punto_conexion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -846,7 +845,7 @@ CREATE TABLE `switch` (
 
 LOCK TABLES `switch` WRITE;
 /*!40000 ALTER TABLE `switch` DISABLE KEYS */;
-INSERT INTO `switch` VALUES ('0008','12234',52,NULL),('123123','1223423',28,NULL),('SW-001','SN-SW001-2024',24,1),('SW-002','SN-SW002-2024',48,1),('SW-003','SN-SW003-2023',16,2),('SW-004','SN-SW004-2024',8,3),('SW-005','SN-SW005-2024',24,5);
+INSERT INTO `switch` VALUES ('SW-101','SN-SW101-2024',24,1),('SW-102','SN-SW102-2024',48,1),('SW-103','SN-SW103-2023',16,1),('SW-104','SN-SW104-2024',8,1),('SW-105','SN-SW105-2024',24,1),('SW-201','SN-SW201-2024',24,2),('SW-202','SN-SW202-2024',48,2),('SW-203','SN-SW203-2023',16,2),('SW-204','SN-SW204-2024',8,2),('SW-205','SN-SW205-2024',24,2),('SW-301','SN-SW301-2024',24,3),('SW-302','SN-SW302-2024',48,3),('SW-303','SN-SW303-2023',16,3),('SW-304','SN-SW304-2024',8,3),('SW-305','SN-SW305-2024',24,3),('SW-401','SN-SW401-2024',24,4),('SW-402','SN-SW402-2024',48,4),('SW-403','SN-SW403-2023',16,4),('SW-404','SN-SW404-2024',8,4),('SW-405','SN-SW405-2024',24,4),('SW-501','SN-SW501-2024',24,5),('SW-502','SN-SW502-2024',48,5),('SW-503','SN-SW503-2023',16,5),('SW-504','SN-SW504-2024',8,5),('SW-505','SN-SW505-2024',24,5),('SW-601','SN-SW601-2024',24,6),('SW-602','SN-SW602-2024',48,6),('SW-603','SN-SW603-2023',16,6),('SW-604','SN-SW604-2024',8,6),('SW-605','SN-SW605-2024',24,6);
 /*!40000 ALTER TABLE `switch` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1175,4 +1174,4 @@ USE `sigso_sistema`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-20 12:06:31
+-- Dump completed on 2025-08-20 21:44:20
