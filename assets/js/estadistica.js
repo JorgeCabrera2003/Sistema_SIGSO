@@ -2,7 +2,7 @@ $(document).ready(function() {
     // Inicializar tooltips
     $('[data-bs-toggle="tooltip"]').tooltip();
     
-    // Registrar entrada
+    // Registrar v  trada
     registrarEntrada();
     
     // Evento para cambio de piso
