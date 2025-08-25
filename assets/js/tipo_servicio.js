@@ -15,10 +15,20 @@ $(document).ready(function () {
 					confirmacion = await confirmarAccion("Se registrará un Tipo de Servicio", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
+						var servicio = [];
+						var componente = [];
+						servicio = procesarServicio("servicio");
+						componente = procesarServicio("componente");
 						datos.append('registrar', 'registrar');
 						datos.append('nombre', $("#nombre").val());
 						datos.append('encargado', $("#encargado").val());
+						datos.append('servicios', JSON.stringify(servicio));
+						datos.append('componentes', JSON.stringify(componente));
+						
+						console.log(JSON.stringify(servicio));
+						console.log(JSON.stringify(componente));
 						enviaAjax(datos);
+						envio = false;
 					}
 				}
 				break;
@@ -32,6 +42,7 @@ $(document).ready(function () {
 						datos.append('nombre', $("#nombre").val());
 						datos.append('encargado', $("#encargado").val());
 						enviaAjax(datos);
+						envio = true;
 					}
 				}
 				break;
@@ -43,6 +54,7 @@ $(document).ready(function () {
 						datos.append('eliminar', 'eliminar');
 						datos.append('id_servicio', $("#id_servicio").val());
 						enviaAjax(datos);
+						envio = true;
 					}
 				}
 				break;
@@ -170,20 +182,78 @@ function capaValidar() {
 		console.log($(this).attr('id'));
 		var idSpan = $(this).attr('id');
 		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#s"+idSpan),
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#s" + idSpan),
 			"El nombre debe contener entre 3 a 20 carácteres"
 		);
 	})
 }
 
-function validarenvio() {
+function procesarServicio(parametro) {
+	let arreglo = [];
+	let clase = "";
+	let grupo = "";
 
+	if (parametro == 'servicio') {
+		clase = "btn-agregarS";
+		grupo = "servicio"
+
+	} else if (parametro == 'componente') {
+		clase = "btn-agregarC";
+		grupo = "componente"
+	} else {
+		return [];
+	}
+	$('.row-' + clase).each(function () {
+		var nombre = $(this).find('.grupo-' + grupo).val();
+		var bool;
+		if ($(this).find('.form-check-input').prop('checked')) {
+			bool = 1;
+		} else {
+			bool = 0;
+		};
+
+		arreglo.push({
+			nombre: nombre,
+			estado: bool,
+			id: $(this).find('.grupo-' + grupo).attr('data-id-item') || null
+		})
+	})
+	return arreglo;
+}
+
+function inputServicio() {
+	let idS = [];
+	let resultado = 1
+	let bool;
+
+	idS = Array.from(document.querySelectorAll('.btn-agregarS input[type="text"][id]'))
+		.map(input => input.id)
+		.concat(Array.from(document.querySelectorAll('.btn-agregarC input[type="text"][id]'))
+			.map(input => input.id));
+
+	console
+	idS.forEach((id, index) => {
+		console.log($(`#${id}`));
+		bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
+		if (bool === 0) {
+			resultado = 0;
+		}
+	})
+
+	console.log(resultado);
+	return resultado;
+}
+
+function validarenvio() {
 	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "El nombre de la marca debe tener de 4 a 45 carácteres");
 		return false;
 
 	} else if ($('#encargado').val() === 'default') {
 		mensajes("error", 10000, "Verifica", "Seleccione una dependencia");
+		return false;
+	} else if (inputServicio() == 0) {
+		mensajes("error", 10000, "Verifica", "Uno de los Servicios no es valido");
 		return false;
 	} else {
 		return true;
@@ -227,6 +297,7 @@ $("#btn-agregarC").on("click", async function () {
 $("#btn-agregarS").on("click", async function () {
 	crearInput(this)
 })
+
 var idC = null;
 var idS = null;
 function crearInput(etiqueta) {
@@ -264,7 +335,7 @@ function crearInput(etiqueta) {
 		$("." + id).append(`<div id="${grupo}${idInput}" class="row text-center d-flex align-items-center row-${id}">
                   <div class="col-md-6">
                     <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" class="form-control input-grupo grupo-${grupo}" name="nombre" type="text" id="nombre-${grupo}${idInput}"
+                      <input placeholder="" class="form-control input-grupo grupo-${grupo}" name="nombre" data-id-item= type="text" id="nombre-${grupo}${idInput}"
                         maxlength="20">
                       <span id="snombre-${grupo}${idInput}"></span>
                       <label for="nombre-${grupo}${idInput}" class="form-label">${labelStr}</label>

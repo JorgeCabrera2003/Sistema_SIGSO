@@ -8,14 +8,14 @@
       </div>
       <div class="modal-body">
         <div class="row justify-content-center" id="Fila1">
-          <div class="col-4">
+          <div class="col-md-4">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="200">
               <span id="snombre"></span>
               <label for="nombre" class="form-label">Nombre del Servicio</label>
             </div>
           </div>
-          <div class="col-4">
+          <div class="col-md-4">
             <div class="form-floating mb-3 mt-4">
               <select class="form-select" name="encargado" id="encargado">
               </select>

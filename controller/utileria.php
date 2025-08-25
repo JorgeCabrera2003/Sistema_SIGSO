@@ -21,29 +21,29 @@ if (isset($_POST['cambiarTema'])) {
     $tema = $_POST['cambiTema'];
     $usuario->set_cedula($_SESSION['user']['cedula']);
     $usuario->set_tema($tema);
-    
+
     if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
         // Guardar datos importantes de la sesión actual
         $old_session_data = $_SESSION;
-        
+
         // Destruir completamente la sesión actual
         session_unset();
         session_destroy();
-        
+
         // Iniciar una nueva sesión
         session_start();
-        
+
         // Restaurar los datos importantes de la sesión
         $_SESSION = $old_session_data;
-        
+
         // Actualizar el tema en la nueva sesión
         $_SESSION['user']['tema'] = $tema;
-        
+
         // Recargar los datos del usuario
         $usuario->set_cedula($_SESSION['user']['cedula']);
         $perfil = $usuario->Transaccion(['peticion' => 'perfil']);
         $_SESSION['user'] = array_merge($_SESSION['user'], $perfil['datos']);
-        
+
         // Redirigir manteniendo el anchor #tema
         header("Location: ?page=users-profile#tema");
         exit();
@@ -78,6 +78,42 @@ switch ($tema_actual) {
     default:
         $tema = "<link rel='stylesheet' href='assets/css/temas/default.css' />";
         break;
+}
+
+function convertirJSON($objeto)
+{
+    if (is_object($objeto)) {
+
+        $objeto = (array) $objeto;
+
+        foreach ($objeto as &$valor) {
+
+            if (is_object($valor)) {
+                $valor = convertirJSON($valor);
+            } elseif (is_array($valor)) {
+                $valor = array_map(function ($item) {
+                    return is_object($item) ? convertirJSON($item) : $item;
+                }, $valor);
+            }
+        }
+        return $objeto;
+    }
+
+    if (is_array($objeto)) {
+        return array_map(function ($valor) {
+            return is_object($valor) ? convertirJSON($valor) : $valor;
+        }, $objeto);
+    }
+
+    return $objeto;
+}
+
+function generarID($primaria, $secundaria = '000'){
+    $id = NULL;
+    $milisegundo = number_format(microtime(true) * 1000, 0, '', '');
+    str_pad(substr($milisegundo, -4), 4, '0', STR_PAD_LEFT);
+     substr(date('His'), 0, 4);
+    return $id;
 }
 
 // Cargar foto de perfil

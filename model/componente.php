@@ -104,31 +104,37 @@ class Componente extends Conexion
         return $dato;
     }
 
-    private function CargarServicios($servicio = NULL)
+    private function CargarComponentes($arrayComponente = NULL)
     {
         $dato = [];
 
-        if ($servicio == NULL) {
+        if ($arrayComponente == NULL) {
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
-            $dato['mensaje'] = "Conjunto de servicios vacíos";
+            $dato['mensaje'] = "Conjunto de componentes vacíos";
         } else {
-            if (is_array($servicio)) {
+            if (is_array($arrayComponente)) {
                 try {
                     $this->conexion = new Conexion("sistema");
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
-                    foreach ($servicio as $key) {
-                        $this->set_id($key['id']);
-                        $this->set_id_servicio($key['id_servicio']);
-                        $this->set_nombre($key['nombre']);
-                        $this->set_bool_texto($key['bool_texto']);
+                    foreach ($arrayComponente as $key) {
+                        if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ ]{4,30}$/", $key['nombre']) == 0) {
 
-                        $bool = $this->Validar();
-                        if ($bool['bool'] == 0) {
-                            $this->Registrar();
-                        } else if ($bool['bool'] == 1) {
-                            $this->Actualizar();
+                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ ]{4,30}$/", $key['bool_texto']) == 0) {
+
+                        } else {
+                            $this->set_id($key['id']);
+                            $this->set_id_servicio($key['id_servicio']);
+                            $this->set_nombre($key['nombre']);
+                            $this->set_bool_texto($key['bool_texto']);
+
+                            $bool = $this->Validar();
+                            if ($bool['bool'] == 0) {
+                                $this->Registrar();
+                            } else if ($bool['bool'] == 1) {
+                                $this->Actualizar();
+                            }
                         }
                     }
                     $this->conexion->commit();
@@ -176,7 +182,7 @@ class Componente extends Conexion
                     }
                     $dato['resultado'] = "registrar";
                     $dato['estado'] = 1;
-                    $dato['mensaje'] = "Se registró el servicio prestado exitosamente";
+                    $dato['mensaje'] = "Se registró el componente exitosamente";
                 } catch (PDOException $e) {
                     if ($transaccion) {
                         $this->conexion->rollBack();
@@ -232,7 +238,7 @@ class Componente extends Conexion
                 }
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se modificaron los datos del servicio prestado con éxito";
+                $dato['mensaje'] = "Se modificaron los datos del componente con éxito";
             } catch (PDOException $e) {
                 if ($transaccion) {
                     $this->conexion->rollBack();
@@ -269,7 +275,7 @@ class Componente extends Conexion
                 $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el servicio prestado exitosamente";
+                $dato['mensaje'] = "Se eliminó el compenente exitosamente";
             } catch (PDOException $e) {
                 $this->conexion->rollBack();
                 $dato['resultado'] = "error";
@@ -323,7 +329,7 @@ class Componente extends Conexion
                 return $this->Registrar();
 
             case 'cargar':
-                return $this->CargarServicios($peticion['servicios']);
+                return $this->CargarComponentes($peticion['componentes']);
 
             case 'consultar':
                 return $this->Consultar();

@@ -8,6 +8,8 @@ ob_start();
 if (is_file("view/" . $page . ".php")) {
 	require_once "controller/utileria.php";
 	require_once "model/tipo_servicio.php";
+	require_once "model/servicio_prestado.php";
+	require_once "model/componente.php";
 	require_once "model/empleado.php";
 
 
@@ -16,6 +18,8 @@ if (is_file("view/" . $page . ".php")) {
 
 	$tipo_servicio = new TipoServicio();
 	$empleado = new Empleado();
+	$servicio_prestado = new ServicioPrestado();
+	$componente = new Componente();
 
 	if (!isset($permisos['tipo_servicio']['ver']['estado']) || $permisos['tipo_servicio']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Tipo de Servicio";
@@ -34,6 +38,11 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
+		$_POST['componentes'];
+		$_POST['servicios'];
+		$arrayServicio = convertirJSON(json_decode($_POST['servicios']));
+		$arrayComponente = convertirJSON(json_decode($_POST['componentes']));
+
 		if (isset($permisos['tipo_servicio']['registrar']['estado']) && $permisos['tipo_servicio']['registrar']['estado'] == 1) {
 			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
@@ -46,19 +55,23 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
+
 				$tipo_servicio->set_nombre($_POST["nombre"]);
 				$tipo_servicio->set_encargado($_POST["encargado"]);
 				$peticion["peticion"] = "registrar";
-				$json = $tipo_servicio->Transaccion($peticion);
+				/*$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio";
 					$msgN = "Se registró una Nuevo Tipo de Servicio";
-                    NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo tipo de servicio";
-				}
-			}
+				}*/
+				$json['resultado'] = "registrar";
+				$json['servicios'] = $arrayServicio;
+				$json['componentes'] = $arrayComponente;
+			} 
 		} else {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, No tienes permiso para registrar un Tipo de Servicio";
@@ -102,9 +115,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del servicio con el id:".$_POST['id_servicio'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del servicio con el id:" . $_POST['id_servicio'];
 					$msgN = "Cargo con ID: " . $_POST["id_servicio"] . " fue modificado";
-                    NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar servicio";
 				}
@@ -132,9 +145,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un servicio con el id:".$_POST['id_servicio'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un servicio con el id:" . $_POST['id_servicio'];
 					$msgN = "Cargo con ID: " . $_POST["id_servicio"] . " fue eliminado";
-                    NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un servicio";
 				}
