@@ -48,6 +48,43 @@ class punto_conexion extends Conexion {
         $this->puerto_patch_panel = $puerto_patch_panel;
     }
 
+    private function EliminarPorDatos() {
+    $this->conex = new Conexion("sistema");
+    $this->conex = $this->conex->Conex();
+
+    $dato = [];
+
+    try {
+        $this->conex->beginTransaction();
+
+        $query = "DELETE FROM punto_conexion 
+                 WHERE codigo_patch_panel = :codigo_patch_panel 
+                 AND puerto_patch_panel = :puerto_patch_panel
+                 AND id_equipo = :id_equipo";
+
+        $stm = $this->conex->prepare($query);
+        $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
+        $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
+        $stm->bindParam(":id_equipo", $this->id_equipo);
+        $stm->execute();
+
+        $this->conex->commit();
+
+        $dato['resultado'] = "desconectar";
+        $dato['estado'] = 1;
+        $dato['mensaje'] = "Se desconectó el equipo exitosamente";
+
+    } catch (PDOException $e) {
+        $this->conex->rollBack();
+        $dato['resultado'] = "error";
+        $dato['estado'] = -1;
+        $dato['mensaje'] = $e->getMessage();
+    }
+
+    $this->Cerrar_Conexion($this->conex, $stm);
+
+    return $dato;
+}
     private function Validar() {
 
         $dato = [];
@@ -129,6 +166,32 @@ class punto_conexion extends Conexion {
         return $dato;
     } 
 
+    // Nuevo: Marcar puerto como dañado
+    private function MarcarDanado() {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
+        $dato = [];
+        try {
+            $this->conex->beginTransaction();
+            $query = "UPDATE punto_conexion SET danado = 1 WHERE codigo_patch_panel = :codigo_patch_panel AND puerto_patch_panel = :puerto_patch_panel";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
+            $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
+            $stm->execute();
+            $this->conex->commit();
+            $dato['resultado'] = "danado";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Puerto marcado como dañado";
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
     private function Registrar() {
 
         $this->conex = new Conexion("sistema");
@@ -136,6 +199,20 @@ class punto_conexion extends Conexion {
 
         $dato = [];
         $bool = $this->Validar();
+
+        // Verificar si el equipo ya está conectado a otro puerto
+        $queryEquipo = "SELECT * FROM punto_conexion WHERE id_equipo = :id_equipo";
+        $stmEquipo = $this->conex->prepare($queryEquipo);
+        $stmEquipo->bindParam(":id_equipo", $this->id_equipo);
+        $stmEquipo->execute();
+        if ($stmEquipo->rowCount() > 0) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = "El equipo ya está conectado a otro puerto. Debe desconectarlo primero.";
+            $this->Cerrar_Conexion($this->conex, $stmEquipo);
+            return $dato;
+        }
 
         if ($bool['bool'] == 0) {
 
@@ -334,6 +411,12 @@ class punto_conexion extends Conexion {
              
             case 'validar':
                 return $this->Validar();
+            
+            case 'eliminar_por_datos':
+                return $this->EliminarPorDatos();
+
+            case 'marcar_danado':
+                return $this->MarcarDanado();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
