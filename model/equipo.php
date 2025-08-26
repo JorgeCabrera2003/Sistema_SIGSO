@@ -225,13 +225,17 @@ class Equipo extends Conexion
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
-            $query = "SELECT e.*, u.nombre_unidad, CONCAT(et.nombre,' - ', d.nombre) AS dependencia
-                     FROM equipo e 
-                     JOIN unidad u ON e.id_unidad = u.id_unidad
-                     JOIN dependencia d ON u.id_dependencia = d.id
-                     JOIN ente et ON d.id_ente = et.id
-                     WHERE u.estatus = 1 AND e.estatus = 1";
-
+            // Mejorar la consulta: incluir si el equipo está ocupado (tiene punto de conexión)
+            $query = "SELECT e.*, 
+                         u.nombre_unidad, 
+                         CONCAT(et.nombre,' - ', d.nombre) AS dependencia,
+                         CASE WHEN pc.id_equipo IS NOT NULL THEN 1 ELSE 0 END AS ocupado
+                  FROM equipo e 
+                  JOIN unidad u ON e.id_unidad = u.id_unidad
+                  JOIN dependencia d ON u.id_dependencia = d.id
+                  JOIN ente et ON d.id_ente = et.id
+                  LEFT JOIN punto_conexion pc ON pc.id_equipo = e.id_equipo
+                  WHERE u.estatus = 1 AND e.estatus = 1";
             $stm = $this->conex->prepare($query);
             $stm->execute();
             $this->conex->commit();

@@ -28,6 +28,7 @@ if (is_file("view/" . $page . ".php")) {
     $peticion_equipos["peticion"] = "consultar";
     $equipos = $equipo->Transaccion($peticion_equipos);
     $equipos = isset($equipos['datos']) ? $equipos['datos'] : [];
+    // Ahora cada equipo tiene el campo 'ocupado' (1 si está asignado, 0 si no)
 
 
     $peticion_patch["peticion"] = "consultar";
@@ -78,10 +79,19 @@ if (is_file("view/" . $page . ".php")) {
     if (isset($_POST['peticion']) && $_POST['peticion'] === 'obtener_equipos_oficina') {
         $id_oficina = intval($_POST['id_oficina']);
 
-        // Obtener equipos filtrados por oficina
+        // Obtener equipos filtrados por oficina y solo los disponibles (no conectados)
+        $equiposConectados = [];
+        foreach ($puntos_conexion ?? [] as $punto) {
+            if (!empty($punto['id_equipo'])) {
+                $equiposConectados[] = $punto['id_equipo'];
+            }
+        }
         $equiposFiltrados = [];
         foreach ($equipos as $equipo) {
-            if (isset($equipo['id_oficina']) && $equipo['id_oficina'] == $id_oficina) {
+            if (
+                isset($equipo['id_oficina']) && $equipo['id_oficina'] == $id_oficina
+                && !in_array($equipo['id_equipo'], $equiposConectados)
+            ) {
                 $equiposFiltrados[] = $equipo;
             }
         }
@@ -90,6 +100,13 @@ if (is_file("view/" . $page . ".php")) {
             'resultado' => 'success',
             'equipos' => $equiposFiltrados
         ]);
+        exit;
+    }
+
+    if (isset($_POST['peticion']) && $_POST['peticion'] === 'consultar_equipos_estado') {
+        $peticion_equipos["peticion"] = "consultar";
+        $equipos = $equipo->Transaccion($peticion_equipos);
+        echo json_encode($equipos);
         exit;
     }
 
@@ -280,7 +297,7 @@ if (is_file("view/" . $page . ".php")) {
             $equipos_conectados = array_diff($equipos_conectados, [$_POST['equipo_actual']]);
         }
 
-        // Filtrar equipos disponibles
+        // Filtrar equipos disponibles (solo los que no están conectados)
         $equipos_disponibles = [];
         foreach ($equipos as $eq) {
             if (!in_array($eq['id_equipo'], $equipos_conectados)) {

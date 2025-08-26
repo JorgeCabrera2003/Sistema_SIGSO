@@ -72,8 +72,9 @@ if (is_file("view/estadistica.php")) {
     if (isset($_POST['peticion']) && $_POST['peticion'] === 'obtener_infraestructura') {
         $tipo = $_POST['tipo'];
         $id_piso = intval($_POST['id_piso']);
-        
+
         if ($tipo === 'patch') {
+            // El modelo ya filtra por el piso de la oficina asociada al bien
             $reporte = $reporteModel->Transaccion([
                 'peticion' => 'obtener_patch_panels',
                 'id_piso' => $id_piso
@@ -84,7 +85,7 @@ if (is_file("view/estadistica.php")) {
                 'id_piso' => $id_piso
             ]);
         }
-        
+
         echo json_encode($reporte);
         exit;
     }

@@ -88,27 +88,38 @@ class reporte extends Conexion
         $dato = [];
 
         try {
+            // Cambia la consulta: busca patch panels cuyo bien está en una oficina que pertenece al piso solicitado
             $query = "SELECT 
                         pp.codigo_bien,
                         b.descripcion as nombre,
                         pp.serial,
                         pp.cantidad_puertos,
+                        pp.tipo_patch_panel,
+                        m.nombre_marca,
+                        b.descripcion,
+                        o.nombre_oficina,
+                        p.tipo_piso,
+                        p.nro_piso,
                         (SELECT COUNT(*) FROM punto_conexion pc WHERE pc.codigo_patch_panel = pp.codigo_bien) as puertos_ocupados
                       FROM patch_panel pp
                       JOIN bien b ON pp.codigo_bien = b.codigo_bien
-                      WHERE pp.id_piso = :id_piso AND b.estatus = 1";
-                      
+                      LEFT JOIN marca m ON b.id_marca = m.id_marca
+                      LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                      LEFT JOIN piso p ON o.id_piso = p.id_piso
+                      WHERE o.id_piso = :id_piso AND b.estatus = 1";
+            // Ahora filtra por el piso de la oficina asociada al bien
+
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id_piso", $id_piso, PDO::PARAM_INT);
             $stm->execute();
-            
+
             $patchPanels = $stm->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Obtener información de los puertos para cada patch panel
             foreach ($patchPanels as &$panel) {
                 $panel['puertos'] = $this->obtenerPuertosPatchPanel($panel['codigo_bien']);
             }
-            
+
             $dato['resultado'] = "success";
             $dato['datos'] = $patchPanels;
         } catch (PDOException $e) {
@@ -205,22 +216,32 @@ class reporte extends Conexion
         $dato = [];
 
         try {
+            // Cambia la consulta: busca switches cuyo bien está en una oficina que pertenece al piso solicitado
             $query = "SELECT 
                         s.codigo_bien,
                         b.descripcion as nombre,
                         s.serial,
                         s.cantidad_puertos,
+                        m.nombre_marca,
+                        b.descripcion,
+                        o.nombre_oficina,
+                        p.tipo_piso,
+                        p.nro_piso,
                         (SELECT COUNT(*) FROM interconexion i WHERE i.codigo_switch = s.codigo_bien) as puertos_ocupados
                       FROM switch s
                       JOIN bien b ON s.codigo_bien = b.codigo_bien
-                      WHERE s.id_piso = :id_piso AND b.estatus = 1";
-                      
+                      LEFT JOIN marca m ON b.id_marca = m.id_marca
+                      LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                      LEFT JOIN piso p ON o.id_piso = p.id_piso
+                      WHERE o.id_piso = :id_piso AND b.estatus = 1";
+            // Ahora filtra por el piso de la oficina asociada al bien
+
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id_piso", $id_piso, PDO::PARAM_INT);
             $stm->execute();
-            
+
             $switches = $stm->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Obtener información de los puertos para cada switch
             foreach ($switches as &$switch) {
                 $switch['puertos'] = $this->obtenerPuertosSwitch($switch['codigo_bien']);

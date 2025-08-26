@@ -1,5 +1,154 @@
-<?php require_once("Componentes/head.php"); ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <?php require_once("Componentes/head.php"); ?>
+    <style>
+        .puerto {
+            flex: 1;
+            min-width: 0;
+            aspect-ratio: 1/1;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
+        .grupo-separador {
+            flex: 0 0 10px;
+        }
+
+        .puerto:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .puerto i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        .puerto small {
+            font-size: 0.7rem;
+        }
+
+        .puerto.disponible {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .puerto.ocupado {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .puerto.danado {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .dispositivo-card {
+            transition: transform 0.3s ease;
+        }
+
+        .dispositivo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .puertos-container {
+            width: 100%;
+            overflow: visible;
+            max-height: none;
+        }
+
+        .d-flex.flex-wrap {
+            flex-wrap: nowrap !important;
+            width: 100%;
+        }
+
+        .fila-puertos {
+            width: 100%;
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        .equipo-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .equipo-card:hover {
+            background-color: #f8f9fa;
+        }
+
+        .equipo-item.selected .equipo-card {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .equipo-card.equipo-conectado {
+            background-color: #ffeaea !important;
+            border-left-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+        .equipo-card.equipo-conectado:hover {
+            background-color: #ffd6d6 !important;
+        }
+        
+        /* Estilos para el panel de filtros */
+        #filtrosEquipos .card-body {
+            padding: 1rem;
+        }
+
+        /* Estilos para el contador de equipos */
+        #contadorEquipos {
+            font-weight: 500;
+        }
+
+        /* Estilos para la barra de desplazamiento */
+        #contenedorEquipos::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #contenedorEquipos::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #contenedorEquipos::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        #contenedorEquipos::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Estilos para los equipos */
+        .equipo-card {
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .equipo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left-color: #0d6efd;
+        }
+
+        .equipo-item.selected .equipo-card {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            border-left-color: #2196f3;
+        }
+    </style>
+</head>
 <body>
     <?php require_once("Componentes/menu.php"); ?>
 
@@ -64,7 +213,7 @@
         </div>
 
         <!-- Panel de dispositivos y equipos -->
-        <div class="col-md-8">
+        <div class="col-md-8 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0" id="tituloDispositivos">Dispositivos de Red</h5>
@@ -82,10 +231,16 @@
                         <p class="mt-2">Cargando dispositivos...</p>
                     </div>
                     <div id="contenedorDispositivos" class="row">
-                        <div class="col-12 text-center">
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle"></i> Utilice los filtros para visualizar los dispositivos de red
-                            </div>
+                        <!-- El contenido se genera dinámicamente por JS -->
+                    </div>
+                    <!-- Controles de paginación para dispositivos -->
+                    <div class="row mt-2">
+                        <div class="col-12 d-flex justify-content-center">
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0" id="dispositivosPaginacion">
+                                    <!-- Botones generados por JS -->
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -93,7 +248,7 @@
         </div>
 
         <!-- Panel de equipos -->
-        <div class="col-md-4">
+        <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
@@ -147,7 +302,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="soloDisponibles" checked>
+                                        <input class="form-check-input" type="checkbox" id="soloDisponibles">
                                         <label class="form-check-label" for="soloDisponibles">
                                             Mostrar disponibles
                                         </label>
@@ -176,7 +331,7 @@
                             }
                         }
                         foreach ($equipos as $equipo):
-                            $conectado = in_array($equipo['id_equipo'], $equiposConectados);
+                            $conectado = !empty($equipo['ocupado']) && $equipo['ocupado'] == 1;
                         ?>
                             <div class="col-12 mb-2 equipo-item"
                                 data-id="<?= $equipo['id_equipo'] ?>"
@@ -197,13 +352,27 @@
                                                 <?php endif; ?>
                                             </div>
                                             <?php if ($conectado): ?>
-                                                <span class="badge bg-danger ms-2">Conectado</span>
+                                                <span class="badge bg-danger ms-2">Ocupado</span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                    </div>
+                    <!-- Controles de paginación -->
+                    <div class="row mt-2">
+                        <div class="col-12 d-flex justify-content-center">
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0" id="equiposPaginacion">
+                                    <li class="page-item"><a class="page-link" href="#" id="equiposPrev">&laquo;</a></li>
+                                    <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                                        <li class="page-item <?= $i == 1 ? 'active' : '' ?>"><a class="page-link" href="#" data-pagina="<?= $i ?>"><?= $i ?></a></li>
+                                    <?php endfor; ?>
+                                    <li class="page-item"><a class="page-link" href="#" id="equiposNext">&raquo;</a></li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -241,6 +410,13 @@
         let equipoSeleccionado = null;
         let puertoSeleccionado = null;
         let dispositivoSeleccionado = null;
+        let equiposOriginal = <?php echo json_encode($equipos); ?>;
+        let equiposFiltrados = equiposOriginal.slice(); // array filtrado actual
+        let equiposPorPagina = 6;
+        let paginaActual = 1;
+        let dispositivosOriginal = [];
+        let dispositivosPorPagina = 2;
+        let paginaActualDispositivo = 1;
 
         $(document).ready(function() {
             // Inicializar tooltips
@@ -278,7 +454,7 @@
                 gestionarPuerto();
             });
 
-            // Nuevo: Marcar puerto como dañado
+            // Marcar puerto como dañado
             $('#btnMarcarDanado').on('click', function() {
                 if (!puertoSeleccionado) return;
                 Swal.fire({
@@ -320,161 +496,11 @@
                     }
                 });
             });
-        });
 
-        // Función para filtrar equipos
-        function filtrarEquipos() {
-            const textoBusqueda = ($('#buscarEquipo').val() || '').toLowerCase();
-            const tipoSeleccionado = ($('#filtroTipo').val() || '').toLowerCase();
-            const oficinaSeleccionada = $('#filtroOficina').val();
-            const soloDisponibles = $('#soloDisponibles').is(':checked');
-
-            let equiposVisibles = 0;
-            let equiposTotales = 0;
-
-            $('.equipo-item').each(function() {
-                const $equipo = $(this);
-                // Conversión segura a string para evitar errores
-                const tipo = String($equipo.data('tipo') ?? '').toLowerCase();
-                const serial = String($equipo.data('serial') ?? '').toLowerCase();
-                const descripcion = String($equipo.data('descripcion') ?? '').toLowerCase();
-                const oficina = String($equipo.data('oficina') ?? '');
-                const disponible = $equipo.data('disponible');
-
-                equiposTotales++;
-
-                // Aplicar filtros
-                let coincide = true;
-
-                // Filtro de texto (nombre, serial, descripción)
-                if (textoBusqueda &&
-                    !tipo.includes(textoBusqueda) &&
-                    !serial.includes(textoBusqueda) &&
-                    !descripcion.includes(textoBusqueda)) {
-                    coincide = false;
-                }
-
-                // Filtro de tipo
-                if (tipoSeleccionado && tipo !== tipoSeleccionado) {
-                    coincide = false;
-                }
-
-                // Filtro de oficina
-                if (oficinaSeleccionada && oficina != oficinaSeleccionada) {
-                    coincide = false;
-                }
-
-                // Filtro de disponibilidad
-                if (soloDisponibles && !disponible) {
-                    coincide = false;
-                }
-
-                if (coincide) {
-                    $equipo.show();
-                    equiposVisibles++;
-                } else {
-                    $equipo.hide();
-                }
-            });
-
-            // Actualizar contador
-            actualizarContadorEquipos(equiposVisibles, equiposTotales);
-        }
-
-        // Función para actualizar el contador de equipos
-        function actualizarContadorEquipos(visibles, totales) {
-            let texto = '';
-            if (visibles === totales) {
-                texto = `Mostrando todos los ${totales} equipos`;
-            } else {
-                texto = `Mostrando ${visibles} de ${totales} equipos`;
-            }
-            $('#contadorEquipos').text(texto);
-        }
-
-        // Función para cargar equipos por oficina
-        function cargarEquiposPorOficina(idOficina) {
-            $('#loadingEquipos').show();
-
-            $.ajax({
-                url: "",
-                type: "POST",
-                data: {
-                    peticion: 'obtener_equipos_oficina',
-                    id_oficina: idOficina
-                },
-                success: function(respuesta) {
-                    $('#loadingEquipos').hide();
-                    try {
-                        const data = JSON.parse(respuesta);
-                        if (data.resultado === "success") {
-                            actualizarListaEquipos(data.equipos);
-                        } else {
-                            mostrarAlerta('error', data.mensaje || 'Error al cargar los equipos');
-                        }
-                    } catch (e) {
-                        console.error("Error parsing JSON: ", e);
-                        mostrarAlerta('error', 'Error al procesar la respuesta del servidor');
-                    }
-                },
-                error: function() {
-                    $('#loadingEquipos').hide();
-                    mostrarAlerta('error', 'Error de conexión con el servidor');
-                }
-            });
-        }
-
-        // Función para actualizar la lista de equipos
-        function actualizarListaEquipos(equipos) {
-            let html = '';
-
-            if (equipos.length === 0) {
-                html = `<div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No se encontraron equipos
-                    </div>
-                </div>`;
-            } else {
-                equipos.forEach(equipo => {
-                    html += `<div class="col-12 mb-2 equipo-item" 
-                         data-id="${equipo.id_equipo}" 
-                         data-tipo="${equipo.tipo_equipo}" 
-                         data-serial="${equipo.serial}"
-                         data-descripcion="${equipo.descripcion ? htmlspecialchars(equipo.descripcion) : ''}"
-                         data-oficina="${equipo.id_oficina}"
-                         data-disponible="true">
-                        <div class="card equipo-card">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center">
-                                    <i class="fa-solid fa-computer me-2 fs-4"></i>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-0">${equipo.tipo_equipo}</h6>
-                                        <small class="text-muted">Serial: ${equipo.serial}</small>
-                                        ${equipo.descripcion ? `<br><small class="text-muted">${equipo.descripcion}</small>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-            }
-
-            $('#contenedorEquipos').html(html);
-            actualizarContadorEquipos(equipos.length, equipos.length);
-        }
-
-        // Función helper para escape de HTML (similar a htmlspecialchars de PHP)
-        function htmlspecialchars(str) {
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        // Event listeners para los filtros
-        $(document).ready(function() {
+            // Inicializar paginación de equipos
+            renderEquiposPaginados(equiposOriginal, paginaActual);
+            actualizarPaginacionEquipos(equiposOriginal);
+            
             // Inicializar contador
             actualizarContadorEquipos($('.equipo-item:visible').length, $('.equipo-item').length);
 
@@ -550,43 +576,10 @@
         }
 
         function mostrarDispositivos(dispositivos, tipo) {
-            let html = '';
-
-            if (!dispositivos || dispositivos.length === 0) {
-                html = `<div class="col-12 text-center">
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle"></i> No se encontraron ${tipo === 'patch' ? 'patch panels' : 'switches'} en este piso
-                            </div>
-                        </div>`;
-            } else {
-                dispositivos.forEach(dispositivo => {
-                    html += `<div class="col-md-12 col-lg-12 mb-4">
-                                <div class="card h-100 dispositivo-card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">${dispositivo.nombre || 'Dispositivo'}</h6>
-                                        <small class="text-muted">Serial: ${dispositivo.serial || 'N/A'}</small>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between mb-4">
-                                            <span class="badge bg-info">${dispositivo.cantidad_puertos} Puertos</span>
-                                            <span class="badge bg-secondary">${dispositivo.puertos_ocupados} Ocupados</span>
-                                        </div>
-                                        <div class="puertos-container">
-                                            ${generarPuertos(dispositivo.puertos, dispositivo.codigo_bien, tipo)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                });
-            }
-
-            $('#contenedorDispositivos').html(html);
-
-            // Reinicializar tooltips para los nuevos elementos
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
+            dispositivosOriginal = dispositivos || [];
+            paginaActualDispositivo = 1;
+            renderDispositivosPaginados(dispositivosOriginal, paginaActualDispositivo, tipo);
+            actualizarPaginacionDispositivos(dispositivosOriginal);
         }
 
         function generarPuertos(puertos, codigoDispositivo, tipoDispositivo) {
@@ -686,6 +679,24 @@
         function mostrarModalGestionPuerto() {
             if (!puertoSeleccionado || !equipoSeleccionado) return;
 
+            // Verifica si el equipo ya está conectado
+            let equipoId = equipoSeleccionado.id;
+            let equipoOcupado = false;
+            <?php
+            // Genera array JS de equipos conectados
+            $jsEquiposConectados = json_encode($equiposConectados);
+            ?>
+            let equiposConectados = <?php echo $jsEquiposConectados; ?>;
+            if (equiposConectados.includes(equipoId)) {
+                equipoOcupado = true;
+            }
+
+            // Si el equipo ya está conectado y se intenta conectar a otro puerto, mostrar error
+            if (equipoOcupado && !puertoSeleccionado.ocupado) {
+                mostrarAlerta('error', 'Este equipo ya está conectado a un puerto y no puede conectarse a otro.');
+                return;
+            }
+
             const titulo = puertoSeleccionado.ocupado ?
                 `Desconectar Equipo del Puerto #${puertoSeleccionado.numero}` :
                 `Conectar Equipo al Puerto #${puertoSeleccionado.numero}`;
@@ -705,6 +716,7 @@
                         <p><strong>Tipo:</strong> ${equipoSeleccionado.tipo}</p>
                         <p><strong>Serial:</strong> ${equipoSeleccionado.serial}</p>
                         <p><strong>ID:</strong> ${equipoSeleccionado.id}</p>
+                        ${equipoOcupado ? '<span class="badge bg-danger">Ocupado</span>' : ''}
                     </div>
                 </div>
             `;
@@ -720,6 +732,25 @@
             if (!puertoSeleccionado || !equipoSeleccionado) return;
 
             const accion = puertoSeleccionado.ocupado ? 'desconectar' : 'conectar';
+
+            // Verificación adicional para evitar conectar un equipo ya conectado
+            if (puertoSeleccionado.ocupado === false) {
+                // Verificar si el equipo ya está conectado en otro puerto
+                let equipoYaConectado = false;
+                <?php
+                // Generar array JS de equipos conectados desde PHP
+                $jsEquiposConectados = json_encode($equiposConectados);
+                ?>
+                let equiposConectados = <?php echo $jsEquiposConectados; ?>;
+                if (equiposConectados.includes(equipoSeleccionado.id)) {
+                    equipoYaConectado = true;
+                }
+                
+                if (equipoYaConectado) {
+                    mostrarAlerta('error', 'Este equipo ya está conectado a otro puerto');
+                    return;
+                }
+            }
 
             $.ajax({
                 url: "",
@@ -737,8 +768,10 @@
                         if (data.estado === 1) {
                             mostrarAlerta('success', data.mensaje);
                             $('#modalDetalles').modal('hide');
-                            cargarInfraestructura(); // Recargar la vista
+                            cargarInfraestructura(); // Recargar la vista de dispositivos
                             resetSelecciones();
+                            // Recargar equipos para actualizar badges
+                            recargarEquipos();
                         } else {
                             mostrarAlerta('error', data.mensaje);
                         }
@@ -749,6 +782,29 @@
                 },
                 error: function() {
                     mostrarAlerta('error', 'Error de conexión con el servidor');
+                }
+            });
+        }
+
+        // Nueva función para recargar equipos y actualizar la vista
+        function recargarEquipos() {
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: { peticion: "consultar_equipos_estado" },
+                success: function(respuesta) {
+                    try {
+                        const data = JSON.parse(respuesta);
+                        if (data.resultado === "consultar" && Array.isArray(data.datos)) {
+                            equiposOriginal = data.datos;
+                            renderEquiposPaginados(equiposOriginal, paginaActual);
+                            actualizarPaginacionEquipos(equiposOriginal);
+                        }
+                    } catch (e) {
+                        // Si el backend no tiene este endpoint, puedes usar el endpoint normal
+                        // o recargar la página como fallback
+                        // location.reload();
+                    }
                 }
             });
         }
@@ -781,154 +837,288 @@
                 timer: 3000
             });
         }
+
+        // Función para filtrar equipos
+        function filtrarEquipos() {
+            const textoBusqueda = ($('#buscarEquipo').val() || '').toLowerCase();
+            const tipoSeleccionado = ($('#filtroTipo').val() || '').toLowerCase();
+            const oficinaSeleccionada = $('#filtroOficina').val();
+            const soloDisponibles = $('#soloDisponibles').is(':checked');
+
+            equiposFiltrados = equiposOriginal.filter(function(equipo) {
+                let coincide = true;
+                if (textoBusqueda &&
+                    !(equipo.tipo_equipo && equipo.tipo_equipo.toLowerCase().includes(textoBusqueda)) &&
+                    !(equipo.serial && equipo.serial.toLowerCase().includes(textoBusqueda)) &&
+                    !(equipo.descripcion && equipo.descripcion.toLowerCase().includes(textoBusqueda))) {
+                    coincide = false;
+                }
+                if (tipoSeleccionado && equipo.tipo_equipo.toLowerCase() !== tipoSeleccionado) {
+                    coincide = false;
+                }
+                if (oficinaSeleccionada && equipo.id_oficina != oficinaSeleccionada) {
+                    coincide = false;
+                }
+                if (soloDisponibles && equipo.ocupado == 1) {
+                    coincide = false;
+                }
+                return coincide;
+            });
+
+            actualizarContadorEquipos(equiposFiltrados.length, equiposOriginal.length);
+            paginaActual = 1;
+            renderEquiposPaginados(equiposFiltrados, paginaActual);
+            actualizarPaginacionEquipos(equiposFiltrados);
+        }
+
+        function actualizarContadorEquipos(visibles, totales) {
+            let texto = '';
+            if (visibles === totales) {
+                texto = `Mostrando todos los ${totales} equipos`;
+            } else {
+                texto = `Mostrando ${visibles} de ${totales} equipos`;
+            }
+            $('#contadorEquipos').text(texto);
+        }
+
+        // Función para cargar equipos por oficina
+        function cargarEquiposPorOficina(idOficina) {
+            $('#loadingEquipos').show();
+
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: {
+                    peticion: 'obtener_equipos_oficina',
+                    id_oficina: idOficina
+                },
+                success: function(respuesta) {
+                    $('#loadingEquipos').hide();
+                    try {
+                        const data = JSON.parse(respuesta);
+                        if (data.resultado === "success") {
+                            actualizarListaEquipos(data.equipos);
+                        } else {
+                            mostrarAlerta('error', data.mensaje || 'Error al cargar los equipos');
+                        }
+                    } catch (e) {
+                        console.error("Error parsing JSON: ", e);
+                        mostrarAlerta('error', 'Error al procesar la respuesta del servidor');
+                    }
+                },
+                error: function() {
+                    $('#loadingEquipos').hide();
+                    mostrarAlerta('error', 'Error de conexión con el servidor');
+                }
+            });
+        }
+
+        // Función para actualizar la lista de equipos
+        function actualizarListaEquipos(equipos) {
+            let html = '';
+
+            // Obtener IDs de equipos conectados
+            let equiposConectados = [];
+            <?php
+            $jsEquiposConectados = json_encode($equiposConectados);
+            ?>
+            equiposConectados = <?php echo $jsEquiposConectados; ?>;
+
+            if (equipos.length === 0) {
+                html = `<div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No se encontraron equipos
+                    </div>
+                </div>`;
+            } else {
+                equipos.forEach(equipo => {
+                    const conectado = equiposConectados.includes(equipo.id_equipo);
+                    html += `<div class="col-12 mb-2 equipo-item" 
+                         data-id="${equipo.id_equipo}" 
+                         data-tipo="${equipo.tipo_equipo}" 
+                         data-serial="${equipo.serial}"
+                         data-descripcion="${equipo.descripcion ? htmlspecialchars(equipo.descripcion) : ''}"
+                         data-oficina="${equipo.id_oficina}"
+                         data-disponible="${conectado ? 'false' : 'true'}">
+                        <div class="card equipo-card ${conectado ? 'equipo-conectado' : ''}">
+                            <div class="card-body p-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-computer me-2 fs-4"></i>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">${equipo.tipo_equipo}</h6>
+                                        <small class="text-muted">Serial: ${equipo.serial}</small>
+                                        ${equipo.descripcion ? `<br><small class="text-muted">${equipo.descripcion}</small>` : ''}
+                                    </div>
+                                    ${conectado ? `<span class="badge bg-danger ms-2">Ocupado</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            $('#contenedorEquipos').html(html);
+            actualizarContadorEquipos(equipos.length, equipos.length);
+        }
+
+        // Función helper para escape de HTML (similar a htmlspecialchars de PHP)
+        function htmlspecialchars(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // PAGINACIÓN DE EQUIPOS
+        function renderEquiposPaginados(equipos, pagina = 1) {
+            const inicio = (pagina - 1) * equiposPorPagina;
+            const fin = inicio + equiposPorPagina;
+            const equiposPagina = equipos.slice(inicio, fin);
+            let html = '';
+
+            equiposPagina.forEach(function(equipo) {
+                // Usa el campo ocupado para mostrar el badge y la clase
+                const conectado = equipo.ocupado == 1;
+                html += `<div class="col-12 mb-2 equipo-item"
+                    data-id="${equipo.id_equipo}"
+                    data-tipo="${equipo.tipo_equipo}"
+                    data-serial="${equipo.serial}"
+                    data-descripcion="${equipo.descripcion ? htmlspecialchars(equipo.descripcion) : ''}"
+                    data-oficina="${equipo.id_oficina ?? ''}"
+                    data-disponible="${conectado ? 'false' : 'true'}">
+                    <div class="card equipo-card ${conectado ? 'equipo-conectado' : ''}">
+                        <div class="card-body p-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fa-solid fa-computer me-2 fs-4"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">${equipo.tipo_equipo}</h6>
+                                    <small class="text-muted">Serial: ${equipo.serial}</small>
+                                    ${equipo.descripcion ? `<br><small class="text-muted">${equipo.descripcion}</small>` : ''}
+                                </div>
+                                ${conectado ? `<span class="badge bg-danger ms-2">Ocupado</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            $('#contenedorEquipos').html(html);
+            actualizarContadorEquipos(equiposPagina.length, equipos.length);
+            // Actualizar paginación activa
+            $('#equiposPaginacion .page-item').removeClass('active');
+            $('#equiposPaginacion .page-link[data-pagina="' + pagina + '"]').parent().addClass('active');
+        }
+
+        function actualizarPaginacionEquipos(equipos) {
+            const totalPaginas = Math.ceil(equipos.length / equiposPorPagina);
+            let pagHtml = `<li class="page-item"><a class="page-link" href="#" id="equiposPrev">&laquo;</a></li>`;
+            for (let i = 1; i <= totalPaginas; i++) {
+                pagHtml += `<li class="page-item ${i === paginaActual ? 'active' : ''}"><a class="page-link" href="#" data-pagina="${i}">${i}</a></li>`;
+            }
+            pagHtml += `<li class="page-item"><a class="page-link" href="#" id="equiposNext">&raquo;</a></li>`;
+            $('#equiposPaginacion').html(pagHtml);
+        }
+
+        // Evento para paginación
+        $(document).on('click', '#equiposPaginacion .page-link', function(e) {
+            e.preventDefault();
+            const pagina = $(this).data('pagina');
+            if (pagina) {
+                paginaActual = pagina;
+                renderEquiposPaginados(equiposFiltrados, paginaActual);
+            } else if ($(this).attr('id') === 'equiposPrev') {
+                if (paginaActual > 1) {
+                    paginaActual--;
+                    renderEquiposPaginados(equiposFiltrados, paginaActual);
+                }
+            } else if ($(this).attr('id') === 'equiposNext') {
+                const totalPaginas = Math.ceil(equiposFiltrados.length / equiposPorPagina);
+                if (paginaActual < totalPaginas) {
+                    paginaActual++;
+                    renderEquiposPaginados(equiposFiltrados, paginaActual);
+                }
+            }
+        });
+
+        // PAGINACIÓN DE DISPOSITIVOS
+        function renderDispositivosPaginados(dispositivos, pagina = 1, tipoDispositivo = 'patch') {
+            const inicio = (pagina - 1) * dispositivosPorPagina;
+            const fin = inicio + dispositivosPorPagina;
+            const dispositivosPagina = dispositivos.slice(inicio, fin);
+            let html = '';
+
+            if (!dispositivosPagina || dispositivosPagina.length === 0) {
+                html = `<div class="col-12 text-center">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> No se encontraron ${tipoDispositivo === 'patch' ? 'patch panels' : 'switches'} en este piso
+                            </div>
+                        </div>`;
+            } else {
+                dispositivosPagina.forEach(dispositivo => {
+                    html += `<div class="col-md-12 col-lg-12 mb-4">
+                                <div class="card h-100 dispositivo-card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">${dispositivo.nombre || 'Dispositivo'}</h6>
+                                        <small class="text-muted">Serial: ${dispositivo.serial || 'N/A'}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-4">
+                                            <span class="badge bg-info">${dispositivo.cantidad_puertos} Puertos</span>
+                                            <span class="badge bg-secondary">${dispositivo.puertos_ocupados} Ocupados</span>
+                                        </div>
+                                        <div class="puertos-container">
+                                            ${generarPuertos(dispositivo.puertos, dispositivo.codigo_bien, tipoDispositivo)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                });
+            }
+
+            $('#contenedorDispositivos').html(html);
+
+            // Reinicializar tooltips para los nuevos elementos
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Actualizar paginación activa
+            $('#dispositivosPaginacion .page-item').removeClass('active');
+            $('#dispositivosPaginacion .page-link[data-pagina="' + pagina + '"]').parent().addClass('active');
+        }
+
+        function actualizarPaginacionDispositivos(dispositivos) {
+            const totalPaginas = Math.ceil(dispositivos.length / dispositivosPorPagina);
+            let pagHtml = `<li class="page-item"><a class="page-link" href="#" id="dispositivosPrev">&laquo;</a></li>`;
+            for (let i = 1; i <= totalPaginas; i++) {
+                pagHtml += `<li class="page-item ${i === paginaActualDispositivo ? 'active' : ''}"><a class="page-link" href="#" data-pagina="${i}">${i}</a></li>`;
+            }
+            pagHtml += `<li class="page-item"><a class="page-link" href="#" id="dispositivosNext">&raquo;</a></li>`;
+            $('#dispositivosPaginacion').html(pagHtml);
+        }
+
+        // Evento para paginación de dispositivos
+        $(document).on('click', '#dispositivosPaginacion .page-link', function(e) {
+            e.preventDefault();
+            const pagina = $(this).data('pagina');
+            if (pagina) {
+                paginaActualDispositivo = pagina;
+                renderDispositivosPaginados(dispositivosOriginal, paginaActualDispositivo, $('#tipoDispositivo').val());
+            } else if ($(this).attr('id') === 'dispositivosPrev') {
+                if (paginaActualDispositivo > 1) {
+                    paginaActualDispositivo--;
+                    renderDispositivosPaginados(dispositivosOriginal, paginaActualDispositivo, $('#tipoDispositivo').val());
+                }
+            } else if ($(this).attr('id') === 'dispositivosNext') {
+                const totalPaginas = Math.ceil(dispositivosOriginal.length / dispositivosPorPagina);
+                if (paginaActualDispositivo < totalPaginas) {
+                    paginaActualDispositivo++;
+                    renderDispositivosPaginados(dispositivosOriginal, paginaActualDispositivo, $('#tipoDispositivo').val());
+                }
+            }
+        });
     </script>
-
-    <style>
-
-        /* Estilos para el panel de filtros */
-#filtrosEquipos .card-body {
-    padding: 1rem;
-}
-
-/* Estilos para el contador de equipos */
-#contadorEquipos {
-    font-weight: 500;
-}
-
-/* Estilos para la barra de desplazamiento */
-#contenedorEquipos::-webkit-scrollbar {
-    width: 8px;
-}
-
-#contenedorEquipos::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-#contenedorEquipos::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-#contenedorEquipos::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-
-/* Estilos para los equipos */
-.equipo-card {
-    transition: all 0.2s ease;
-    border-left: 4px solid transparent;
-}
-
-.equipo-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-left-color: #0d6efd;
-}
-
-.equipo-item.selected .equipo-card {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
-    border-left-color: #2196f3;
-}
-        .puerto {
-            flex: 1;
-            min-width: 0;
-            aspect-ratio: 1/1;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 2px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .grupo-separador {
-            flex: 0 0 10px;
-        }
-
-        .puerto:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .puerto i {
-            font-size: 1.2rem;
-            margin-bottom: 3px;
-        }
-
-        .puerto small {
-            font-size: 0.7rem;
-        }
-
-        .puerto.disponible {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .puerto.ocupado {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .puerto.danado {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .dispositivo-card {
-            transition: transform 0.3s ease;
-        }
-
-        .dispositivo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .puertos-container {
-            width: 100%;
-            overflow: visible;
-            max-height: none;
-        }
-
-        .d-flex.flex-wrap {
-            flex-wrap: nowrap !important;
-            width: 100%;
-        }
-
-        .fila-puertos {
-            width: 100%;
-            display: flex;
-            flex-wrap: nowrap;
-        }
-
-        .equipo-card {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .equipo-card:hover {
-            background-color: #f8f9fa;
-        }
-
-        .equipo-item.selected .equipo-card {
-            background-color: #e3f2fd;
-            border-color: #2196f3;
-        }
-
-        .equipo-card.equipo-conectado {
-            background-color: #ffeaea !important;
-            border-left-color: #dc3545 !important;
-            border-color: #dc3545 !important;
-        }
-        .equipo-card.equipo-conectado:hover {
-            background-color: #ffd6d6 !important;
-        }
-    </style>
 </body>
-
 </html>
