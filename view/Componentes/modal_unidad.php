@@ -7,25 +7,28 @@
         <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-         <div class="row justify-content-center" id="Fila1">
+        <div class="row justify-content-center" id="Fila1">
 
-         </div>
+        </div>
         <div class="row justify-content-center" id="Fila2">
           <div class="col-6">
             <div class="form-floating mb-3 mt-4">
-              <select class="form-select" name="id_dependencia" id="id_dependencia">
+              <select class="form-select" name="id_dependencia" id="id_dependencia" disabled>
               </select>
-              <span id="sid_dependencia"></span>
+              <span id="sid_dependencia" class="text-danger small"></span>
               <label for="id_dependencia" class="form-label">Dependencia</label>
             </div>
           </div>
           <div class="col-6">
             <div class="form-floating mb-3 mt-4">
-              <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="200">
-              <span id="snombre"></span>
+              <input placeholder="Ejemplo: Unidad Central (mín. 4 máx. 45 caracteres)"
+                class="form-control" name="nombre" type="text"
+                id="nombre" maxlength="200" disabled>
+              <span id="snombre" class="text-danger small"></span>
               <label for="nombre" class="form-label">Nombre de la Unidad</label>
             </div>
           </div>
+
         </div>
       </div>
 

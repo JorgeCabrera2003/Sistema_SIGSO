@@ -91,7 +91,7 @@ function enviaAjax(datos) {
 		data: datos,
 		processData: false,
 		cache: false,
-		beforeSend: function () { },
+		beforeSend: function () {},
 		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
 		success: function (respuesta) {
 			console.log(respuesta);
@@ -140,51 +140,88 @@ function enviaAjax(datos) {
 				mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
 			}
 		},
-		complete: function () { },
+		complete: function () {},
 	});
 }
 
 
 function capaValidar() {
+	// --- VALIDAR SELECT ---
+	$('#id_dependencia').on('change', function () {
+		if ($(this).val() === 'default') {
+			estadoSelect(this, '#sid_dependencia',
+				"Debe seleccionar una dependencia válida", 0);
+			$("#nombre").prop("disabled", true); // sigue bloqueado
+		} else {
+			estadoSelect(this, '#sid_dependencia', "", 1);
+			$("#nombre").prop("disabled", false); // desbloquea nombre
+		}
+	});
+
+	// --- VALIDAR NOMBRE ---
 	$("#nombre").on("keypress", function (e) {
 		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
+
 	$("#nombre").on("keyup", function () {
-		validarKeyUp(
-			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#snombre"),
-			"El nombre de la unidad debe tener de 4 a 45 carácteres"
+		let valido = validarKeyUp(
+			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $(this), $("#snombre"),
+			"El nombre debe tener entre 4 y 45 caracteres. " +
+			"No se permiten símbolos extraños."
 		);
-	});
 
-	$('#id_dependencia').on('change', function () {
-
-		if ($(this).val() === 'default') {
-
-			estadoSelect(this, '#sid_dependencia', "Seleccione una dependencia", 0);
+		if (valido) {
+			$("#enviar").prop("disabled", false); // habilita enviar
 		} else {
-			estadoSelect(this, '#sid_dependencia', "", 1);
+			$("#enviar").prop("disabled", true); // bloquea enviar
 		}
 	});
 }
 
 function vistaPermiso(permisos = null) {
 
-if(Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null){
+	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 
-	$('.modificar').remove();
-	$('.eliminar').remove();
-
-} else {
-
-	if (permisos['unidad']['modificar']['estado'] == '0') {
 		$('.modificar').remove();
+		$('.eliminar').remove();
+
+	} else {
+
+		if (permisos['unidad']['modificar']['estado'] == '0') {
+			$('.modificar').remove();
+		}
+
+		if (permisos['unidad']['eliminar']['estado'] == '0') {
+			$('.eliminar').remove();
+		}
+	}
+};
+
+function validarKeyUp(expresion, input, span, mensaje) {
+	let valor = $(input).val();
+	let errores = [];
+
+	if (valor.length < 4) {
+		errores.push("Debe tener al menos 4 caracteres.");
+	}
+	if (valor.length > 45) {
+		errores.push("No puede superar los 45 caracteres.");
+	}
+	if (!expresion.test(valor)) {
+		errores.push("Solo se permiten letras, números y guiones.");
 	}
 
-	if (permisos['unidad']['eliminar']['estado'] == '0') {
-		$('.eliminar').remove();
+	if (errores.length > 0) {
+		$(input).removeClass("is-valid").addClass("is-invalid");
+		$(span).html(errores.join("<br>"));
+		return 0;
+	} else {
+		$(input).removeClass("is-invalid").addClass("is-valid");
+		$(span).html("");
+		return 1;
 	}
 }
-};
+
 
 function validarenvio() {
 
@@ -226,9 +263,9 @@ function crearDataTable(arreglo) {
 	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'id_unidad' },
-			{ data: 'dependencia' },
-			{ data: 'nombre_unidad' },
+			{data: 'id_unidad'},
+			{data: 'dependencia'},
+			{data: 'nombre_unidad'},
 			{
 				data: null, render: function () {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar">
@@ -247,15 +284,10 @@ function crearDataTable(arreglo) {
 
 
 function limpia() {
-	$("#nombre").removeClass("is-valid is-invalid");
-	$("#nombre").val("");
-
-	$("#id_dependencia").removeClass("is-valid is-invalid");
-	$("#id_dependencia").val("default");
-
-	$("#nombre").prop('readOnly', false);
-	$("#id_dependencia").prop('disabled', false);
-	$('#enviar').prop('disabled', false);
+	$("#nombre").removeClass("is-valid is-invalid").val("").prop("disabled", true);
+	$("#id_dependencia").removeClass("is-valid is-invalid").val("default").prop("disabled", false);
+	$("#snombre, #sid_dependencia").html("");
+	$('#enviar').prop('disabled', true);
 }
 
 
