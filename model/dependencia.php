@@ -8,14 +8,15 @@ class Dependencia extends Conexion
     private $nombre;
     private $id_ente;
     private $ente;
+    private $conexion;
 
     public function __construct()
     {
-        $this->id;
-        $this->nombre;
-        $this->id_ente;
-        $this->ente;
-
+        $this->id = NULL;
+        $this->nombre = "";
+        $this->id_ente = NULL;
+        $this->ente = NULL;
+        $this->conexionion = NULL;
     }
 
     public function set_id($id)
@@ -69,13 +70,13 @@ class Dependencia extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
 
-            $this->conex->beginTransaction();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM dependencia WHERE id = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
             if ($stm->rowCount() > 0) {
@@ -84,9 +85,9 @@ class Dependencia extends Conexion
             } else {
                 $dato['bool'] = 0;
             }
-            $this->conex->commit();
+            $this->conexion->commit();
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
@@ -103,46 +104,47 @@ class Dependencia extends Conexion
         if ($bool['bool'] == 0) {
             try {
 
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
 
-                $this->conex->beginTransaction();
+                $this->conexion->beginTransaction();
                 $this->LlamarEnte()->set_id($this->get_id_ente());
                 $verificar_ente = $this->LlamarEnte()->Transaccion(['peticion' => 'validar']);
 
                 if ($verificar_ente['bool'] == 1 && $verificar_ente['arreglo']['estatus'] == 1) {
 
                     $query = "INSERT INTO dependencia(id, id_ente, nombre)
-                VALUES (NULL, :id_ente, :nombre)";
+                VALUES (:id, :id_ente, :nombre)";
 
-                    $stm = $this->conex->prepare($query);
+                    $stm = $this->conexion->prepare($query);
+                    $stm->bindParam(":id", $this->id);
                     $stm->bindParam(":nombre", $this->nombre);
                     $stm->bindParam(":id_ente", $this->id_ente);
                     $stm->execute();
                     $dato['resultado'] = "registrar";
                     $dato['estado'] = 1;
                     $dato['mensaje'] = "Se registró la dependencia exitosamente";
-                    $this->conex->commit();
+                    $this->conexion->commit();
                 } else {
-                    $this->conex->rollBack();
+                    $this->conexion->rollBack();
                     $dato['resultado'] = "error";
                     $dato['estado'] = -1;
                     $dato['mensaje'] = "No existe el Ente seleccionado";
                 }
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
         $this->DestruirEnte();
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -151,16 +153,16 @@ class Dependencia extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $this->LlamarEnte()->set_id($this->get_id_ente());
             $verificar_ente = $this->LlamarEnte()->Transaccion(['peticion' => 'validar']);
             if ($verificar_ente['bool'] == 1 && $verificar_ente['arreglo']['estatus'] == 1) {
                 $query = "UPDATE dependencia SET nombre = :nombre, id_ente = :id_ente
                 WHERE id = :id";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->bindParam(":id_ente", $this->id_ente);
@@ -168,10 +170,10 @@ class Dependencia extends Conexion
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se modificaron los datos de la dependencia exitosamente";
-                $this->conex->commit();
+                $this->conexion->commit();
 
             } else {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = "No existe el Ente seleccionado";
@@ -179,12 +181,12 @@ class Dependencia extends Conexion
             }
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -195,12 +197,12 @@ class Dependencia extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
 
                 $query = "UPDATE dependencia SET estatus = 0 WHERE id = :id";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
@@ -216,7 +218,7 @@ class Dependencia extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -225,15 +227,15 @@ class Dependencia extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT dep.id, dep.id_ente,
             dep.nombre, ente.nombre AS ente
             FROM dependencia dep
             INNER JOIN ente ON dep.id_ente = ente.id
             WHERE dep.estatus = 1";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -241,7 +243,7 @@ class Dependencia extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -249,10 +251,10 @@ class Dependencia extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT id_tipo_servicio, nombre_tipo_servicio AS nombre_servicio FROM tipo_servicio WHERE estatus = 1";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_areas";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -260,7 +262,7 @@ class Dependencia extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -274,7 +276,7 @@ class Dependencia extends Conexion
 
             case 'validar':
                 $validar = $this->Validar();
-                $this->Cerrar_Conexion($this->conex, $none);
+                $this->Cerrar_Conexion($this->conexion, $none);
                 return $validar;
 
             case 'consultar':

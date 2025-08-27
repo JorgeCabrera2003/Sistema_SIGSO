@@ -46,7 +46,6 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
-
 				$unidad->set_nombre($_POST["nombre"]);
 				$unidad->set_id_dependencia($_POST["id_dependencia"]);
 				$peticion["peticion"] = "registrar";

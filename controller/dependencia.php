@@ -44,7 +44,7 @@ if (is_file("view/" . $page . ".php")) {
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['dependencia']['registrar']['estado']) && $permisos['dependencia']['registrar']['estado'] == "1") {
 
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["ente"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -54,7 +54,8 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			} else {
-
+				
+				$dependencia->set_id(generarID($_POST["ente"],$_POST["nombre"]));
 				$dependencia->set_nombre($_POST["nombre"]);
 				$dependencia->set_id_ente($_POST["ente"]);
 				$peticion["peticion"] = "registrar";
@@ -89,12 +90,12 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['dependencia']['modificar']['estado']) && $permisos['dependencia']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["ente"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Ente no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+			} else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -132,7 +133,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['dependencia']['eliminar']['estado']) && $permisos['dependencia']['eliminar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

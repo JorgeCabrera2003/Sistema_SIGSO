@@ -61,7 +61,7 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
-
+				$ente->set_id(generarID($_POST["nombre"]));
 				$ente->set_nombre($_POST["nombre"]);
 				$ente->set_direccion($_POST["direccion"]);
 				$ente->set_telefono($_POST["telefono"]);
@@ -70,7 +70,7 @@ if (is_file("view/" . $page . ".php")) {
 				$peticion["peticion"] = "registrar";
 				$json = $ente->Transaccion($peticion);
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente con ID:".$ente->get_id();
 					$msgN = "Se registró un Nuevo Ente";
 					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
 				} else {
@@ -97,9 +97,9 @@ if (is_file("view/" . $page . ".php")) {
 
 
 	if (isset($_POST["modificar"])) {
-		if (isset($permisos['ente']['registrar']['estado']) && $permisos['ente']['registrar']['estado'] == '1') {
+		if (isset($permisos['ente']['modificar']['estado']) && $permisos['ente']['modificar']['estado'] == '1') {
 
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_ente"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -162,9 +162,9 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["eliminar"])) {
-		if (isset($permisos['ente']['registrar']['estado']) && $permisos['ente']['registrar']['estado'] == '1') {
+		if (isset($permisos['ente']['eliminar']['estado']) && $permisos['ente']['eliminar']['estado'] == '1') {
 
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_ente"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

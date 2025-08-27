@@ -1,7 +1,7 @@
 // Definir variables globales para validación
 const regexValidacion = {
     nombre: /^[0-9a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\s\-.]{4,45}$/,
-    id: /^[0-9]{1,11}$/
+    id: /^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/
 };
 
 const mensajesError = {
@@ -317,7 +317,7 @@ function crearDataTable(arreglo) {
                 }
             }],
         language: {
-            url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json",
+            url: idiomaTabla
         }
     });
 }
@@ -334,6 +334,7 @@ function limpia() {
     $("span.invalid-feedback").text("");
     
     // Restablecer estado inicial de habilitación
+    $("#ente").val('default');
     $("#ente").prop('disabled', false);
     $("#nombre").prop('disabled', true);
     $("#enviar").prop('disabled', true);
