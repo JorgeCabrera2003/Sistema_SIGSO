@@ -2,7 +2,8 @@
 
 require_once "model/conexion.php";
 
-class punto_conexion extends Conexion {
+class punto_conexion extends Conexion
+{
 
     private $conex;
     private $id_punto_conexion;
@@ -10,82 +11,91 @@ class punto_conexion extends Conexion {
     private $codigo_patch_panel;
     private $puerto_patch_panel;
 
-    public function __construct() {
+    public function __construct()
+    {
 
         $this->id_punto_conexion = "";
         $this->codigo_patch_panel = "";
         $this->id_equipo = "";
         $this->puerto_patch_panel = "";
-
     }
 
 
-    public function get_id_punto_conexion() {
+    public function get_id_punto_conexion()
+    {
         return $this->id_punto_conexion;
     }
-    public function set_id_punto_conexion($id_punto_conexion) {
+    public function set_id_punto_conexion($id_punto_conexion)
+    {
         $this->id_punto_conexion = $id_punto_conexion;
     }
 
-    public function get_codigo_patch_panel() {
+    public function get_codigo_patch_panel()
+    {
         return $this->codigo_patch_panel;
     }
-    public function set_codigo_patch_panel($codigo_patch_panel) {
+    public function set_codigo_patch_panel($codigo_patch_panel)
+    {
         $this->codigo_patch_panel = $codigo_patch_panel;
     }
 
-    public function get_id_equipo() {
+    public function get_id_equipo()
+    {
         return $this->id_equipo;
     }
-    public function set_id_equipo($id_equipo) {
+    public function set_id_equipo($id_equipo)
+    {
         $this->id_equipo = $id_equipo;
     }
 
-    public function get_puerto_patch_panel() {
+    public function get_puerto_patch_panel()
+    {
         return $this->puerto_patch_panel;
     }
-    public function set_puerto_patch_panel($puerto_patch_panel) {
+    public function set_puerto_patch_panel($puerto_patch_panel)
+    {
         $this->puerto_patch_panel = $puerto_patch_panel;
     }
 
-    private function EliminarPorDatos() {
-    $this->conex = new Conexion("sistema");
-    $this->conex = $this->conex->Conex();
+    private function EliminarPorDatos()
+    {
+        $this->conex = new Conexion("sistema");
+        $this->conex = $this->conex->Conex();
 
-    $dato = [];
+        $dato = [];
 
-    try {
-        $this->conex->beginTransaction();
+        try {
+            $this->conex->beginTransaction();
 
-        $query = "DELETE FROM punto_conexion 
+            $query = "DELETE FROM punto_conexion 
                  WHERE codigo_patch_panel = :codigo_patch_panel 
                  AND puerto_patch_panel = :puerto_patch_panel
                  AND id_equipo = :id_equipo";
 
-        $stm = $this->conex->prepare($query);
-        $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
-        $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
-        $stm->bindParam(":id_equipo", $this->id_equipo);
-        $stm->execute();
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
+            $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
+            $stm->bindParam(":id_equipo", $this->id_equipo);
+            $stm->execute();
 
-        $this->conex->commit();
+            $this->conex->commit();
 
-        $dato['resultado'] = "desconectar";
-        $dato['estado'] = 1;
-        $dato['mensaje'] = "Se desconectó el equipo exitosamente";
+            $dato['resultado'] = "desconectar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Se desconectó el equipo exitosamente";
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
+        }
 
-    } catch (PDOException $e) {
-        $this->conex->rollBack();
-        $dato['resultado'] = "error";
-        $dato['estado'] = -1;
-        $dato['mensaje'] = $e->getMessage();
+        $this->Cerrar_Conexion($this->conex, $stm);
+
+        return $dato;
     }
-
-    $this->Cerrar_Conexion($this->conex, $stm);
-
-    return $dato;
-}
-    private function Validar() {
+    private function Validar()
+    {
 
         $dato = [];
 
@@ -109,21 +119,20 @@ class punto_conexion extends Conexion {
             } else {
                 $dato['bool'] = 0;
             }
-
         } catch (PDOException $e) {
 
             $this->conex->rollBack();
             $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
-    } 
-    
-    private function Existe() {
+    }
+
+    private function Existe()
+    {
 
         $dato = [];
 
@@ -143,7 +152,7 @@ class punto_conexion extends Conexion {
             $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
             $stm->bindParam(":id_equipo", $this->id_equipo);
             $stm->execute();
-            
+
             $this->conex->commit();
 
             if ($stm->rowCount() > 0) {
@@ -152,22 +161,21 @@ class punto_conexion extends Conexion {
             } else {
                 $dato['bool'] = 0;
             }
-
         } catch (PDOException $e) {
 
             $this->conex->rollBack();
             $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
-    } 
+    }
 
     // Nuevo: Marcar puerto como dañado
-    private function MarcarDanado() {
+    private function MarcarDanado()
+    {
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
         $dato = [];
@@ -192,7 +200,8 @@ class punto_conexion extends Conexion {
         return $dato;
     }
 
-    private function Registrar() {
+    private function Registrar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -214,17 +223,18 @@ class punto_conexion extends Conexion {
             return $dato;
         }
 
-        if ($bool['bool'] == 0) {
+        if ($bool['bool'] == 0 && $this->id_punto_conexion != "") {
 
             try {
 
                 $this->conex->beginTransaction();
 
-                $query = "INSERT INTO punto_conexion(codigo_patch_panel, id_equipo,  puerto_patch_panel) VALUES 
-                (:codigo_patch_panel, :id_equipo, :puerto_patch_panel)";
+                $query = "INSERT INTO punto_conexion(id_punto_conexion, codigo_patch_panel, id_equipo,  puerto_patch_panel) VALUES 
+                (:id_punto_conexion, :codigo_patch_panel, :id_equipo, :puerto_patch_panel)";
 
                 $stm = $this->conex->prepare($query);
-                
+
+                $stm->bindParam(":id_punto_conexion", $this->id_punto_conexion);
                 $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
                 $stm->bindParam(":id_equipo", $this->id_equipo);
                 $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
@@ -235,23 +245,19 @@ class punto_conexion extends Conexion {
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se Registro el Punto de Conexión Exitosamente";
-
             } catch (PDOException $e) {
 
                 $this->conex->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
-
             }
-
         } else {
 
             $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Punto de Conexión Ocupado";
-
         }
 
         $this->Cerrar_Conexion($this->conex, $stm);
@@ -259,7 +265,8 @@ class punto_conexion extends Conexion {
         return $dato;
     }
 
-    private function Actualizar() {
+    private function Actualizar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -291,29 +298,27 @@ class punto_conexion extends Conexion {
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se modificó el Punto de Conexión exitosamente";
-            
             } catch (PDOException $e) {
 
                 $this->conex->rollBack();
                 $dato['estado'] = -1;
                 $dato['resultado'] = "error";
                 $dato['mensaje'] = $e->getMessage();
-
             }
         } else {
-            
+
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al Modificar el registro";
-
         }
-            
+
         $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
     }
 
-    private function Eliminar() {
+    private function Eliminar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -347,7 +352,6 @@ class punto_conexion extends Conexion {
                 $dato['estado'] = -1;
                 $dato['mensaje'] = "No existe el Punto de Conexión a eliminar";
             }
-
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $dato['resultado'] = "error";
@@ -360,7 +364,8 @@ class punto_conexion extends Conexion {
         return $dato;
     }
 
-    private function Consultar() {
+    private function Consultar()
+    {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -380,20 +385,19 @@ class punto_conexion extends Conexion {
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
 
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
-
         }
-        
+
         $this->Cerrar_Conexion($this->conex, $stm);
 
         return $dato;
     }
 
-    public function Transaccion($peticion) {
+    public function Transaccion($peticion)
+    {
 
         switch ($peticion['peticion']) {
 
@@ -408,10 +412,10 @@ class punto_conexion extends Conexion {
 
             case 'eliminar':
                 return $this->Eliminar();
-             
+
             case 'validar':
                 return $this->Validar();
-            
+
             case 'eliminar_por_datos':
                 return $this->EliminarPorDatos();
 
@@ -420,11 +424,6 @@ class punto_conexion extends Conexion {
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
-
         }
-
     }
-
 }
-
-?>

@@ -65,6 +65,8 @@ if (is_file("view/" . $page . ".php")) {
         $punto_conexion->set_puerto_patch_panel($_POST["puerto_patch_panel"]);
 
         if ($_POST['accion'] == 'conectar') {
+            // Generar el ID aquí y enviarlo al modelo
+            $punto_conexion->set_id_punto_conexion(generarID("PatchPanel"));
             $peticion["peticion"] = "registrar";
         } else {
             $peticion["peticion"] = "eliminar_por_datos";
@@ -133,7 +135,8 @@ if (is_file("view/" . $page . ".php")) {
     if (isset($_POST["registrar"])) {
 
         if (isset($permisos['punto_conexion']['registrar']['estado']) && $permisos['punto_conexion']['registrar']['estado'] == '1') {
-
+            // Cambia set_id por set_id_punto_conexion
+            $punto_conexion->set_id_punto_conexion(generarID("PatchPanel"));
             $punto_conexion->set_id_equipo($_POST["id_equipo"]);
             $punto_conexion->set_codigo_patch_panel($_POST["codigo_patch_panel"]);
             $punto_conexion->set_puerto_patch_panel($_POST["puerto_patch_panel"]);
