@@ -44,6 +44,11 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
+				// Validar que el id_equipo sea alfanumérico de hasta 16 caracteres
+				if (!/^[0-9a-zA-Z]{1,16}$/.test($("#id_equipo").val())) {
+					mensajes("error", null, "Error", "Debes seleccionar un equipo válido.");
+					return false;
+				}
 				if (validarenvio()) {
 					confirmacion = await confirmarAccion('Se registrará un nuevo Equipo', '¿Seguro de realizar la acción?', 'question');
 					if (confirmacion) {
@@ -492,14 +497,13 @@ function consultarEliminadas() {
 					}
 
 					$('#tablaEliminadas').DataTable({
-						data: lee.datos,
+						data: Array.isArray(lee.datos) ? lee.datos : [],
 						columns: [
 							{ data: 'id_equipo' },
 							{ data: 'tipo_equipo' },
 							{ data: 'serial' },
 							{ data: 'codigo_bien' },
 							{ data: 'nombre_unidad' },
-
 							{
 								data: null,
 								render: function () {

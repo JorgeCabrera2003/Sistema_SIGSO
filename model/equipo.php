@@ -13,7 +13,7 @@ class Equipo extends Conexion
 
     public function __construct()
     {
-        $this->id_equipo = 0;
+        $this->id_equipo = "";
         $this->tipo_equipo = "";
         $this->serial = 0;
         $this->codigo_bien = 0;
@@ -50,6 +50,7 @@ class Equipo extends Conexion
     {
         $this->codigo_bien = $codigo_bien;
     }
+
 
     public function set_id_unidad($id_unidad)
     {
@@ -128,10 +129,14 @@ class Equipo extends Conexion
     {
         $dato = $this->Validar();
         if ($dato['bool'] == 1) {
+            $dato['estado'] = 0;
+            $dato['resultado'] = "error";
             $dato['mensaje'] = "El equipo que intenta registrar ya existe.";
             return $dato;
         }
         if ($dato['bool'] == -1) {
+            $dato['estado'] = 0;
+            $dato['resultado'] = "error";
             $dato['mensaje'] = "Error en la base de datos: " . $dato['mensaje'];
             return $dato;
         }
@@ -141,9 +146,10 @@ class Equipo extends Conexion
             $con = $con->Conex();
             $con->beginTransaction();
 
-            $query = "INSERT INTO equipo (tipo_equipo, serial, codigo_bien, id_unidad, estatus) VALUES (:tipo_equipo, :serial, :codigo_bien, :id_unidad, 1)";
+            $query = "INSERT INTO equipo (id_equipo,tipo_equipo, serial, codigo_bien, id_unidad, estatus) VALUES (:id_equipo, :tipo_equipo, :serial, :codigo_bien, :id_unidad, 1)";
 
             $stm = $con->prepare($query);
+            $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->bindParam(':tipo_equipo', $this->tipo_equipo);
             $stm->bindParam(':serial', $this->serial);
             $stm->bindParam(':codigo_bien', $this->codigo_bien);
@@ -151,11 +157,13 @@ class Equipo extends Conexion
 
             $stm->execute();
             $con->commit();
-            $dato['bool'] = 1;
+            $dato['estado'] = 1;
+            $dato['resultado'] = "registrar";
             $dato['mensaje'] = "Equipo registrado exitosamente.";
         } catch (PDOException $e) {
             $con->rollBack();
-            $dato['bool'] = 0;
+            $dato['estado'] = 0;
+            $dato['resultado'] = "error";
             $dato['mensaje'] = "Error: " . $e->getMessage();
         }
         return $dato;
@@ -195,6 +203,7 @@ class Equipo extends Conexion
 
     private function Eliminar()
     {
+        $dato = [];
         try {
             $con = new Conexion("sistema");
             $con = $con->Conex();
@@ -207,11 +216,13 @@ class Equipo extends Conexion
 
             $stm->execute();
             $con->commit();
-            $dato['bool'] = 1;
+            $dato['estado'] = 1;
+            $dato['resultado'] = "eliminar";
             $dato['mensaje'] = "Equipo eliminado exitosamente.";
         } catch (PDOException $e) {
             $con->rollBack();
-            $dato['bool'] = 0;
+            $dato['estado'] = 0;
+            $dato['resultado'] = "error";
             $dato['mensaje'] = "Error: " . $e->getMessage();
         }
         return $dato;
@@ -252,6 +263,7 @@ class Equipo extends Conexion
 
     private function ConsultarEliminadas()
     {
+        $dato = [];
         try {
             $con = new Conexion("sistema");
             $con = $con->Conex();
@@ -260,15 +272,19 @@ class Equipo extends Conexion
             $query = "SELECT e.*, u.nombre_unidad 
                      FROM equipo e 
                      JOIN unidad u ON e.id_unidad = u.id_unidad 
-                     WHERE u.estatus = 0 or e.estatus = 0";
+                     WHERE u.estatus = 0 OR e.estatus = 0";
 
             $stm = $con->prepare($query);
             $stm->execute();
             $con->commit();
-            return $stm->fetchAll(PDO::FETCH_ASSOC);
+            $dato['resultado'] = 'consultar_eliminadas';
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return $e->getMessage();
+            $dato['resultado'] = 'error';
+            $dato['mensaje'] = $e->getMessage();
+            $dato['datos'] = [];
         }
+        return $dato;
     }
 
     private function Restaurar()
@@ -285,11 +301,13 @@ class Equipo extends Conexion
 
             $stm->execute();
             $con->commit();
-            $dato['bool'] = 1;
+            $dato['estado'] = 1;
+            $dato['resultado'] = "restaurar";
             $dato['mensaje'] = "Equipo restaurado exitosamente.";
         } catch (PDOException $e) {
             $con->rollBack();
-            $dato['bool'] = 0;
+            $dato['estado'] = 0;
+            $dato['resultado'] = "error";
             $dato['mensaje'] = "Error: " . $e->getMessage();
         }
         return $dato;
