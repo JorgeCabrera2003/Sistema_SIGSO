@@ -183,26 +183,44 @@
                 </div>
 
                 <div class="tab-pane fade <?php echo $active4; ?> pt-3" id="tema">
-                  <!-- Change themes Form -->
-                  <form method="POST" action="" autocomplete="off">
-                    <div class="row mb-3">
-                      <label for="cambiTema" class="col-md-4 col-lg-3 col-form-label">Selecciona un tema</label>
-                      <div class="col-md-8 col-lg-9">
-                        <select name="cambiTema" id="cambiTema" class="form-select">
-                          <option value="0" <?php echo ($datos['tema'] == 0) ? 'selected' : ''; ?>>Tema por defecto</option>
-                          <option value="1" <?php echo ($datos['tema'] == 1) ? 'selected' : ''; ?>>Scarly - Rosa</option>
-                          <option value="2" <?php echo ($datos['tema'] == 2) ? 'selected' : ''; ?>>Azul</option>
-                          <option value="3" <?php echo ($datos['tema'] == 3) ? 'selected' : ''; ?>>Verde</option>
-                          <option value="4" <?php echo ($datos['tema'] == 4) ? 'selected' : ''; ?>>Rojo</option>
-                          <option value="5" <?php echo ($datos['tema'] == 5) ? 'selected' : ''; ?>>Morado</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="text-center">
-                      <button type="submit" name="cambiarTema" class="btn btn-primary">Aplicar Tema</button>
-                    </div>
-                  </form>
-                </div>
+  <!-- Change themes Form -->
+  <form method="POST" action="" autocomplete="off" id="formTema">
+    <input type="hidden" name="cambiTema" id="cambiTema" value="<?php echo $datos['tema']; ?>">
+    <div class="row">
+      <?php 
+      $temas = [
+        0 => ['nombre' => 'Tema por defecto', 'colores' => ['#f8f9fa','#8fd16f','#7c1d21']],
+        1 => ['nombre' => 'Scarly - Rosa', 'colores' => ['#ff69b4','#ffb6c1','#ffe4e1']],
+        2 => ['nombre' => 'Azul', 'colores' => ['#007bff','#66b2ff','#cce5ff']],
+        3 => ['nombre' => 'Verde', 'colores' => ['#28a745','#71d48a','#d4edda']],
+        4 => ['nombre' => 'Rojo', 'colores' => ['#dc3545','#f28b82','#f8d7da']],
+        5 => ['nombre' => 'Morado', 'colores' => ['#6f42c1','#b19cd9','#e0c3fc']],
+      ];
+
+      foreach ($temas as $id => $tema): 
+        $activo = ($datos['tema'] == $id) ? 'border-primary shadow-lg' : 'border-light';
+      ?>
+      <div class="col-md-4 mb-3">
+        <div class="card theme-card text-center <?php echo $activo; ?>" 
+             data-tema="<?php echo $id; ?>" style="cursor:pointer;">
+          <div class="card-body">
+            <div class="d-flex justify-content-center mb-2">
+              <?php foreach ($tema['colores'] as $color): ?>
+                <div style="width:30px;height:30px;background:<?php echo $color; ?>;border-radius:50%;margin:0 3px;"></div>
+              <?php endforeach; ?>
+            </div>
+            <h6 class="card-title"><?php echo $tema['nombre']; ?></h6>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <div class="text-center mt-3">
+      <button type="submit" name="cambiarTema" class="btn btn-primary">Aplicar Tema</button>
+    </div>
+  </form>
+</div>
+
 
 
 
@@ -383,6 +401,8 @@
         document.getElementById('nombre-archivo').textContent = file.name;
       }
     });
+
+    
   </script>
 
 </body>

@@ -1,4 +1,20 @@
 $(document).ready(function() {
+
+  document.querySelectorAll(".theme-card").forEach(card => {
+    card.addEventListener("click", function() {
+      // Quitar borde activo de todos
+      document.querySelectorAll(".theme-card").forEach(c => c.classList.remove("border-primary","shadow-lg"));
+      document.querySelectorAll(".theme-card").forEach(c => c.classList.add("border-light"));
+
+      // Activar el clicado
+      this.classList.add("border-primary","shadow-lg");
+
+      // Guardar valor en el input hidden
+      document.getElementById("cambiTema").value = this.dataset.tema;
+    });
+  });
+
+
   // Deshabilitar los botones al cargar la página
   $(".cambio").prop("disabled", true);
   
