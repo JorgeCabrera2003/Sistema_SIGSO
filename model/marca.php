@@ -5,13 +5,14 @@ class Marca extends Conexion
 
     private $id;
     private $nombre;
-
+    private $conexion;
 
     public function __construct()
     {
 
         $this->id = 0;
         $this->nombre = "";
+        $this->conexionion = NULL;
     }
 
     public function set_id($id)
@@ -40,11 +41,11 @@ class Marca extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT * FROM marca WHERE id_marca = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
 
@@ -70,12 +71,13 @@ class Marca extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
                 $query = "INSERT INTO marca(id_marca, nombre_marca) VALUES 
-            (NULL, :nombre)";
+            (:id, :nombre)";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
@@ -91,7 +93,7 @@ class Marca extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -100,11 +102,11 @@ class Marca extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "UPDATE marca SET nombre_marca = :nombre WHERE id_marca = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
@@ -116,7 +118,7 @@ class Marca extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -127,11 +129,11 @@ class Marca extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
                 $query = "UPDATE marca SET estatus = 0 WHERE id_marca = :id";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
@@ -148,7 +150,7 @@ class Marca extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -157,11 +159,11 @@ class Marca extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT * FROM marca WHERE estatus = 1";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -169,7 +171,7 @@ class Marca extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 

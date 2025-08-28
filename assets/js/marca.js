@@ -34,7 +34,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_marca"), $("#sid_marca"), "") == 1) {
+				if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_marca"), $("#sid_marca"), "") == 1) {
 					confirmacion = await confirmarAccion("Se eliminará una Marca", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -183,8 +183,6 @@ function vistaPermiso(permisos = null) {
 };
 
 function crearDataTable(arreglo) {
-
-	console.log(arreglo);
 	tabla = $('#tabla1').DataTable({
 		data: arreglo,
 		columns: [

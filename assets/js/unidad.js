@@ -39,7 +39,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_unidad"), $("#sid_unidad"), "") == 1) {
+				if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_unidad"), $("#sid_unidad"), "") == 1) {
 					confirmacion = await confirmarAccion("Se eliminará una Unidad", "¿Está seguro de realizar la acción?", "warning");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -213,10 +213,12 @@ function validarKeyUp(expresion, input, span, mensaje) {
 
 	if (errores.length > 0) {
 		$(input).removeClass("is-valid").addClass("is-invalid");
+		$(span).removeClass("is-valid").addClass("is-invalid");
 		$(span).html(errores.join("<br>"));
 		return 0;
 	} else {
 		$(input).removeClass("is-invalid").addClass("is-valid");
+		$(span).removeClass("is-invalid").addClass("is-valid");
 		$(span).html("");
 		return 1;
 	}

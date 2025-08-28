@@ -39,13 +39,13 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
-
+				$marca->set_id(generarID($_POST["nombre"]));
 				$marca->set_nombre($_POST["nombre"]);
 				$peticion["peticion"] = "registrar";
 				$json = $marca->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva marca";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva marca con el ID: ".$marca->get_id();
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nueva marca";
 				}
@@ -70,7 +70,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['marca']['modificar']['estado']) && $permisos['marca']['modificar']['estado'] == '1') {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_marca"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_marca"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de la Marca no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -104,7 +104,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['marca']['eliminar']['estado']) && $permisos['marca']['eliminar']['estado'] == '1') {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_marca"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_marca"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de la Marca no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

@@ -40,19 +40,20 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+			} else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Dependencia no valida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
+				$unidad->set_id(generarID($_POST["nombre"], $_POST["id_dependencia"]));
 				$unidad->set_nombre($_POST["nombre"]);
 				$unidad->set_id_dependencia($_POST["id_dependencia"]);
 				$peticion["peticion"] = "registrar";
 				$json = $unidad->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nueva unidad";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva unidad con ID: ". $unidad->get_id();
 					$msgN = "Se registró una Nueva Unidad";
 					NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
 				} else {
@@ -78,7 +79,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['unidad']['modificar']['estado']) && $permisos['unidad']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_unidad"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no valido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -88,7 +89,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_dependencia"]) == 0) {
+			} else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Dependencia no valida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -122,7 +123,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['unidad']['modificar']['estado']) && $permisos['unidad']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_unidad"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no valido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";

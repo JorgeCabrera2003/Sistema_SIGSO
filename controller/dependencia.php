@@ -17,7 +17,7 @@ if (is_file("view/" . $page . ".php")) {
 	$dependencia = new Dependencia();
 	$ente = new Ente();
 
-	if (!isset($permisos['unidad']['ver']['estado']) || $permisos['unidad']['ver']['estado'] == "0") {
+	if (!isset($permisos['dependencia']['ver']['estado']) || $permisos['dependencia']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Dependencia";
 		Bitacora($msg, "Dependencia");
 		header('Location: ?page=home');

@@ -6,14 +6,14 @@ class Rol extends Conexion
 
     private $id;
     private $nombre;
-
+    private $conexion;
     private $permiso;
 
     public function __construct()
     {
-
         $this->id = 0;
         $this->nombre = "";
+        $this->conexion = NULL;
     }
 
     public function set_id($id)
@@ -53,12 +53,12 @@ class Rol extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM rol WHERE id_rol = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
 
@@ -69,10 +69,10 @@ class Rol extends Conexion
             } else {
                 $dato['bool'] = 0;
             }
-            $this->conex->commit();
+            $this->conexion->commit();
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -84,20 +84,20 @@ class Rol extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT MAX(id_rol) AS ultimo_id FROM rol";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $fila = $stm->fetch(PDO::FETCH_ASSOC);
             $dato['id_rol'] = $fila['ultimo_id'];
             $dato['estado'] = 1;
-            $this->conex->commit();
+            $this->conexion->commit();
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['error'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($none, $stm);
@@ -110,33 +110,33 @@ class Rol extends Conexion
         $validar = $this->Validar();
         if ($validar['bool'] == 0) {
             try {
-                $this->conex = new Conexion("usuario");
-                $this->conex = $this->conex->Conex();
-                $this->conex->beginTransaction();
+                $this->conexion = new Conexion("usuario");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "INSERT INTO rol (id_rol, nombre_rol) VALUES (NULL, :nombre)";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
 
-                $this->conex->commit();
+                $this->conexion->commit();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
-                $dato['id_rol'] = $this->conex->lastInsertId();
+                $dato['id_rol'] = $this->conexion->lastInsertId();
                 $dato['mensaje'] = "Se registró el rol exitosamente";
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -145,27 +145,27 @@ class Rol extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE rol SET nombre_rol = :nombre WHERE id_rol = :id";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se modificaron los datos del rol con éxito";
 
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -176,20 +176,20 @@ class Rol extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $this->conex = new Conexion("usuario");
-                $this->conex = $this->conex->Conex();
-                $this->conex->beginTransaction();
+                $this->conexion = new Conexion("usuario");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "UPDATE rol SET estatus = 0 WHERE id_rol = :id";
 
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
-                $this->conex->commit();
+                $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el rol exitosamente";
             } catch (PDOException $e) {
-                $this->conex->rollBack();
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -199,7 +199,7 @@ class Rol extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -208,22 +208,22 @@ class Rol extends Conexion
         $dato = [];
 
         try {
-            $this->conex = new Conexion("usuario");
-            $this->conex = $this->conex->Conex();
-            $this->conex->beginTransaction();
+            $this->conexion = new Conexion("usuario");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM rol WHERE estatus = 1";
 
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
-            $this->conex->commit();
+            $this->conexion->commit();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->conex->rollBack();
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
