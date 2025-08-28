@@ -410,60 +410,63 @@ class Equipo extends Conexion
     }
 
 
-    public function obtenerTipoServicioPorEquipo($id_equipo) {
-    if (empty($id_equipo)) return 1; // Default a Soporte Técnico
-    
-    try {
-        $this->conex = new Conexion("sistema");
-        $this->conex = $this->conex->Conex();
-        
-        // Obtener el tipo de servicio asociado al bien del equipo
-        $sql = "SELECT COALESCE(b.id_tipo_servicio, c.id_tipo_servicio, 1) as id_tipo_servicio 
+    public function obtenerTipoServicioPorEquipo($id_equipo)
+    {
+        if (empty($id_equipo)) return 1; // Default a Soporte Técnico
+
+        try {
+            $this->conex = new Conexion("sistema");
+            $this->conex = $this->conex->Conex();
+
+            // Obtener el tipo de servicio asociado al bien del equipo
+            $sql = "SELECT COALESCE(b.id_tipo_servicio, c.id_tipo_servicio, 1) as id_tipo_servicio 
                 FROM equipo e
                 JOIN bien b ON e.codigo_bien = b.codigo_bien
                 LEFT JOIN categoria c ON b.id_categoria = c.id_categoria
                 WHERE e.id_equipo = :id_equipo
                 AND e.estatus = 1
                 LIMIT 1";
-        
-        $stmt = $this->conex->prepare($sql);
-        $stmt->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return $result['id_tipo_servicio'] ?? 1; // Default a Soporte Técnico si no hay asociación
-    } catch (PDOException $e) {
-        error_log("Error al obtener tipo de servicio: " . $e->getMessage());
-        return 1; // Default a Soporte Técnico en caso de error
-    }
-}
 
-private function obtenerTipoServicio($idEquipo) {
-    try {
-        $this->conexion = new Conexion("sistema");
-        $this->conexion = $this->conexion->Conex();
-        
-        $sql = "SELECT c.id_tipo_servicio 
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $result['id_tipo_servicio'] ?? 1; // Default a Soporte Técnico si no hay asociación
+        } catch (PDOException $e) {
+            error_log("Error al obtener tipo de servicio: " . $e->getMessage());
+            return 1; // Default a Soporte Técnico en caso de error
+        }
+    }
+
+    private function obtenerTipoServicio($idEquipo)
+    {
+        try {
+            $conexion = new Conexion("sistema");
+            $conexion = $conexion->Conex();
+
+            $sql = "SELECT COALESCE(c.id_tipo_servicio, 1) as id_tipo_servicio 
                 FROM equipo e
                 JOIN bien b ON e.codigo_bien = b.codigo_bien
-                JOIN categoria c ON b.id_categoria = c.id_categoria
-                WHERE e.id_equipo = :id_equipo";
-                
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->bindParam(':id_equipo', $idEquipo, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return [
-            'resultado' => 'success',
-            'id_tipo_servicio' => $resultado['id_tipo_servicio'] ?? 1 // Default a Soporte Técnico
-        ];
-    } catch (PDOException $e) {
-        return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+                LEFT JOIN categoria c ON b.id_categoria = c.id_categoria
+                WHERE e.id_equipo = :id_equipo
+                LIMIT 1";
+
+            $stmt = $conexion->prepare($sql);
+            $stmt->bindParam(':id_equipo', $idEquipo, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                'resultado' => 'success',
+                'id_tipo_servicio' => $resultado['id_tipo_servicio'] ?? 1 // Default a Soporte Técnico
+            ];
+        } catch (PDOException $e) {
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+        }
     }
-}
 
     public function Transaccion($peticion)
     {
@@ -496,7 +499,7 @@ private function obtenerTipoServicio($idEquipo) {
                 $nro_solicitud = isset($peticion['nro_solicitud']) ? $peticion['nro_solicitud'] : null;
                 return $this->equiposPorEmpleado($peticion['cedula_empleado'], $nro_solicitud);
             case 'obtener_tipo_servicio':
-            return $this->obtenerTipoServicio($peticion['id_equipo']);
+                return $this->obtenerTipoServicio($peticion['id_equipo']);
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

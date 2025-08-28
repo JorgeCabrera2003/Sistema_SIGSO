@@ -101,115 +101,117 @@ class HojaServicio extends Conexion
     }
 
     // En el modelo HojaServicio, actualizar el método crearHojaServicio
-private function crearHojaServicio() {
-    if (!$this->nro_solicitud || !$this->id_tipo_servicio) {
-        return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para crear hoja de servicio'];
-    }
-
-    try {
-        $this->conex->beginTransaction();
-
-        // Verificar si la solicitud existe y está activa
-        $sqlVerificar = "SELECT COUNT(*) FROM solicitud WHERE nro_solicitud = :nro AND estatus = 1";
-        $stmtVerificar = $this->conex->prepare($sqlVerificar);
-        $stmtVerificar->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
-        $stmtVerificar->execute();
-
-        if ($stmtVerificar->fetchColumn() == 0) {
-            throw new Exception("La solicitud no existe o está inactiva");
+    private function crearHojaServicio()
+    {
+        if (!$this->nro_solicitud || !$this->id_tipo_servicio) {
+            return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para crear hoja de servicio'];
         }
 
-        // Verificar si ya existe una hoja para este tipo de servicio
-        $sqlExistente = "SELECT COUNT(*) FROM hoja_servicio 
-                        WHERE nro_solicitud = :nro AND id_tipo_servicio = :tipo";
-        $stmtExistente = $this->conex->prepare($sqlExistente);
-        $stmtExistente->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
-        $stmtExistente->bindParam(':tipo', $this->id_tipo_servicio, PDO::PARAM_INT);
-        $stmtExistente->execute();
+        try {
+            $this->conex->beginTransaction();
 
-        if ($stmtExistente->fetchColumn() > 0) {
-            throw new Exception("Ya existe una hoja para este tipo de servicio en la solicitud");
-        }
+            // Verificar si la solicitud existe y está activa
+            $sqlVerificar = "SELECT COUNT(*) FROM solicitud WHERE nro_solicitud = :nro AND estatus = 1";
+            $stmtVerificar = $this->conex->prepare($sqlVerificar);
+            $stmtVerificar->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
+            $stmtVerificar->execute();
 
-        // Obtener técnico con menor carga para este tipo de servicio
-        $sqlTecnico = "SELECT 
-                        e.cedula_empleado, 
-                        CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
-                        COALESCE(hs.cant_hojas, 0) AS hojas_mes
-                    FROM empleado e
-                    LEFT JOIN (
-                        SELECT 
-                            cedula_tecnico, 
-                            COUNT(*) AS cant_hojas
-                        FROM hoja_servicio
-                        WHERE estatus = 'A'
-                        GROUP BY cedula_tecnico
-                    ) hs ON hs.cedula_tecnico = e.cedula_empleado
-                    WHERE e.id_servicio = :tipo_servicio
-                        AND e.id_cargo = 1  -- 1 = Técnico
-                        AND e.estatus = 1   -- 1 = Activo
-                    ORDER BY hojas_mes ASC, nombre ASC
-                    LIMIT 1";
+            if ($stmtVerificar->fetchColumn() == 0) {
+                throw new Exception("La solicitud no existe o está inactiva");
+            }
 
-        $stmtTecnico = $this->conex->prepare($sqlTecnico);
-        $stmtTecnico->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
-        $stmtTecnico->execute();
-        $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$tecnico) {
-            throw new Exception("No hay técnicos disponibles para este tipo de servicio");
-        }
+            // Verificar si ya existe una hoja para este tipo de servicio
+            $sqlExistente = "SELECT COUNT(*) FROM hoja_servicio 
+                    WHERE nro_solicitud = :nro AND id_tipo_servicio = :tipo";
+            $stmtExistente = $this->conex->prepare($sqlExistente);
+            $stmtExistente->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
+            $stmtExistente->bindParam(':tipo', $this->id_tipo_servicio, PDO::PARAM_INT);
+            $stmtExistente->execute();
 
-        $this->cedula_tecnico = $tecnico['cedula_empleado'];
+            if ($stmtExistente->fetchColumn() > 0) {
+                throw new Exception("Ya existe una hoja para este tipo de servicio en la solicitud");
+            }
 
-        // Insertar la hoja de servicio
-        $sql = "INSERT INTO hoja_servicio 
-                (nro_solicitud, id_tipo_servicio, estatus, cedula_tecnico) 
-                VALUES (:nro_solicitud, :tipo_servicio, 'A', :cedula_tecnico)";
+            // Obtener técnico con menor carga para este tipo de servicio
+            $sqlTecnico = "SELECT 
+                    e.cedula_empleado, 
+                    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
+                    COALESCE(hs.cant_hojas, 0) AS hojas_mes
+                FROM empleado e
+                LEFT JOIN (
+                    SELECT 
+                        cedula_tecnico, 
+                        COUNT(*) AS cant_hojas
+                    FROM hoja_servicio
+                    WHERE estatus = 'A'
+                    GROUP BY cedula_tecnico
+                ) hs ON hs.cedula_tecnico = e.cedula_empleado
+                WHERE e.id_servicio = :tipo_servicio
+                    AND e.id_cargo = 1  -- 1 = Técnico
+                    AND e.estatus = 1   -- 1 = Activo
+                ORDER BY hojas_mes ASC, nombre ASC
+                LIMIT 1";
 
-        $stmt = $this->conex->prepare($sql);
-        $stmt->bindParam(':nro_solicitud', $this->nro_solicitud, PDO::PARAM_INT);
-        $stmt->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
-        $stmt->bindParam(':cedula_tecnico', $this->cedula_tecnico);
+            $stmtTecnico = $this->conex->prepare($sqlTecnico);
+            $stmtTecnico->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
+            $stmtTecnico->execute();
+            $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
 
-        if ($stmt->execute()) {
-            $codigo = $this->conex->lastInsertId();
-            $this->codigo_hoja_servicio = $codigo;
+            if (!$tecnico) {
+                throw new Exception("No hay técnicos disponibles para este tipo de servicio");
+            }
 
-            // Registrar detalles si existen
-            if (!empty($this->detalles)) {
-                if (!$this->registrarDetalles()) {
-                    throw new Exception("Error al registrar detalles");
+            $this->cedula_tecnico = $tecnico['cedula_empleado'];
+
+            // Insertar la hoja de servicio
+            $sql = "INSERT INTO hoja_servicio 
+            (codigo_hoja_servicio, nro_solicitud, id_tipo_servicio, estatus, cedula_tecnico) 
+            VALUES (:codigo_hoja_servicio, :nro_solicitud, :tipo_servicio, 'A', :cedula_tecnico)";
+
+            $stmt = $this->conex->prepare($sql);
+            $stmt->bindParam(':codigo_hoja_servicio', $this->codigo_hoja_servicio, PDO::PARAM_INT);
+            $stmt->bindParam(':nro_solicitud', $this->nro_solicitud, PDO::PARAM_INT);
+            $stmt->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
+            $stmt->bindParam(':cedula_tecnico', $this->cedula_tecnico);
+
+            if ($stmt->execute()) {
+                $codigo = $this->conex->lastInsertId();
+                $this->codigo_hoja_servicio = $codigo;
+
+                // Registrar detalles si existen
+                if (!empty($this->detalles)) {
+                    if (!$this->registrarDetalles()) {
+                        throw new Exception("Error al registrar detalles");
+                    }
                 }
+
+                // Actualizar estado de la solicitud a "En proceso"
+                $this->actualizarEstadoSolicitud('En proceso');
+
+                // Notificar al técnico asignado
+                if (!empty($this->cedula_tecnico)) {
+                    $msg = "Se le ha asignado una nueva hoja de servicio (#$codigo)";
+                    Notificar($msg, "Hoja de Servicio", $this->cedula_tecnico);
+                }
+
+                $this->conex->commit();
+                return [
+                    'resultado' => 'success',
+                    'mensaje' => 'Hoja de servicio creada exitosamente',
+                    'codigo' => $codigo,
+                    'tecnico_asignado' => $this->cedula_tecnico
+                ];
+            } else {
+                throw new Exception("Error al crear hoja de servicio");
             }
-
-            // Actualizar estado de la solicitud a "En proceso"
-            $this->actualizarEstadoSolicitud('En proceso');
-
-            // Notificar al técnico asignado
-            if (!empty($this->cedula_tecnico)) {
-                $msg = "Se le ha asignado una nueva hoja de servicio (#$codigo)";
-                Notificar($msg, "Hoja de Servicio", $this->cedula_tecnico);
-            }
-
-            $this->conex->commit();
-            return [
-                'resultado' => 'success',
-                'mensaje' => 'Hoja de servicio creada exitosamente',
-                'codigo' => $codigo,
-                'tecnico_asignado' => $this->cedula_tecnico
-            ];
-        } else {
-            throw new Exception("Error al crear hoja de servicio");
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
+        } catch (Exception $e) {
+            $this->conex->rollBack();
+            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
         }
-    } catch (PDOException $e) {
-        $this->conex->rollBack();
-        return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
-    } catch (Exception $e) {
-        $this->conex->rollBack();
-        return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
     }
-}
 
     /**
      * Obtiene los datos completos de una hoja de servicio
