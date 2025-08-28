@@ -94,10 +94,11 @@ class Solicitud extends Conexion
             $this->conexion->beginTransaction();
 
             // Asegurarse de que el ID no se establece manualmente
-            $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
-                VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', 1)";
+            $sql = "INSERT INTO solicitud(nro_solicitud, cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
+                VALUES (:nro_solicitud, :solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', 1)";
 
             $stmt = $this->conexion->prepare($sql);
+            $stmt->bindParam(':nro_solicitud', $this->nro_solicitud);
             $stmt->bindParam(':solicitante', $this->cedula_solicitante);
             $stmt->bindParam(':motivo', $this->motivo);
 

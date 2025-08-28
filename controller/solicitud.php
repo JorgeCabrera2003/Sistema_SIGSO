@@ -122,6 +122,8 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         try {
+            
+            $solicitud->set_nro_solicitud(generarID($_POST["motivo"]));
             $solicitud->set_motivo($_POST["motivo"]);
             $solicitud->set_cedula_solicitante($_POST["cedula"]);
             $solicitud->set_id_equipo($_POST["serial"] ?: null);
