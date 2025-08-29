@@ -331,6 +331,9 @@ function crearDataTable(arreglo) {
                     return botones;
                 }
             }],
+        order: [
+            [2, 'asc']
+        ],
         language: {
             url: idiomaTabla
         }
@@ -356,6 +359,9 @@ function iniciarTablaEliminadas(arreglo) {
                             </button>`;
                 }
             }
+        ],
+        order: [
+            [2, 'asc']
         ],
         language: {
             url: idiomaTabla,

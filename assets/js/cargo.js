@@ -33,7 +33,7 @@ $(document).ready(function () {
                 }
                 break;
             case "Eliminar":
-                if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_cargo"), $("#sid_cargo"), "") == 1) {
+                if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_cargo"), $("#sid_cargo"), "") == 1) {
                     confirmacion = await confirmarAccion("Se eliminará un Cargo", "¿Está seguro de realizar la acción?", "question");
                     if (confirmacion) {
                         var datos = new FormData();
@@ -66,8 +66,18 @@ $(document).ready(function () {
         $("#enviarCargo").text("Registrar");
         $("#modalCargo").modal("show");
     });
+
+    $("#btn-consultar-eliminados").on("click", function () {
+        consultarEliminadas();
+        $("#modalEliminadas").modal("show");
+    });
 });
 
+function consultarEliminadas() {
+    var datos = new FormData();
+    datos.append('consultar_eliminados', 'consultar_eliminados');
+    enviaAjax(datos);
+}
 
 function enviaAjax(datos) {
     $.ajax({
@@ -92,7 +102,10 @@ function enviaAjax(datos) {
                 } else if (lee.resultado == "consultar") {
                     crearDataTable(lee.datos);
 
-                }  else if (lee.resultado == "modificar") {
+                } else if (lee.resultado == "consultar_eliminados") {
+                    iniciarTablaEliminadas(lee.datos);
+
+                } else if (lee.resultado == "modificar") {
                     $("#modalCargo").modal("hide");
                     mensajes("success", 10000, lee.mensaje, null);
                     consultar();
@@ -156,6 +169,34 @@ function vistaPermiso(permisos = null) {
     }
 };
 
+function iniciarTablaEliminadas(arreglo) {
+    if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
+        $('#tablaEliminadas').DataTable().destroy();
+    }
+
+    $('#tablaEliminadas').DataTable({
+        data: arreglo,
+        columns: [
+            { data: 'id_cargo' },
+            { data: 'nombre_cargo' },
+            {
+                data: null,
+                render: function () {
+                    return `<button onclick="restaurarCargo(this)" class="btn btn-success restaurar">
+                            <i class="fa-solid fa-recycle"></i>
+                            </button>`;
+                }
+            }
+        ],
+        order: [
+            [1, 'asc']
+        ],
+        language: {
+            url: idiomaTabla,
+        }
+    });
+    ConsultarPermisos();
+}
 
 function crearDataTable(arreglo) {
     if ($.fn.DataTable.isDataTable('#tablaCargos')) {
@@ -174,11 +215,61 @@ function crearDataTable(arreglo) {
                 }
             }
         ],
+        order: [
+            [1, 'asc']
+        ],
         language: {
             url: idiomaTabla
         }
     });
     ConsultarPermisos();
+}
+
+function restaurarCargo(boton) {
+    var linea = $(boton).closest('tr');
+    var id = $(linea).find('td:eq(0)').text();
+
+    Swal.fire({
+        title: '¿Restaurar Cargo?',
+        text: "¿Está seguro que desea restaurar esta cargo?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, restaurar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var datos = new FormData();
+            datos.append('restaurar', 'restaurar');
+            datos.append('id_cargo', id);
+
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: datos,
+                processData: false,
+                contentType: false,
+                success: function (respuesta) {
+                    try {
+                        var lee = JSON.parse(respuesta);
+                        if (lee.estado == 1) {
+                            mensajes("success", null, "Cargo restaurada", lee.mensaje);
+                            consultarEliminadas();
+                            consultar();
+                        } else {
+                            mensajes("error", null, "Error", lee.mensaje);
+                        }
+                    } catch (e) {
+                        mensajes("error", null, "Error", "Error procesando la respuesta");
+                    }
+                },
+                error: function () {
+                    mensajes("error", null, "Error", "No se pudo restaurar el cargo");
+                }
+            });
+        }
+    });
 }
 
 function rellenar(pos, accion) {

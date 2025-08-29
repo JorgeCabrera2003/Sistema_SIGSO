@@ -82,9 +82,9 @@ $(document).ready(function () {
 });
 
 function consultarEliminadas() {
-    var datos = new FormData();
-    datos.append('consultar_eliminadas', 'consultar_eliminadas');
-    enviaAjax(datos);
+	var datos = new FormData();
+	datos.append('consultar_eliminadas', 'consultar_eliminadas');
+	enviaAjax(datos);
 }
 
 
@@ -292,6 +292,9 @@ function crearDataTable(arreglo) {
 					return botones;
 				}
 			}],
+		order: [
+			[1, 'asc']
+		],
 		language: {
 			url: idiomaTabla,
 		}

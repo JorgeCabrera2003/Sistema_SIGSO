@@ -9,7 +9,6 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "controller/utileria.php";
 	require_once "model/marca.php";
 
-
 	$titulo = "Gestionar Marcas";
 	$cabecera = array('#', "Nombre", "Modificar/Eliminar");
 

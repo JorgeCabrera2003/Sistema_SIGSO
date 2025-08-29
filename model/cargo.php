@@ -160,7 +160,7 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-            $query = "SELECT * FROM cargo WHERE estatus = 1";
+            $query = "SELECT * FROM cargo WHERE estatus = 1 ORDER BY nombre_cargo ASC";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
@@ -179,7 +179,7 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-            $query = "SELECT * FROM cargo WHERE estatus = 0";
+            $query = "SELECT * FROM cargo WHERE estatus = 0 ORDER BY nombre_cargo ASC";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";

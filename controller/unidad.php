@@ -129,7 +129,7 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["restaurar"])) {
-		if (isset($permisos['dependencia']['restaurar']['estado']) && $permisos['dependencia']['restaurar']['estado'] == '1') {
+		if (isset($permisos['unidad']['restaurar']['estado']) && $permisos['unidad']['restaurar']['estado'] == '1') {
 			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_unidad"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de la Depedencia no válido";
