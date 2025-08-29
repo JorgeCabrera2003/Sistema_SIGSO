@@ -70,7 +70,7 @@ if (is_file("view/" . $page . ".php")) {
 				$peticion["peticion"] = "registrar";
 				$json = $ente->Transaccion($peticion);
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente con ID:".$ente->get_id();
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente con ID:" . $ente->get_id();
 					$msgN = "Se registró un Nuevo Ente";
 					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
 				} else {
@@ -95,6 +95,12 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST["consultar_eliminadas"])) {
+		$peticion["peticion"] = "consultar_eliminadas";
+		$json = $ente->Transaccion($peticion);
+		echo json_encode($json);
+		exit;
+	}
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['ente']['modificar']['estado']) && $permisos['ente']['modificar']['estado'] == '1') {
@@ -142,7 +148,7 @@ if (is_file("view/" . $page . ".php")) {
 
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó del ente con el id:" . $_POST["id_ente"];
-					$msgN = "Unidad con ID: " . $_POST["id_ente"] . " fue modificado";
+					$msgN = "Ente con ID: " . $_POST["id_ente"] . " fue modificado";
 					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Ente";
@@ -189,6 +195,35 @@ if (is_file("view/" . $page . ".php")) {
 			$json['mensaje'] = "Error, No tienes permiso para eliminar un Ente";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
 
+		}
+		echo json_encode($json);
+		Bitacora($msg, "Ente");
+		exit;
+	}
+
+	if (isset($_POST["restaurar"])) {
+		if (isset($permisos['ente']['restaurar']['estado']) && $permisos['ente']['restaurar']['estado'] == '1') {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_ente"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id del Categoria no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else {
+				$ente->set_id($_POST["id_ente"]);
+				$peticion["peticion"] = "restaurar";
+				$json = $ente->Transaccion($peticion);
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Ente con el id: " . $_POST["id_ente"];
+					$msgN = "Se restauró un Ente con el id" . $_POST["id_ente"];
+					NotificarUsuarios($msgN, "Ente", ['modulo' => 9, 'accion' => 'ver']);
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar un Ente";
+				}
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para restaurar un Ente";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Ente");

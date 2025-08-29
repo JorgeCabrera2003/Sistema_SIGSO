@@ -86,17 +86,29 @@ $(document).ready(function () {
         $("#modalTitleId").text("Registrar Dependencia");
         $("#enviar").text("Registrar");
         $("#modal1").modal("show");
-        
+
         // Habilitar solo el primer campo
         $("#ente").prop('disabled', false);
         $("#nombre").prop('disabled', true);
         $("#enviar").prop('disabled', true);
     });
+
+    $("#btn-consultar-eliminados").on("click", function () {
+        consultarEliminadas();
+        $("#modalEliminadas").modal("show");
+    });
+
 });
 
 function consultar() {
     var datos = new FormData();
     datos.append('consultar', 'consultar');
+    enviaAjax(datos);
+}
+
+function consultarEliminadas() {
+    var datos = new FormData();
+    datos.append('consultar_eliminadas', 'consultar_eliminadas');
     enviaAjax(datos);
 }
 
@@ -134,6 +146,9 @@ function enviaAjax(datos) {
 
                 } else if (lee.resultado == "consultar") {
                     crearDataTable(lee.datos);
+
+                } else if (lee.resultado == "consultar_eliminados") {
+                    iniciarTablaEliminadas(lee.datos);
 
                 } else if (lee.resultado == "modificar") {
                     $("#modal1").modal("hide");
@@ -176,12 +191,12 @@ function capaValidar() {
     $("#nombre").on("keypress", function (e) {
         validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
     });
-    
+
     $("#nombre").on("keyup", function () {
         validarCampo($(this), $("#snombre"), regexValidacion.nombre, mensajesError.nombre);
         habilitarSiguienteCampo($(this), "#enviar");
     });
-    
+
     $("#nombre").on("blur", function () {
         validarCampo($(this), $("#snombre"), regexValidacion.nombre, mensajesError.nombre);
     });
@@ -193,34 +208,34 @@ function capaValidar() {
     });
 
     // Validación del ID de dependencia (si existe)
-    $(document).on('keyup', '#id_dependencia', function() {
+    $(document).on('keyup', '#id_dependencia', function () {
         validarCampo($(this), $("#sid_dependencia"), regexValidacion.id, mensajesError.id_dependencia);
     });
 }
 
 function validarCampo(campo, span, regex, mensajesError) {
     const valor = campo.val().trim();
-    
+
     if (!valor) {
         campo.removeClass('is-valid');
         campo.addClass('is-invalid');
         span.text(mensajesError.requerido);
         return false;
     }
-    
+
     if (!regex.test(valor)) {
         campo.removeClass('is-valid');
         campo.addClass('is-invalid');
-        
+
         if (valor.length < 4 || valor.length > 45) {
             span.text(mensajesError.longitud);
         } else {
             span.text(mensajesError.formato);
         }
-        
+
         return false;
     }
-    
+
     campo.removeClass('is-invalid');
     campo.addClass('is-valid');
     span.text('');
@@ -234,7 +249,7 @@ function validarSelect(select, span, mensajesError) {
         span.text(mensajesError.requerido);
         return false;
     }
-    
+
     select.removeClass('is-invalid');
     select.addClass('is-valid');
     span.text('');
@@ -244,14 +259,14 @@ function validarSelect(select, span, mensajesError) {
 function habilitarSiguienteCampo(campoActual, selectorSiguiente) {
     if (campoActual.hasClass('is-valid')) {
         $(selectorSiguiente).prop('disabled', false);
-        
+
         // Si es el select ente, habilitar el campo nombre
         if (campoActual.attr('id') === 'ente') {
             $("#nombre").prop('disabled', false);
         }
     } else {
         $(selectorSiguiente).prop('disabled', true);
-        
+
         // Si es el select ente, deshabilitar también el campo nombre
         if (campoActual.attr('id') === 'ente') {
             $("#nombre").prop('disabled', true);
@@ -262,22 +277,22 @@ function habilitarSiguienteCampo(campoActual, selectorSiguiente) {
 
 function validarTodosCampos() {
     let esValido = true;
-    
+
     // Validar ente
     if ($("#ente").is(":visible") && !validarSelect($("#ente"), $("#sente"), mensajesError.ente)) {
         esValido = false;
     }
-    
+
     // Validar nombre
     if ($("#nombre").is(":visible") && !validarCampo($("#nombre"), $("#snombre"), regexValidacion.nombre, mensajesError.nombre)) {
         esValido = false;
     }
-    
+
     // Validar ID de dependencia (si existe)
     if ($("#id_dependencia").length && !validarCampo($("#id_dependencia"), $("#sid_dependencia"), regexValidacion.id, mensajesError.id_dependencia)) {
         esValido = false;
     }
-    
+
     return esValido;
 }
 
@@ -288,11 +303,11 @@ function validarenvio() {
 function selectEnte(arreglo) {
     $("#ente").empty();
     $("#ente").append(new Option('Seleccione un Ente', 'default'));
-    
+
     arreglo.forEach(item => {
         $("#ente").append(new Option(item.nombre, item.id));
     });
-    
+
     // Reiniciar estado de validación
     $("#ente").removeClass('is-valid is-invalid');
     $("#sente").text('');
@@ -322,23 +337,50 @@ function crearDataTable(arreglo) {
     });
 }
 
+function iniciarTablaEliminadas(arreglo) {
+    if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
+        $('#tablaEliminadas').DataTable().destroy();
+    }
+
+    $('#tablaEliminadas').DataTable({
+        data: arreglo,
+        columns: [
+            { data: 'id' },
+            { data: 'nombre' },
+            { data: 'ente' },
+            {
+                data: null,
+                render: function () {
+                    return `<button onclick="restaurarDependencia(this)" class="btn btn-success restaurar">
+                            <i class="fa-solid fa-recycle"></i>
+                            </button>`;
+                }
+            }
+        ],
+        language: {
+            url: idiomaTabla,
+        }
+    });
+    ConsultarPermisos();
+}
+
 function limpia() {
     // Limpiar y resetear todos los campos
-    $("input, select").each(function() {
+    $("input, select").each(function () {
         $(this).val("");
         $(this).removeClass("is-valid is-invalid");
         $(this).prop("readOnly", false);
         $(this).prop("disabled", false);
     });
-    
+
     $("span.invalid-feedback").text("");
-    
+
     // Restablecer estado inicial de habilitación
     $("#ente").val('default');
     $("#ente").prop('disabled', false);
     $("#nombre").prop('disabled', true);
     $("#enviar").prop('disabled', true);
-    
+
     // Si existe el campo ID, eliminarlo
     $("#idDependencia").remove();
 }
@@ -373,21 +415,21 @@ function rellenar(pos, accion) {
         $("#modalTitleId").text("Eliminar Dependencia")
         $("#enviar").text("Eliminar");
     }
-    
+
     // Validar campos después de rellenar
-    setTimeout(function() {
+    setTimeout(function () {
         if ($("#id_dependencia").length) {
             validarCampo($("#id_dependencia"), $("#sid_dependencia"), regexValidacion.id, mensajesError.id_dependencia);
         }
         validarCampo($("#nombre"), $("#snombre"), regexValidacion.nombre, mensajesError.nombre);
         validarSelect($("#ente"), $("#sente"), mensajesError.ente);
-        
+
         // Habilitar el botón si todos los campos son válidos
         if (validarTodosCampos()) {
             $('#enviar').prop('disabled', false);
         }
     }, 100);
-    
+
     $("#modal1").modal("show");
 }
 
@@ -428,7 +470,7 @@ function estadoSelect(select, span, mensaje, estado) {
 
 function buscarSelect(select, valor, tipo) {
     if (tipo === "text") {
-        $(select).find("option").filter(function() {
+        $(select).find("option").filter(function () {
             return $(this).text() === valor;
         }).prop('selected', true);
     } else {
@@ -436,4 +478,51 @@ function buscarSelect(select, valor, tipo) {
     }
     // Disparar evento change para activar validaciones
     $(select).trigger('change');
+}
+
+function restaurarDependencia(boton) {
+    var linea = $(boton).closest('tr');
+    var id = $(linea).find('td:eq(0)').text();
+
+    Swal.fire({
+        title: '¿Restaurar Dependencia?',
+        text: "¿Está seguro que desea restaurar este dependencia?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, restaurar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var datos = new FormData();
+            datos.append('restaurar', 'restaurar');
+            datos.append('id_dependencia', id);
+
+            $.ajax({
+                url: "",
+                type: "POST",
+                data: datos,
+                processData: false,
+                contentType: false,
+                success: function (respuesta) {
+                    try {
+                        var lee = JSON.parse(respuesta);
+                        if (lee.estado == 1) {
+                            mensajes("success", null, "Dependencia restaurado", lee.mensaje);
+                            consultarEliminadas();
+                            consultar();
+                        } else {
+                            mensajes("error", null, "Error", lee.mensaje);
+                        }
+                    } catch (e) {
+                        mensajes("error", null, "Error", "Error procesando la respuesta");
+                    }
+                },
+                error: function () {
+                    mensajes("error", null, "Error", "No se pudo restaurar la dependencia");
+                }
+            });
+        }
+    });
 }

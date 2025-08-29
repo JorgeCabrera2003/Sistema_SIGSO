@@ -45,7 +45,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $marca->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva marca con el ID: ".$marca->get_id();
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva marca con el ID: " . $marca->get_id();
+					$msgN = "Se registró una Nueva Marca";
+					NotificarUsuarios($msgN, "Marca", ['modulo' => 16, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nueva marca";
 				}
@@ -67,6 +69,12 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST["consultar_eliminadas"])) {
+		$peticion["peticion"] = "consultar_eliminadas";
+		$json = $marca->Transaccion($peticion);
+		echo json_encode($json);
+		exit;
+	}
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['marca']['modificar']['estado']) && $permisos['marca']['modificar']['estado'] == '1') {
@@ -87,7 +95,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $marca->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la marca con el id: ". $_POST["id_marca"];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la marca con el id: " . $_POST["id_marca"];
+					$msgN = "Marca con ID: " . $_POST["id_marca"] . " fue modificado";
+					NotificarUsuarios($msgN, "Marca", ['modulo' => 16, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar marca";
 				}
@@ -116,7 +126,9 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $marca->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una marca con el id: ". $_POST["id_marca"];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una marca con el id: " . $_POST["id_marca"];
+					$msgN = "Marca con ID: " . $_POST["id_marca"] . " fue modificado";
+					NotificarUsuarios($msgN, "Marca", ['modulo' => 16, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una marca";
 				}
@@ -125,6 +137,35 @@ if (is_file("view/" . $page . ".php")) {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, No tienes permiso para eliminar una Marca";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
+		}
+		echo json_encode($json);
+		Bitacora($msg, "Marca");
+		exit;
+	}
+
+	if (isset($_POST["restaurar"])) {
+		if (isset($permisos['marca']['restaurar']['estado']) && $permisos['marca']['restaurar']['estado'] == '1') {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_marca"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id del Categoria no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else {
+				$marca->set_id($_POST["id_marca"]);
+				$peticion["peticion"] = "restaurar";
+				$json = $marca->Transaccion($peticion);
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Marca con el id: " . $_POST["id_marca"];
+					$msgN = "Se restauró un Marca con el id" . $_POST["id_marca"];
+					NotificarUsuarios($msgN, "Marca", ['modulo' => 16, 'accion' => 'ver']);
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Marca";
+				}
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para restaurar una Maraca";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Marca");

@@ -16,7 +16,7 @@ class Dependencia extends Conexion
         $this->nombre = "";
         $this->id_ente = NULL;
         $this->ente = NULL;
-        $this->conexionion = NULL;
+        $this->conexion = NULL;
     }
 
     public function set_id($id)
@@ -247,6 +247,50 @@ class Dependencia extends Conexion
         return $dato;
     }
 
+        private function ConsultarEliminados()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "SELECT dep.id, dep.id_ente,
+            dep.nombre, ente.nombre AS ente
+            FROM dependencia dep
+            INNER JOIN ente ON dep.id_ente = ente.id
+            WHERE dep.estatus = 0";
+            $stm = $this->conexion->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "consultar_eliminados";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
+        private function Restaurar()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "UPDATE dependencia SET estatus = 1 WHERE id = :id";
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":id", $this->id);
+            $stm->execute();
+            $dato['resultado'] = "restaurar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Dependecia restaurada exitosamente";
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
     private function ConsultarAreas()
     {
         $dato = [];
@@ -281,6 +325,12 @@ class Dependencia extends Conexion
 
             case 'consultar':
                 return $this->Consultar();
+            
+            case 'consultar_eliminadas':
+                return $this->ConsultarEliminados();
+
+            case 'restaurar':
+                return $this->Restaurar();
 
             case 'consultar_areas':
                 return $this->ConsultarAreas();

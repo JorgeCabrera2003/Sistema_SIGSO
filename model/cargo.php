@@ -5,12 +5,14 @@ class Cargo extends Conexion
     private $id;
     private $nombre;
     private $estatus;
+    private $conexion;
 
     public function __construct()
     {
         $this->id = 0;
         $this->nombre = "";
         $this->estatus = 0;
+        $this->conexionion = NULL;
     }
 
     public function set_id($id)
@@ -47,10 +49,10 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT * FROM cargo WHERE id_cargo = :id";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
 
@@ -75,10 +77,11 @@ class Cargo extends Conexion
 
         if ($bool['bool'] == 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
-                $query = "INSERT INTO cargo(id_cargo, nombre_cargo, estatus) VALUES (NULL, :nombre, 1)";
-                $stm = $this->conex->prepare($query);
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $query = "INSERT INTO cargo(id_cargo, nombre_cargo, estatus) VALUES (:id, :nombre, 1)";
+                $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
@@ -94,7 +97,7 @@ class Cargo extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -102,10 +105,10 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "UPDATE cargo SET nombre_cargo = :nombre WHERE id_cargo = :id";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
@@ -117,7 +120,7 @@ class Cargo extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -128,10 +131,10 @@ class Cargo extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
-                $this->conex = new Conexion("sistema");
-                $this->conex = $this->conex->Conex();
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
                 $query = "UPDATE cargo SET estatus = 0 WHERE id_cargo = :id";
-                $stm = $this->conex->prepare($query);
+                $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
@@ -147,7 +150,7 @@ class Cargo extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -155,10 +158,10 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT * FROM cargo WHERE estatus = 1";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -166,7 +169,7 @@ class Cargo extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -174,10 +177,10 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "SELECT * FROM cargo WHERE estatus = 0";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -185,7 +188,7 @@ class Cargo extends Conexion
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -193,10 +196,10 @@ class Cargo extends Conexion
     {
         $dato = [];
         try {
-            $this->conex = new Conexion("sistema");
-            $this->conex = $this->conex->Conex();
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
             $query = "UPDATE cargo SET estatus = 1 WHERE id_cargo = :id";
-            $stm = $this->conex->prepare($query);
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
             $dato['resultado'] = "restaurar";
@@ -207,7 +210,7 @@ class Cargo extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conex, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 

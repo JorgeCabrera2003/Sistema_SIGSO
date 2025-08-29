@@ -54,8 +54,8 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			} else {
-				
-				$dependencia->set_id(generarID($_POST["ente"],$_POST["nombre"]));
+
+				$dependencia->set_id(generarID($_POST["ente"], $_POST["nombre"]));
 				$dependencia->set_nombre($_POST["nombre"]);
 				$dependencia->set_id_ente($_POST["ente"]);
 				$peticion["peticion"] = "registrar";
@@ -87,6 +87,12 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST["consultar_eliminadas"])) {
+		$peticion["peticion"] = "consultar_eliminadas";
+		$json = $dependencia->Transaccion($peticion);
+		echo json_encode($json);
+		exit;
+	}
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['dependencia']['modificar']['estado']) && $permisos['dependencia']['modificar']['estado'] == "1") {
@@ -112,7 +118,7 @@ if (is_file("view/" . $page . ".php")) {
 				$peticion["peticion"] = "actualizar";
 				$json = $dependencia->Transaccion($peticion);
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó la dependencia con el id:" . $_POST["id_dependencia"];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó la dependencia con el id: " . $_POST["id_dependencia"];
 					$msgN = "Dependencia con ID: " . $_POST["id_dependencia"] . " fue modificado";
 					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
 				} else {
@@ -157,6 +163,35 @@ if (is_file("view/" . $page . ".php")) {
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
 		}
 
+		echo json_encode($json);
+		Bitacora($msg, "Depedencia");
+		exit;
+	}
+
+	if (isset($_POST["restaurar"])) {
+		if (isset($permisos['dependencia']['restaurar']['estado']) && $permisos['dependencia']['restaurar']['estado'] == '1') {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id de la Depedencia no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else {
+				$dependencia->set_id($_POST["id_dependencia"]);
+				$peticion["peticion"] = "restaurar";
+				$json = $dependencia->Transaccion($peticion);
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Depedencia con el id" . $_POST["id_dependencia"];
+					$msgN = "Se restauró una Depedencia con el id" . $_POST["id_dependencia"];
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Depedencia";
+				}
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para restaurar una Depedencia";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+		}
 		echo json_encode($json);
 		Bitacora($msg, "Depedencia");
 		exit;
