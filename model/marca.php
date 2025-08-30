@@ -175,6 +175,47 @@ class Marca extends Conexion
         return $dato;
     }
 
+    private function ConsultarEliminados()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "SELECT * FROM marca WHERE estatus = 0";
+            $stm = $this->conexion->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "consultar_eliminados";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
+    private function Restaurar()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "UPDATE marca SET estatus = 1 WHERE id_marca = :id";
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":id", $this->id);
+            $stm->execute();
+            $dato['resultado'] = "restaurar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Ente restaurado exitosamente";
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
     public function Transaccion($peticion)
     {
 
@@ -185,12 +226,18 @@ class Marca extends Conexion
 
             case 'consultar':
                 return $this->Consultar();
+            
+            case 'consultar_eliminadas':
+                return $this->ConsultarEliminados();
 
             case 'actualizar':
                 return $this->Actualizar();
 
             case 'eliminar':
                 return $this->Eliminar();
+
+            case 'restaurar':
+                return $this->Restaurar();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

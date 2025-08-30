@@ -47,6 +47,7 @@ if (is_file("view/" . $page . ".php")) {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
+                $categoria->set_id(generarID($_POST["nombre"]));
                 $categoria->set_nombre($_POST["nombre"]);
                 $categoria->set_id_servicio($_POST['id_tipoServicio']);
                 $tipo_servicio->set_codigo($_POST['id_tipoServicio']);
@@ -57,7 +58,7 @@ if (is_file("view/" . $page . ".php")) {
                     $msgN = "Se registró una Nueva Categoria";
                     NotificarUsuarios($msgN, "Categoria", ['modulo' => 13, 'accion' => 'ver']);
 
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria con ID: ".$categoria->get_id();
                     $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
                     if ($json['servicio_asignado'] == 1) {
                         $msgPropio = "Se le asignó está Categoria: " . $_POST["nombre"] . " a su Área de Servicio";
@@ -95,7 +96,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["restaurar"])) {
         if (isset($permisos['categoria']['restaurar']['estado']) && $permisos['categoria']['restaurar']['estado'] == '1') {
-            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_categoria"]) == 0) {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -105,11 +106,11 @@ if (is_file("view/" . $page . ".php")) {
                 $peticion["peticion"] = "restaurar";
                 $json = $categoria->Transaccion($peticion);
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Categoria con el id" . $_POST["id_categoria"];
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Categoria con el id: " . $_POST["id_categoria"];
                     $msgN = "Se registró una Nuevo Categoria";
                     NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar un nuevo Categoria";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Categoria";
                 }
             }
         } else {
@@ -176,7 +177,7 @@ if (is_file("view/" . $page . ".php")) {
             $json = $categoria->Transaccion($peticion);
 
             if ($json['estado'] == 1) {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Categoria con el id" . $_POST["id_categoria"];
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una Categoria con el id: " . $_POST["id_categoria"];
                 $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue eliminado";
                 NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
             } else {

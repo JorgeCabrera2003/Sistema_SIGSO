@@ -53,7 +53,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $unidad->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva unidad con ID: ". $unidad->get_id();
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva unidad con ID: " . $unidad->get_id();
 					$msgN = "Se registró una Nueva Unidad";
 					NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
 				} else {
@@ -72,6 +72,13 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST['consultar'])) {
 		$peticion["peticion"] = "consultar";
+		$json = $unidad->Transaccion($peticion);
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST["consultar_eliminadas"])) {
+		$peticion["peticion"] = "consultar_eliminadas";
 		$json = $unidad->Transaccion($peticion);
 		echo json_encode($json);
 		exit;
@@ -105,16 +112,45 @@ if (is_file("view/" . $page . ".php")) {
 			}
 
 			if ($json['estado'] == 1) {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la unidad, id:" . $_POST["id_unidad"];
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la unidad, id: " . $_POST["id_unidad"];
 				$msgN = "Unidad con ID: " . $_POST["id_unidad"] . " fue modificada";
-					NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
+				NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
 			} else {
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar unidad, id" . $_POST["id_unidad"];
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar unidad, id: " . $_POST["id_unidad"];
 			}
 		} else {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, No tienes permiso para modificar una Unidad";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
+		}
+		echo json_encode($json);
+		Bitacora($msg, "Unidad");
+		exit;
+	}
+
+	if (isset($_POST["restaurar"])) {
+		if (isset($permisos['unidad']['restaurar']['estado']) && $permisos['unidad']['restaurar']['estado'] == '1') {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_unidad"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id de la Depedencia no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else {
+				$unidad->set_id($_POST["id_unidad"]);
+				$peticion["peticion"] = "restaurar";
+				$json = $unidad->Transaccion($peticion);
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Unidad con el id: " . $_POST["id_unidad"];
+					$msgN = "Se restauró una Unidad con el id" . $_POST["id_unidad"];
+					NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Unidad";
+				}
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para restaurar una Unidad";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Unidad");
@@ -135,7 +171,7 @@ if (is_file("view/" . $page . ".php")) {
 				echo json_encode($json);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una unidad, id:" . $_POST["id_unidad"];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una unidad, id: " . $_POST["id_unidad"];
 					$msgN = "Unidad con ID: " . $_POST["id_unidad"] . " fue eliminada";
 					NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
 				} else {

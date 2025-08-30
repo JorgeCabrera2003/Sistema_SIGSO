@@ -15,6 +15,7 @@ class Categoria extends Conexion
         $this->id = 0;
         $this->nombre = "";
         $this->estatus = 0;
+        $this->conexion = NULL;
         $this->id_tipo_servicio = NULL;
         $this->tipo_servicio = NULL;
     }
@@ -116,9 +117,10 @@ class Categoria extends Conexion
                 }
 
                 $query = "INSERT INTO categoria(id_categoria, nombre_categoria, id_tipo_servicio, estatus) VALUES 
-                (NULL, :nombre, :tipo_servicio, 1)";
+                (:id, :nombre, :tipo_servicio, 1)";
 
                 $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->bindParam(":tipo_servicio", $this->id_tipo_servicio);
                 $stm->execute();
@@ -298,7 +300,7 @@ class Categoria extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
-
+            
             case 'restaurar':
                 return $this->Restaurar();
 

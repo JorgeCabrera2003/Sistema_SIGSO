@@ -24,11 +24,18 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Gestionar Unidades</h5>
-            <?php if (isset($permisos['unidad']['registrar']['estado']) && $permisos['unidad']['registrar']['estado'] == "1") { ?>
-            <button type="button" class="btn btn-primary mx-auto my-4" id="btn-registrar">
-              Registrar Unidad
-            </button>
-            <?php } ?>
+            <div class="d-flex justify-content-between">
+              <?php if (isset($permisos['unidad']['registrar']['estado']) && $permisos['unidad']['registrar']['estado'] == "1") { ?>
+                <button type="button" class="btn btn-primary my-4" id="btn-registrar">
+                  Registrar Unidad
+                </button>
+              <?php } ?>
+              <?php if (isset($permisos['unidad']['restaurar']['estado']) && $permisos['unidad']['restaurar']['estado'] == '1') { ?>
+                <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
+                  Unidades Eliminadas <i class="fa-solid fa-recycle"></i>
+                </button>
+              <?php } ?>
+            </div>
             <div class="table-responsive">
               <table class="table" id="tabla1">
                 <thead>
@@ -47,6 +54,40 @@
       </div>
     </div>
   </section>
+
+  <!-- ModalEliminados -->
+  <div class="modal fade" id="modalEliminadas" tabindex="-1" role="dialog" aria-labelledby="modalEliminadasTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title text-white" id="modalEliminadasTitle">Unidades Eliminadas</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table" id="tablaEliminadas">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Dependencia</th>
+                  <th>Nombre</th>
+                  <th>Restaurar</th>
+                </tr>
+              </thead>
+              <tbody>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ModalEliminados -->
 
   </main><!-- End #main -->
 
