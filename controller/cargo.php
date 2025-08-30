@@ -6,6 +6,7 @@ if (!$_SESSION) {
 
 ob_start();
 if (is_file("view/" . $page . ".php")) {
+    require_once "config/cargo.php";
     require_once "controller/utileria.php";
     require_once "model/cargo.php";
 
@@ -37,7 +38,7 @@ if (is_file("view/" . $page . ".php")) {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
-
+                $cargo->set_id(generarID($_POST['nombre_cargo']));
                 $cargo->set_nombre($_POST["nombre_cargo"]);
                 $peticion["peticion"] = "registrar";
                 $json = $cargo->Transaccion($peticion);
@@ -75,22 +76,47 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["restaurar"])) {
-        $cargo->set_id($_POST["id_cargo"]);
-        $peticion["peticion"] = "restaurar";
-        $json = $cargo->Transaccion($peticion);
+        if (isset($permisos['cargo']['restaurar']['estado']) && $permisos['cargo']['restaurar']['estado'] == '1') {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_cargo"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Id del Cargo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+            } else {
+                $cargo->set_id($_POST["id_cargo"]);
+                $peticion["peticion"] = "restaurar";
+                $json = $cargo->Transaccion($peticion);
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Cargo con el id" . $_POST["id_cargo"];
+                    $msgN = "Se restauró una Cargo con el id: " . $_POST["id_cargo"];
+                    NotificarUsuarios($msgN, "Cargo", ['modulo' => 10, 'accion' => 'ver']);
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Cargo";
+                }
+            }
+        } else {
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error, No tienes permiso para restaurar una Cargo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+        }
         echo json_encode($json);
+        Bitacora($msg, "Cargo");
         exit;
     }
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['cargo']['modificar']['estado']) && $permisos['cargo']['modificar']['estado'] == '1') {
-            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_cargo"]) == 0) {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_cargo"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de la Marca no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
             } else if (preg_match("/^[ a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre_cargo"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Nombre del Cargo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+            } else if ($_POST["id_cargo"] == Ccargo[0]['id']) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Este Cargo por defecto no puede modificarse";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
             } else {
                 $cargo->set_id($_POST["id_cargo"]);
@@ -120,15 +146,19 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         if (isset($permisos['cargo']['eliminar']['estado']) && $permisos['cargo']['eliminar']['estado'] == '1') {
-            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_cargo"]) == 0) {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_cargo"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de la Marca no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+            } else if ($_POST["id_cargo"] == Ccargo[0]['id']) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Este Cargo por defecto no puede eliminarse";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
             } else {
                 $cargo->set_id($_POST["id_cargo"]);
                 $peticion["peticion"] = "eliminar";
                 $json = $cargo->Transaccion($peticion);
-                
+
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un cargocon el id: " . $_POST["id_cargo"];
                     $msgN = "Cargo con ID: " . $_POST["id_cargo"] . " fue eliminado";

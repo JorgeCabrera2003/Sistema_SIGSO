@@ -93,7 +93,18 @@ $(document).ready(function () {
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
+
+	$("#btn-consultar-eliminados").on("click", function () {
+		consultarEliminadas();
+		$("#modalEliminadas").modal("show");
+	});
 });
+
+function consultarEliminadas() {
+	var datos = new FormData();
+	datos.append('consultar_eliminadas', 'consultar_eliminadas');
+	enviaAjax(datos);
+}
 
 function vistaPermiso(permisos = null) {
 
@@ -136,6 +147,9 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "consultar") {
 					crearDataTable(lee.datos);
+
+				} else if (lee.resultado == "consultar_eliminados") {
+					iniciarTablaEliminadas(lee.datos);
 
 				} else if (lee.resultado == "modificar") {
 					$("#modal1").modal("hide");
@@ -268,6 +282,9 @@ function crearDataTable(arreglo) {
 					return botones;
 				}
 			}],
+		order: [
+			[1, 'asc']
+		],
 		language: {
 			url: idiomaTabla,
 		}
@@ -275,6 +292,38 @@ function crearDataTable(arreglo) {
 	ConsultarPermisos();
 }
 
+function iniciarTablaEliminadas(arreglo) {
+	if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
+		$('#tablaEliminadas').DataTable().destroy();
+	}
+
+	$('#tablaEliminadas').DataTable({
+		data: arreglo,
+		columns: [
+			{ data: 'id' },
+			{ data: 'nombre' },
+			{ data: 'nombre_responsable' },
+			{ data: 'telefono' },
+			{ data: 'direccion' },
+			{ data: 'tipo_ente' },
+			{
+				data: null,
+				render: function () {
+					return `<button onclick="restaurarEnte(this)" class="btn btn-success restaurar">
+                            <i class="fa-solid fa-recycle"></i>
+                            </button>`;
+				}
+			}
+		],
+		order: [
+			[1, 'asc']
+		],
+		language: {
+			url: idiomaTabla,
+		}
+	});
+	ConsultarPermisos();
+}
 
 function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid");
@@ -300,7 +349,6 @@ function limpia() {
 
 	$('#enviar').prop('disabled', false);
 }
-
 
 function rellenar(pos, accion) {
 	limpia();
@@ -337,4 +385,51 @@ function rellenar(pos, accion) {
 	}
 	$('#enviar').prop('disabled', false);
 	$("#modal1").modal("show");
+}
+
+function restaurarEnte(boton) {
+	var linea = $(boton).closest('tr');
+	var id = $(linea).find('td:eq(0)').text();
+
+	Swal.fire({
+		title: '¿Restaurar Ente?',
+		text: "¿Está seguro que desea restaurar este ente?",
+		icon: 'question',
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: 'Sí, restaurar',
+		cancelButtonText: 'Cancelar'
+	}).then((result) => {
+		if (result.isConfirmed) {
+			var datos = new FormData();
+			datos.append('restaurar', 'restaurar');
+			datos.append('id_ente', id);
+
+			$.ajax({
+				url: "",
+				type: "POST",
+				data: datos,
+				processData: false,
+				contentType: false,
+				success: function (respuesta) {
+					try {
+						var lee = JSON.parse(respuesta);
+						if (lee.estado == 1) {
+							mensajes("success", null, "Ente restaurado", lee.mensaje);
+							consultarEliminadas();
+							consultar();
+						} else {
+							mensajes("error", null, "Error", lee.mensaje);
+						}
+					} catch (e) {
+						mensajes("error", null, "Error", "Error procesando la respuesta");
+					}
+				},
+				error: function () {
+					mensajes("error", null, "Error", "No se pudo restaurar el ente");
+				}
+			});
+		}
+	});
 }

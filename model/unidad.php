@@ -16,7 +16,7 @@ class Unidad extends Conexion
         $this->id_dependencia = 0;
         $this->nombre = "";
         $this->dependencia = NULL;
-        $this->conexionion = NULL;
+        $this->conexion = NULL;
     }
 
     public function set_id($id)
@@ -255,6 +255,53 @@ class Unidad extends Conexion
         return $dato;
     }
 
+    private function ConsultarEliminados()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "SELECT unidad.id_unidad, 
+            unidad.nombre_unidad, unidad.estatus,
+            CONCAT(ente.nombre, ' - ' , dependencia.nombre) AS dependencia
+            FROM unidad
+            INNER JOIN dependencia ON unidad.id_dependencia = dependencia.id
+            INNER JOIN ente ON dependencia.id_ente = ente.id
+            WHERE unidad.estatus = 0";
+            $stm = $this->conexion->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "consultar_eliminados";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
+    private function Restaurar()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $query = "UPDATE unidad SET estatus = 1 WHERE id_unidad = :id";
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":id", $this->id);
+            $stm->execute();
+            $dato['resultado'] = "restaurar";
+            $dato['estado'] = 1;
+            $dato['mensaje'] = "Ente restaurado exitosamente";
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
     private function FiltrarUnidad_Dependencia()
     {
         $dato = [];
@@ -291,6 +338,9 @@ class Unidad extends Conexion
             case 'consultar':
                 return $this->Consultar();
 
+            case 'consultar_eliminadas':
+                return $this->ConsultarEliminados();
+
             case 'filtrar':
                 return $this->FiltrarUnidad_Dependencia();
 
@@ -299,6 +349,9 @@ class Unidad extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
+
+            case 'restaurar':
+                return $this->Restaurar();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

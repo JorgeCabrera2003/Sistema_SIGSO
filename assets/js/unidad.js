@@ -74,7 +74,19 @@ $(document).ready(function () {
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
+
+	$("#btn-consultar-eliminados").on("click", function () {
+		consultarEliminadas();
+		$("#modalEliminadas").modal("show");
+	});
 });
+
+function consultarEliminadas() {
+	var datos = new FormData();
+	datos.append('consultar_eliminadas', 'consultar_eliminadas');
+	enviaAjax(datos);
+}
+
 
 function cargarDependencia() {
 	var datos = new FormData();
@@ -91,7 +103,7 @@ function enviaAjax(datos) {
 		data: datos,
 		processData: false,
 		cache: false,
-		beforeSend: function () {},
+		beforeSend: function () { },
 		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
 		success: function (respuesta) {
 			console.log(respuesta);
@@ -107,6 +119,9 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "consultar_dependencia") {
 					selectDependencia(lee.datos);
+
+				} else if (lee.resultado == "consultar_eliminados") {
+					iniciarTablaEliminadas(lee.datos);
 
 				} else if (lee.resultado == "modificar") {
 					$("#modal1").modal("hide");
@@ -140,7 +155,7 @@ function enviaAjax(datos) {
 				mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
 			}
 		},
-		complete: function () {},
+		complete: function () { },
 	});
 }
 
@@ -265,9 +280,9 @@ function crearDataTable(arreglo) {
 	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{data: 'id_unidad'},
-			{data: 'dependencia'},
-			{data: 'nombre_unidad'},
+			{ data: 'id_unidad' },
+			{ data: 'dependencia' },
+			{ data: 'nombre_unidad' },
 			{
 				data: null, render: function () {
 					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar">
@@ -277,6 +292,9 @@ function crearDataTable(arreglo) {
 					return botones;
 				}
 			}],
+		order: [
+			[1, 'asc']
+		],
 		language: {
 			url: idiomaTabla,
 		}
@@ -284,6 +302,32 @@ function crearDataTable(arreglo) {
 	ConsultarPermisos();
 }
 
+function iniciarTablaEliminadas(arreglo) {
+	if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
+		$('#tablaEliminadas').DataTable().destroy();
+	}
+
+	$('#tablaEliminadas').DataTable({
+		data: arreglo,
+		columns: [
+			{ data: 'id_unidad' },
+			{ data: 'dependencia' },
+			{ data: 'nombre_unidad' },
+			{
+				data: null,
+				render: function () {
+					return `<button onclick="restaurarUnidad(this)" class="btn btn-success restaurar">
+                            <i class="fa-solid fa-recycle"></i>
+                            </button>`;
+				}
+			}
+		],
+		language: {
+			url: idiomaTabla,
+		}
+	});
+	ConsultarPermisos();
+}
 
 function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid").val("").prop("disabled", true);
@@ -321,4 +365,51 @@ function rellenar(pos, accion) {
 	}
 	$('#enviar').prop('disabled', false);
 	$("#modal1").modal("show");
+}
+
+function restaurarDependencia(boton) {
+	var linea = $(boton).closest('tr');
+	var id = $(linea).find('td:eq(0)').text();
+
+	Swal.fire({
+		title: '¿Restaurar Unidad?',
+		text: "¿Está seguro que desea restaurar este dependencia?",
+		icon: 'question',
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: 'Sí, restaurar',
+		cancelButtonText: 'Cancelar'
+	}).then((result) => {
+		if (result.isConfirmed) {
+			var datos = new FormData();
+			datos.append('restaurar', 'restaurar');
+			datos.append('id_unidad', id);
+
+			$.ajax({
+				url: "",
+				type: "POST",
+				data: datos,
+				processData: false,
+				contentType: false,
+				success: function (respuesta) {
+					try {
+						var lee = JSON.parse(respuesta);
+						if (lee.estado == 1) {
+							mensajes("success", null, "Unidad restaurada", lee.mensaje);
+							consultarEliminadas();
+							consultar();
+						} else {
+							mensajes("error", null, "Error", lee.mensaje);
+						}
+					} catch (e) {
+						mensajes("error", null, "Error", "Error procesando la respuesta");
+					}
+				},
+				error: function () {
+					mensajes("error", null, "Error", "No se pudo restaurar la dependencia");
+				}
+			});
+		}
+	});
 }
