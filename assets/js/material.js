@@ -66,7 +66,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_material"), $("#sid_material"), "") === 1) {
+				if (validarKeyUp(/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{2,45}$/, $("#id_material"), $("#sid_material"), "") === 1) {
 					confirmacion = await confirmarAccion("Se eliminará un Material", "¿Está seguro de realizar la acción?", "warning");
 
 					if (confirmacion) {

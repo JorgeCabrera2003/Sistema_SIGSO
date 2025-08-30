@@ -446,10 +446,17 @@ class Equipo extends Conexion
             $conexion = new Conexion("sistema");
             $conexion = $conexion->Conex();
 
-            $sql = "SELECT COALESCE(c.id_tipo_servicio, 1) as id_tipo_servicio 
+            // Consulta mejorada para obtener el tipo de servicio
+            $sql = "SELECT 
+                    COALESCE(
+                        ts.id_tipo_servicio, 
+                        c.id_tipo_servicio, 
+                        1
+                    ) as id_tipo_servicio 
                 FROM equipo e
                 JOIN bien b ON e.codigo_bien = b.codigo_bien
                 LEFT JOIN categoria c ON b.id_categoria = c.id_categoria
+                LEFT JOIN tipo_servicio ts ON c.id_tipo_servicio = ts.id_tipo_servicio
                 WHERE e.id_equipo = :id_equipo
                 LIMIT 1";
 
@@ -459,12 +466,25 @@ class Equipo extends Conexion
 
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return [
-                'resultado' => 'success',
-                'id_tipo_servicio' => $resultado['id_tipo_servicio'] ?? 1 // Default a Soporte Técnico
-            ];
+            if ($resultado && isset($resultado['id_tipo_servicio'])) {
+                return [
+                    'resultado' => 'success',
+                    'id_tipo_servicio' => $resultado['id_tipo_servicio']
+                ];
+            } else {
+                // Si no encuentra, devolver valor por defecto
+                return [
+                    'resultado' => 'success',
+                    'id_tipo_servicio' => 1 // Soporte Técnico por defecto
+                ];
+            }
         } catch (PDOException $e) {
-            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+            // En caso de error, devolver valor por defecto
+            error_log("Error en obtenerTipoServicio: " . $e->getMessage());
+            return [
+                'resultado' => 'success', // Cambiado a 'success' para no bloquear el proceso
+                'id_tipo_servicio' => 1 // Soporte Técnico por defecto
+            ];
         }
     }
 

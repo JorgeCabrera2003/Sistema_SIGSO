@@ -151,9 +151,10 @@ class Material extends Conexion
                 $this->conex = $this->conex->Conex();
                 $this->conex->beginTransaction();
                 $query = "INSERT INTO material(id_material, ubicacion, nombre_material, stock, estatus) VALUES 
-                (NULL, :ubicacion, :nombre, :stock, 1)";
+                (:id, :ubicacion, :nombre, :stock, 1)";
 
                 $stm = $this->conex->prepare($query);
+                $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->bindParam(":ubicacion", $this->ubicacion);
                 $stm->bindParam(":stock", $this->stock);

@@ -103,9 +103,15 @@ class HojaServicio extends Conexion
     // En el modelo HojaServicio, actualizar el método crearHojaServicio
     private function crearHojaServicio()
     {
-        if (!$this->nro_solicitud || !$this->id_tipo_servicio) {
-            return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para crear hoja de servicio'];
-        }
+        // DEBUG: Verificar qué datos estamos recibiendo
+    error_log("crearHojaServicio - nro_solicitud: " . $this->nro_solicitud);
+    error_log("crearHojaServicio - id_tipo_servicio: " . $this->id_tipo_servicio);
+    error_log("crearHojaServicio - codigo_hoja_servicio: " . $this->codigo_hoja_servicio);
+    
+    if (!$this->nro_solicitud || !$this->id_tipo_servicio) {
+        error_log("ERROR: Datos incompletos - nro_solicitud: " . $this->nro_solicitud . ", id_tipo_servicio: " . $this->id_tipo_servicio);
+        return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para crear hoja de servicio'];
+    }
 
         try {
             $this->conex->beginTransaction();
