@@ -124,14 +124,14 @@ class Ente extends Conexion
 
     private function Registrar()
     {
-        $this->conexion = new Conexion("sistema");
-        $this->conexion = $this->conexion->Conex();
-
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] == 0) {
             try {
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+
                 $this->conexion->beginTransaction();
                 $query = "INSERT INTO ente(id, nombre, direccion, telefono, nombre_responsable, tipo_ente, estatus) VALUES 
                 (:id, :nombre, :direccion, :telefono, :responsable, :tipo_ente, 1)";
@@ -199,18 +199,21 @@ class Ente extends Conexion
 
     private function Eliminar()
     {
-        $this->conexion = new Conexion("sistema");
-        $this->conexion = $this->conexion->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "UPDATE ente SET estatus = 0 WHERE id = :id";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
+                $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el ente exitosamente";
@@ -230,18 +233,21 @@ class Ente extends Conexion
 
     private function Consultar()
     {
-        $this->conexion = new Conexion("sistema");
-        $this->conexion = $this->conexion->Conex();
         $dato = [];
 
         try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM ente WHERE estatus = 1";
 
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -255,12 +261,15 @@ class Ente extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM ente WHERE estatus = 0";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -274,6 +283,7 @@ class Ente extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE ente SET estatus = 1 WHERE id = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -281,7 +291,9 @@ class Ente extends Conexion
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();

@@ -253,6 +253,7 @@ class Dependencia extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT dep.id, dep.id_ente,
             dep.nombre, ente.nombre AS ente
             FROM dependencia dep
@@ -260,9 +261,11 @@ class Dependencia extends Conexion
             WHERE dep.estatus = 0";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
+            $this->conexion->commit();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -276,6 +279,7 @@ class Dependencia extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE dependencia SET estatus = 1 WHERE id = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -283,7 +287,9 @@ class Dependencia extends Conexion
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Dependecia restaurada exitosamente";
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();

@@ -261,6 +261,7 @@ class Unidad extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT unidad.id_unidad, 
             unidad.nombre_unidad, unidad.estatus,
             CONCAT(ente.nombre, ' - ' , dependencia.nombre) AS dependencia
@@ -268,11 +269,14 @@ class Unidad extends Conexion
             INNER JOIN dependencia ON unidad.id_dependencia = dependencia.id
             INNER JOIN ente ON dependencia.id_ente = ente.id
             WHERE unidad.estatus = 0";
+
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -286,6 +290,7 @@ class Unidad extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE unidad SET estatus = 1 WHERE id_unidad = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -293,7 +298,9 @@ class Unidad extends Conexion
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();

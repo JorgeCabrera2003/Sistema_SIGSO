@@ -51,6 +51,7 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM cargo WHERE id_cargo = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -62,7 +63,9 @@ class Cargo extends Conexion
             } else {
                 $dato['bool'] = 0;
             }
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
@@ -79,15 +82,18 @@ class Cargo extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "INSERT INTO cargo(id_cargo, nombre_cargo, estatus) VALUES (:id, :nombre, 1)";
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
+                $this->conexion->commit();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se registró el cargo exitosamente";
             } catch (PDOException $e) {
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -107,15 +113,18 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE cargo SET nombre_cargo = :nombre WHERE id_cargo = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->bindParam(":nombre", $this->nombre);
             $stm->execute();
+            $this->conexion->commit();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se modificaron los datos del cargo con éxito";
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -133,14 +142,17 @@ class Cargo extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "UPDATE cargo SET estatus = 0 WHERE id_cargo = :id";
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
+                $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el cargo exitosamente";
             } catch (PDOException $e) {
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -160,12 +172,15 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM cargo WHERE estatus = 1 ORDER BY nombre_cargo ASC";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -179,12 +194,15 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM cargo WHERE estatus = 0 ORDER BY nombre_cargo ASC";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
