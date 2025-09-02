@@ -88,27 +88,36 @@ class Piso extends Conexion
         $dato = [];
 
         if ($bool['bool'] == 0) {
-            try {
-                $this->conexion = new Conexion("sistema");
-                $this->conexion = $this->conexion->Conex();
-                $this->conexion->beginTransaction();
-                $query = "INSERT INTO piso(id_piso, tipo_piso, nro_piso) 
+
+            $validarNroPiso = $this->ValidarNroPiso();
+
+            if ($validarNroPiso['bool'] == 0) {
+                try {
+                    $this->conexion = new Conexion("sistema");
+                    $this->conexion = $this->conexion->Conex();
+                    $this->conexion->beginTransaction();
+                    $query = "INSERT INTO piso(id_piso, tipo_piso, nro_piso) 
                 VALUES (:id_piso, :tipo_piso, :nro_piso)";
 
-                $stm = $this->conexion->prepare($query);
-                $stm->bindParam(":id_piso", $this->id);
-                $stm->bindParam(":tipo_piso", $this->tipo);
-                $stm->bindParam(":nro_piso", $this->nro_piso);
-                $stm->execute();
-                $dato['resultado'] = "registrar";
-                $dato['estado'] = 1;
-                $dato['mensaje'] = "Se registro con éxito";
-                $this->conexion->commit();
-            } catch (PDOException $e) {
-                $this->conexion->rollBack();
+                    $stm = $this->conexion->prepare($query);
+                    $stm->bindParam(":id_piso", $this->id);
+                    $stm->bindParam(":tipo_piso", $this->tipo);
+                    $stm->bindParam(":nro_piso", $this->nro_piso);
+                    $stm->execute();
+                    $dato['resultado'] = "registrar";
+                    $dato['estado'] = 1;
+                    $dato['mensaje'] = "Se registro con éxito";
+                    $this->conexion->commit();
+                } catch (PDOException $e) {
+                    $this->conexion->rollBack();
+                    $dato['resultado'] = "error";
+                    $dato['estado'] = -1;
+                    $dato['mensaje'] = $e->getMessage();
+                }
+            } else {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
-                $dato['mensaje'] = $e->getMessage();
+                $dato['mensaje'] = "Ya hay un piso con este mismo número";
             }
         } else {
             $dato['resultado'] = "error";
@@ -121,64 +130,68 @@ class Piso extends Conexion
 
     private function ValidarNroPiso()
     {
-        $dato = []; {
-            try {
-                $this->conexion = new Conexion("sistema");
-                $this->conexion = $this->conexion->Conex();
-                $this->conexion->beginTransaction();
-                $query = "SELECT * FROM piso WHERE tipo_piso = :tipo_piso AND nro_piso = :nro_piso";
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $query = "SELECT * FROM piso WHERE tipo_piso = :tipo_piso AND nro_piso = :nro_piso";
 
-                $stm = $this->conexion->prepare($query);
-                $stm->bindParam(":tipo_piso", $this->tipo);
-                $stm->bindParam(":nro_piso", $this->nro_piso);
-                $stm->execute();
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":tipo_piso", $this->tipo);
+            $stm->bindParam(":nro_piso", $this->nro_piso);
+            $stm->execute();
 
-                if ($stm->rowCount() > 0) {
-                    $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
-                    $dato['bool'] = 1;
-                } else {
-                    $dato['bool'] = 0;
-                }
-                $this->conexion->commit();
-            } catch (PDOException $e) {
-                $this->conexion->rollBack();
-                $dato['resultado'] = "error";
-                $dato['bool'] = -1;
-                $dato['estado'] = -1;
-                $dato['mensaje'] = $e->getMessage();
+            if ($stm->rowCount() > 0) {
+                $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
+                $dato['bool'] = 1;
+            } else {
+                $dato['bool'] = 0;
             }
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $dato['resultado'] = "error";
+            $dato['bool'] = -1;
+            $dato['estado'] = -1;
+            $dato['mensaje'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($this->conexion, $stm);
+        $this->Cerrar_Conexion($none, $stm);
         return $dato;
     }
 
     private function Actualizar()
     {
         $dato = [];
-
-        try {
-            $this->conexion = new Conexion("sistema");
-            $this->conexion = $this->conexion->Conex();
-            $this->conexion->beginTransaction();
-            $query = "UPDATE piso SET tipo_piso = :tipo_piso,
+        $validarNroPiso = $this->ValidarNroPiso();
+        if ($validarNroPiso['bool'] == 0) {
+            try {
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
+                $query = "UPDATE piso SET tipo_piso = :tipo_piso,
                 nro_piso= :nro_piso WHERE id_piso = :id_piso";
 
-            $stm = $this->conexion->prepare($query);
-            $stm->bindParam(":id_piso", $this->id);
-            $stm->bindParam(":tipo_piso", $this->tipo);
-            $stm->bindParam(":nro_piso", $this->nro_piso);
-            $stm->execute();
-            $dato['resultado'] = "modificar";
-            $dato['estado'] = 1;
-            $dato['mensaje'] = "Se actualizó el registro con éxito";
-            $this->conexion->commit();
-        } catch (PDOException $e) {
-            $this->conexion->rollBack();
+                $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id_piso", $this->id);
+                $stm->bindParam(":tipo_piso", $this->tipo);
+                $stm->bindParam(":nro_piso", $this->nro_piso);
+                $stm->execute();
+                $dato['resultado'] = "modificar";
+                $dato['estado'] = 1;
+                $dato['mensaje'] = "Se actualizó el registro con éxito";
+                $this->conexion->commit();
+            } catch (PDOException $e) {
+                $this->conexion->rollBack();
+                $dato['resultado'] = "error";
+                $dato['estado'] = -1;
+                $dato['mensaje'] = $e->getMessage();
+            }
+        } else {
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
-            $dato['mensaje'] = $e->getMessage();
+            $dato['mensaje'] = "Ya hay un piso con este mismo número";
         }
-
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }

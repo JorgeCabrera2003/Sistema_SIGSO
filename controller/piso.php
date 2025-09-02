@@ -99,7 +99,12 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['piso']['modificar']['estado']) && $permisos['piso']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["nro_piso"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id del Piso no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["nro_piso"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de Piso no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -158,7 +163,7 @@ if (is_file("view/" . $page . ".php")) {
 		if (isset($permisos['piso']['restaurar']['estado']) && $permisos['piso']['restaurar']['estado'] == '1') {
 			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Id del Categoria no válido";
+				$json['mensaje'] = "Error, Id del Piso no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
@@ -185,7 +190,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['piso']['eliminar']['estado']) && $permisos['piso']['eliminar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["nro_piso"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de Piso no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

@@ -14,7 +14,7 @@ class TipoServicio extends Conexion
         $this->id_tipo_servicio = 0;
         $this->nombre_tipo_servicio = "";
         $this->encargado = NULL;
-        $this->conexionion = NULL;
+        $this->conexion = NULL;
     }
 
     public function set_codigo($codigo)
@@ -53,6 +53,7 @@ class TipoServicio extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM tipo_servicio WHERE id_tipo_servicio = :codigo";
 
             $stm = $this->conexion->prepare($query);
@@ -65,9 +66,11 @@ class TipoServicio extends Conexion
             } else {
                 $dato['bool'] = 0;
             }
+            $this->conexion->commit();
         } catch (PDOException $e) {
             $dato['error'] = $e->getMessage();
             $dato['bool'] = -1;
+            $this->conexion->rollBack();
         }
         $this->Cerrar_Conexion($none, $stm);
         return $dato;
@@ -82,16 +85,20 @@ class TipoServicio extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
-                $query = "INSERT INTO tipo_servicio (nombre_tipo_servicio, cedula_encargado, estatus) VALUES (:nombre, :encargado, 1)";
+                $this->conexion->beginTransaction();
+                $query = "INSERT INTO tipo_servicio (id_tipo_servicio, nombre_tipo_servicio, cedula_encargado, estatus) VALUES (:id, :nombre, :encargado, 1)";
 
                 $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id", $this->id_tipo_servicio);
                 $stm->bindParam(":nombre", $this->nombre_tipo_servicio);
                 $stm->bindParam(":encargado", $this->encargado);
                 $stm->execute();
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se registró el servicio exitosamente";
+                $this->conexion->commit();
             } catch (PDOException $e) {
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -112,6 +119,7 @@ class TipoServicio extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE tipo_servicio SET nombre_tipo_servicio = :nombre, cedula_encargado = :encargado WHERE id_tipo_servicio = :codigo";
 
             $stm = $this->conexion->prepare($query);
@@ -122,7 +130,9 @@ class TipoServicio extends Conexion
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se modificaron los datos del servicio con éxito";
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -133,13 +143,15 @@ class TipoServicio extends Conexion
 
     private function Eliminar()
     {
-        $this->conexion = new Conexion("sistema");
-        $this->conexion = $this->conexion->Conex();
+
         $dato = [];
         $bool = $this->Validar();
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conexion = new Conexion("sistema");
+                $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "UPDATE tipo_servicio SET estatus = 0 WHERE id_tipo_servicio = :codigo";
 
                 $stm = $this->conexion->prepare($query);
@@ -148,7 +160,9 @@ class TipoServicio extends Conexion
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó el servicio exitosamente";
+                $this->conexion->commit();
             } catch (PDOException $e) {
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -169,6 +183,7 @@ class TipoServicio extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT ts.id_tipo_servicio, ts.nombre_tipo_servicio,
             ts.cedula_encargado, CONCAT(emp.nombre_empleado,' ', emp.apellido_empleado) AS encargado
             FROM tipo_servicio ts
@@ -178,10 +193,11 @@ class TipoServicio extends Conexion
 
             $stm = $this->conexion->prepare($query);
             $stm->execute();
-
+            $this->conexion->commit();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
