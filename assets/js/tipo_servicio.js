@@ -333,7 +333,7 @@ function crearInput(etiqueta) {
 		}
 
 		$("." + id).append(`<div id="${grupo}${idInput}" class="row text-center d-flex align-items-center row-${id}">
-                  <div class="col-md-6">
+                  <div class="col-xl-6">
                     <div class="form-floating mb-3 mt-4">
                       <input placeholder="" class="form-control input-grupo grupo-${grupo}" name="nombre" data-id-item= type="text" id="nombre-${grupo}${idInput}"
                         maxlength="20">
@@ -341,14 +341,14 @@ function crearInput(etiqueta) {
                       <label for="nombre-${grupo}${idInput}" class="form-label">${labelStr}</label>
                     </div>
                   </div>
-                  <div class="col-md-3 align-self-center d-flex justify-content-center">
+                  <div class="col-xl-3 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
                       <input class="form-check-input" type="checkbox" role="switch" value="" id=""><br>
                       <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
                     </div>
                     </button>
                   </div>
-                  <div class="col-md-3 align-self-center">
+                  <div class="col-xl-3 align-self-center">
                     <button type="button" id="boton-${grupo}${idInput}" onclick="eliminarItem('boton-${grupo}${idInput}')" class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
@@ -432,7 +432,7 @@ function rellenar(pos, accion) {
 	linea = $(pos).closest('tr');
 
 	$("#idServicio").remove();
-	$("#Fila1").prepend(`<div class="col-4" id="idServicio">
+	$("#Fila1").prepend(`<div class="col-lg-4" id="idServicio">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="id_servicio" type="text" id="id_servicio" readOnly>
               <span id="sid_servicio"></span>

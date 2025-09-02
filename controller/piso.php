@@ -58,13 +58,14 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
+				$piso->set_id(generarID($_POST["tipo_piso"]));
 				$piso->set_tipo($_POST["tipo_piso"]);
 				$piso->set_nro_piso($_POST["nro_piso"]);
 				$peticion["peticion"] = "registrar";
 				$json = $piso->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo piso";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo piso con ID: " . $piso->get_id();
 					$msgN = "Se registró un Nuevo Piso";
 					NotificarUsuarios($msgN, "Piso", ['modulo' => 22, 'accion' => 'ver']);
 				} else {
@@ -88,10 +89,22 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST["consultar_eliminados"])) {
+		$peticion["peticion"] = "consultar_eliminadas";
+		$json = $piso->Transaccion($peticion);
+		echo json_encode($json);
+		exit;
+	}
+
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['piso']['modificar']['estado']) && $permisos['piso']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["nro_piso"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id del Piso no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["nro_piso"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de Piso no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -129,7 +142,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $piso->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del piso con el id:" . $_POST["id_piso"];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del piso con el id: " . $_POST["id_piso"];
 					$msgN = "Piso con ID: " . $_POST["id_piso"] . " fue modificado";
 					NotificarUsuarios($msgN, "Piso", ['modulo' => 22, 'accion' => 'ver']);
 				} else {
@@ -146,9 +159,38 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST["restaurar"])) {
+		if (isset($permisos['piso']['restaurar']['estado']) && $permisos['piso']['restaurar']['estado'] == '1') {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id del Piso no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+			} else {
+				$piso->set_id($_POST["id_piso"]);
+				$peticion["peticion"] = "restaurar";
+				$json = $piso->Transaccion($peticion);
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un piso con el id: " . $_POST["id_piso"];
+					$msgN = "Se restauró un piso con el id" . $_POST["id_piso"];
+					NotificarUsuarios($msgN, "Piso", ['modulo' => 22, 'accion' => 'ver']);
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una piso";
+				}
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para restaurar una Maraca";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+		}
+		echo json_encode($json);
+		Bitacora($msg, "piso");
+		exit;
+	}
+
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['piso']['eliminar']['estado']) && $permisos['piso']['eliminar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["nro_piso"]) == 0) {
+			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de Piso no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

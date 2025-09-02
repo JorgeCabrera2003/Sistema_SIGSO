@@ -109,10 +109,12 @@ class ServicioPrestado extends Conexion
     private function CargarServicios($servicio = NULL)
     {
         $dato = [];
+        $dato['total_errores'] = 0;
 
-        if ($servicio == NULL) {
+        if ($servicio == NULL || $servicio == []) {
             $dato['resultado'] = "error";
-            $dato['estado'] = -1;
+            $dato['estado'] = "vacio";
+            $dato['total_errores'] = 0;
             $dato['mensaje'] = "Conjunto de servicios vacíos";
         } else {
             if (is_array($servicio)) {
@@ -121,16 +123,28 @@ class ServicioPrestado extends Conexion
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
                     foreach ($servicio as $key) {
-                        $this->set_id($key['id']);
-                        $this->set_id_servicio($key['id_servicio']);
-                        $this->set_nombre($key['nombre']);
-                        $this->set_bool_texto($key['bool_texto']);
+                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id']) == 0) {
+                            $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        $bool = $this->Validar();
-                        if ($bool['bool'] == 0) {
-                            $this->Registrar();
-                        } else if ($bool['bool'] == 1) {
-                            $this->Actualizar();
+                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ ]{4,30}$/", $key['nombre']) == 0) {
+                            $dato['total_errores'] = $dato['total_errores'] + 1;
+
+                        } else if (preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {
+                            $dato['total_errores'] = $dato['total_errores'] + 1;
+
+                        } else {
+                            $this->set_id($key['id']);
+                            $this->set_nombre($key['nombre']);
+                            $this->set_bool_texto($key['estado']);
+
+                            $bool = $this->Validar();
+                            if ($bool['bool'] == 0) {
+                                $this->Registrar();
+                            } else if ($bool['bool'] == 1) {
+                                $this->Actualizar();
+                            } else {
+                                $dato['total_errores'] = $dato['total_errores'] + 1;
+                            }
                         }
                     }
                     $this->conexion->commit();
@@ -156,7 +170,7 @@ class ServicioPrestado extends Conexion
         $bool = $this->Validar();
         $transaccion = false;
         $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-        $boolServicio = $this->LlamarTipoServicio()->Transaccion('validar');
+        $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
         if ($bool['bool'] == 0) {
             if ($boolServicio['bool'] == 1) {
                 try {
@@ -166,9 +180,10 @@ class ServicioPrestado extends Conexion
                         $this->conexion->beginTransaction();
                         $transaccion = true;
                     }
-                    $query = "INSERT INTO servicio_prestado (id, id_tipo_servicio, nombre, bool_texto, estatus) VALUES (NULL, :id_servicio, :nombre, :bool_texto, 1)";
+                    $query = "INSERT INTO servicio_prestado (id, id_tipo_servicio, nombre, bool_texto, estatus) VALUES (:id, :id_servicio, :nombre, :bool_texto, 1)";
 
                     $stm = $this->conexion->prepare($query);
+                    $stm->bindParam(":id", $this->id);
                     $stm->bindParam(":id_servicio", $this->id_servicio);
                     $stm->bindParam(":nombre", $this->nombre);
                     $stm->bindParam(":bool_texto", $this->bool_texto);
@@ -211,7 +226,7 @@ class ServicioPrestado extends Conexion
         $transaccion = false;
         $boolServicio = [];
         $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-        $boolServicio = $this->LlamarTipoServicio()->Transaccion('validar');
+        $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
         if ($boolServicio['bool'] == 1) {
 
             try {

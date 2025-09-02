@@ -42,6 +42,18 @@ if (is_file("view/" . $page . ".php")) {
 		$_POST['servicios'];
 		$arrayServicio = convertirJSON(json_decode($_POST['servicios']));
 		$arrayComponente = convertirJSON(json_decode($_POST['componentes']));
+		
+		foreach($arrayServicio as &$keyS){
+			usleep(100000);
+			$id = generarID($_POST["nombre"], $keyS["nombre"]);
+			$keyS["id"] = $id;
+		}
+
+		foreach($arrayComponente as &$keyC){
+			usleep(100000);
+			$id =  generarID($_POST["nombre"], $keyC["nombre"]);
+			$keyC["id"] = $id;
+		}
 
 		if (isset($permisos['tipo_servicio']['registrar']['estado']) && $permisos['tipo_servicio']['registrar']['estado'] == 1) {
 			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
@@ -55,19 +67,23 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
 			} else {
-
+				$tipo_servicio->set_codigo(generarID($_POST["nombre"]));
 				$tipo_servicio->set_nombre($_POST["nombre"]);
 				$tipo_servicio->set_encargado($_POST["encargado"]);
 				$peticion["peticion"] = "registrar";
-				/*$json = $tipo_servicio->Transaccion($peticion);
+				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
+					$servicio_prestado->set_id_servicio($tipo_servicio->get_codigo());
+					$componente->set_id_servicio($tipo_servicio->get_codigo());
+					$servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayServicio]);
+					$componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayComponente]);
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio";
 					$msgN = "Se registró una Nuevo Tipo de Servicio";
 					NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo tipo de servicio";
-				}*/
+				}
 				$json['resultado'] = "registrar";
 				$json['servicios'] = $arrayServicio;
 				$json['componentes'] = $arrayComponente;

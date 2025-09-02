@@ -261,6 +261,10 @@ class Unidad extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+<<<<<<< HEAD
+=======
+            $this->conexion->beginTransaction();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT unidad.id_unidad, 
             unidad.nombre_unidad, unidad.estatus,
             CONCAT(ente.nombre, ' - ' , dependencia.nombre) AS dependencia
@@ -268,11 +272,21 @@ class Unidad extends Conexion
             INNER JOIN dependencia ON unidad.id_dependencia = dependencia.id
             INNER JOIN ente ON dependencia.id_ente = ente.id
             WHERE unidad.estatus = 0";
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+<<<<<<< HEAD
         } catch (PDOException $e) {
+=======
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -286,6 +300,10 @@ class Unidad extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+<<<<<<< HEAD
+=======
+            $this->conexion->beginTransaction();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "UPDATE unidad SET estatus = 1 WHERE id_unidad = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -293,7 +311,13 @@ class Unidad extends Conexion
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
+<<<<<<< HEAD
         } catch (PDOException $e) {
+=======
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();

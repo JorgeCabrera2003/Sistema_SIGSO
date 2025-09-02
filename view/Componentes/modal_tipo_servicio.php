@@ -8,14 +8,14 @@
       </div>
       <div class="modal-body">
         <div class="row justify-content-center" id="Fila1">
-          <div class="col-md-4">
+          <div class="col-lg-4">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="200">
               <span id="snombre"></span>
               <label for="nombre" class="form-label">Nombre del Servicio</label>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-lg-4">
             <div class="form-floating mb-3 mt-4">
               <select class="form-select" name="encargado" id="encargado">
               </select>
@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="row mt-4" id="inputs_servicios">
-          <div class="col-md-6">
+          <div class="col-lg-6">
             <fieldset class="permission-group">
               <legend class="group-header">
                 <label class="" for="servicios">Servicios Prestados: </label>
@@ -38,7 +38,7 @@
               </div>
             </fieldset>
           </div>
-          <div class="col-md-6">
+          <div class="col-lg-6">
             <fieldset class="permission-group">
               <legend class="group-header">
                 <label class="" for="servicios">Componentes a Atender: </label>

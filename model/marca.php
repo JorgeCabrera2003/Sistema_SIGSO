@@ -73,6 +73,7 @@ class Marca extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
+                $this->conexion->beginTransaction();
                 $query = "INSERT INTO marca(id_marca, nombre_marca) VALUES 
             (:id, :nombre)";
 
@@ -83,7 +84,9 @@ class Marca extends Conexion
                 $dato['resultado'] = "registrar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se registró la marca exitosamente";
+                $this->conexion->commit();
             } catch (PDOException $e) {
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -104,6 +107,7 @@ class Marca extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "UPDATE marca SET nombre_marca = :nombre WHERE id_marca = :id";
 
             $stm = $this->conexion->prepare($query);
@@ -113,7 +117,9 @@ class Marca extends Conexion
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se modificaron los datos de la marca con éxito";
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
@@ -129,6 +135,7 @@ class Marca extends Conexion
 
         if ($bool['bool'] != 0) {
             try {
+                $this->conexion->beginTransaction();
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
                 $query = "UPDATE marca SET estatus = 0 WHERE id_marca = :id";
@@ -139,8 +146,10 @@ class Marca extends Conexion
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó la marca exitosamente";
+                $this->conexion->commit();
 
             } catch (PDOException $e) {
+                $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -161,13 +170,16 @@ class Marca extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
             $query = "SELECT * FROM marca WHERE estatus = 1";
 
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
         } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -181,12 +193,22 @@ class Marca extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+<<<<<<< HEAD
+=======
+            $this->conexion->beginTransaction();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT * FROM marca WHERE estatus = 0";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+<<<<<<< HEAD
         } catch (PDOException $e) {
+=======
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -200,14 +222,25 @@ class Marca extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
+<<<<<<< HEAD
+=======
+            $this->conexion->beginTransaction();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "UPDATE marca SET estatus = 1 WHERE id_marca = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
+<<<<<<< HEAD
             $dato['mensaje'] = "Ente restaurado exitosamente";
         } catch (PDOException $e) {
+=======
+            $dato['mensaje'] = "Marca restaurado exitosamente";
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
@@ -216,6 +249,10 @@ class Marca extends Conexion
         return $dato;
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
     public function Transaccion($peticion)
     {
 
