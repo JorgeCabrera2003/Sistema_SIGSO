@@ -193,22 +193,22 @@ class Marca extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
+
             $query = "SELECT * FROM marca WHERE estatus = 0";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-<<<<<<< HEAD
+
         } catch (PDOException $e) {
-=======
+
             $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
+
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -222,25 +222,25 @@ class Marca extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
+
             $query = "UPDATE marca SET estatus = 1 WHERE id_marca = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
-<<<<<<< HEAD
+
             $dato['mensaje'] = "Ente restaurado exitosamente";
         } catch (PDOException $e) {
-=======
+
             $dato['mensaje'] = "Marca restaurado exitosamente";
             $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
+
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
@@ -249,10 +249,10 @@ class Marca extends Conexion
         return $dato;
     }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
+
+
+
     public function Transaccion($peticion)
     {
 

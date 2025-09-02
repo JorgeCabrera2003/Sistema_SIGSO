@@ -88,106 +88,102 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["solicitud"]) && $_POST["motivo"] != NULL) {
-		$msgN = ""; // Inicializar para evitar warning
-		try {
-			// Validar motivo
-			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/", $_POST["motivo"]) == 0) {
-				throw new Exception("Error, datos no válidos");
-			}
+    $msgN = ""; // Inicializar para evitar warning
+    try {
+        // Validar motivo
+        if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/", $_POST["motivo"]) == 0) {
+            throw new Exception("Error, datos no válidos");
+        }
 
-			$solicitud->set_nro_solicitud(generarID($_POST["motivo"]));
-			$solicitud->set_cedula_solicitante($datos["cedula"]);
-			$solicitud->set_motivo($_POST["motivo"]);
+        // Generar ID único para la solicitud
+        $nro_solicitud = generarID("PR", substr($_POST["motivo"], 0, 2));
+        $solicitud->set_nro_solicitud($nro_solicitud);
+        $solicitud->set_cedula_solicitante($datos["cedula"]);
+        $solicitud->set_motivo($_POST["motivo"]);
 
-			// Registrar el equipo si viene en el POST
-			if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
-				$solicitud->set_id_equipo($_POST["id_equipo"]);
-			} else {
-				$solicitud->set_id_equipo(null);
-			}
+        // Registrar el equipo si viene en el POST
+        if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
+            $solicitud->set_id_equipo($_POST["id_equipo"]);
+        } else {
+            $solicitud->set_id_equipo(null);
+        }
 
-			// Registrar la solicitud
-			$peticion = ["peticion" => "registrar"];
-			$resultado = $solicitud->Transaccion($peticion);
+        // Registrar la solicitud
+        $peticion = ["peticion" => "registrar"];
+        $resultado = $solicitud->Transaccion($peticion);
 
-			if ($resultado['bool'] == 1) {
-				// Obtener tipo de servicio basado en el equipo (si existe)
-				$id_tipo_servicio = 1; // Default a Soporte Técnico
+        if ($resultado['bool'] == 1) {
+            // Obtener tipo de servicio basado en el equipo (si existe)
+            $id_tipo_servicio = 1; // Default a Soporte Técnico
 
-				if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
-					$resultadoTipoServicio = $equipo->Transaccion([
-						'peticion' => 'obtener_tipo_servicio',
-						'id_equipo' => $_POST["id_equipo"]
-					]);
+            if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
+                $resultadoTipoServicio = $equipo->Transaccion([
+                    'peticion' => 'obtener_tipo_servicio',
+                    'id_equipo' => $_POST["id_equipo"]
+                ]);
 
-					// DEBUG: Verificar lo que devuelve la consulta
-					error_log("Resultado tipo servicio: " . print_r($resultadoTipoServicio, true));
+                if ($resultadoTipoServicio['resultado'] === 'success') {
+                    $id_tipo_servicio = $resultadoTipoServicio['id_tipo_servicio'];
+                }
+            }
 
-					if ($resultadoTipoServicio['resultado'] === 'success') {
-						$id_tipo_servicio = $resultadoTipoServicio['id_tipo_servicio'];
-					} else {
-						// Si hay error, usar valor por defecto pero loguear el error
-						error_log("Error obteniendo tipo servicio: " . $resultadoTipoServicio['mensaje']);
-					}
-				}
+            // Crear hoja de servicio
+            $hojaServicio = new HojaServicio();
+            // Generar código único para la hoja de servicio
+            $codigoHoja = generarID("HS", substr($nro_solicitud, -2));
+            
+            // DEBUG: Verificar valores antes de crear hoja
+            error_log("DEBUG - nro_solicitud: " . $nro_solicitud);
+            error_log("DEBUG - codigoHoja: " . $codigoHoja);
+            error_log("DEBUG - id_tipo_servicio: " . $id_tipo_servicio);
+            
+            // Pasar todos los parámetros directamente en la petición
+            $peticionHoja = [
+                'peticion' => 'crear',
+                'codigo_hoja_servicio' => $codigoHoja,
+                'nro_solicitud' => $nro_solicitud,
+                'id_tipo_servicio' => $id_tipo_servicio
+            ];
+            
+            // Crear la hoja de servicio
+            $resultHoja = $hojaServicio->Transaccion($peticionHoja);
 
-				// DEBUG: Verificar valores antes de crear hoja
-				error_log("nro_solicitud: " . $resultado['datos']);
-				error_log("id_tipo_servicio: " . $id_tipo_servicio);
+            if ($resultHoja['resultado'] !== 'success') {
+                throw new Exception("Error al crear hoja de servicio: " . ($resultHoja['mensaje'] ?? ''));
+            }
 
-				// Validar datos antes de crear hoja de servicio
-				if (empty($resultado['datos']) || empty($id_tipo_servicio)) {
-					throw new Exception("Datos incompletos para crear hoja de servicio. nro_solicitud: " .
-						$resultado['datos'] . ", id_tipo_servicio: " . $id_tipo_servicio);
-				}
+            $json = [
+                'resultado' => 'success',
+                'mensaje' => 'Solicitud registrada correctamente',
+                'nro_solicitud' => $nro_solicitud,
+                'tecnico_asignado' => $resultHoja['tecnico_asignado'] ?? null
+            ];
 
-				// Crear hoja de servicio
-				$hojaServicio = new HojaServicio();
-				$hojaServicio->set_nro_solicitud($resultado['datos']);
-				$hojaServicio->set_id_tipo_servicio($id_tipo_servicio);
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Realizó una solicitud exitosamente";
+            $msgN = "Nueva solicitud #{$nro_solicitud} creada por " .
+                $_SESSION['user']['nombres'] . " " . $_SESSION['user']['apellidos'] .
+                "(" . $_SESSION['user']['nombre_usuario'] . "): " . $_POST["motivo"];
 
-				// Generar código único para la hoja de servicio
-				$codigoHoja = generarID("hoja_" . $resultado['datos'] . "_" . $id_tipo_servicio);
-				$hojaServicio->set_codigo_hoja_servicio($codigoHoja);
+            // Notificar al técnico si fue asignado
+            if (!empty($resultHoja['tecnico_asignado'])) {
+                $msgTecnico = "Se le ha asignado una nueva solicitud (#{$nro_solicitud})";
+                Notificar($msgTecnico, "Solicitud", $resultHoja['tecnico_asignado']);
+            }
+        } else {
+            throw new Exception($resultado['mensaje']);
+        }
+    } catch (Exception $e) {
+        $json = [
+            'resultado' => 'error',
+            'mensaje' => $e->getMessage()
+        ];
+    }
 
-				$resultHoja = $hojaServicio->Transaccion(['peticion' => "crear"]);
-
-				if ($resultHoja['resultado'] !== 'success') {
-					throw new Exception("Error al crear hoja de servicio: " . ($resultHoja['mensaje'] ?? ''));
-				}
-
-				$json = [
-					'resultado' => 'success',
-					'mensaje' => 'Solicitud registrada correctamente',
-					'nro_solicitud' => $resultado['datos'],
-					'tecnico_asignado' => $resultHoja['tecnico_asignado'] ?? null
-				];
-
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Realizó una solicitud exitosamente";
-				$msgN = "Nueva solicitud #{$resultado['datos']} creada por " .
-					$_SESSION['user']['nombres'] . " " . $_SESSION['user']['apellidos'] .
-					"(" . $_SESSION['user']['nombre_usuario'] . "): " . $_POST["motivo"];
-
-				// Notificar al técnico si fue asignado
-				if (!empty($resultHoja['tecnico_asignado'])) {
-					$msgTecnico = "Se le ha asignado una nueva solicitud (#{$resultado['datos']})";
-					Notificar($msgTecnico, "Solicitud", $resultHoja['tecnico_asignado']);
-				}
-			} else {
-				throw new Exception($resultado['mensaje']);
-			}
-		} catch (Exception $e) {
-			$json = [
-				'resultado' => 'error',
-				'mensaje' => $e->getMessage()
-			];
-		}
-
-		echo json_encode($json);
-		Bitacora($msg, "Solicitud");
-		NotificarUsuarios($msgN, "Solicitud", ['modulo' => 7, 'accion' => 'ver_solicitud']);
-		exit;
-	}
+    echo json_encode($json);
+    Bitacora($msg, "Solicitud");
+    NotificarUsuarios($msgN, "Solicitud", ['modulo' => 7, 'accion' => 'ver_solicitud']);
+    exit;
+}
 	// Consultar bienes del empleado
 	if (isset($_POST['consultar_bienes_empleado']) && isset($_POST['cedula_empleado'])) {
 		$peticion = [

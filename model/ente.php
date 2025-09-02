@@ -261,8 +261,8 @@ class Ente extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT * FROM ente WHERE estatus = 0";
@@ -270,9 +270,9 @@ class Ente extends Conexion
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-<<<<<<< HEAD
+
         } catch (PDOException $e) {
-=======
+
             $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();
@@ -290,8 +290,8 @@ class Ente extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "UPDATE ente SET estatus = 1 WHERE id = :id";
@@ -301,9 +301,9 @@ class Ente extends Conexion
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
-<<<<<<< HEAD
+
         } catch (PDOException $e) {
-=======
+
             $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();

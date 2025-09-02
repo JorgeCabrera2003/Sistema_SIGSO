@@ -23,17 +23,17 @@ class HojaServicio extends Conexion
     // Setters con validación
     public function set_codigo_hoja_servicio($codigo)
     {
-        $this->codigo_hoja_servicio = filter_var($codigo, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $this->codigo_hoja_servicio = $codigo;
     }
 
     public function set_nro_solicitud($nro)
     {
-        $this->nro_solicitud = filter_var($nro, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $this->nro_solicitud = $nro;
     }
 
     public function set_id_tipo_servicio($id)
     {
-        $this->id_tipo_servicio = filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $this->id_tipo_servicio = $id;
     }
 
     public function set_redireccion($redireccion)
@@ -101,123 +101,113 @@ class HojaServicio extends Conexion
     }
 
     // En el modelo HojaServicio, actualizar el método crearHojaServicio
-    private function crearHojaServicio()
-    {
-        // DEBUG: Verificar qué datos estamos recibiendo
-    error_log("crearHojaServicio - nro_solicitud: " . $this->nro_solicitud);
-    error_log("crearHojaServicio - id_tipo_servicio: " . $this->id_tipo_servicio);
-    error_log("crearHojaServicio - codigo_hoja_servicio: " . $this->codigo_hoja_servicio);
+    private function crearHojaServicioDirecto($codigo_hoja_servicio, $nro_solicitud, $id_tipo_servicio)
+{
+    // DEBUG: Verificar valores recibidos
+    error_log("DEBUG crearHojaServicioDirecto - codigo: " . $codigo_hoja_servicio);
+    error_log("DEBUG crearHojaServicioDirecto - nro_solicitud: " . $nro_solicitud);
+    error_log("DEBUG crearHojaServicioDirecto - tipo_servicio: " . $id_tipo_servicio);
     
-    if (!$this->nro_solicitud || !$this->id_tipo_servicio) {
-        error_log("ERROR: Datos incompletos - nro_solicitud: " . $this->nro_solicitud . ", id_tipo_servicio: " . $this->id_tipo_servicio);
+    if (empty($codigo_hoja_servicio) || empty($nro_solicitud) || empty($id_tipo_servicio)) {
+        error_log("ERROR: Datos incompletos para crear hoja - codigo: " . $codigo_hoja_servicio . 
+                 ", nro_solicitud: " . $nro_solicitud . 
+                 ", tipo_servicio: " . $id_tipo_servicio);
         return ['resultado' => 'error', 'mensaje' => 'Datos incompletos para crear hoja de servicio'];
     }
 
-        try {
-            $this->conex->beginTransaction();
+    try {
+        $this->conex->beginTransaction();
 
-            // Verificar si la solicitud existe y está activa
-            $sqlVerificar = "SELECT COUNT(*) FROM solicitud WHERE nro_solicitud = :nro AND estatus = 1";
-            $stmtVerificar = $this->conex->prepare($sqlVerificar);
-            $stmtVerificar->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
-            $stmtVerificar->execute();
+        // Verificar si la solicitud existe y está activa
+        $sqlVerificar = "SELECT COUNT(*) FROM solicitud WHERE nro_solicitud = :nro AND estatus = 1";
+        $stmtVerificar = $this->conex->prepare($sqlVerificar);
+        $stmtVerificar->bindParam(':nro', $nro_solicitud, PDO::PARAM_STR);
+        $stmtVerificar->execute();
 
-            if ($stmtVerificar->fetchColumn() == 0) {
-                throw new Exception("La solicitud no existe o está inactiva");
-            }
+        if ($stmtVerificar->fetchColumn() == 0) {
+            throw new Exception("La solicitud no existe o está inactiva");
+        }
 
-            // Verificar si ya existe una hoja para este tipo de servicio
-            $sqlExistente = "SELECT COUNT(*) FROM hoja_servicio 
-                    WHERE nro_solicitud = :nro AND id_tipo_servicio = :tipo";
-            $stmtExistente = $this->conex->prepare($sqlExistente);
-            $stmtExistente->bindParam(':nro', $this->nro_solicitud, PDO::PARAM_INT);
-            $stmtExistente->bindParam(':tipo', $this->id_tipo_servicio, PDO::PARAM_INT);
-            $stmtExistente->execute();
+        // Verificar si ya existe una hoja para este tipo de servicio
+        $sqlExistente = "SELECT COUNT(*) FROM hoja_servicio 
+                WHERE nro_solicitud = :nro AND id_tipo_servicio = :tipo";
+        $stmtExistente = $this->conex->prepare($sqlExistente);
+        $stmtExistente->bindParam(':nro', $nro_solicitud, PDO::PARAM_STR);
+        $stmtExistente->bindParam(':tipo', $id_tipo_servicio, PDO::PARAM_INT);
+        $stmtExistente->execute();
 
-            if ($stmtExistente->fetchColumn() > 0) {
-                throw new Exception("Ya existe una hoja para este tipo de servicio en la solicitud");
-            }
+        if ($stmtExistente->fetchColumn() > 0) {
+            throw new Exception("Ya existe una hoja para este tipo de servicio en la solicitud");
+        }
 
-            // Obtener técnico con menor carga para este tipo de servicio
-            $sqlTecnico = "SELECT 
-                    e.cedula_empleado, 
-                    CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
-                    COALESCE(hs.cant_hojas, 0) AS hojas_mes
-                FROM empleado e
-                LEFT JOIN (
-                    SELECT 
-                        cedula_tecnico, 
-                        COUNT(*) AS cant_hojas
-                    FROM hoja_servicio
-                    WHERE estatus = 'A'
-                    GROUP BY cedula_tecnico
-                ) hs ON hs.cedula_tecnico = e.cedula_empleado
-                WHERE e.id_servicio = :tipo_servicio
-                    AND e.id_cargo = 1  -- 1 = Técnico
-                    AND e.estatus = 1   -- 1 = Activo
-                ORDER BY hojas_mes ASC, nombre ASC
-                LIMIT 1";
+        // Obtener técnico con menor carga para este tipo de servicio
+        $sqlTecnico = "SELECT 
+                e.cedula_empleado, 
+                CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
+                COALESCE(hs.cant_hojas, 0) AS hojas_mes
+            FROM empleado e
+            LEFT JOIN (
+                SELECT 
+                    cedula_tecnico, 
+                    COUNT(*) AS cant_hojas
+                FROM hoja_servicio
+                WHERE estatus = 'A'
+                GROUP BY cedula_tecnico
+            ) hs ON hs.cedula_tecnico = e.cedula_empleado
+            WHERE e.id_servicio = :tipo_servicio
+                AND e.id_cargo = 1  -- 1 = Técnico
+                AND e.estatus = 1   -- 1 = Activo
+            ORDER BY hojas_mes ASC, nombre ASC
+            LIMIT 1";
 
-            $stmtTecnico = $this->conex->prepare($sqlTecnico);
-            $stmtTecnico->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
-            $stmtTecnico->execute();
-            $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
+        $stmtTecnico = $this->conex->prepare($sqlTecnico);
+        $stmtTecnico->bindParam(':tipo_servicio', $id_tipo_servicio, PDO::PARAM_INT);
+        $stmtTecnico->execute();
+        $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
 
-            if (!$tecnico) {
-                throw new Exception("No hay técnicos disponibles para este tipo de servicio");
-            }
+        if (!$tecnico) {
+            throw new Exception("No hay técnicos disponibles para este tipo de servicio");
+        }
 
-            $this->cedula_tecnico = $tecnico['cedula_empleado'];
+        $cedula_tecnico = $tecnico['cedula_empleado'];
 
-            // Insertar la hoja de servicio
-            $sql = "INSERT INTO hoja_servicio 
+        // Insertar la hoja de servicio
+        $sql = "INSERT INTO hoja_servicio 
             (codigo_hoja_servicio, nro_solicitud, id_tipo_servicio, estatus, cedula_tecnico) 
             VALUES (:codigo_hoja_servicio, :nro_solicitud, :tipo_servicio, 'A', :cedula_tecnico)";
 
-            $stmt = $this->conex->prepare($sql);
-            $stmt->bindParam(':codigo_hoja_servicio', $this->codigo_hoja_servicio, PDO::PARAM_INT);
-            $stmt->bindParam(':nro_solicitud', $this->nro_solicitud, PDO::PARAM_INT);
-            $stmt->bindParam(':tipo_servicio', $this->id_tipo_servicio, PDO::PARAM_INT);
-            $stmt->bindParam(':cedula_tecnico', $this->cedula_tecnico);
+        $stmt = $this->conex->prepare($sql);
+        $stmt->bindParam(':codigo_hoja_servicio', $codigo_hoja_servicio, PDO::PARAM_STR);
+        $stmt->bindParam(':nro_solicitud', $nro_solicitud, PDO::PARAM_STR);
+        $stmt->bindParam(':tipo_servicio', $id_tipo_servicio, PDO::PARAM_INT);
+        $stmt->bindParam(':cedula_tecnico', $cedula_tecnico, PDO::PARAM_STR);
 
-            if ($stmt->execute()) {
-                $codigo = $this->conex->lastInsertId();
-                $this->codigo_hoja_servicio = $codigo;
+        if ($stmt->execute()) {
+            // Actualizar estado de la solicitud a "En proceso"
+            $sqlActualizar = "UPDATE solicitud SET estado_solicitud = 'En proceso' WHERE nro_solicitud = :nro_solicitud";
+            $stmtActualizar = $this->conex->prepare($sqlActualizar);
+            $stmtActualizar->bindParam(':nro_solicitud', $nro_solicitud, PDO::PARAM_STR);
+            $stmtActualizar->execute();
 
-                // Registrar detalles si existen
-                if (!empty($this->detalles)) {
-                    if (!$this->registrarDetalles()) {
-                        throw new Exception("Error al registrar detalles");
-                    }
-                }
-
-                // Actualizar estado de la solicitud a "En proceso"
-                $this->actualizarEstadoSolicitud('En proceso');
-
-                // Notificar al técnico asignado
-                if (!empty($this->cedula_tecnico)) {
-                    $msg = "Se le ha asignado una nueva hoja de servicio (#$codigo)";
-                    Notificar($msg, "Hoja de Servicio", $this->cedula_tecnico);
-                }
-
-                $this->conex->commit();
-                return [
-                    'resultado' => 'success',
-                    'mensaje' => 'Hoja de servicio creada exitosamente',
-                    'codigo' => $codigo,
-                    'tecnico_asignado' => $this->cedula_tecnico
-                ];
-            } else {
-                throw new Exception("Error al crear hoja de servicio");
-            }
-        } catch (PDOException $e) {
-            $this->conex->rollBack();
-            return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
-        } catch (Exception $e) {
-            $this->conex->rollBack();
-            return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
+            $this->conex->commit();
+            
+            return [
+                'resultado' => 'success',
+                'mensaje' => 'Hoja de servicio creada exitosamente',
+                'codigo' => $codigo_hoja_servicio,
+                'tecnico_asignado' => $cedula_tecnico
+            ];
+        } else {
+            throw new Exception("Error al crear hoja de servicio");
         }
+    } catch (PDOException $e) {
+        $this->conex->rollBack();
+        return ['resultado' => 'error', 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()];
+    } catch (Exception $e) {
+        $this->conex->rollBack();
+        return ['resultado' => 'error', 'mensaje' => $e->getMessage()];
     }
+}
 
     /**
      * Obtiene los datos completos de una hoja de servicio
@@ -1069,106 +1059,79 @@ class HojaServicio extends Conexion
      * Maneja las transacciones del modelo
      */
     public function Transaccion($peticion)
-    {
-        if (!isset($peticion['peticion'])) {
-            return ['resultado' => 'error', 'mensaje' => 'Petición no especificada'];
-        }
-
-        // Asignar propiedades según la petición
-        if (isset($peticion['codigo_hoja_servicio'])) {
-            $this->set_codigo_hoja_servicio($peticion['codigo_hoja_servicio']);
-        }
-
-        if (isset($peticion['nro_solicitud'])) {
-            $this->set_nro_solicitud($peticion['nro_solicitud']);
-        }
-
-        if (isset($peticion['id_tipo_servicio'])) {
-            $this->set_id_tipo_servicio($peticion['id_tipo_servicio']);
-        }
-
-        if (isset($peticion['redireccion'])) {
-            $this->set_redireccion($peticion['redireccion']);
-        }
-
-        if (isset($peticion['cedula_tecnico'])) {
-            $this->set_cedula_tecnico($peticion['cedula_tecnico']);
-        }
-
-        if (isset($peticion['resultado_hoja_servicio'])) {
-            $this->set_resultado_hoja_servicio($peticion['resultado_hoja_servicio']);
-        }
-
-        if (isset($peticion['observacion'])) {
-            $this->set_observacion($peticion['observacion']);
-        }
-
-        if (isset($peticion['detalles'])) {
-            $this->set_detalles($peticion['detalles']);
-        }
-
-        // Procesar petición
-        switch ($peticion['peticion']) {
-            case 'crear':
-                return $this->crearHojaServicio();
-
-            case 'consultar':
-                return $this->obtenerHojaServicio();
-
-            case 'finalizar':
-                return $this->finalizarHojaServicio();
-
-            case 'listar':
-                return $this->listarHojasServicio($peticion['usuario']);
-
-            case 'tipos_disponibles':
-                return $this->obtenerTiposDisponibles();
-
-            case 'tomar_hoja':
-                return $this->tomarHojaServicio();
-
-            case 'verificar_hoja_tomar':
-                return $this->verificarHojaParaTomar(
-                    $peticion['codigo_hoja_servicio'],
-                    $peticion['id_servicio']
-                );
-
-            case 'registrar_detalles':
-                return [
-                    'resultado' => $this->registrarDetalles() ? 'success' : 'error',
-                    'mensaje' => $this->registrarDetalles() ? 'Detalles registrados' : 'Error al registrar detalles'
-                ];
-
-            case 'actualizar':
-                // Si no se pasa usuario, usar el de sesión
-                $usuario = isset($peticion['usuario']) ? $peticion['usuario'] : (isset($_SESSION['user']) ? $_SESSION['user'] : []);
-                return $this->actualizarHojaServicio($usuario);
-
-            case 'consultar_detalles':
-                return $this->consultarSoloDetalles();
-
-            case 'eliminar':
-                return $this->eliminarHojaServicio();
-
-            case 'contar':
-                return $this->contarNumeroHoja();
-
-            case 'listar_hoja_equipo':
-                return $this->contarNumeroHoja();
-
-            case 'redireccionar':
-                return $this->redireccionar($peticion['area_destino'], $peticion['tecnico_destino']);
-
-            case 'obtener_tecnicos_por_area':
-                if (empty($peticion['area_id'])) {
-                    return ['resultado' => 'error', 'mensaje' => 'ID de área no especificado'];
-                }
-                $areaId = (int)$peticion['area_id'];
-                $tecnicos = $this->obtenerTecnicosPorArea($areaId);
-                return $tecnicos;
-
-            default:
-                return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
-        }
+{
+    if (!isset($peticion['peticion'])) {
+        return ['resultado' => 'error', 'mensaje' => 'Petición no especificada'];
     }
+
+    // DEBUG: Verificar la petición completa
+    error_log("DEBUG Transaccion - peticion recibida: " . print_r($peticion, true));
+
+    // Procesar petición
+    switch ($peticion['peticion']) {
+        case 'crear':
+            // Extraer parámetros directamente de la petición
+            $codigo_hoja_servicio = $peticion['codigo_hoja_servicio'] ?? '';
+            $nro_solicitud = $peticion['nro_solicitud'] ?? '';
+            $id_tipo_servicio = $peticion['id_tipo_servicio'] ?? '';
+            
+            // DEBUG: Verificar valores extraídos
+            error_log("DEBUG Transaccion - codigo_hoja: " . $codigo_hoja_servicio);
+            error_log("DEBUG Transaccion - nro_solicitud: " . $nro_solicitud);
+            error_log("DEBUG Transaccion - id_tipo_servicio: " . $id_tipo_servicio);
+            
+            // Validar que todos los parámetros necesarios estén presentes
+            if (empty($codigo_hoja_servicio) || empty($nro_solicitud) || empty($id_tipo_servicio)) {
+                return ['resultado' => 'error', 'mensaje' => 'Parámetros incompletos para crear hoja de servicio'];
+            }
+            
+            // Crear la hoja de servicio directamente con los parámetros
+            return $this->crearHojaServicioDirecto($codigo_hoja_servicio, $nro_solicitud, $id_tipo_servicio);
+
+        // ... otros casos deben mantenerse igual ...
+        case 'consultar':
+            return $this->obtenerHojaServicio();
+        case 'finalizar':
+            return $this->finalizarHojaServicio();
+        case 'listar':
+            return $this->listarHojasServicio($peticion['usuario']);
+        case 'tipos_disponibles':
+            return $this->obtenerTiposDisponibles();
+        case 'tomar_hoja':
+            return $this->tomarHojaServicio();
+        case 'verificar_hoja_tomar':
+            return $this->verificarHojaParaTomar(
+                $peticion['codigo_hoja_servicio'],
+                $peticion['id_servicio']
+            );
+        case 'registrar_detalles':
+            return [
+                'resultado' => $this->registrarDetalles() ? 'success' : 'error',
+                'mensaje' => $this->registrarDetalles() ? 'Detalles registrados' : 'Error al registrar detalles'
+            ];
+        case 'actualizar':
+            // Si no se pasa usuario, usar el de sesión
+            $usuario = isset($peticion['usuario']) ? $peticion['usuario'] : (isset($_SESSION['user']) ? $_SESSION['user'] : []);
+            return $this->actualizarHojaServicio($usuario);
+        case 'consultar_detalles':
+            return $this->consultarSoloDetalles();
+        case 'eliminar':
+            return $this->eliminarHojaServicio();
+        case 'contar':
+            return $this->contarNumeroHoja();
+        case 'listar_hoja_equipo':
+            return $this->contarNumeroHoja();
+        case 'redireccionar':
+            return $this->redireccionar($peticion['area_destino'], $peticion['tecnico_destino']);
+        case 'obtener_tecnicos_por_area':
+            if (empty($peticion['area_id'])) {
+                return ['resultado' => 'error', 'mensaje' => 'ID de área no especificado'];
+            }
+            $areaId = (int)$peticion['area_id'];
+            $tecnicos = $this->obtenerTecnicosPorArea($areaId);
+            return $tecnicos;
+        default:
+            return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
+    }
+}
 }

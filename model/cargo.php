@@ -51,8 +51,8 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT * FROM cargo WHERE id_cargo = :id";
@@ -85,8 +85,8 @@ class Cargo extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
                 $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
                 $query = "INSERT INTO cargo(id_cargo, nombre_cargo, estatus) VALUES (:id, :nombre, 1)";
@@ -119,8 +119,8 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "UPDATE cargo SET nombre_cargo = :nombre WHERE id_cargo = :id";
@@ -151,8 +151,8 @@ class Cargo extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
                 $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
                 $query = "UPDATE cargo SET estatus = 0 WHERE id_cargo = :id";
@@ -184,8 +184,8 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT * FROM cargo WHERE estatus = 1 ORDER BY nombre_cargo ASC";
@@ -209,8 +209,8 @@ class Cargo extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-<<<<<<< HEAD
-=======
+
+
             $this->conexion->beginTransaction();
 >>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT * FROM cargo WHERE estatus = 0 ORDER BY nombre_cargo ASC";
