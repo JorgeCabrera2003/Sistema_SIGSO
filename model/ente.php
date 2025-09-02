@@ -261,10 +261,7 @@ class Ente extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-
-
             $this->conexion->beginTransaction();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "SELECT * FROM ente WHERE estatus = 0";
             $stm = $this->conexion->prepare($query);
             $stm->execute();
@@ -276,7 +273,6 @@ class Ente extends Conexion
             $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -290,10 +286,7 @@ class Ente extends Conexion
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-
-
             $this->conexion->beginTransaction();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $query = "UPDATE ente SET estatus = 1 WHERE id = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -307,7 +300,6 @@ class Ente extends Conexion
             $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();
->>>>>>> d0463428e5bec6df44e7151e49495ddb3836bde6
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
