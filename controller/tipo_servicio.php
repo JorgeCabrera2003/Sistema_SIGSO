@@ -187,17 +187,35 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["listar_componente"])) {
+
 		$componente->set_id_servicio($_POST['id_servicio']);
 		$json = $componente->Transaccion(['peticion' => 'consultar']);
 		$json['resultado'] = "listar_componente";
+
+				if (isset($_POST["componente"])) {
+			if ($_POST['componente'] == "input" || $_POST["componente"] == "tabla") {
+				$json['componente'] = $_POST["componente"];
+			} else {
+				$json['componente'] = "error";
+			}
+		}
 		echo json_encode($json);
 		exit;
 	}
 
 	if (isset($_POST["listar_servicio"])) {
+
 		$servicio_prestado->set_id_servicio($_POST['id_servicio']);
 		$json = $servicio_prestado->Transaccion(['peticion' => 'consultar']);
 		$json['resultado'] = "listar_servicio";
+
+		if (isset($_POST["componente"])) {
+			if ($_POST['componente'] == "input" || $_POST["componente"] == "tabla") {
+				$json['componente'] = $_POST["componente"];
+			} else {
+				$json['componente'] = "error";
+			}
+		}
 		echo json_encode($json);
 		exit;
 	}

@@ -92,17 +92,19 @@ function cargarTecnico() {
 	enviaAjax(datos);
 }
 
-function listarServicio(idServicio) {
+function listarServicio(idServicio, componente = "tabla") {
 	var datos = new FormData();
 	datos.append('listar_servicio', 'listar_servicio');
 	datos.append('id_servicio', idServicio);
+	datos.append('componente', componente);
 	enviaAjax(datos);
 }
 
-function listarComponente(idServicio) {
+function listarComponente(idServicio, componente = "tabla") {
 	var datos = new FormData();
 	datos.append('listar_componente', 'listar_componente');
 	datos.append('id_servicio', idServicio);
+	datos.append('componente', componente);
 	enviaAjax(datos);
 }
 
@@ -127,13 +129,26 @@ function enviaAjax(datos) {
 					consultar();
 
 				} else if (lee.resultado == "consultar") {
-					iniciarTabla(lee.datos);
+					crearDataTable(lee.datos);
 
 				} else if (lee.resultado == "listar_componente") {
-					TablaComponente(lee.datos);
-					
+					if (lee.componente == "tabla") {
+						TablaComponente(lee.datos);
+
+					} else if (lee.componente == "input") {
+						itemServicio(lee.datos, "componente");
+					} else {
+						console.log("error");
+					}
+
 				} else if (lee.resultado == "listar_servicio") {
-					TablaServicio(lee.datos);
+					if (lee.componente == "tabla") {
+						TablaServicio(lee.datos);
+					} else if (lee.componente == "input") {
+						itemServicio(lee.datos, "servicio");
+					} else {
+						console.log("error");
+					}
 
 				} else if (lee.resultado == "modificar") {
 					$("#modal1").modal("hide");
@@ -282,17 +297,6 @@ function validarenvio() {
 	}
 }
 
-var tabla;
-
-function iniciarTabla(arreglo) {
-	if (tabla == null) {
-		crearDataTable(arreglo);
-	} else {
-		tabla.destroy();
-		crearDataTable(arreglo);
-	}
-};
-
 function vistaPermiso(permisos = null) {
 
 	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
@@ -380,6 +384,73 @@ function crearInput(etiqueta) {
 
 	}
 	capaValidar();
+}
+
+$("#btn-configuarS").on("click", function () {
+	listarServicio($("#id_servicio").val(), "input")
+})
+
+$("#btn-configuarC").on("click", function () {
+	listarComponente($("#id_servicio").val(), "input")
+
+})
+
+$("#retroceder-config").on("click", function () {
+	$("#modal1").modal("show")
+	$("#modalConfigurar").modal("hide");
+})
+
+function itemServicio(datos, item) {
+
+	if (item == "servicio") {
+		$("#titulo-configurar").text("Servicios");
+	} else if (item == "componente") {
+		$("#titulo-configurar").text("Componentes");
+	} else {
+		$("#titulo-configurar").text("");
+	}
+	$("#div-configurar").empty();
+	datos.forEach(item => {
+		$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-">
+                <div class="col-xl-2">
+                    <div class="form-floating mb-3 mt-4">
+                      <input placeholder="" value="${item.id}" class="form-control input-grupo input-id" name="id" data-id-itemid=${item.id} type="text" id="id-${item.id}"
+                        maxlength="20">
+                      <span id="sid-${item.id}"></span>
+                      <label for="id-${item.id}" class="form-label">ID</label>
+                    </div>
+                  </div>  
+				<div class="col-xl-4">
+                    <div class="form-floating mb-3 mt-4">
+                      <input placeholder="" value="${item.nombre}" class="form-control input-grupo input-nombre" name="nombre" data-id-nombre=${item.id} type="text" id="nombre-${item.id}"
+                        maxlength="20">
+                      <span id="snombre-${item.id}"></span>
+                      <label for="nombre-${item.id}" class="form-label">Nombre</label>
+                    </div>
+                  </div>
+                  <div class="col-xl-4 align-self-center d-flex justify-content-center">
+                    <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${item.id}"><br>
+                      <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
+                    </div>
+                    </button>
+                  </div>
+                  <div class="col-xl-2 align-self-center">
+                    <button type="button" id="boton-guardar" class="btn btn-primary btn-sm mx-auto my-4 ">
+                      <i class="fa-solid fa-minus"></i>
+                    </button>
+                  </div>
+                </div>`)
+		if (item.bool_texto == 1) {
+			$(`#checkbox-${item.id}`).prop('checked', true);
+		}
+		$(`#id-${item.id}`).prop('readOnly', true)
+		
+	});
+	console.log(item);
+	console.log(datos);
+	$("#modal1").modal("hide")
+	$("#modalConfigurar").modal("show");
 }
 
 function eliminarItem(id) {
