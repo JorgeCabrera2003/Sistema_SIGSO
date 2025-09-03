@@ -24,7 +24,7 @@ $(document).ready(function () {
 						datos.append('encargado', $("#encargado").val());
 						datos.append('servicios', JSON.stringify(servicio));
 						datos.append('componentes', JSON.stringify(componente));
-						
+
 						console.log(JSON.stringify(servicio));
 						console.log(JSON.stringify(componente));
 						enviaAjax(datos);
@@ -78,6 +78,8 @@ $(document).ready(function () {
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
 		limpia();
 		$("#idServicio").remove();
+		$("#inputs_servicios").removeClass("d-none");
+		$("#inputs_tablas").addClass("d-none");
 		$("#modalTitleId").text("Registrar Tipo de Servicio");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
@@ -87,6 +89,20 @@ $(document).ready(function () {
 function cargarTecnico() {
 	var datos = new FormData();
 	datos.append('listar_tecnicos', 'listar_tecnicos');
+	enviaAjax(datos);
+}
+
+function listarServicio(idServicio) {
+	var datos = new FormData();
+	datos.append('listar_servicio', 'listar_servicio');
+	datos.append('id_servicio', idServicio);
+	enviaAjax(datos);
+}
+
+function listarComponente(idServicio) {
+	var datos = new FormData();
+	datos.append('listar_componente', 'listar_componente');
+	datos.append('id_servicio', idServicio);
 	enviaAjax(datos);
 }
 
@@ -112,6 +128,12 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "consultar") {
 					iniciarTabla(lee.datos);
+
+				} else if (lee.resultado == "listar_componente") {
+					TablaComponente(lee.datos);
+					
+				} else if (lee.resultado == "listar_servicio") {
+					TablaServicio(lee.datos);
 
 				} else if (lee.resultado == "modificar") {
 					$("#modal1").modal("hide");
@@ -393,9 +415,10 @@ function selectTecnico(arreglo) {
 }
 
 function crearDataTable(arreglo) {
-
-	console.log(arreglo);
-	tabla = $('#tabla1').DataTable({
+	if ($.fn.DataTable.isDataTable('#tabla1')) {
+		$('#tabla1').DataTable().destroy();
+	}
+	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
 			{ data: 'id_tipo_servicio' },
@@ -416,18 +439,57 @@ function crearDataTable(arreglo) {
 	ConsultarPermisos();
 }
 
+function TablaServicio(arreglo) {
+	if ($.fn.DataTable.isDataTable('#tabla_servicio')) {
+		$('#tabla_servicio').DataTable().destroy();
+	}
+	$('#tabla_servicio').DataTable({
+		data: arreglo,
+		columns: [
+			{ data: 'id' },
+			{ data: 'nombre' }],
+
+		language: {
+			url: idiomaTabla,
+		}
+	});
+	ConsultarPermisos();
+}
+
+function TablaComponente(arreglo) {
+
+	console.log(arreglo);
+	if ($.fn.DataTable.isDataTable('#tabla_componentes')) {
+		$('#tabla_componentes').DataTable().destroy();
+	}
+	$('#tabla_componentes').DataTable({
+		data: arreglo,
+		columns: [
+			{ data: 'id' },
+			{ data: 'nombre' }],
+
+		language: {
+			url: idiomaTabla,
+		}
+	});
+	ConsultarPermisos();
+}
 
 function limpia() {
 	$("#nombre").removeClass("is-valid is-invalid");
 	$("#nombre").val("");
 
-	$("#contaioner-servicio").empty();
-	$("#contaioner-componente").empty();
+	$("#container-servicio").empty();
+	$("#container-componente").empty();
 	$('#enviar').prop('disabled', false);
+	idS = 0;
+	idC = 0;
 }
 
 
 function rellenar(pos, accion) {
+	$("#inputs_servicios").addClass("d-none");
+	$("#inputs_tablas").removeClass("d-none");
 
 	linea = $(pos).closest('tr');
 
@@ -439,10 +501,13 @@ function rellenar(pos, accion) {
               <label for="id_servicio" class="form-label">ID del Tipo de Servicio</label>
             </div>`);
 
-
 	$("#id_servicio").val($(linea).find("td:eq(0)").text());
 	$("#nombre").val($(linea).find("td:eq(1)").text());
 	buscarSelect("#encargado", $(linea).find("td:eq(2)").text(), "value");
+
+	listarServicio($(linea).find("td:eq(0)").text())
+	listarComponente($(linea).find("td:eq(0)").text())
+
 
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Tipo de Servicio")

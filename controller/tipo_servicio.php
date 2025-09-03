@@ -42,16 +42,16 @@ if (is_file("view/" . $page . ".php")) {
 		$_POST['servicios'];
 		$arrayServicio = convertirJSON(json_decode($_POST['servicios']));
 		$arrayComponente = convertirJSON(json_decode($_POST['componentes']));
-		
-		foreach($arrayServicio as &$keyS){
+
+		foreach ($arrayServicio as &$keyS) {
 			usleep(100000);
 			$id = generarID($_POST["nombre"], $keyS["nombre"]);
 			$keyS["id"] = $id;
 		}
 
-		foreach($arrayComponente as &$keyC){
+		foreach ($arrayComponente as &$keyC) {
 			usleep(100000);
-			$id =  generarID($_POST["nombre"], $keyC["nombre"]);
+			$id = generarID($_POST["nombre"], $keyC["nombre"]);
 			$keyC["id"] = $id;
 		}
 
@@ -87,7 +87,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json['resultado'] = "registrar";
 				$json['servicios'] = $arrayServicio;
 				$json['componentes'] = $arrayComponente;
-			} 
+			}
 		} else {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, No tienes permiso para registrar un Tipo de Servicio";
@@ -182,6 +182,22 @@ if (is_file("view/" . $page . ".php")) {
 		$peticion["peticion"] = "listar_tecnicos";
 		$json = $empleado->Transaccion($peticion);
 		$json['resultado'] = "listar_tecnicos";
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST["listar_componente"])) {
+		$componente->set_id_servicio($_POST['id_servicio']);
+		$json = $componente->Transaccion(['peticion' => 'consultar']);
+		$json['resultado'] = "listar_componente";
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST["listar_servicio"])) {
+		$servicio_prestado->set_id_servicio($_POST['id_servicio']);
+		$json = $servicio_prestado->Transaccion(['peticion' => 'consultar']);
+		$json['resultado'] = "listar_servicio";
 		echo json_encode($json);
 		exit;
 	}

@@ -234,11 +234,10 @@ class Componente extends Conexion
                     $this->conexion->beginTransaction();
                     $transaccion = true;
                 }
-                $query = "UPDATE componente SET id_servicio = :id_servicio, nombre = :nombre, bool_texto = :bool_texto WHERE id = :id";
+                $query = "UPDATE componente SET nombre = :nombre, bool_texto = :bool_texto WHERE id = :id";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
-                $stm->bindParam(":id_servicio", $this->id_servicio);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->bindParam(":bool_texto", $this->bool_texto);
                 $stm->execute();
@@ -310,7 +309,7 @@ class Componente extends Conexion
             $this->conexion->beginTransaction();
             $query = "SELECT sp.id, sp.id_tipo_servicio, tp.nombre_tipo_servicio, sp.nombre, sp.bool_texto FROM componente AS sp 
             INNER JOIN tipo_servicio as tp ON tp.id_tipo_servicio = sp.id_tipo_servicio
-            WHERE sp.id = 1 AND tp.id_tipo_servicio = :servicio";
+            WHERE tp.id_tipo_servicio = :servicio";
 
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(':servicio', $this->id_servicio);

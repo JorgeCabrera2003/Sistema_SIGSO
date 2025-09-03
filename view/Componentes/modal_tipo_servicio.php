@@ -26,28 +26,80 @@
         </div>
         <div class="row mt-4" id="inputs_servicios">
           <div class="col-lg-6">
-            <fieldset class="permission-group">
+            <fieldset class="permission-group" id="divServicio">
               <legend class="group-header">
                 <label class="" for="servicios">Servicios Prestados: </label>
                 <button type="button" class="btn btn-primary mx-auto my-4 " id="btn-agregarS">
                   <i class="fa-solid fa-plus"></i>
                 </button>
               </legend>
-              <div class="container btn-agregarS">
+              <div class="container btn-agregarS" id="container-servicio">
 
               </div>
             </fieldset>
           </div>
           <div class="col-lg-6">
-            <fieldset class="permission-group">
+            <fieldset class="permission-group" id="divComponente">
               <legend class="group-header">
                 <label class="" for="servicios">Componentes a Atender: </label>
                 <button type="button" class="btn btn-primary mx-auto my-4 " id="btn-agregarC">
                   <i class="fa-solid fa-plus"></i>
                 </button>
               </legend>
-              <div class="container btn-agregarC">
+              <div class="container btn-agregarC" id="container-componente">
 
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="row mt-4" id="inputs_tablas">
+          <div class="col-lg-6">
+            <fieldset class="permission-group">
+              <legend class="group-header">
+                <div class="form-check form-check-inline text-center">
+                  <label class="" for="servicios">Servicios Prestados</label>
+                </div>
+              </legend>
+              <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarS">
+                Configurar
+              </button>
+              <div class="table-responsive">
+                <table class="table" id="tabla_servicio">
+                  <thead>
+                    <tr>
+                      <th scope='col'>#</th>
+                      <th scope='col'>Nombre del Servico</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
+              </div>
+            </fieldset>
+          </div>
+          <div class="col-lg-6">
+            <fieldset class="permission-group">
+              <legend class="group-header">
+                <div class="form-check form-check-inline text-center">
+                  <label class="" for="servicios">Componentes a Atender</label>
+                </div>
+              </legend>
+              <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarC">
+                Configurar
+              </button>
+              <div class="table-responsive">
+                <table class="table" id="tabla_componentes">
+                  <thead>
+                    <tr>
+                      <th scope='col'>#</th>
+                      <th scope='col'>Componente</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
               </div>
             </fieldset>
           </div>
@@ -63,8 +115,8 @@
                 <label class="" for="servicios">Servicios Prestados</label>
               </div>
             </legend>
-            <button type="button" class="btn btn-primary mx-auto my-4" id="btn-añadir">
-              Añadir Servicio
+            <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarS">
+              Configurar
             </button>
             <div class="table-responsive">
               <table class="table" id="tabla_servicio">
