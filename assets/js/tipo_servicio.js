@@ -400,21 +400,42 @@ $("#retroceder-config").on("click", function () {
 	$("#modalConfigurar").modal("hide");
 })
 
+$("#guardar-config").on("click", function () {
+
+	var valores = null;
+	if ($("#titulo-configurar").text() == "Servicios") {
+		valores = procesarServicio("servicio");
+	} else if ($("#titulo-configurar").text() == "Componentes") {
+		valores = procesarServicio("componente");
+	} else {
+		console.log("error");
+	}
+	console.log(valores);
+})
+
 function itemServicio(datos, item) {
+	let grupo = "";
+	let clase = ""
 
 	if (item == "servicio") {
 		$("#titulo-configurar").text("Servicios");
+		grupo = "servicio";
+		clase = "btn-agregarS";
+
 	} else if (item == "componente") {
 		$("#titulo-configurar").text("Componentes");
+		grupo = "componente";
+		clase = "btn-agregarC";
+
 	} else {
 		$("#titulo-configurar").text("");
 	}
 	$("#div-configurar").empty();
 	datos.forEach(item => {
-		$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-">
+		$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-2">
                     <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" value="${item.id}" class="form-control input-grupo input-id" name="id" data-id-itemid=${item.id} type="text" id="id-${item.id}"
+                      <input placeholder="" value="${item.id}" class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
                         maxlength="20">
                       <span id="sid-${item.id}"></span>
                       <label for="id-${item.id}" class="form-label">ID</label>
@@ -422,7 +443,7 @@ function itemServicio(datos, item) {
                   </div>  
 				<div class="col-xl-4">
                     <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" value="${item.nombre}" class="form-control input-grupo input-nombre" name="nombre" data-id-nombre=${item.id} type="text" id="nombre-${item.id}"
+                      <input placeholder="" value="${item.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item=${item.id} type="text" id="nombre-${item.id}"
                         maxlength="20">
                       <span id="snombre-${item.id}"></span>
                       <label for="nombre-${item.id}" class="form-label">Nombre</label>
@@ -445,12 +466,13 @@ function itemServicio(datos, item) {
 			$(`#checkbox-${item.id}`).prop('checked', true);
 		}
 		$(`#id-${item.id}`).prop('readOnly', true)
-		
+
 	});
 	console.log(item);
 	console.log(datos);
 	$("#modal1").modal("hide")
 	$("#modalConfigurar").modal("show");
+	capaValidar();
 }
 
 function eliminarItem(id) {
