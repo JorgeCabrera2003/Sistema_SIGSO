@@ -24,6 +24,7 @@
                 Registrar Tipo de Servicio
               </button>
             <?php } ?>
+            <br>
             <div class="table-responsive">
               <table class="table" id="tabla1">
                 <thead>
@@ -91,9 +92,17 @@
             <div class="row mt-4" id="">
               <div class="col-lg-12">
                 <fieldset class="permission-group" id="divServicio">
-                  <legend class="group-header">
-                    <label class="" for="servicios" id="titulo-configurar"></label>
-                  </legend>
+                  <div class="row mb-3">
+                    <div class="col-lg-8">
+                      <legend class="group-header">
+                        <label class="" for="servicios" id="titulo-configurar"></label>
+                      </legend>
+                    </div>
+                    <div class="col-lg-4">
+                      <button type="button" class="btn btn-secondary" id="agregar-config">Añadir</button>
+                    </div>
+                  </div>
+
                   <div class="container div-configurar" id="div-configurar">
 
                   </div>
@@ -108,14 +117,15 @@
         </div>
       </div>
     </div>
-    <!-- ModalConfiguracion -->
-    </main><!-- End #main -->
+  </div>
+  <!-- ModalConfiguracion -->
+  </main><!-- End #main -->
 
-    <?php require_once "Componentes/footer.php"; ?>
+  <?php require_once "Componentes/footer.php"; ?>
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-        class="bi bi-arrow-up-short"></i></a>
-    <script defer src="assets/js/tipo_servicio.js"></script>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+  <script defer src="assets/js/tipo_servicio.js"></script>
   </div>
 </body>
 

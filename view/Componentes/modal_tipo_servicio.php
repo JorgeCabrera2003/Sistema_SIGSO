@@ -55,6 +55,78 @@
         <div class="row mt-4" id="inputs_tablas">
           <div class="col-lg-6">
             <fieldset class="permission-group">
+              <div class="row mt-4">
+                <div class="col-lg-8">
+                  <legend class="group-header">
+                    <div class="form-check form-check-inline text-center">
+                      <label class="" for="servicios">Servicios Prestados</label>
+                    </div>
+                  </legend>
+                </div>
+                <div class="col-lg-4">
+                  <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarS">
+                    Configurar
+                  </button>
+                </div>
+              </div>
+              <div class="row mt-4">
+                <div class="col-lg-12">
+                  <div class="table-responsive">
+                    <table class="table" id="tabla_servicio">
+                      <thead>
+                        <tr>
+                          <th scope='col'>#</th>
+                          <th scope='col'>Nombre del Servico</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="col-lg-6">
+            <fieldset class="permission-group">
+              <div class="row mt-4">
+                <div class="col-lg-8">
+                  <legend class="group-header">
+                    <div class="form-check form-check-inline text-center">
+                      <label class="" for="servicios">Componentes a Atender</label>
+                    </div>
+                  </legend>
+                </div>
+                <div class="col-lg-4">
+                  <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarC">
+                    Configurar
+                  </button>
+                </div>
+              </div>
+              <div class="row mt-4">
+                <div class="col-lg-12">
+                  <div class="table-responsive">
+                    <table class="table" id="tabla_componentes">
+                      <thead>
+                        <tr>
+                          <th scope='col'>#</th>
+                          <th scope='col'>Componente</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="row d-none" id="tabla_servicios">
+          <div class="col-md-12">
+            <fieldset class="permission-group">
               <legend class="group-header">
                 <div class="form-check form-check-inline text-center">
                   <label class="" for="servicios">Servicios Prestados</label>
@@ -78,66 +150,14 @@
               </div>
             </fieldset>
           </div>
-          <div class="col-lg-6">
-            <fieldset class="permission-group">
-              <legend class="group-header">
-                <div class="form-check form-check-inline text-center">
-                  <label class="" for="servicios">Componentes a Atender</label>
-                </div>
-              </legend>
-              <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarC">
-                Configurar
-              </button>
-              <div class="table-responsive">
-                <table class="table" id="tabla_componentes">
-                  <thead>
-                    <tr>
-                      <th scope='col'>#</th>
-                      <th scope='col'>Componente</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-
-                  </tbody>
-                </table>
-              </div>
-            </fieldset>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="row d-none" id="tabla_servicios">
-        <div class="col-md-12">
-          <fieldset class="permission-group">
-            <legend class="group-header">
-              <div class="form-check form-check-inline text-center">
-                <label class="" for="servicios">Servicios Prestados</label>
-              </div>
-            </legend>
-            <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarS">
-              Configurar
-            </button>
-            <div class="table-responsive">
-              <table class="table" id="tabla_servicio">
-                <thead>
-                  <tr>
-                    <th scope='col'>#</th>
-                    <th scope='col'>Nombre del Servico</th>
-                    <th scope='col'>Modificar/Eliminar</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-              </table>
-            </div>
-          </fieldset>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button id="enviar" name="" class="btn btn-primary"></button>
+        <button id="enviar" name="" class="btn btn-primary">
+          <span id="spinner" class="" aria-hidden="true"></span>
+          <span id="senviar" class="" aria-hidden="true"></span>
+        </button>
       </div>
     </div>
   </div>

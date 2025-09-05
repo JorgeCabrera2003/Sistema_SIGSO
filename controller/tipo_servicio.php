@@ -38,8 +38,7 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
-		$_POST['componentes'];
-		$_POST['servicios'];
+
 		$arrayServicio = convertirJSON(json_decode($_POST['servicios']));
 		$arrayComponente = convertirJSON(json_decode($_POST['componentes']));
 
@@ -74,10 +73,19 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
+					$contadorS = [];
+					$contadorC = [];
 					$servicio_prestado->set_id_servicio($tipo_servicio->get_codigo());
 					$componente->set_id_servicio($tipo_servicio->get_codigo());
-					$servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayServicio]);
-					$componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayComponente]);
+					
+					$contadorS = $servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayServicio]);
+					$contadorC = $componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayComponente]);
+
+					if($contadorS['total_errores'] > 0 || $contadorS['total_errores']){
+						$total = $contadorS['total_errores'] + $contadorS['total_errores'];
+						$msg = $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio pero: ".$total."";
+					}
+
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio";
 					$msgN = "Se registró una Nuevo Tipo de Servicio";
 					NotificarUsuarios($msgN, "Tipo de Servicio", ['modulo' => 13, 'accion' => 'ver']);
@@ -85,14 +93,14 @@ if (is_file("view/" . $page . ".php")) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo tipo de servicio";
 				}
 				$json['resultado'] = "registrar";
-				$json['servicios'] = $arrayServicio;
-				$json['componentes'] = $arrayComponente;
 			}
 		} else {
 			$json['resultado'] = "error";
 			$json['mensaje'] = "Error, No tienes permiso para registrar un Tipo de Servicio";
 			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
 		}
+		$json['servicios'] = $arrayServicio;
+		$json['componentes'] = $arrayComponente;
 		echo json_encode($json);
 		Bitacora($msg, "Tipo de Servicio");
 		exit;

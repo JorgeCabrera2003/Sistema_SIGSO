@@ -124,7 +124,7 @@ class Componente extends Conexion
                         if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ ]{4,30}$/", $key['nombre']) == 0) {
+                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['nombre']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else if (preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {

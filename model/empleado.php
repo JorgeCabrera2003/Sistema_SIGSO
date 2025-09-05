@@ -475,7 +475,7 @@ class Empleado extends Conexion
                 CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre_completo,
                 ts.nombre_tipo_servicio
             FROM empleado e
-            JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
+            LEFT JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
             WHERE e.id_cargo = 'TE91320620252806'"; // 1 = Técnico
 
             $stm = $this->conexion->prepare($query);

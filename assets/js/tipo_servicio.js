@@ -8,7 +8,7 @@ $(document).ready(function () {
 		var confirmacion = false;
 		var envio = false;
 
-		switch ($(this).text()) {
+		switch ($("#senviar").text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
@@ -108,7 +108,7 @@ function listarComponente(idServicio, componente = "tabla") {
 	enviaAjax(datos);
 }
 
-function enviaAjax(datos) {
+function enviaAjax(datos, spinner = null) {
 	$.ajax({
 		async: true,
 		url: "",
@@ -117,9 +117,16 @@ function enviaAjax(datos) {
 		data: datos,
 		processData: false,
 		cache: false,
-		beforeSend: function () { },
+		beforeSend: function () {
+			if (spinner != null) {
+				$(spinner).addClass("spinner-border spinner-border-sm");
+			}
+		},
 		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
 		success: function (respuesta) {
+			if (spinner != null) {
+				$(spinner).removeClass("spinner-border spinner-border-sm");
+			}
 			console.log(respuesta);
 			try {
 				var lee = JSON.parse(respuesta);
@@ -268,7 +275,6 @@ function inputServicio() {
 		.concat(Array.from(document.querySelectorAll('.btn-agregarC input[type="text"][id]'))
 			.map(input => input.id));
 
-	console
 	idS.forEach((id, index) => {
 		console.log($(`#${id}`));
 		bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
@@ -403,15 +409,42 @@ $("#retroceder-config").on("click", function () {
 $("#guardar-config").on("click", function () {
 
 	var valores = null;
-	if ($("#titulo-configurar").text() == "Servicios") {
-		valores = procesarServicio("servicio");
-	} else if ($("#titulo-configurar").text() == "Componentes") {
-		valores = procesarServicio("componente");
+	if (inputGuardar() == 0) {
+
+		mensajes("error", 10000, "Verifica", "Uno de los campos no es válido")
+
 	} else {
-		console.log("error");
+		if ($("#titulo-configurar").text() == "Servicios") {
+			valores = procesarServicio("servicio");
+		} else if ($("#titulo-configurar").text() == "Componentes") {
+			valores = procesarServicio("componente");
+		} else {
+			console.log("error");
+		}
 	}
+
 	console.log(valores);
 })
+
+function inputGuardar() {
+	let idS = [];
+	let resultado = 1
+	let bool;
+
+	idS = Array.from(document.querySelectorAll('.input-nombre'))
+		.map(input => input.id);
+
+	idS.forEach((id, index) => {
+		console.log($(`#${id}`));
+		bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
+		if (bool === 0) {
+			resultado = 0;
+		}
+	})
+
+	console.log(resultado);
+	return resultado;
+}
 
 function itemServicio(datos, item) {
 	let grupo = "";
@@ -431,8 +464,12 @@ function itemServicio(datos, item) {
 		$("#titulo-configurar").text("");
 	}
 	$("#div-configurar").empty();
-	datos.forEach(item => {
-		$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
+
+	if (Array.isArray(datos) && datos.length > 0) {
+
+
+		datos.forEach(item => {
+			$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-2">
                     <div class="form-floating mb-3 mt-4">
                       <input placeholder="" value="${item.id}" class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
@@ -457,17 +494,29 @@ function itemServicio(datos, item) {
                     </button>
                   </div>
                   <div class="col-xl-2 align-self-center">
-                    <button type="button" id="boton-guardar" class="btn btn-primary btn-sm mx-auto my-4 ">
+                    <button type="button" id="boton-quitar" class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
                   </div>
                 </div>`)
-		if (item.bool_texto == 1) {
-			$(`#checkbox-${item.id}`).prop('checked', true);
-		}
-		$(`#id-${item.id}`).prop('readOnly', true)
+			if (item.bool_texto == 1) {
+				$(`#checkbox-${item.id}`).prop('checked', true);
+			}
+			$(`#id-${item.id}`).prop('readOnly', true)
 
-	});
+		});
+	} else {
+		$("#div-configurar").append(`<div class="row mt-5 text-center d-flex align-items-center">
+                <div class="col-xl-12 align-self-center d-flex justify-content-center">
+                	<div class="alert alert-danger d-flex align-items-center" role="alert">
+  					<i class="fa-solid fa-triangle-exclamation"></i>
+  						<div>
+    						Alerta: No hay registros en esta sección
+  						</div>
+					</div>    
+                </div>
+				</div>`)
+	}
 	console.log(item);
 	console.log(datos);
 	$("#modal1").modal("hide")
@@ -483,6 +532,7 @@ function eliminarItem(id) {
 };
 
 function selectTecnico(arreglo) {
+	console.log(arreglo);
 	$("#encargado").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
 
@@ -586,6 +636,7 @@ function rellenar(pos, accion) {
 
 	linea = $(pos).closest('tr');
 
+
 	$("#idServicio").remove();
 	$("#Fila1").prepend(`<div class="col-lg-4" id="idServicio">
             <div class="form-floating mb-3 mt-4">
@@ -605,10 +656,15 @@ function rellenar(pos, accion) {
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Tipo de Servicio")
 		$("#enviar").text("Modificar");
+
+		$("#btn-configuarS").prop("disabled", false).removeClass("d-none");
+		$("#btn-configuarC").prop("disabled", false).removeClass("d-none");
 	}
 	else {
 		$("#modalTitleId").text("Eliminar Tipo de Servicio")
 		$("#enviar").text("Eliminar");
+		$("#btn-configuarS").prop("disabled", true).addClass("d-none");
+		$("#btn-configuarC").prop("disabled", true).addClass("d-none");
 	}
 	$('#enviar').prop('disabled', false);
 	$("#modal1").modal("show");
