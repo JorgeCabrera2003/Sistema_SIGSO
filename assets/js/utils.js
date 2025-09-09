@@ -99,6 +99,8 @@ async function confirmarAccion(titulo, mensaje, icono) {
 }
 
 function consultar() {
+  $("#divtabla1").addClass("d-none");
+  $("#spinnertabla1").removeClass("d-none");
   var peticion = new FormData();
   peticion.append('consultar', 'consultar');
   enviaAjax(peticion);
@@ -110,7 +112,7 @@ function registrarEntrada() {
   enviaAjax(peticion);
 }
 
-function ConsultarPermisos() {
+async function ConsultarPermisos() {
   var peticion = new FormData();
   peticion.append('permisos', 'permisos');
   enviaAjax(peticion);

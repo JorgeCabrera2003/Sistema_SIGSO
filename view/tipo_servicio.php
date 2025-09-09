@@ -25,7 +25,12 @@
               </button>
             <?php } ?>
             <br>
-            <div class="table-responsive">
+            <div class="d-flex justify-content-center d-none" id="spinnertabla1">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+            <div class="table-responsive" id="divtabla1">
               <table class="table" id="tabla1">
                 <thead>
                   <tr>
@@ -81,14 +86,15 @@
 
   <!-- ModalConfiguracion -->
   <div class="modal fade" id="modalConfigurar" tabindex="-1" role="dialog" aria-labelledby="modalConfigurarTitle"
-    aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
       <div class="modal-content">
         <div class="modal-header bg-warning">
           <h5 class="modal-title text-white" id="modalConfigurarTitle">Configurar Servicio</h5>
         </div>
         <div class="modal-body">
           <div class="grid" id="grid-configurar">
+
             <div class="row mt-4" id="">
               <div class="col-lg-12">
                 <fieldset class="permission-group" id="divServicio">
@@ -102,18 +108,27 @@
                       <button type="button" class="btn btn-secondary" id="agregar-config">Añadir</button>
                     </div>
                   </div>
-
+                  <div class="row mt-4" id="spinner-configuracion">
+                    <div class="col-lg-12">
+                      <div class="d-flex justify-content-center d-none">
+                        <div class="spinner-border" role="status">
+                          <span class="visually-hidden">Cargando...</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div class="container div-configurar" id="div-configurar">
+
 
                   </div>
                 </fieldset>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="retroceder-config">Retroceder</button>
-            <button type="button" class="btn btn-primary" id="guardar-config">Guardar</button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="retroceder-config">Retroceder</button>
+          <button type="button" class="btn btn-primary" id="guardar-config">Guardar</button>
         </div>
       </div>
     </div>

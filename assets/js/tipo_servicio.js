@@ -7,14 +7,14 @@ $(document).ready(function () {
 	$("#enviar").on("click", async function () {
 		var confirmacion = false;
 		var envio = false;
-
+		var datos = new FormData();
 		switch ($("#senviar").text()) {
 
 			case "Registrar":
 				if (validarenvio()) {
 					confirmacion = await confirmarAccion("Se registrará un Tipo de Servicio", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
-						var datos = new FormData();
+
 						var servicio = [];
 						var componente = [];
 						servicio = procesarServicio("servicio");
@@ -27,8 +27,8 @@ $(document).ready(function () {
 
 						console.log(JSON.stringify(servicio));
 						console.log(JSON.stringify(componente));
-						enviaAjax(datos);
-						envio = false;
+						enviaAjax(datos, '#spinner-enviar');
+						envio = true;
 					}
 				}
 				break;
@@ -41,7 +41,7 @@ $(document).ready(function () {
 						datos.append('id_servicio', $("#id_servicio").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('encargado', $("#encargado").val());
-						enviaAjax(datos);
+						enviaAjax(datos, '#spinner-enviar');
 						envio = true;
 					}
 				}
@@ -53,7 +53,7 @@ $(document).ready(function () {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
 						datos.append('id_servicio', $("#id_servicio").val());
-						enviaAjax(datos);
+						enviaAjax(datos, '#spinner-enviar');
 						envio = true;
 					}
 				}
@@ -81,7 +81,7 @@ $(document).ready(function () {
 		$("#inputs_servicios").removeClass("d-none");
 		$("#inputs_tablas").addClass("d-none");
 		$("#modalTitleId").text("Registrar Tipo de Servicio");
-		$("#enviar").text("Registrar");
+		$("#senviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
 });
@@ -94,6 +94,17 @@ function cargarTecnico() {
 
 function listarServicio(idServicio, componente = "tabla") {
 	var datos = new FormData();
+	if (componente == 'tabla') {
+		$("#div-TablaServicio").addClass("d-none");
+		$("#spinnerServicios").removeClass("d-none");
+	} else if (componente == 'input') {
+		$("#div-configurar").addClass("d-none");
+		$("#spinner-configuracion").removeClass("d-none");
+	} else {
+		componente = 'tabla';
+		$("#div-TablaServicio").addClass("d-none");
+		$("#spinnerServicios").removeClass("d-none");
+	}
 	datos.append('listar_servicio', 'listar_servicio');
 	datos.append('id_servicio', idServicio);
 	datos.append('componente', componente);
@@ -102,6 +113,17 @@ function listarServicio(idServicio, componente = "tabla") {
 
 function listarComponente(idServicio, componente = "tabla") {
 	var datos = new FormData();
+	if (componente == 'tabla') {
+		$("#div-TablaComponente").addClass("d-none");
+		$("#spinnerComponentes").removeClass("d-none");
+	} else if (componente == 'input') {
+		$("#div-configurar").addClass("d-none");
+		$("#spinner-configuracion").removeClass("d-none");
+	} else {
+		componente = 'tabla';
+		$("#div-TablaServicio").addClass("d-none");
+		$("#spinnerServicios").removeClass("d-none");
+	}
 	datos.append('listar_componente', 'listar_componente');
 	datos.append('id_servicio', idServicio);
 	datos.append('componente', componente);
@@ -119,13 +141,13 @@ function enviaAjax(datos, spinner = null) {
 		cache: false,
 		beforeSend: function () {
 			if (spinner != null) {
-				$(spinner).addClass("spinner-border spinner-border-sm");
+				$(spinner).removeClass("d-none");
 			}
 		},
 		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
 		success: function (respuesta) {
 			if (spinner != null) {
-				$(spinner).removeClass("spinner-border spinner-border-sm");
+				$(spinner).addClass("d-none");
 			}
 			console.log(respuesta);
 			try {
@@ -332,6 +354,7 @@ $("#btn-agregarS").on("click", async function () {
 
 var idC = null;
 var idS = null;
+
 function crearInput(etiqueta) {
 	var id;
 	var labelStr;
@@ -401,6 +424,10 @@ $("#btn-configuarC").on("click", function () {
 
 })
 
+$("#agregar-config").on("click", function () {
+	crearInputConfiguracion()
+})
+
 $("#retroceder-config").on("click", function () {
 	$("#modal1").modal("show")
 	$("#modalConfigurar").modal("hide");
@@ -426,6 +453,63 @@ $("#guardar-config").on("click", function () {
 	console.log(valores);
 })
 
+function crearInputConfiguracion() {
+	let grupo = "";
+	let clase = "";
+	let labelStr = "";
+	let idInput = null;
+
+	if ($("#titulo-configurar").text() == "Servicios") {
+		idS = idS + 1;
+		grupo = "servicio";
+		clase = "btn-agregarS";
+		idInput = idS
+
+	} else if ($("#titulo-configurar").text() == "Componentes") {
+		idC = idC + 1;
+		grupo = "componente";
+		clase = "btn-agregarC";
+		idInput = idC
+	} else {
+		console.log("error")
+	}
+	if ($("#div-configurar").find('.row-' + clase).length < 15) {
+
+
+		$("#div-configurar").prepend(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
+                <div class="col-xl-2">
+                    <div class="form-floating mb-3 mt-4">
+                      <input placeholder="" value="(Generar Automàticamente)" class="form-control input-grupo input-id" name="id"  type="text" id="id-${grupo}-${idInput}"
+                        maxlength="20" disabled>
+                      <span id="sid-${grupo}-${idInput}"></span>
+                      <label for="id-$${grupo}-${idInput}" class="form-label">ID</label>
+                    </div>
+                  </div>  
+				<div class="col-xl-4">
+                    <div class="form-floating mb-3 mt-4">
+                      <input placeholder="" value="" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item="" type="text" id="nombre-${grupo}-${idInput}"
+                        maxlength="30">
+                      <span id="snombre-${grupo}-${idInput}""></span>
+                      <label for="nombre-${grupo}-${idInput}"" class="form-label">Nombre</label>
+                    </div>
+                  </div>
+                  <div class="col-xl-4 align-self-center d-flex justify-content-center">
+                    <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${grupo}-${idInput}""><br>
+                      <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
+                    </div>
+                    </button>
+                  </div>
+                  <div class="col-xl-2 align-self-center">
+                    <button type="button" id="boton-quitar" class="btn btn-primary btn-sm mx-auto my-4 ">
+                      <i class="fa-solid fa-minus"></i>
+                    </button>
+                  </div>
+                </div>`)
+	}
+	capaValidar();
+}
+
 function inputGuardar() {
 	let idS = [];
 	let resultado = 1
@@ -448,7 +532,7 @@ function inputGuardar() {
 
 function itemServicio(datos, item) {
 	let grupo = "";
-	let clase = ""
+	let clase = "";
 
 	if (item == "servicio") {
 		$("#titulo-configurar").text("Servicios");
@@ -463,8 +547,9 @@ function itemServicio(datos, item) {
 	} else {
 		$("#titulo-configurar").text("");
 	}
+	$("#modal1").modal("hide")
+	$("#modalConfigurar").modal("show");
 	$("#div-configurar").empty();
-
 	if (Array.isArray(datos) && datos.length > 0) {
 
 
@@ -506,7 +591,7 @@ function itemServicio(datos, item) {
 
 		});
 	} else {
-		$("#div-configurar").append(`<div class="row mt-5 text-center d-flex align-items-center">
+		$("#div-configurar").append(`<div class="row mt-5 text-center d-flex align-items-center" id="row-vacio">
                 <div class="col-xl-12 align-self-center d-flex justify-content-center">
                 	<div class="alert alert-danger d-flex align-items-center" role="alert">
   					<i class="fa-solid fa-triangle-exclamation"></i>
@@ -519,8 +604,8 @@ function itemServicio(datos, item) {
 	}
 	console.log(item);
 	console.log(datos);
-	$("#modal1").modal("hide")
-	$("#modalConfigurar").modal("show");
+	$("#spinner-configuracion").addClass("d-none");
+	$("#div-configurar").removeClass("d-none");
 	capaValidar();
 }
 
@@ -557,7 +642,8 @@ function selectTecnico(arreglo) {
 	}
 }
 
-function crearDataTable(arreglo) {
+async function crearDataTable(arreglo) {
+
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
@@ -579,10 +665,12 @@ function crearDataTable(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-	ConsultarPermisos();
+	await ConsultarPermisos();
+	$("#spinnertabla1").addClass("d-none");
+	$("#divtabla1").removeClass("d-none");
 }
 
-function TablaServicio(arreglo) {
+async function TablaServicio(arreglo) {
 	if ($.fn.DataTable.isDataTable('#tabla_servicio')) {
 		$('#tabla_servicio').DataTable().destroy();
 	}
@@ -596,10 +684,12 @@ function TablaServicio(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-	ConsultarPermisos();
+	await ConsultarPermisos();
+	$("#spinnerServicios").addClass("d-none");
+	$("#div-TablaServicio").removeClass("d-none");
 }
 
-function TablaComponente(arreglo) {
+async function TablaComponente(arreglo) {
 
 	console.log(arreglo);
 	if ($.fn.DataTable.isDataTable('#tabla_componentes')) {
@@ -615,7 +705,9 @@ function TablaComponente(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-	ConsultarPermisos();
+	await ConsultarPermisos();
+	$("#spinnerComponentes").addClass("d-none");
+	$("#div-TablaComponente").removeClass("d-none");
 }
 
 function limpia() {
@@ -655,14 +747,14 @@ function rellenar(pos, accion) {
 
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Tipo de Servicio")
-		$("#enviar").text("Modificar");
+		$("#senviar").text("Modificar");
 
 		$("#btn-configuarS").prop("disabled", false).removeClass("d-none");
 		$("#btn-configuarC").prop("disabled", false).removeClass("d-none");
 	}
 	else {
 		$("#modalTitleId").text("Eliminar Tipo de Servicio")
-		$("#enviar").text("Eliminar");
+		$("#senviar").text("Eliminar");
 		$("#btn-configuarS").prop("disabled", true).addClass("d-none");
 		$("#btn-configuarC").prop("disabled", true).addClass("d-none");
 	}

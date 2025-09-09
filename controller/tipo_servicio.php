@@ -20,6 +20,7 @@ if (is_file("view/" . $page . ".php")) {
 	$empleado = new Empleado();
 	$servicio_prestado = new ServicioPrestado();
 	$componente = new Componente();
+	$boolArray = [];
 
 	if (!isset($permisos['tipo_servicio']['ver']['estado']) || $permisos['tipo_servicio']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Tipo de Servicio";
@@ -38,17 +39,20 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["registrar"])) {
-
+		$boolArray['boolServicio'] = 0;
+		$boolArray['boolComponente'] = 0;
 		$arrayServicio = convertirJSON(json_decode($_POST['servicios']));
 		$arrayComponente = convertirJSON(json_decode($_POST['componentes']));
 
 		foreach ($arrayServicio as &$keyS) {
+			$boolArray['boolServicio'] = 1;
 			usleep(100000);
 			$id = generarID($_POST["nombre"], $keyS["nombre"]);
 			$keyS["id"] = $id;
 		}
 
 		foreach ($arrayComponente as &$keyC) {
+			$boolArray['boolComponente'] = 1;
 			usleep(100000);
 			$id = generarID($_POST["nombre"], $keyC["nombre"]);
 			$keyC["id"] = $id;
@@ -73,17 +77,22 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $tipo_servicio->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$contadorS = [];
-					$contadorC = [];
-					$servicio_prestado->set_id_servicio($tipo_servicio->get_codigo());
-					$componente->set_id_servicio($tipo_servicio->get_codigo());
-					
-					$contadorS = $servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayServicio]);
-					$contadorC = $componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayComponente]);
+					$contadorS = ['total_errores' => 0];
+					$contadorC = ['total_errores' => 0];
 
-					if($contadorS['total_errores'] > 0 || $contadorS['total_errores']){
+					if ($boolArray['boolServicio'] == 1) {
+						$servicio_prestado->set_id_servicio($tipo_servicio->get_codigo());
+						$contadorS = $servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayServicio]);
+					}
+
+					if ($boolArray['boolComponente'] == 1) {
+						$componente->set_id_servicio($tipo_servicio->get_codigo());
+						$contadorC = $componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayComponente]);
+					}
+
+					if ($contadorS['total_errores'] > 0 || $contadorS['total_errores'] > 0) {
 						$total = $contadorS['total_errores'] + $contadorS['total_errores'];
-						$msg = $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio pero: ".$total."";
+						$msg = $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio pero: " . $total . "";
 					}
 
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio";
@@ -200,7 +209,7 @@ if (is_file("view/" . $page . ".php")) {
 		$json = $componente->Transaccion(['peticion' => 'consultar']);
 		$json['resultado'] = "listar_componente";
 
-				if (isset($_POST["componente"])) {
+		if (isset($_POST["componente"])) {
 			if ($_POST['componente'] == "input" || $_POST["componente"] == "tabla") {
 				$json['componente'] = $_POST["componente"];
 			} else {

@@ -70,7 +70,12 @@
                 </div>
               </div>
               <div class="row mt-4">
-                <div class="col-lg-12">
+                <div class="d-flex justify-content-center d-none" id="spinnerServicios">
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                </div>
+                <div class="col-lg-12" id="div-TablaServicio">
                   <div class="table-responsive">
                     <table class="table" id="tabla_servicio">
                       <thead>
@@ -105,7 +110,12 @@
                 </div>
               </div>
               <div class="row mt-4">
-                <div class="col-lg-12">
+                <div class="d-flex justify-content-center d-none" id="spinnerComponentes">
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                </div>
+                <div class="col-lg-12" id="div-TablaComponente">
                   <div class="table-responsive">
                     <table class="table" id="tabla_componentes">
                       <thead>
@@ -124,39 +134,13 @@
             </fieldset>
           </div>
         </div>
-        <div class="row d-none" id="tabla_servicios">
-          <div class="col-md-12">
-            <fieldset class="permission-group">
-              <legend class="group-header">
-                <div class="form-check form-check-inline text-center">
-                  <label class="" for="servicios">Servicios Prestados</label>
-                </div>
-              </legend>
-              <button type="button" class="btn btn-primary mx-auto my-4" id="btn-configuarS">
-                Configurar
-              </button>
-              <div class="table-responsive">
-                <table class="table" id="tabla_servicio">
-                  <thead>
-                    <tr>
-                      <th scope='col'>#</th>
-                      <th scope='col'>Nombre del Servico</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-
-                  </tbody>
-                </table>
-              </div>
-            </fieldset>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
+
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         <button id="enviar" name="" class="btn btn-primary">
-          <span id="spinner" class="" aria-hidden="true"></span>
-          <span id="senviar" class="" aria-hidden="true"></span>
+          <span id="senviar" class=""></span>
+          <span id="spinner-enviar" class="spinner-border spinner-border-sm d-none"></span>
         </button>
       </div>
     </div>
