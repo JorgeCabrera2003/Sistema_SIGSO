@@ -361,7 +361,7 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "0") { ?>
+            <?php if (isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "1") { ?>
               <li class="menu-item <?php echo ($page == "modulo_sistema") ? "active" : "" ?>" title="Módulos del Sistema">
                 <a href="?page=modulo_sistema">
                   <i class="fa-solid fa-microchip"></i>

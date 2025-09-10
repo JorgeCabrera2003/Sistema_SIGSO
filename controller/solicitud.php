@@ -130,6 +130,7 @@ if (is_file("view/" . $page . ".php")) {
             $solicitud->set_motivo($_POST["motivo"]);
             $solicitud->set_cedula_solicitante($_POST["cedula"]);
             $solicitud->set_id_equipo($_POST["serial"] ?: null);
+            
 
             $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
 
@@ -174,7 +175,7 @@ if (is_file("view/" . $page . ".php")) {
         } catch (Exception $e) {
             $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
         }
-
+        $response["equipo"] = $solicitud->get_id_equipo();
         echo json_encode($response);
         exit;
     }

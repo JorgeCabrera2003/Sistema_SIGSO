@@ -501,13 +501,41 @@ function crearInputConfiguracion() {
                     </button>
                   </div>
                   <div class="col-xl-2 align-self-center">
-                    <button type="button" id="boton-quitar" class="btn btn-primary btn-sm mx-auto my-4 ">
+                    <button type="button" id="boton-${grupo}-${idInput}" onclick="eliminarItemConfiguracion('boton-${grupo}-${idInput}')"class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
                   </div>
                 </div>`)
 	}
 	capaValidar();
+}
+
+function eliminarItemConfiguracion(id) {
+	const input = $("#" + id);
+	const contenedorPadre = input.parent().parent();
+	console.log(contenedorPadre);
+	contenedorPadre.remove();
+};
+
+async function eliminarRegistro(id) {
+	var datos = new FormData()
+	var tabla = null
+	console.log(id);
+	confirmacion = await confirmarAccion("Se eliminarà este registro", "¿Está seguro de realizar la acción?", "question");
+	if (confirmacion) {
+		if($("#titulo-configurar").text() == "Componentes"){
+			tabla = "componente"
+		}else if($("#titulo-configurar").text() == "Servicios"){
+			tabla = "servicio"
+		} else{
+			tabla = "error";
+		}
+		datos.append('eliminar_item', 'eliminar_item');
+		datos.append('tabla', tabla)
+		datos.append('id', id);
+
+		enviaAjax(datos);
+	}
 }
 
 function inputGuardar() {
@@ -552,7 +580,6 @@ function itemServicio(datos, item) {
 	$("#div-configurar").empty();
 	if (Array.isArray(datos) && datos.length > 0) {
 
-
 		datos.forEach(item => {
 			$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-2">
@@ -579,7 +606,7 @@ function itemServicio(datos, item) {
                     </button>
                   </div>
                   <div class="col-xl-2 align-self-center">
-                    <button type="button" id="boton-quitar" class="btn btn-primary btn-sm mx-auto my-4 ">
+                    <button type="button" id="boton-quitar" onclick= eliminarRegistro("${item.id}") class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
                   </div>

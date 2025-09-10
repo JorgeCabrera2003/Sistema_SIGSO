@@ -1,6 +1,7 @@
 <?php
 require_once('model/conexion.php');
 
+
 class Solicitud extends Conexion
 {
     private $nro_solicitud;
@@ -25,6 +26,7 @@ class Solicitud extends Conexion
         $this->fecha_inicio = 0;
         $this->fecha_final = 0;
         $this->id_dependencia = 0;
+        $this->conexion = NULL;
     }
 
     // Setters
@@ -104,7 +106,7 @@ class Solicitud extends Conexion
 
             // Manejar el caso cuando no se selecciona un equipo
             $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
-            $stmt->bindParam(':equipo', $idEquipo, PDO::PARAM_INT);
+            $stmt->bindParam(':equipo', $idEquipo);
 
             if ($stmt->execute()) {
                 $nro = $this->conexion->lastInsertId();

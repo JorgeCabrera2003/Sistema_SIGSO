@@ -38,13 +38,13 @@ if (is_file("view/" . $page . ".php")) {
                 $json['mensaje'] = "Error, Nombre de la Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_piso"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Piso no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
-
+                $oficina->set_id(generarID($_POST["nombre"], $_POST["id_piso"]));
                 $oficina->set_id_piso($_POST["id_piso"]);
                 $oficina->set_nombre($_POST["nombre"]);
                 $peticion["peticion"] = "registrar";
@@ -84,15 +84,22 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["restaurar"])) {
         if (isset($permisos['oficina']['restaurar']['estado']) && $permisos['oficina']['restaurar']['estado'] == '1') {
-            $oficina->set_id($_POST["id_oficina"]);
-            $peticion["peticion"] = "restaurar";
-            $json = $oficina->Transaccion($peticion);
-            if ($json['estado'] == 1) {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el registro de la oficina con el id: " . $_POST["id_oficina"];
-                $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue restaurada";
-                NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Id de la OFicina no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
             } else {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar la oficina";
+                $oficina->set_id($_POST["id_oficina"]);
+                $peticion["peticion"] = "restaurar";
+                $json = $oficina->Transaccion($peticion);
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el registro de la oficina con el id: " . $_POST["id_oficina"];
+                    $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue restaurada";
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar la oficina";
+                }
             }
         } else {
             $json['resultado'] = "error";
@@ -113,12 +120,12 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['oficina']['modificar']['estado']) && $permisos['oficina']['modificar']['estado'] == '1') {
-            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_oficina"]) == 0) {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_piso"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de Piso no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -152,7 +159,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         if (isset($permisos['oficina']['modificar']['estado']) && $permisos['oficina']['modificar']['estado'] == '1') {
-            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_oficina"]) == 0) {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

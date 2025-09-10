@@ -47,17 +47,17 @@ if (is_file("view/" . $page . ".php")) {
                 $json['mensaje'] = "Error, Código de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_categoria"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Tipo de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_marca"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_marca"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Marca no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_oficina"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Oficina no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -213,17 +213,17 @@ if (is_file("view/" . $page . ".php")) {
                 $json['mensaje'] = "Error, Código de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_categoria"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Tipo de Bien no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_marca"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_marca"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Marca no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_oficina"]) == 0) {
+            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Oficina no válida";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";

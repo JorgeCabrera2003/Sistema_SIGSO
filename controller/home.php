@@ -50,7 +50,6 @@ if (is_file("view/home.php")) {
 
     $tecnicos = $tecnico->Transaccion(['peticion' => 'consultar']);
 
-
     $grafico = [
       'resultado' => 'grafico',
       'datos' => [

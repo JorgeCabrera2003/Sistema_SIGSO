@@ -39,7 +39,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_oficina"), $("#sid_oficina"), "") == 1) {
+				if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_oficina"), $("#sid_oficina"), "") == 1) {
 					confirmacion = await confirmarAccion("Se registrará una Oficina", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();

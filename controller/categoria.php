@@ -58,7 +58,7 @@ if (is_file("view/" . $page . ".php")) {
                     $msgN = "Se registró una Nueva Categoria";
                     NotificarUsuarios($msgN, "Categoria", ['modulo' => 13, 'accion' => 'ver']);
 
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria con ID: ".$categoria->get_id();
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria con ID: " . $categoria->get_id();
                     $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
                     if ($json['servicio_asignado'] == 1) {
                         $msgPropio = "Se le asignó está Categoria: " . $_POST["nombre"] . " a su Área de Servicio";
@@ -125,7 +125,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['categoria']['modificar']['estado']) && $permisos['categoria']['modificar']['estado'] == '1') {
-            if (preg_match("/^[0-9]{1,11}$/", $_POST["id_categoria"]) == 0) {
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -147,7 +147,7 @@ if (is_file("view/" . $page . ".php")) {
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Categoria con el id: " . $_POST["id_categoria"];
                     $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue modificado";
-                    
+
                     NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
                     $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
 
@@ -172,17 +172,25 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         if (isset($permisos['categoria']['eliminar']['estado']) && $permisos['categoria']['eliminar']['estado'] == '1') {
-            $categoria->set_id($_POST["id_categoria"]);
-            $peticion["peticion"] = "eliminar";
-            $json = $categoria->Transaccion($peticion);
+            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Id del Categoria no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            if ($json['estado'] == 1) {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una Categoria con el id: " . $_POST["id_categoria"];
-                $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue eliminado";
-                NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
             } else {
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Categoria";
+                $categoria->set_id($_POST["id_categoria"]);
+                $peticion["peticion"] = "eliminar";
+                $json = $categoria->Transaccion($peticion);
+
+                if ($json['estado'] == 1) {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una Categoria con el id: " . $_POST["id_categoria"];
+                    $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue eliminado";
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
+                } else {
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Categoria";
+                }
             }
+
         } else {
             $json['resultado'] = "error";
             $json['mensaje'] = "Error, No tienes permiso para eliminar un Categoria";
