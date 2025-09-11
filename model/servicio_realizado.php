@@ -18,7 +18,7 @@ class ServicioRealizado extends Conexion
         $this->id_servicio;
         $this->nombre = "";
         $this->bool_texto = 0;
-        $this->tipo_servicio = NULL;
+        $this->servicio_prestado = NULL;
         $this->conexion = NULL;
     }
 
@@ -60,12 +60,12 @@ class ServicioRealizado extends Conexion
         return $this->bool_texto;
     }
 
-    private function LlamarTipoServicio()
+    private function LlamarServicioPrestado()
     {
-        if ($this->tipo_servicio == NULL) {
-            $this->tipo_servicio = new TipoServicio();
+        if ($this->servicio_prestado == NULL) {
+            $this->servicio_prestado = new ServicioPrestado();
         }
-        return $this->tipo_servicio;
+        return $this->servicio_prestado;
     }
 
     private function Validar()
@@ -169,8 +169,8 @@ class ServicioRealizado extends Conexion
         $boolServicio = [];
         $bool = $this->Validar();
         $transaccion = false;
-        $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-        $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+        $this->LlamarServicioPrestado()->set_id($this->get_id_servicio());
+        $boolServicio = $this->LlamarServicioPrestado()->Transaccion(['peticion' => 'validar']);
         if ($bool['bool'] == 0) {
             if ($boolServicio['bool'] == 1) {
                 try {
@@ -225,8 +225,8 @@ class ServicioRealizado extends Conexion
         $dato = [];
         $transaccion = false;
         $boolServicio = [];
-        $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-        $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+        $this->LlamarServicioPrestado()->set_id($this->get_id_servicio());
+        $boolServicio = $this->LlamarServicioPrestado()->Transaccion(['peticion' => 'validar']);
         if ($boolServicio['bool'] == 1) {
 
             try {
