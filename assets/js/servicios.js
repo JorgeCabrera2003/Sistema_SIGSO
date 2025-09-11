@@ -89,13 +89,13 @@ function inicializarComponentes() {
                 render: function(data, type, row) {
                     let botones = `
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-info" onclick="consultarHoja(${data})" title="Ver detalles">
+                            <button class="btn btn-sm btn-info" onclick="consultarHoja("${data}")" title="Ver detalles">
                                 <i class="fa-solid fa-eye"></i>
                             </button>`;
                     
                     if (row.estatus === 'A') {
                         botones += `
-                            <button class="btn btn-sm btn-success" onclick="finalizarHoja(${data})" title="Finalizar hoja">
+                            <button class="btn btn-sm btn-success" onclick="finalizarHoja("${data}")" title="Finalizar hoja">
                                 <i class="fa-solid fa-check"></i>
                             </button>`;
                     }

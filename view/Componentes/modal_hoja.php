@@ -1,6 +1,6 @@
 <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true"
     data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg dialog-scrollable" role="document">
+    <div class="modal-dialog modal-xl dialog-scrollable" role="document">
         <div class="modal-content card">
             <div class="modal-header card-header">
                 <h5 class="modal-title" id="modalTitleId"></h5>
@@ -12,9 +12,10 @@
                 <div class="row justify-content-center">
                     <div class="col-md-6">
                         <div class="form-floating mb-3 mt-4">
-                            <input placeholder="" class="form-control" name="nro_solicitud" type="text" id="nro_solicitud" readonly>
+                            <input placeholder="" class="form-control" name="nro_solicitud" type="text"
+                                id="nro_solicitud" readonly>
                             <span id="snro_solicitud"></span>
-                            <label for="nro_solicitud" class="form-label">Número de Solicitud</label>
+                            <label for="nro_solicitud" class="form-label">Número Solicitud</label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -29,10 +30,178 @@
                     </div>
                 </div>
 
-                <div class="row justify-content-center" id="fila-resultado" style="display: none;">
+                <div class="row justify-content-center" id="fila-check">
+                    <div class="col-lg-12">
+                        <fieldset class="container permission-group" id="container-servicio-realizado">
+                            <div class="row justify-content-center" id="fila-label-servicio-realizado">
+                                <div class="col-lg-12">
+                                    <legend class="group-header">
+                                        <label class="" for="servicios">Servicios Realizados: </label>
+
+                                    </legend>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center" id="fila-servicio-realizado">
+                                <!-- <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>-->
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row justify-content-center" id="fila-componente">
+                        <div class="col-lg-12">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center" id="fila-resultado">
                     <div class="col-md-12">
                         <div class="form-floating mb-3 mt-4">
-                            <select placeholder="" class="form-control" name="resultado_hoja_servicio" id="resultado_hoja_servicio">
+                            <select placeholder="" class="form-control" name="resultado_hoja_servicio"
+                                id="resultado_hoja_servicio">
                                 <option value="">Seleccione un resultado</option>
                                 <option value="Buen_funcionamiento">Buen funcionamiento</option>
                                 <option value="Operativo">Operativo</option>
@@ -44,21 +213,23 @@
                     </div>
                 </div>
 
-                <div class="row justify-content-center" id="fila-observacion" style="display: none;">
+                <div class="row justify-content-center" id="fila-observacion">
                     <div class="col-md-12">
                         <div class="form-floating mb-3 mt-4">
-                            <textarea class="form-control" name="observacion" id="observacion" style="height: 100px"></textarea>
+                            <textarea class="form-control" name="observacion" id="observacion"
+                                style="height: 100px"></textarea>
                             <span id="sobservacion"></span>
                             <label for="observacion" class="form-label">Observación</label>
                         </div>
                     </div>
                 </div>
 
-                <div class="row justify-content-center" id="fila-detalles" style="display: none;">
+                <div class="row justify-content-center" id="fila-detalles">
                     <div class="col-md-12">
                         <h5>Detalles Técnicos</h5>
                         <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Registre los componentes y materiales utilizados en este servicio
+                            <i class="bi bi-info-circle"></i> Registre los componentes y materiales utilizados en este
+                            servicio
                         </div>
                         <div class="table-responsive">
                             <table class="table" id="tablaDetallesModal">

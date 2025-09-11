@@ -19,6 +19,10 @@ if (is_file("view/" . $page . ".php")) {
     require_once "model/empleado.php";
     require_once "model/tipo_servicio.php";
     require_once "model/material.php";
+    require_once "model/componente.php";
+    require_once "model/servicio_prestado.php";
+    require_once "model/componente_atendido.php";
+    require_once "model/servicio_realizado.php";
 
     $titulo = "Gestión de Hojas de Servicio";
     $cabecera = array('#', "N° Solicitud", "Tipo Servicio", "Solicitante", "Equipo", "Marca", "Serial", "Código Bien", "Motivo", "Fecha Solicitud", "Técnico", "Estado", "Acciones");
@@ -601,6 +605,9 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    if(isset($_POST['traer_item'])){
+
+    }
     if (isset($_POST['pdf_hoja_servicio'])) {
         require_once "vendor/autoload.php";
         $dompdf = new Dompdf\Dompdf();

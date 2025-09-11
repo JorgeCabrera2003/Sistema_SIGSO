@@ -5,7 +5,7 @@ const Ccargo = [
         'cargo' => 'Tecnico'
     ],
     [
-        'id' => 2,
+        'id' => 'EN11692920252805',
         'cargo' => 'Encargado'
     ],
 ];

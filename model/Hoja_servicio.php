@@ -147,12 +147,14 @@ class HojaServicio extends Conexion
             }
 
             // Obtener técnico con menor carga para este tipo de servicio
+            $id_cargoTecnico = Ccargo[0]['id'];
+            
             $sqlTecnico = "SELECT 
                 e.cedula_empleado, 
                 CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
                 COALESCE(hs.cant_hojas, 0) AS hojas_mes
-            FROM empleado e
-            LEFT JOIN (
+                FROM empleado e
+                LEFT JOIN (
                 SELECT 
                     cedula_tecnico, 
                     COUNT(*) AS cant_hojas
@@ -160,22 +162,23 @@ class HojaServicio extends Conexion
                 WHERE estatus = 'A'
                 GROUP BY cedula_tecnico
             ) hs ON hs.cedula_tecnico = e.cedula_empleado
-            WHERE e.id_servicio = :tipo_servicio
-                AND e.id_cargo = ".Ccargo[0]['id']."  -- 1 = Técnico
-                AND e.estatus = 1   -- 1 = Activo
+            WHERE e.id_servicio = :tipo_servicio AND e.id_cargo = :id_cargo AND e.estatus = 1
             ORDER BY hojas_mes ASC, nombre ASC
             LIMIT 1";
 
             $stmtTecnico = $this->conexion->prepare($sqlTecnico);
             $stmtTecnico->bindParam(':tipo_servicio', $id_tipo_servicio, PDO::PARAM_INT);
+            $stmtTecnico->bindParam(':id_cargo', $id_cargoTecnico, PDO::PARAM_STR);
             $stmtTecnico->execute();
             $tecnico = $stmtTecnico->fetch(PDO::FETCH_ASSOC);
 
             if (!$tecnico) {
-                throw new Exception("No hay técnicos disponibles para este tipo de servicio");
+                $cedula_tecnico = NULL;
+            } else {
+                $cedula_tecnico = $tecnico['cedula_empleado'];
             }
 
-            $cedula_tecnico = $tecnico['cedula_empleado'];
+            
 
             // Insertar la hoja de servicio
             $sql = "INSERT INTO hoja_servicio 
@@ -185,7 +188,7 @@ class HojaServicio extends Conexion
             $stmt = $this->conexion->prepare($sql);
             $stmt->bindParam(':codigo_hoja_servicio', $codigo_hoja_servicio, PDO::PARAM_STR);
             $stmt->bindParam(':nro_solicitud', $nro_solicitud, PDO::PARAM_STR);
-            $stmt->bindParam(':tipo_servicio', $id_tipo_servicio, PDO::PARAM_INT);
+            $stmt->bindParam(':tipo_servicio', $id_tipo_servicio, PDO::PARAM_STR);
             $stmt->bindParam(':cedula_tecnico', $cedula_tecnico, PDO::PARAM_STR);
 
             if ($stmt->execute()) {
