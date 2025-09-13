@@ -5,19 +5,19 @@ class ServicioRealizado extends Conexion
 {
 
     private $id;
-    private $nombre;
-    private $id_servicio;
-    private $bool_texto;
+    private $id_hoja_servicio;
+    private $id_servicio_prestado;
+    private $observacion;
     private $servicio_prestado;
     private $conexion;
 
 
     public function __construct()
     {
-        $this->id;
-        $this->id_servicio;
-        $this->nombre = "";
-        $this->bool_texto = 0;
+        $this->id = 0;
+        $this->id_hoja_servicio = 0;
+        $this->observacion = "";
+        $this->id_servicio_prestado = 0;
         $this->servicio_prestado = NULL;
         $this->conexion = NULL;
     }
@@ -27,18 +27,18 @@ class ServicioRealizado extends Conexion
         $this->id = $id;
     }
 
-    public function set_id_servicio($id_servicio)
+    public function set_id_hoja_servicio($id_hoja_servicio)
     {
-        $this->id_servicio = $id_servicio;
+        $this->id_hoja_servicio = $id_hoja_servicio;
     }
 
-    public function set_nombre($nombre)
+    public function set_observacion($observacion)
     {
-        $this->nombre = $nombre;
+        $this->observacion = $observacion;
     }
-    public function set_bool_texto($bool_texto)
+    public function set_id_servicio_prestado($id_servicio_prestado)
     {
-        $this->bool_texto = $bool_texto;
+        $this->id_servicio_prestado = $id_servicio_prestado;
     }
 
     public function get_id()
@@ -46,18 +46,18 @@ class ServicioRealizado extends Conexion
         return $this->id;
     }
 
-    public function get_id_servicio()
+    public function get_id_hoja_servicio()
     {
-        return $this->id_servicio;
+        return $this->id_hoja_servicio;
     }
-    public function get_nombre()
+    public function get_observacion()
     {
-        return $this->nombre;
+        return $this->observacion;
     }
 
-    public function get_bool_texto()
+    public function get_id_servicio_prestado()
     {
-        return $this->bool_texto;
+        return $this->id_servicio_prestado;
     }
 
     private function LlamarServicioPrestado()
@@ -134,8 +134,9 @@ class ServicioRealizado extends Conexion
 
                         } else {
                             $this->set_id($key['id']);
-                            $this->set_nombre($key['nombre']);
-                            $this->set_bool_texto($key['estado']);
+                            $this->set_id_hoja_servicio($key['hoja_servicio']);
+                            $this->set_id_servicio_prestado($key['servicio_prestado']);
+                            $this->set_observacion($key['observacion']);
 
                             $bool = $this->Validar();
                             if ($bool['bool'] == 0) {
@@ -169,7 +170,7 @@ class ServicioRealizado extends Conexion
         $boolServicio = [];
         $bool = $this->Validar();
         $transaccion = false;
-        $this->LlamarServicioPrestado()->set_id($this->get_id_servicio());
+        $this->LlamarServicioPrestado()->set_id($this->get_id_servicio_prestado());
         $boolServicio = $this->LlamarServicioPrestado()->Transaccion(['peticion' => 'validar']);
         if ($bool['bool'] == 0) {
             if ($boolServicio['bool'] == 1) {
@@ -180,13 +181,14 @@ class ServicioRealizado extends Conexion
                         $this->conexion->beginTransaction();
                         $transaccion = true;
                     }
-                    $query = "INSERT INTO servicio_prestado (id, id_tipo_servicio, nombre, bool_texto, estatus) VALUES (:id, :id_servicio, :nombre, :bool_texto, 1)";
+                    $query = "INSERT INTO servicio_realizado(id_servicio_realizado, id_servicio_prestado, id_hoja_servicio, observacion)
+                    VALUES (:id_servicio_realizado, :id_servicio_prestado, :id_hoja_servicio, :observacion)";
 
                     $stm = $this->conexion->prepare($query);
-                    $stm->bindParam(":id", $this->id);
-                    $stm->bindParam(":id_servicio", $this->id_servicio);
-                    $stm->bindParam(":nombre", $this->nombre);
-                    $stm->bindParam(":bool_texto", $this->bool_texto);
+                    $stm->bindParam(":id_servicio_realizado", $this->id);
+                    $stm->bindParam(":id_servicio_prestado", $this->id_servicio_prestado);
+                    $stm->bindParam(":id_hoja_servicio", $this->id_hoja_servicio);
+                    $stm->bindParam(":observacion", $this->observacion);
                     $stm->execute();
                     if ($transaccion) {
                         $this->conexion->commit();
@@ -225,7 +227,7 @@ class ServicioRealizado extends Conexion
         $dato = [];
         $transaccion = false;
         $boolServicio = [];
-        $this->LlamarServicioPrestado()->set_id($this->get_id_servicio());
+        $this->LlamarServicioPrestado()->set_id($this->get_id_servicio_prestado());
         $boolServicio = $this->LlamarServicioPrestado()->Transaccion(['peticion' => 'validar']);
         if ($boolServicio['bool'] == 1) {
 
@@ -236,12 +238,12 @@ class ServicioRealizado extends Conexion
                     $this->conexion->beginTransaction();
                     $transaccion = true;
                 }
-                $query = "UPDATE servicio_prestado SET nombre = :nombre, bool_texto = :bool_texto WHERE id = :id";
+                $query = "UPDATE servicio_realizado SET observacion = :observacion
+                WHERE id_servicio_realizado = :id_servicio_realizado";
 
                 $stm = $this->conexion->prepare($query);
-                $stm->bindParam(":id", $this->id);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->bindParam(":bool_texto", $this->bool_texto);
+                $stm->bindParam(":id_servicio_realizado", $this->id);
+                $stm->bindParam(":observacion", $this->id_servicio_prestado);
                 $stm->execute();
                 if ($transaccion) {
                     $this->conexion->commit();
@@ -277,7 +279,7 @@ class ServicioRealizado extends Conexion
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
                 $this->conexion->beginTransaction();
-                $query = "UPDATE servicio_prestado SET estatus = 0 WHERE id = :id";
+                $query = "DELETE FROM servicio_realizado WHERE id_servicio_realizado= :id";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
@@ -314,7 +316,7 @@ class ServicioRealizado extends Conexion
             WHERE tp.id_tipo_servicio = :servicio";
 
             $stm = $this->conexion->prepare($query);
-            $stm->bindParam(':servicio', $this->id_servicio);
+            $stm->bindParam(':servicio', $this->id_hoja_servicio);
             $stm->execute();
             $this->conexion->commit();
 

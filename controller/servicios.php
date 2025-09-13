@@ -297,7 +297,8 @@ if (is_file("view/" . $page . ".php")) {
 
             // Verificar que el técnico es el asignado a esta hoja
             $sqlVerificar = "SELECT cedula_tecnico FROM hoja_servicio 
-                            WHERE codigo_hoja_servicio = :codigo";
+            WHERE codigo_hoja_servicio = :codigo";
+
             $stmt = $hojaServicio->Conex()->prepare($sqlVerificar);
             $stmt->bindParam(':codigo', $_POST['codigo_hoja_servicio'], PDO::PARAM_INT);
             $stmt->execute();
@@ -607,6 +608,12 @@ if (is_file("view/" . $page . ".php")) {
 
     if(isset($_POST['traer_item'])){
 
+    }
+
+    if(isset($_POST['traer_servicios'])){
+    $response = $tipoServicio->Transaccion(['peticion' => 'consultar']);
+    echo json_encode($response);
+    exit;
     }
     if (isset($_POST['pdf_hoja_servicio'])) {
         require_once "vendor/autoload.php";

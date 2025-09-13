@@ -4,19 +4,19 @@ require_once "model/componente.php";
 class ComponenteAtendido extends Conexion
 {
     private $id;
-    private $nombre;
-    private $id_servicio;
-    private $bool_texto;
+    private $id_hoja_servicio;
+    private $id_componente;
+    private $observacion;
     private $componente;
     private $conexion;
 
 
     public function __construct()
     {
-        $this->id;
-        $this->id_servicio;
-        $this->nombre = "";
-        $this->bool_texto = 0;
+        $this->id = 0;
+        $this->id_hoja_servicio = 0;
+        $this->observacion = "";
+        $this->id_componente = 0;
         $this->tipo_servicio = NULL;
         $this->conexion = NULL;
     }
@@ -26,45 +26,40 @@ class ComponenteAtendido extends Conexion
         $this->id = $id;
     }
 
-    public function set_id_servicio($id_servicio)
+    public function set_id_hoja_servicio($id_hoja_servicio)
     {
-        $this->id_servicio = $id_servicio;
+        $this->id_hoja_servicio = $id_hoja_servicio;
     }
 
-    public function set_nombre($nombre)
+    public function set_observacion($observacion)
     {
-        $this->nombre = $nombre;
+        $this->observacion = $observacion;
     }
-    public function set_bool_texto($bool_texto)
+    public function set_id_componente($id_componente)
     {
-        $this->bool_texto = $bool_texto;
-    }
-
-    public function get_id()
-    {
-        return $this->id;
+        $this->id_componente = $id_componente;
     }
 
-    public function get_id_servicio()
+    public function get_id_hoja_servicio()
     {
-        return $this->id_servicio;
+        return $this->id_hoja_servicio;
     }
-    public function get_nombre()
+    public function get_observacion()
     {
-        return $this->nombre;
-    }
-
-    public function get_bool_texto()
-    {
-        return $this->bool_texto;
+        return $this->observacion;
     }
 
-    private function LlamarTipoServicio()
+    public function get_id_componente()
     {
-        if ($this->tipo_servicio == NULL) {
-            $this->tipo_servicio = new TipoServicio();
+        return $this->id_componente;
+    }
+
+    private function LlamarComponente()
+    {
+        if ($this->componente == NULL) {
+            $this->componente = new Componente();
         }
-        return $this->tipo_servicio;
+        return $this->componente;
     }
 
     private function Validar()
@@ -133,8 +128,9 @@ class ComponenteAtendido extends Conexion
 
                         } else {
                             $this->set_id($key['id']);
-                            $this->set_nombre($key['nombre']);
-                            $this->set_bool_texto($key['estado']);
+                            $this->set_id_hoja_servicio($key['hoja_servicio']);
+                            $this->set_id_componente($key['id_componente']);
+                            $this->set_observacion($key['observacion']);
 
                             $bool = $this->Validar();
                             if ($bool['bool'] == 0) {
@@ -168,8 +164,8 @@ class ComponenteAtendido extends Conexion
         $boolServicio = [];
         $bool = $this->Validar();
         $transaccion = false;
-        $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-        $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+        $this->LlamarComponente()->set_id($this->get_id_componente());
+        $boolServicio = $this->LlamarComponente()->Transaccion(['peticion' => 'validar']);
         if ($bool['bool'] == 0) {
             if ($boolServicio['bool'] == 1) {
                 try {
@@ -179,13 +175,14 @@ class ComponenteAtendido extends Conexion
                         $this->conexion->beginTransaction();
                         $transaccion = true;
                     }
-                    $query = "INSERT INTO componente (id, id_tipo_servicio, nombre, bool_texto, estatus) VALUES (:id, :id_servicio, :nombre, :bool_texto, 1)";
+                    $query = "INSERT INTO componente_atendido(id, id_componente, id_hoja_servicio, observación)
+                    VALUES (:id, :id_componente, :id_hoja_servicio, :observacion";
 
                     $stm = $this->conexion->prepare($query);
                     $stm->bindParam(":id", $this->id);
-                    $stm->bindParam(":id_servicio", $this->id_servicio);
-                    $stm->bindParam(":nombre", $this->nombre);
-                    $stm->bindParam(":bool_texto", $this->bool_texto);
+                    $stm->bindParam(":id_componente ", $this->id_componente);
+                    $stm->bindParam(":id_hoja_servicio", $this->id_hoja_servicio);
+                    $stm->bindParam(":observacion", $this->observacion);
                     $stm->execute();
                     if ($transaccion) {
                         $this->conexion->commit();
@@ -224,8 +221,8 @@ class ComponenteAtendido extends Conexion
         $dato = [];
         $transaccion = false;
         $boolServicio = [];
-        $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-        $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+        $this->LlamarComponente()->set_id($this->get_id_componente());
+        $boolServicio = $this->LlamarComponente()->Transaccion(['peticion' => 'validar']);
         if ($boolServicio['bool'] == 1) {
 
             try {
@@ -235,12 +232,11 @@ class ComponenteAtendido extends Conexion
                     $this->conexion->beginTransaction();
                     $transaccion = true;
                 }
-                $query = "UPDATE componente SET nombre = :nombre, bool_texto = :bool_texto WHERE id = :id";
+                $query = "UPDATE componente SET observacion = :observacion WHERE id = :id";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
-                $stm->bindParam(":nombre", $this->nombre);
-                $stm->bindParam(":bool_texto", $this->bool_texto);
+                $stm->bindParam(":observacion", $this->observacion);
                 $stm->execute();
                 if ($transaccion) {
                     $this->conexion->commit();

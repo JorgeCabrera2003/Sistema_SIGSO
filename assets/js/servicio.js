@@ -39,6 +39,9 @@ $(document).ready(async function () {
     cargarTiposServicio();
 
     // Evento para el formulario de reporte PDF
+
+    SelectServicio()
+
     $('#formReporteServicio').on('submit', function (e) {
         e.preventDefault();
         generarReportePDF();
@@ -580,6 +583,47 @@ function editarHoja(codigo) {
         }
     });
 }
+
+function SelectServicio() {
+    $.ajax({
+        url: '?page=servicios',
+        type: 'POST',
+        data: {
+            traer_servicios: 'traer_servicios'
+        },
+        dataType: 'json',
+        beforeSend: function () {
+        },
+        success: function (response) {
+            if (response.resultado === 'consultar') {
+                // Restaurar el contenido original del modal con TODOS los campos
+
+                    $("#reporte_tipo_servicio").empty();
+                    if (Array.isArray(response.datos) && response.datos.length > 0) {
+
+                        $("#reporte_tipo_servicio").append(
+                            new Option('Todos los tipos', '')
+                        );
+                        response.datos.forEach(item => {
+                            $("#reporte_tipo_servicio").append(
+                                new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
+                            );
+                        });
+                    } else {
+                        $("#reporte_tipo_servicio").append(
+                            new Option('No Hay Servicios', 'default')
+                        );
+                    }
+            } else {
+                mostrarError(response.mensaje || 'Error al cargar los datos');
+            }
+        },
+        error: function (xhr, status, error) {
+            mostrarError('Error al cargar los datos: ' + error);
+        }
+    });
+}
+
 function LlamarCheckbox(id, item) {
     $.ajax({
         url: '?page=servicios',

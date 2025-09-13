@@ -4,10 +4,7 @@
     <?php
     require_once("Componentes/menu.php");
     // Obtener tipos de servicio para los selects
-    require_once("model/tipo_servicio.php");
-    $tipoServicio = new TipoServicio();
-    $tipos_servicio = $tipoServicio->Transaccion(['peticion' => 'consultar']);
-    $tipos_servicio = isset($tipos_servicio['datos']) ? $tipos_servicio['datos'] : [];
+
     require_once("Componentes/modal_hoja.php");
     ?>
 
@@ -92,11 +89,6 @@
                             <div class="col-auto">
                                 <select name="id_tipo_servicio" class="form-select" id="reporte_tipo_servicio">
                                     <option value="">Todos los tipos</option>
-                                    <?php foreach ($tipos_servicio as $tipo): ?>
-                                        <option value="<?= $tipo['id_tipo_servicio'] ?>">
-                                            <?= $tipo['nombre_tipo_servicio'] ?>
-                                        </option>
-                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-auto">
