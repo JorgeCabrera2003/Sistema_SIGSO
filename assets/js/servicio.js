@@ -77,6 +77,21 @@ $(document).ready(async function () {
     ConsultarPermisosServicios();
 });
 
+function capaValidar(){
+    $(".input-grupo").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+	})
+
+	$(".input-grupo").on("keyup", function () {
+		console.log($(this).attr('id'));
+		var idSpan = $(this).attr('id');
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{1,30}$/, $(this), $("#s" + idSpan),
+			"Carácter no válido"
+		);
+	})
+}
+
 function inicializarTablaServicios() {
     tablaServicios = $('#tablaServicios').DataTable({
         ajax: {
@@ -573,7 +588,10 @@ function editarHoja(codigo) {
                     $('#modal1').modal('show');
 
                     cargarDetallesHojaEdicion(codigo);
+                    LlamarCheckbox(codigo, 'servicio');
+                    LlamarCheckbox(codigo, 'componente');
                 });
+
             } else {
                 mostrarError(response.mensaje || 'Error al cargar los datos para editar');
             }
@@ -598,22 +616,22 @@ function SelectServicio() {
             if (response.resultado === 'consultar') {
                 // Restaurar el contenido original del modal con TODOS los campos
 
-                    $("#reporte_tipo_servicio").empty();
-                    if (Array.isArray(response.datos) && response.datos.length > 0) {
+                $("#reporte_tipo_servicio").empty();
+                if (Array.isArray(response.datos) && response.datos.length > 0) {
 
+                    $("#reporte_tipo_servicio").append(
+                        new Option('Todos los tipos', '')
+                    );
+                    response.datos.forEach(item => {
                         $("#reporte_tipo_servicio").append(
-                            new Option('Todos los tipos', '')
+                            new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
                         );
-                        response.datos.forEach(item => {
-                            $("#reporte_tipo_servicio").append(
-                                new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
-                            );
-                        });
-                    } else {
-                        $("#reporte_tipo_servicio").append(
-                            new Option('No Hay Servicios', 'default')
-                        );
-                    }
+                    });
+                } else {
+                    $("#reporte_tipo_servicio").append(
+                        new Option('No Hay Servicios', 'default')
+                    );
+                }
             } else {
                 mostrarError(response.mensaje || 'Error al cargar los datos');
             }
@@ -625,15 +643,23 @@ function SelectServicio() {
 }
 
 function LlamarCheckbox(id, item) {
+
+    $("#container-servicio-realizado").addClass("d-none");
+    $("#container-componente").addClass("d-none");
+
     $.ajax({
         url: '?page=servicios',
         type: 'POST',
         data: {
-            id_servicio: id,
+            id_hoja: id,
             traer_item: item
         },
         success: function (response) {
-            renderizarCheckboxServicio(response.datos)
+            if (response.resultado == "consultar") {
+                renderizarCheckboxServicio(response.datos, item)
+            } else {
+                mostrarError('Error al cargar los datos');
+            }
         }
     });
 }
@@ -678,38 +704,80 @@ function cargarDetallesHojaEdicion(codigo) {
     });
 }
 
-function renderizarCheckboxServicio(arreglo) {
-    $("$servicio").append(`
-                                        <div class="col-lg-4">
-                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
-                                        <div class="col-lg-5">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="form-check form-switch  justify-content-center">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                            value="" id="">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <label class="form-check-label justify-content-center" for="">Algún
-                                                        Servicio: </label>
-                                                </div>
-                                            </div>
-                                        </div>
+function renderizarCheckboxServicio(arreglo, item) {
+    console.log("RenderizarCheckBox")
+    let container = null;
+    let input_texto = null;
+    let texto_observacion = null;
+    let columnas_ocupadas = null;
 
-                                        <div class="col-lg-7">
-                                            <div class="form-floating">
-                                                <input placeholder="" value="" class="form-control input-grupo input-id"
-                                                    name="id" type="text" id="" maxlength="30">
-                                                <span id=""></span>
-                                                <label for="" class="form-label">Observación</label>
-                                            </div>
-                                        </div>
+    if (Array.isArray(arreglo) && arreglo.length > 0) {
+
+        if (item == "servicio") {
+            container = "servicio-realizado";
+            texto_observacion = "Observacion";
+
+        } else if (item == "componente") {
+            container = "componente";
+            texto_observacion = "Cantidad";
+        } else {
+            console.log("Error, datos no validos")
+        }
+        $("#fila-" + container).empty();
+        arreglo.forEach(clave => {
+
+            if(clave.bool_texto == 1){
+                columnas_ocupadas = "5";
+                input_texto = `<div class="col-lg-7">
+                                    <div class="form-floating">
+                                        <input placeholder="" value="" data-idInput=${clave.id} data-idobservacion="" class="form-control input-grupo input-id"
+                                        name="id" type="text" id="input-${container}${clave.id}" maxlength="30" readOnly>
+                                        <span id="sinput-${container}${clave.id}"></span>
+                                        <label for="input-${container}${clave.id}" class="form-label">${texto_observacion}</label>
                                     </div>
-                                </div>`);
+                                </div>`;
+            } else {
+                columnas_ocupadas = "12";
+                input_texto = ``;
+            }
+
+            $("#fila-" + container).append(`
+        <div class="col-lg-4">
+            <div class="row justify-content-center mb-3 mt-4" data-idrow=${clave.id} id="row-${container}">
+                <div class="col-lg-${columnas_ocupadas}">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-switch justify-content-center">
+                                <input class="form-check-input" data-idCheck=${clave.id} data-idAtendido="" type="checkbox" role="switch"
+                                value="" id="check-${container}${clave.id}" onchange="bloquearInputCheck(this,'${clave.id}', '${container}')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-check-label justify-content-center" for="">${clave.nombre}</label>
+                        </div>
+                    </div>
+                </div>
+                ${input_texto}
+            </div>
+        </div>`);
+        })
+        $("#container-" + container).removeClass("d-none");
+    } else {
+        $("#container-" + container).addClass("d-none");
+    }
+
 }
+
+function bloquearInputCheck(input, id, contenedor){
+
+    if($(input).prop('checked')){
+        $("#input-"+contenedor+id).prop("readOnly", false);
+    } else {
+        $("#input-"+contenedor+id).prop("readOnly", true);
+    }
+};
 
 function redireccionarHoja(codigo) {
     // Primero cargar los tipos de servicio para el select de área

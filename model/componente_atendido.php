@@ -189,7 +189,7 @@ class ComponenteAtendido extends Conexion
                     }
                     $dato['resultado'] = "registrar";
                     $dato['estado'] = 1;
-                    $dato['mensaje'] = "Se registró el componente exitosamente";
+                    $dato['mensaje'] = "Se registró el componente atendido exitosamente";
                 } catch (PDOException $e) {
                     if ($transaccion) {
                         $this->conexion->rollBack();
@@ -204,7 +204,7 @@ class ComponenteAtendido extends Conexion
             } else {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
-                $dato['mensaje'] = "No existe el Tipo de Servicio";
+                $dato['mensaje'] = "No existe el Componente";
             }
 
         } else {
@@ -243,7 +243,7 @@ class ComponenteAtendido extends Conexion
                 }
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se modificaron los datos del componente con éxito";
+                $dato['mensaje'] = "Se modificaron los datos del componente atendido exitosamente";
             } catch (PDOException $e) {
                 if ($transaccion) {
                     $this->conexion->rollBack();
@@ -280,7 +280,7 @@ class ComponenteAtendido extends Conexion
                 $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el compenente exitosamente";
+                $dato['mensaje'] = "Se eliminó el compenente atendido exitosamente";
             } catch (PDOException $e) {
                 $this->conexion->rollBack();
                 $dato['resultado'] = "error";
@@ -309,7 +309,7 @@ class ComponenteAtendido extends Conexion
             WHERE tp.id_tipo_servicio = :servicio";
 
             $stm = $this->conexion->prepare($query);
-            $stm->bindParam(':servicio', $this->id_servicio);
+            $stm->bindParam(':servicio', $this->id_componente);
             $stm->execute();
             $this->conexion->commit();
 

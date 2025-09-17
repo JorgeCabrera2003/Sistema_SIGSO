@@ -22,6 +22,7 @@ if (is_file("view/" . $page . ".php")) {
     require_once "model/componente.php";
     require_once "model/servicio_prestado.php";
     require_once "model/componente_atendido.php";
+    require_once "model/componente.php";
     require_once "model/servicio_realizado.php";
 
     $titulo = "Gestión de Hojas de Servicio";
@@ -31,6 +32,10 @@ if (is_file("view/" . $page . ".php")) {
     $empleado = new Empleado();
     $tipoServicio = new TipoServicio();
     $material = new Material();
+    $servicio_prestado = new ServicioPrestado();
+    $servicio_realizado = new ServicioRealizado();
+    $componente = new Componente();
+    $componente_atendido = new ComponenteAtendido();
 
     // Forzar respuesta JSON para peticiones AJAX
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
@@ -608,6 +613,22 @@ if (is_file("view/" . $page . ".php")) {
 
     if(isset($_POST['traer_item'])){
 
+        $arrayHoja = [];
+
+        $hojaServicio->set_codigo_hoja_servicio($_POST['id_hoja']);
+        $arrayHoja = $hojaServicio->Transaccion(['peticion' => 'consultar']);
+
+        if($_POST['traer_item'] == 'servicio'){
+            $servicio_prestado->set_id_servicio($arrayHoja['datos']['id_tipo_servicio']);
+            $response = $servicio_prestado->Transaccion(['peticion' => 'consultar']);
+        } else if($_POST['traer_item'] == 'componente'){
+            $componente->set_id_servicio($arrayHoja['datos']['id_tipo_servicio']);
+            $response = $componente->Transaccion(['peticion' => 'consultar']);
+        } else {
+            $response = ['resultado' => 'error', 'mensaje' => 'Parametro no válido'];
+        }
+        echo json_encode($response);
+        exit;
     }
 
     if(isset($_POST['traer_servicios'])){

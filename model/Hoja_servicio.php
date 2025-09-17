@@ -1110,6 +1110,11 @@ class HojaServicio extends Conexion
 
         // Procesar petición
         switch ($peticion['peticion']) {
+
+            case 'validar':
+
+                return;
+
             case 'crear':
                 // Extraer parámetros directamente de la petición
                 $codigo_hoja_servicio = $peticion['codigo_hoja_servicio'] ?? '';

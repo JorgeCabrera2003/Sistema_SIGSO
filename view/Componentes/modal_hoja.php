@@ -32,7 +32,7 @@
 
                 <div class="row justify-content-center" id="fila-check">
                     <div class="col-lg-12">
-                        <fieldset class="container permission-group" id="container-servicio-realizado">
+                        <fieldset class="container permission-group d-none" id="container-servicio-realizado">
                             <div class="row justify-content-center" id="fila-label-servicio-realizado">
                                 <div class="col-lg-12">
                                     <legend class="group-header">
@@ -190,10 +190,164 @@
                             </div>
                         </fieldset>
                     </div>
-                    <div class="row justify-content-center" id="fila-componente">
-                        <div class="col-lg-12">
+                    <div class="col-lg-12">
+                        <fieldset class="container permission-group d-none" id="container-componente">
+                            <div class="row justify-content-center" id="fila-label-componente">
+                                <div class="col-lg-12">
+                                    <legend class="group-header">
+                                        <label class="" for="componente">Componentes Atendidos: </label>
 
-                        </div>
+                                    </legend>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center" id="fila-componente">
+                                <!-- <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="row justify-content-center mb-3 mt-4" id="fila-servicio-realizado">
+                                        <div class="col-lg-5">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-check form-switch  justify-content-center">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            value="" id="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label class="form-check-label justify-content-center" for="">Algún
+                                                        Servicio: </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-7">
+                                            <div class="form-floating">
+                                                <input placeholder="" value="" class="form-control input-grupo input-id"
+                                                    name="id" type="text" id="" maxlength="30">
+                                                <span id=""></span>
+                                                <label for="" class="form-label">Observación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>-->
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
 
