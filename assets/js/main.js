@@ -334,13 +334,13 @@ searchInput.addEventListener("input", (e) => {
 // Initial render
 renderTable();
 
-document.addEventListener('DOMContentLoaded', function () {
-    const someElement = document.querySelector('#some-element');
-    if (someElement) {
-        someElement.addEventListener('click', function () {
-            console.log('Elemento clickeado');
-        });
-    } else {
-        console.warn('El elemento #some-element no existe en el DOM.');
-    }
+// Event listener for an element with ID 'someId'
+var someElement = document.getElementById('someId');
+if (someElement) {
+    someElement.addEventListener('click', function() {
+        console.log('Elemento clickeado');
+    });
+} else {
+    console.warn('El elemento #someId no existe en el DOM.');
+}
 });

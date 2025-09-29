@@ -1,7 +1,23 @@
 <?php
-if (!$_SESSION) {
-    echo '<script>window.location="?page=login"</script>';
-    $msg["danger"] = "Sesión Finalizada.";
+if (!isset($_SESSION) || !isset($_SESSION['user'])) {
+    // Si es una petición AJAX o POST para reportes, responde con JSON de error
+    $isAjax = (
+        (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        || (isset($_POST['peticion']) && strpos($_POST['peticion'], 'reporte_') === 0)
+        || (isset($_POST['obtener_patch_panels']))
+        || (isset($_POST['obtener_switches']))
+        || (isset($_POST['obtener_info_puerto']))
+        || (isset($_POST['entrada']))
+    );
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode(['resultado' => 'error', 'mensaje' => 'Sesión finalizada']);
+        exit;
+    } else {
+        echo '<script>window.location="?page=login"</script>';
+        $msg["danger"] = "Sesión Finalizada.";
+        exit;
+    }
 }
 
 ob_start();
@@ -22,6 +38,44 @@ if (is_file("view/estadistica.php")) {
     
     // Obtener pisos activos para los selects
     $piso = $reporteModel->Transaccion(['peticion' => 'consultar_pisos'])['datos'];
+    
+    // Procesar solicitud de patch panels (mantener funcionalidad existente)
+    if (isset($_POST["obtener_patch_panels"])) {
+        $id_piso = intval($_POST['id_piso']);
+        $reporte = $reporteModel->Transaccion([
+            'peticion' => 'obtener_patch_panels',
+            'id_piso' => $id_piso
+        ]);
+        echo json_encode($reporte);
+        exit;
+    }
+    
+    // Procesar solicitud de switches (mantener funcionalidad existente)
+    if (isset($_POST["obtener_switches"])) {
+        $id_piso = intval($_POST['id_piso']);
+        $reporte = $reporteModel->Transaccion([
+            'peticion' => 'obtener_switches',
+            'id_piso' => $id_piso
+        ]);
+        echo json_encode($reporte);
+        exit;
+    }
+    
+    // Procesar solicitud de info de puerto (mantener funcionalidad existente)
+    if (isset($_POST["obtener_info_puerto"])) {
+        $tipo = $_POST['tipo'];
+        $codigo_bien = $_POST['codigo_bien'];
+        $numero_puerto = intval($_POST['numero_puerto']);
+        
+        $reporte = $reporteModel->Transaccion([
+            'peticion' => 'detalles_puerto',
+            'codigo_dispositivo' => $codigo_bien,
+            'numero_puerto' => $numero_puerto,
+            'tipo' => $tipo
+        ]);
+        echo json_encode($reporte);
+        exit;
+    }
     
     // Procesar solicitud de gráficos
     if (isset($_POST["grafico"])) {
@@ -68,13 +122,12 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar solicitud de infraestructura
+    // Procesar solicitud de infraestructura (mantener funcionalidad existente)
     if (isset($_POST['peticion']) && $_POST['peticion'] === 'obtener_infraestructura') {
         $tipo = $_POST['tipo'];
         $id_piso = intval($_POST['id_piso']);
 
         if ($tipo === 'patch') {
-            // El modelo ya filtra por el piso de la oficina asociada al bien
             $reporte = $reporteModel->Transaccion([
                 'peticion' => 'obtener_patch_panels',
                 'id_piso' => $id_piso
@@ -90,7 +143,7 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
 
-    // Procesar solicitud de detalles de puerto
+    // Procesar solicitud de detalles de puerto (mantener funcionalidad existente)
     if (isset($_POST['peticion']) && $_POST['peticion'] === 'detalles_puerto') {
         $codigo_dispositivo = $_POST['codigo_dispositivo'];
         $numero_puerto = intval($_POST['numero_puerto']);
@@ -107,7 +160,7 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar filtros para Patch Panel
+    // Procesar filtros para Patch Panel (mantener funcionalidad existente)
     if (isset($_POST['pisoFiltrado'])) {
         $id_piso = intval($_POST['pisoFiltrado']);
         $reporte = $reporteModel->Transaccion([
@@ -118,7 +171,7 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar filtros para Switches
+    // Procesar filtros para Switches (mantener funcionalidad existente)
     if (isset($_POST['pisoFiltradoSwitch'])) {
         $id_piso = intval($_POST['pisoFiltradoSwitch']);
         $reporte = $reporteModel->Transaccion([
@@ -129,7 +182,7 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar filtros para reporte de bienes
+    // Procesar filtros para reporte de bienes (mantener funcionalidad existente)
     if (isset($_POST['filtro_bienes'])) {
         $filtros = [
             'peticion' => 'reporte_bienes',
@@ -144,7 +197,7 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar filtros para reporte de solicitudes
+    // Procesar filtros para reporte de solicitudes (mantener funcionalidad existente)
     if (isset($_POST['filtro_solicitudes'])) {
         $filtros = [
             'peticion' => 'reporte_solicitudes',
@@ -159,7 +212,7 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar filtros para reporte de materiales
+    // Procesar filtros para reporte de materiales (mantener funcionalidad existente)
     if (isset($_POST['filtro_materiales'])) {
         $filtros = [
             'peticion' => 'reporte_materiales',
@@ -173,12 +226,25 @@ if (is_file("view/estadistica.php")) {
         exit;
     }
     
-    // Procesar entrada al módulo
+    // Procesar entrada al módulo (mantener funcionalidad existente)
     if (isset($_POST["entrada"])) {
         $json['resultado'] = "entrada";
         echo json_encode($json);
         $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Ingresó al Módulo de Dashboard";
         Bitacora($msg, "Dashboard");
+        exit;
+    }
+    
+    // Procesar reportes estadísticos NUEVOS
+    if (isset($_POST['peticion']) && strpos($_POST['peticion'], 'reporte_') === 0) {
+        $peticion = $_POST['peticion'];
+        $filtros = $_POST;
+        
+        // Remover peticion del array de filtros
+        unset($filtros['peticion']);
+        
+        $reporte = $reporteModel->Transaccion(array_merge(['peticion' => $peticion], $filtros));
+        echo json_encode($reporte);
         exit;
     }
     

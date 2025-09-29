@@ -426,7 +426,7 @@
             });
 
             // Seleccionar por defecto el piso 1 si existe
-            $('#pisoFiltro').val(5);
+            $('#pisoFiltro').val(6);
 
             // Cargar infraestructura por defecto
             setTimeout(function() {

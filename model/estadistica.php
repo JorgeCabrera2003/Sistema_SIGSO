@@ -271,7 +271,7 @@ class reporte extends Conexion
         try {
             $this->conex = $this->Conex();
             
-            // Primero crear array con todos los puertos posibles
+            // Obtener cantidad total de puertos del switch
             $queryInfo = "SELECT cantidad_puertos FROM switch WHERE codigo_bien = :codigo";
             $stm = $this->conex->prepare($queryInfo);
             $stm->bindParam(":codigo", $codigo_switch, PDO::PARAM_STR);
@@ -290,7 +290,9 @@ class reporte extends Conexion
                                 0 as danado
                               FROM interconexion i
                               LEFT JOIN patch_panel pp ON i.codigo_patch_panel = pp.codigo_bien
-                              LEFT JOIN piso p ON pp.id_piso = p.id_piso
+                              LEFT JOIN bien b ON pp.codigo_bien = b.codigo_bien
+                              LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                              LEFT JOIN piso p ON o.id_piso = p.id_piso
                               WHERE i.codigo_switch = :codigo";
                               
             $stm = $this->conex->prepare($queryOcupados);
@@ -298,10 +300,9 @@ class reporte extends Conexion
             $stm->execute();
             $ocupados = $stm->fetchAll(PDO::FETCH_ASSOC);
             
-            // Crear array completo de puertos
+            // Crear array completo de puertos (igual que patch panel)
             for ($i = 1; $i <= $cantidadPuertos; $i++) {
                 $encontrado = false;
-                
                 foreach ($ocupados as $ocupado) {
                     if ($ocupado['numero'] == $i) {
                         $puertos[] = $ocupado;
@@ -309,7 +310,6 @@ class reporte extends Conexion
                         break;
                     }
                 }
-                
                 if (!$encontrado) {
                     $puertos[] = [
                         'numero' => $i,
@@ -763,6 +763,260 @@ class reporte extends Conexion
         return $dato;
     }
 
+    // Reporte 1: Eficiencia por Técnico
+    public function reporteEficienciaTecnicos($filtros = [])
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "CALL sp_reporte_rendimiento_tecnicos(:cedula_tecnico, :id_tipo_servicio, :fecha_inicio, :fecha_fin)";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":cedula_tecnico", $filtros['cedula_tecnico'], PDO::PARAM_STR);
+            $stm->bindParam(":id_tipo_servicio", $filtros['id_tipo_servicio'], PDO::PARAM_INT);
+            $stm->bindParam(":fecha_inicio", $filtros['fecha_inicio'], PDO::PARAM_STR);
+            $stm->bindParam(":fecha_fin", $filtros['fecha_fin'], PDO::PARAM_STR);
+            $stm->execute();
+            $dato['resultado'] = "reporte_eficiencia_tecnicos";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 2: Tiempos de Respuesta
+    public function reporteTiemposRespuesta($filtros = [])
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "SELECT ts.nombre_tipo_servicio, 
+                             AVG(TIMESTAMPDIFF(HOUR, s.fecha_solicitud, hs.fecha_resultado)) AS tiempo_promedio_horas,
+                             COUNT(hs.codigo_hoja_servicio) AS total_hojas
+                      FROM hoja_servicio hs
+                      JOIN tipo_servicio ts ON hs.id_tipo_servicio = ts.id_tipo_servicio
+                      JOIN solicitud s ON hs.nro_solicitud = s.nro_solicitud
+                      WHERE hs.estatus = 'I'
+                        AND (:id_tipo_servicio IS NULL OR hs.id_tipo_servicio = :id_tipo_servicio)
+                        AND (:fecha_inicio IS NULL OR s.fecha_solicitud >= :fecha_inicio)
+                        AND (:fecha_fin IS NULL OR s.fecha_solicitud <= :fecha_fin)
+                      GROUP BY ts.nombre_tipo_servicio";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_tipo_servicio", $filtros['id_tipo_servicio'], PDO::PARAM_INT);
+            $stm->bindParam(":fecha_inicio", $filtros['fecha_inicio'], PDO::PARAM_STR);
+            $stm->bindParam(":fecha_fin", $filtros['fecha_fin'], PDO::PARAM_STR);
+            $stm->execute();
+            $dato['resultado'] = "reporte_tiempos_respuesta";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 3: Utilización de Materiales
+    public function reporteUtilizacionMateriales($filtros = [])
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            // Asegurar que los filtros sean null si no existen
+            $id_material = isset($filtros['id_material']) ? $filtros['id_material'] : null;
+            $id_oficina = isset($filtros['id_oficina']) ? $filtros['id_oficina'] : null;
+            $fecha_inicio = isset($filtros['fecha_inicio']) ? $filtros['fecha_inicio'] : null;
+            $fecha_fin = isset($filtros['fecha_fin']) ? $filtros['fecha_fin'] : null;
+
+            $query = "CALL sp_reporte_materiales_utilizados(:id_material, :id_oficina, :fecha_inicio, :fecha_fin)";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_material", $id_material, PDO::PARAM_INT);
+            $stm->bindParam(":id_oficina", $id_oficina, PDO::PARAM_INT);
+            $stm->bindParam(":fecha_inicio", $fecha_inicio, PDO::PARAM_STR);
+            $stm->bindParam(":fecha_fin", $fecha_fin, PDO::PARAM_STR);
+            $stm->execute();
+            $dato['resultado'] = "reporte_utilizacion_materiales";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 4: Estado de Equipos
+    public function reporteEstadoEquipos($filtros = [])
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "SELECT b.descripcion, b.estado, m.nombre_marca, COUNT(*) as cantidad
+                      FROM bien b
+                      LEFT JOIN marca m ON b.id_marca = m.id_marca
+                      WHERE (:estado IS NULL OR b.estado = :estado)
+                      GROUP BY b.descripcion, b.estado, m.nombre_marca
+                      ORDER BY cantidad DESC";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":estado", $filtros['estado'], PDO::PARAM_STR);
+            $stm->execute();
+            $dato['resultado'] = "reporte_estado_equipos";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 5: Estado de Infraestructura de Red
+    public function reporteEstadoInfraestructura($id_piso)
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "CALL sp_reporte_patch_panel_por_nro(:id_piso)";
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":id_piso", $id_piso, PDO::PARAM_INT);
+            $stm->execute();
+            $dato['resultado'] = "reporte_estado_infraestructura";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 6: Tendencias y Predicción (Solicitudes por mes)
+    public function reporteTendenciasSolicitudes()
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "SELECT DATE_FORMAT(fecha_solicitud, '%Y-%m') as mes, COUNT(*) as total
+                      FROM solicitud
+                      WHERE estatus = 1
+                      GROUP BY mes
+                      ORDER BY mes DESC";
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "reporte_tendencias_solicitudes";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 7: Satisfacción y Calidad (Reincidencia de problemas)
+    public function reporteReincidenciaProblemas()
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "SELECT motivo, COUNT(*) as veces_reportado
+                      FROM solicitud
+                      WHERE estatus = 1
+                      GROUP BY motivo
+                      HAVING veces_reportado > 1
+                      ORDER BY veces_reportado DESC";
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "reporte_reincidencia_problemas";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 8: KPIs Ejecutivos
+    public function reporteKPIs()
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "SELECT 
+                        (SELECT COUNT(*) FROM solicitud WHERE estatus = 1) as total_solicitudes,
+                        (SELECT COUNT(*) FROM hoja_servicio WHERE estatus = 'I') as hojas_finalizadas,
+                        (SELECT COUNT(*) FROM hoja_servicio WHERE estatus = 'A') as hojas_activas,
+                        (SELECT COUNT(*) FROM bien WHERE estado = 'Dañado') as equipos_danados,
+                        (SELECT COUNT(*) FROM material WHERE stock < 10) as materiales_bajo_stock";
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "reporte_kpis";
+            $dato['datos'] = $stm->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
+    // Reporte 9: Carga de Trabajo por Técnico
+    public function reporteCargaTrabajoTecnicos()
+    {
+        $stm = null;
+        $this->conex = $this->Conex();
+        $dato = [];
+        try {
+            $query = "SELECT e.cedula_empleado, CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) as nombre,
+                             COUNT(hs.codigo_hoja_servicio) as hojas_asignadas,
+                             SUM(hs.estatus = 'I') as hojas_finalizadas,
+                             SUM(hs.estatus = 'A') as hojas_activas
+                      FROM empleado e
+                      LEFT JOIN hoja_servicio hs ON hs.cedula_tecnico = e.cedula_empleado
+                      WHERE e.id_cargo = 1 AND e.estatus = 1
+                      GROUP BY e.cedula_empleado, nombre
+                      ORDER BY hojas_asignadas DESC";
+            $stm = $this->conex->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "reporte_carga_trabajo";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            if ($stm !== null) $stm->closeCursor();
+            $this->conex = null;
+        }
+        return $dato;
+    }
+
     // Método principal de transacción que enruta todas las peticiones
     public function Transaccion($peticion)
     {
@@ -821,6 +1075,25 @@ class reporte extends Conexion
                 
             case 'reporte_materiales':
                 return $this->reporteMateriales($peticion);
+                
+            case 'reporte_eficiencia_tecnicos':
+                return $this->reporteEficienciaTecnicos($peticion);
+            case 'reporte_tiempos_respuesta':
+                return $this->reporteTiemposRespuesta($peticion);
+            case 'reporte_utilizacion_materiales':
+                return $this->reporteUtilizacionMateriales($peticion);
+            case 'reporte_estado_equipos':
+                return $this->reporteEstadoEquipos($peticion);
+            case 'reporte_estado_infraestructura':
+                return $this->reporteEstadoInfraestructura($peticion['id_piso']);
+            case 'reporte_tendencias_solicitudes':
+                return $this->reporteTendenciasSolicitudes();
+            case 'reporte_reincidencia_problemas':
+                return $this->reporteReincidenciaProblemas();
+            case 'reporte_kpis':
+                return $this->reporteKPIs();
+            case 'reporte_carga_trabajo':
+                return $this->reporteCargaTrabajoTecnicos();
                 
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Operación no válida: ' . $peticion['peticion']];

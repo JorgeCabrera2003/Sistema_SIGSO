@@ -1,54 +1,60 @@
 $(document).ready(function() {
-    // Inicializar tooltips
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    // Inicializar tooltips solo si existen
+    if ($('[data-bs-toggle="tooltip"]').length > 0) {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    }
     
-    // Registrar v  trada
+    // Registrar entrada
     registrarEntrada();
     
-    // Evento para cambio de piso
-    $('#selectorPiso').on('change', function() {
-        const idPiso = $(this).val();
-        if (idPiso && idPiso !== "0") {
-            cargarPatchPanels(idPiso);
-            
-            // Cargar switches si el toggle está activado
-            if ($('#toggleSwitch').is(':checked')) {
-                cargarSwitches(idPiso);
+    // Evento para cambio de piso - con verificación de existencia
+    if ($('#selectorPiso').length > 0) {
+        $('#selectorPiso').on('change', function() {
+            const idPiso = $(this).val();
+            if (idPiso && idPiso !== "0") {
+                cargarPatchPanels(idPiso);
+                
+                // Cargar switches si el toggle está activado
+                if ($('#toggleSwitch').is(':checked')) {
+                    cargarSwitches(idPiso);
+                }
+            } else {
+                $('#patchPanelsContainer').html(`
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Seleccione un piso para visualizar los patch panels
+                        </div>
+                    </div>
+                `);
+                
+                $('#switchesContainer').html(`
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Seleccione un piso para visualizar los switches
+                        </div>
+                    </div>
+                `);
             }
-        } else {
-            $('#patchPanelsContainer').html(`
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Seleccione un piso para visualizar los patch panels
-                    </div>
-                </div>
-            `);
-            
-            $('#switchesContainer').html(`
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Seleccione un piso para visualizar los switches
-                    </div>
-                </div>
-            `);
-        }
-    });
+        });
+    }
     
-    // Evento para toggle de switches
-    $('#toggleSwitch').on('change', function() {
-        const idPiso = $('#selectorPiso').val();
-        if ($(this).is(':checked') && idPiso && idPiso !== "0") {
-            cargarSwitches(idPiso);
-        } else {
-            $('#switchesContainer').html(`
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Los switches están ocultos
+    // Evento para toggle de switches - con verificación de existencia
+    if ($('#toggleSwitch').length > 0) {
+        $('#toggleSwitch').on('change', function() {
+            const idPiso = $('#selectorPiso').val();
+            if ($(this).is(':checked') && idPiso && idPiso !== "0") {
+                cargarSwitches(idPiso);
+            } else {
+                $('#switchesContainer').html(`
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Los switches están ocultos
+                        </div>
                     </div>
-                </div>
-            `);
-        }
-    });
+                `);
+            }
+        });
+    }
 });
 
 function cargarPatchPanels(idPiso) {
@@ -76,7 +82,9 @@ function cargarPatchPanels(idPiso) {
                     $('#patchPanelsContainer').html(html);
                     
                     // Inicializar tooltips después de cargar el contenido
-                    $('[data-bs-toggle="tooltip"]').tooltip();
+                    if ($('[data-bs-toggle="tooltip"]').length > 0) {
+                        $('[data-bs-toggle="tooltip"]').tooltip();
+                    }
                 } else {
                     $('#patchPanelsContainer').html(`
                         <div class="col-12 text-center">
@@ -87,6 +95,7 @@ function cargarPatchPanels(idPiso) {
                     `);
                 }
             } catch (e) {
+                console.error("Error parsing patch panels:", e);
                 $('#patchPanelsContainer').html(`
                     <div class="col-12 text-center">
                         <div class="alert alert-danger">
@@ -96,7 +105,8 @@ function cargarPatchPanels(idPiso) {
                 `);
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", error);
             $('#patchPanelsContainer').html(`
                 <div class="col-12 text-center">
                     <div class="alert alert-danger">
@@ -133,7 +143,9 @@ function cargarSwitches(idPiso) {
                     $('#switchesContainer').html(html);
                     
                     // Inicializar tooltips después de cargar el contenido
-                    $('[data-bs-toggle="tooltip"]').tooltip();
+                    if ($('[data-bs-toggle="tooltip"]').length > 0) {
+                        $('[data-bs-toggle="tooltip"]').tooltip();
+                    }
                 } else {
                     $('#switchesContainer').html(`
                         <div class="col-12 text-center">
@@ -144,6 +156,7 @@ function cargarSwitches(idPiso) {
                     `);
                 }
             } catch (e) {
+                console.error("Error parsing switches:", e);
                 $('#switchesContainer').html(`
                     <div class="col-12 text-center">
                         <div class="alert alert-danger">
@@ -153,7 +166,8 @@ function cargarSwitches(idPiso) {
                 `);
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", error);
             $('#switchesContainer').html(`
                 <div class="col-12 text-center">
                     <div class="alert alert-danger">
@@ -298,10 +312,12 @@ function obtenerInfoPuerto(tipo, codigoBien, numeroPuerto) {
                     mostrarModalError('Error al obtener información del puerto');
                 }
             } catch (e) {
+                console.error("Error parsing port info:", e);
                 mostrarModalError('Error al procesar la información');
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", error);
             mostrarModalError('Error de conexión');
         }
     });
