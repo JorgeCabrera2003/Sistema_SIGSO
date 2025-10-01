@@ -77,19 +77,19 @@ $(document).ready(async function () {
     ConsultarPermisosServicios();
 });
 
-function capaValidar(){
+function capaValidar() {
     $(".input-grupo").on("keypress", function (e) {
-		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
-	})
+        validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+    })
 
-	$(".input-grupo").on("keyup", function () {
-		console.log($(this).attr('id'));
-		var idSpan = $(this).attr('id');
-		validarKeyUp(
-			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{1,30}$/, $(this), $("#s" + idSpan),
-			"Carácter no válido"
-		);
-	})
+    $(".input-grupo").on("keyup", function () {
+        console.log($(this).attr('id'));
+        var idSpan = $(this).attr('id');
+        validarKeyUp(
+            /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{1,30}$/, $(this), $("#s" + idSpan),
+            "Carácter no válido"
+        );
+    })
 }
 
 function inicializarTablaServicios() {
@@ -304,6 +304,41 @@ function configurarEventos() {
 
 }
 
+function recorrerCheckbox(parametro) {
+    let arreglo = [];
+    let clase = "";
+    let grupo = "";
+
+    if (parametro == 'servicio') {
+        clase = "servicio-realizado";
+        grupo = "servicio-realizado"
+
+    } else if (parametro == 'componente') {
+        clase = "componente";
+        grupo = "componente"
+    } else {
+        return [];
+    }
+    $('.contenedor-' + clase).each(function () {
+        var observacion = ""
+        var bool;
+        if ($(this).find('.input-checkbox').prop('checked')) {
+            bool = 1;
+            observacion = $(this).find('.input-id').val();
+        } else {
+            bool = 0;
+        };
+
+        arreglo.push({
+            estado: bool,
+            observacion: observacion,
+            id_check: $(this).find('.input-checkbox').attr('data-idcheck'),
+            id_atendido: $(this).find('.data-idatendido').attr('data-id-item') || null
+        })
+    })
+    return arreglo;
+}
+
 function guardarHojaServicio() {
     const accion = $('#enviar').attr('name');
     const codigoHoja = $('#codigo_hoja_servicio').val();
@@ -311,6 +346,8 @@ function guardarHojaServicio() {
     const tipoServicio = $('#id_tipo_servicio').val();
     const resultado = $('#resultado_hoja_servicio').val();
     const observacion = $('#observacion').val();
+    const componente_atendido = recorrerCheckbox("componente");
+    const servicio_realizado = recorrerCheckbox("servicio");
 
 
     if (!tipoServicio) {
@@ -370,7 +407,9 @@ function guardarHojaServicio() {
         id_tipo_servicio: tipoServicio,
         resultado_hoja_servicio: resultado,
         observacion: observacion,
-        detalles: detalles.length > 0 ? detalles : []
+        detalles: detalles.length > 0 ? detalles : [],
+        servicio_realizado: JSON.stringify(servicio_realizado),
+        componente_atendido: JSON.stringify(componente_atendido)
     };
 
 
@@ -388,7 +427,8 @@ function guardarHojaServicio() {
             }
         });
     } else {
-        enviarDatosServicio(datos, false);
+        console.log(datos);
+        //enviarDatosServicio(datos, false);
     }
 }
 
@@ -726,7 +766,7 @@ function renderizarCheckboxServicio(arreglo, item) {
         $("#fila-" + container).empty();
         arreglo.forEach(clave => {
 
-            if(clave.bool_texto == 1){
+            if (clave.bool_texto == 1) {
                 columnas_ocupadas = "5";
                 input_texto = `<div class="col-lg-7">
                                     <div class="form-floating">
@@ -743,12 +783,12 @@ function renderizarCheckboxServicio(arreglo, item) {
 
             $("#fila-" + container).append(`
         <div class="col-lg-4">
-            <div class="row justify-content-center mb-3 mt-4" data-idrow=${clave.id} id="row-${container}">
+            <div class="row justify-content-center mb-3 mt-4 contenedor-${container}" data-idrow=${clave.id} id="row-${container}-${clave.id}">
                 <div class="col-lg-${columnas_ocupadas}">
                     <div class="row">
                         <div class="col">
                             <div class="form-check form-switch justify-content-center">
-                                <input class="form-check-input" data-idCheck=${clave.id} data-idAtendido="" type="checkbox" role="switch"
+                                <input class="form-check-input input-checkbox" data-idCheck=${clave.id} data-idAtendido="" type="checkbox" role="switch"
                                 value="" id="check-${container}${clave.id}" onchange="bloquearInputCheck(this,'${clave.id}', '${container}')">
                             </div>
                         </div>
@@ -770,12 +810,12 @@ function renderizarCheckboxServicio(arreglo, item) {
 
 }
 
-function bloquearInputCheck(input, id, contenedor){
+function bloquearInputCheck(input, id, contenedor) {
 
-    if($(input).prop('checked')){
-        $("#input-"+contenedor+id).prop("readOnly", false);
+    if ($(input).prop('checked')) {
+        $("#input-" + contenedor + id).prop("readOnly", false);
     } else {
-        $("#input-"+contenedor+id).prop("readOnly", true);
+        $("#input-" + contenedor + id).prop("readOnly", true);
     }
 };
 

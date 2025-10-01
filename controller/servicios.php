@@ -376,6 +376,7 @@ if (is_file("view/" . $page . ".php")) {
     if (isset($_POST["peticion"]) && $_POST["peticion"] === "actualizar") {
         try {
             // Validar datos requeridos
+
             if (empty($_POST["codigo_hoja_servicio"])) {
                 throw new Exception('Código de hoja no especificado');
             }
@@ -408,6 +409,7 @@ if (is_file("view/" . $page . ".php")) {
             ]);
 
             if ($datos['resultado'] === 'success') {
+                
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Actualizó la hoja de servicio #" . $_POST["codigo_hoja_servicio"];
                 Bitacora($msg, "Servicio");
             }
