@@ -146,7 +146,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         try {
-            
+
 
             // Validar datos requeridos
             if (empty($_POST["codigo_hoja_servicio"])) {
@@ -181,7 +181,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST['redireccionar'])) {
         try {
-            
+
 
             // Validar datos requeridos
             if (empty($_POST['codigo_hoja_servicio']) || empty($_POST['area_destino'])) {
@@ -219,7 +219,7 @@ if (is_file("view/" . $page . ".php")) {
                 throw new Exception('ID de área no especificado');
             }
 
-            $areaId = (int)$_POST['area_id'];
+            $areaId = (int) $_POST['area_id'];
             $peticion = [
                 'peticion' => 'obtener_tecnicos_por_area',
                 'area_id' => $areaId
@@ -403,13 +403,55 @@ if (is_file("view/" . $page . ".php")) {
                 $hojaServicio->set_detalles($detalles);
             }
 
+            $boolArray['boolServicio'] = 0;
+            $boolArray['boolComponente'] = 0;
+            $arrayServicio = convertirJSON(json_decode($_POST['servicio_realizado']));
+            $arrayComponente = convertirJSON(json_decode($_POST['componente_atendido']));
+
+            foreach ($arrayServicio as &$keyS) {
+                $boolArray['boolServicio'] = 1;
+                if ($keyS['id_atendido'] == NULL) {
+                    usleep(100000);
+                    $id = generarID($keyS['id_check'], $_POST["codigo_hoja_servicio"]);
+                    $keyS['id_atendido'] = $id;
+                }
+
+            }
+
+            foreach ($arrayComponente as &$keyC) {
+                $boolArray['boolComponente'] = 1;
+                if ($keyC['id_atendido'] == NULL) {
+                    usleep(100000);
+                    $id = generarID($keyC['id_check'], $_POST["codigo_hoja_servicio"]);
+                    $keyC['id_atendido'] = $id;
+                }
+            }
+
             $datos = $hojaServicio->Transaccion([
                 'peticion' => 'actualizar',
                 'usuario' => $_SESSION['user']
             ]);
 
             if ($datos['resultado'] === 'success') {
-                
+                $contadorS = ['total_errores' => 0];
+                $contadorC = ['total_errores' => 0];
+
+                if ($boolArray['boolServicio'] == 1) {
+                    $servicio_realizado->set_id_hoja_servicio($hojaServicio->get_codigo_hoja_servicio());
+                    $contadorS = $servicio_realizado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayServicio]);
+                }
+
+                if ($boolArray['boolComponente'] == 1) {
+                    $componente_atendido->set_id_hoja_servicio($hojaServicio->get_codigo_hoja_servicio());
+                    $contadorC = $componente_atendido->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayComponente]);
+                    $datos['componente'] = $contadorC;
+                }
+
+                if ($contadorS['total_errores'] > 0 || $contadorS['total_errores'] > 0) {
+                    $total = $contadorS['total_errores'] + $contadorS['total_errores'];
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Actualizó la hoja de servicio # pero: " . $total . " errores en los items";
+                }
+
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Actualizó la hoja de servicio #" . $_POST["codigo_hoja_servicio"];
                 Bitacora($msg, "Servicio");
             }
@@ -613,19 +655,26 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if(isset($_POST['traer_item'])){
+    if (isset($_POST['traer_item'])) {
 
         $arrayHoja = [];
 
         $hojaServicio->set_codigo_hoja_servicio($_POST['id_hoja']);
         $arrayHoja = $hojaServicio->Transaccion(['peticion' => 'consultar']);
 
-        if($_POST['traer_item'] == 'servicio'){
+        if ($_POST['traer_item'] == 'servicio') {
             $servicio_prestado->set_id_servicio($arrayHoja['datos']['id_tipo_servicio']);
             $response = $servicio_prestado->Transaccion(['peticion' => 'consultar']);
-        } else if($_POST['traer_item'] == 'componente'){
+
+            $servicio_realizado->set_id_hoja_servicio($_POST['id_hoja']);
+            $response['check'] = $servicio_realizado->Transaccion(['peticion' => 'filtrar']);
+
+        } else if ($_POST['traer_item'] == 'componente') {
             $componente->set_id_servicio($arrayHoja['datos']['id_tipo_servicio']);
             $response = $componente->Transaccion(['peticion' => 'consultar']);
+
+            $componente_atendido->set_id_hoja_servicio($_POST['id_hoja']);
+            $response['check'] = $componente_atendido->Transaccion(['peticion' => 'filtrar']);
         } else {
             $response = ['resultado' => 'error', 'mensaje' => 'Parametro no válido'];
         }
@@ -633,10 +682,10 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if(isset($_POST['traer_servicios'])){
-    $response = $tipoServicio->Transaccion(['peticion' => 'consultar']);
-    echo json_encode($response);
-    exit;
+    if (isset($_POST['traer_servicios'])) {
+        $response = $tipoServicio->Transaccion(['peticion' => 'consultar']);
+        echo json_encode($response);
+        exit;
     }
     if (isset($_POST['pdf_hoja_servicio'])) {
         require_once "vendor/autoload.php";

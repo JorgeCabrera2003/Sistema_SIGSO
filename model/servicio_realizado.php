@@ -7,6 +7,7 @@ class ServicioRealizado extends Conexion
     private $id;
     private $id_hoja_servicio;
     private $id_servicio_prestado;
+    private $estado;
     private $observacion;
     private $servicio_prestado;
     private $conexion;
@@ -16,7 +17,8 @@ class ServicioRealizado extends Conexion
     {
         $this->id = 0;
         $this->id_hoja_servicio = 0;
-        $this->observacion = "";
+        $this->estado = 0;
+        $this->observacion = NULL;
         $this->id_servicio_prestado = 0;
         $this->servicio_prestado = NULL;
         $this->conexion = NULL;
@@ -32,6 +34,10 @@ class ServicioRealizado extends Conexion
         $this->id_hoja_servicio = $id_hoja_servicio;
     }
 
+    public function set_estado($estado)
+    {
+        $this->estado = $estado;
+    }
     public function set_observacion($observacion)
     {
         $this->observacion = $observacion;
@@ -60,6 +66,11 @@ class ServicioRealizado extends Conexion
         return $this->id_servicio_prestado;
     }
 
+    public function get_estado()
+    {
+        return $this->estado;
+    }
+
     private function LlamarServicioPrestado()
     {
         if ($this->servicio_prestado == NULL) {
@@ -79,7 +90,7 @@ class ServicioRealizado extends Conexion
                 $this->conexion->beginTransaction();
                 $transaccion = true;
             }
-            $query = "SELECT * FROM servicio_prestado WHERE id = :id";
+            $query = "SELECT * FROM servicio_realizado WHERE id_servicio_realizado = :id";
 
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -123,19 +134,23 @@ class ServicioRealizado extends Conexion
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
                     foreach ($servicio as $key) {
-                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id']) == 0) {
+
+                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id_atendido']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['nombre']) == 0) {
+                        } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id_check']) == 0) {
+                            $dato['total_errores'] = $dato['total_errores'] + 1;
+
+                        } else if ($key['observacion'] != NULL && preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['observacion']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else if (preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else {
-                            $this->set_id($key['id']);
-                            $this->set_id_hoja_servicio($key['hoja_servicio']);
-                            $this->set_id_servicio_prestado($key['servicio_prestado']);
+                            $this->set_id($key['id_atendido']);
+                            $this->set_id_servicio_prestado($key['id_check']);
+                            $this->set_estado($key['estado']);
                             $this->set_observacion($key['observacion']);
 
                             $bool = $this->Validar();
@@ -159,7 +174,7 @@ class ServicioRealizado extends Conexion
             } else {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
-                $dato['mensaje'] = "Registro duplicado";
+                $dato['mensaje'] = "Carga no valida";
             }
         }
         return $dato;
@@ -181,13 +196,14 @@ class ServicioRealizado extends Conexion
                         $this->conexion->beginTransaction();
                         $transaccion = true;
                     }
-                    $query = "INSERT INTO servicio_realizado(id_servicio_realizado, id_servicio_prestado, id_hoja_servicio, observacion)
-                    VALUES (:id_servicio_realizado, :id_servicio_prestado, :id_hoja_servicio, :observacion)";
+                    $query = "INSERT INTO servicio_realizado(id_servicio_realizado, id_servicio_prestado, id_hoja_servicio, estado, observacion)
+                    VALUES (:id_servicio_realizado, :id_servicio_prestado, :id_hoja_servicio, :estado, :observacion)";
 
                     $stm = $this->conexion->prepare($query);
                     $stm->bindParam(":id_servicio_realizado", $this->id);
                     $stm->bindParam(":id_servicio_prestado", $this->id_servicio_prestado);
                     $stm->bindParam(":id_hoja_servicio", $this->id_hoja_servicio);
+                    $stm->bindParam(":estado", $this->estado);
                     $stm->bindParam(":observacion", $this->observacion);
                     $stm->execute();
                     if ($transaccion) {
@@ -238,12 +254,13 @@ class ServicioRealizado extends Conexion
                     $this->conexion->beginTransaction();
                     $transaccion = true;
                 }
-                $query = "UPDATE servicio_realizado SET observacion = :observacion
+                $query = "UPDATE servicio_realizado SET observacion = :observacion, estado = :estado
                 WHERE id_servicio_realizado = :id_servicio_realizado";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id_servicio_realizado", $this->id);
-                $stm->bindParam(":observacion", $this->id_servicio_prestado);
+                $stm->bindParam(":estado", $this->estado);
+                $stm->bindParam(":observacion", $this->observacion);
                 $stm->execute();
                 if ($transaccion) {
                     $this->conexion->commit();
@@ -332,6 +349,38 @@ class ServicioRealizado extends Conexion
         return $dato;
     }
 
+    private function FiltrarServicioAtendido()
+    {
+        $dato = [];
+
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $query = "SELECT id_servicio_realizado AS id_atendido, id_servicio_prestado AS clave, id_hoja_servicio, estado, observacion FROM servicio_realizado
+            WHERE id_hoja_servicio = :id_hoja_servicio";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(':id_hoja_servicio', $this->id_hoja_servicio);
+            $stm->execute();
+            if ($stm->rowCount() > 0) {
+                $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                $dato['datos'] = NULL;
+            }
+            $this->conexion->commit();
+
+            $dato['resultado'] = "consultar";
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
     public function Transaccion($peticion)
     {
 
@@ -356,6 +405,9 @@ class ServicioRealizado extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
+
+            case 'filtrar':
+                return $this->FiltrarServicioAtendido();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

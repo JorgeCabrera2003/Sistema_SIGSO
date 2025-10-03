@@ -78,11 +78,11 @@ $(document).ready(async function () {
 });
 
 function capaValidar() {
-    $(".input-grupo").on("keypress", function (e) {
+    $(".input-id").on("keypress", function (e) {
         validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
     })
 
-    $(".input-grupo").on("keyup", function () {
+    $(".input-id").on("keyup", function () {
         console.log($(this).attr('id'));
         var idSpan = $(this).attr('id');
         validarKeyUp(
@@ -320,20 +320,21 @@ function recorrerCheckbox(parametro) {
         return [];
     }
     $('.contenedor-' + clase).each(function () {
-        var observacion = ""
+        var observacion = null;
         var bool;
         if ($(this).find('.input-checkbox').prop('checked')) {
             bool = 1;
-            observacion = $(this).find('.input-id').val();
+            observacion = $(this).find('.input-id').val() || null;
         } else {
             bool = 0;
+            observacion = null;
         };
 
         arreglo.push({
             estado: bool,
             observacion: observacion,
             id_check: $(this).find('.input-checkbox').attr('data-idcheck'),
-            id_atendido: $(this).find('.data-idatendido').attr('data-id-item') || null
+            id_atendido: $(this).find('.input-checkbox').attr('data-idatendido') || null
         })
     })
     return arreglo;
@@ -428,7 +429,7 @@ function guardarHojaServicio() {
         });
     } else {
         console.log(datos);
-        //enviarDatosServicio(datos, false);
+        enviarDatosServicio(datos, false);
     }
 }
 
@@ -696,7 +697,7 @@ function LlamarCheckbox(id, item) {
         },
         success: function (response) {
             if (response.resultado == "consultar") {
-                renderizarCheckboxServicio(response.datos, item)
+                renderizarCheckboxServicio(response.datos, response.check.datos, item)
             } else {
                 mostrarError('Error al cargar los datos');
             }
@@ -744,12 +745,17 @@ function cargarDetallesHojaEdicion(codigo) {
     });
 }
 
-function renderizarCheckboxServicio(arreglo, item) {
-    console.log("RenderizarCheckBox")
+function renderizarCheckboxServicio(arreglo, valores, item) {
+    console.log(valores)
     let container = null;
     let input_texto = null;
     let texto_observacion = null;
     let columnas_ocupadas = null;
+
+    var id_atendido;
+    var observacion;
+    var bool_check;
+    var bool_lectura;
 
     if (Array.isArray(arreglo) && arreglo.length > 0) {
 
@@ -765,13 +771,36 @@ function renderizarCheckboxServicio(arreglo, item) {
         }
         $("#fila-" + container).empty();
         arreglo.forEach(clave => {
+            id_atendido = null;
+            observacion = '';
+            bool_check = '';
+            valores.forEach(llave => {
+
+                if (llave.clave == clave.id) {
+                    id_atendido = llave.id_atendido;
+                    observacion = llave.observacion;
+
+                    if (llave.estado == 1) {
+                        bool_check = 'checked';
+                    } else {
+                        bool_check = '';
+                    }
+
+                    if(llave.observacion == null || llave.observacion == ''){
+                        observacion = '';
+                        bool_lectura = 'readOnly';
+                    } else {
+                        bool_lectura = '';
+                    }
+                }
+            })
 
             if (clave.bool_texto == 1) {
                 columnas_ocupadas = "5";
                 input_texto = `<div class="col-lg-7">
                                     <div class="form-floating">
-                                        <input placeholder="" value="" data-idInput=${clave.id} data-idobservacion="" class="form-control input-grupo input-id"
-                                        name="id" type="text" id="input-${container}${clave.id}" maxlength="30" readOnly>
+                                        <input placeholder="" value="${observacion}" data-idInput=${clave.id} data-idobservacion="${id_atendido}" class="form-control input-grupo input-id"
+                                        name="id" type="text" id="input-${container}${clave.id}" maxlength="30" ${bool_lectura}>
                                         <span id="sinput-${container}${clave.id}"></span>
                                         <label for="input-${container}${clave.id}" class="form-label">${texto_observacion}</label>
                                     </div>
@@ -788,8 +817,8 @@ function renderizarCheckboxServicio(arreglo, item) {
                     <div class="row">
                         <div class="col">
                             <div class="form-check form-switch justify-content-center">
-                                <input class="form-check-input input-checkbox" data-idCheck=${clave.id} data-idAtendido="" type="checkbox" role="switch"
-                                value="" id="check-${container}${clave.id}" onchange="bloquearInputCheck(this,'${clave.id}', '${container}')">
+                                <input class="form-check-input input-checkbox" data-idCheck=${clave.id} data-idAtendido="${id_atendido}" type="checkbox" role="switch"
+                                value="" id="check-${container}${clave.id}" ${bool_check} onchange="bloquearInputCheck(this,'${clave.id}', '${container}')">
                             </div>
                         </div>
                     </div>
@@ -808,6 +837,7 @@ function renderizarCheckboxServicio(arreglo, item) {
         $("#container-" + container).addClass("d-none");
     }
 
+    capaValidar();
 }
 
 function bloquearInputCheck(input, id, contenedor) {
@@ -816,6 +846,7 @@ function bloquearInputCheck(input, id, contenedor) {
         $("#input-" + contenedor + id).prop("readOnly", false);
     } else {
         $("#input-" + contenedor + id).prop("readOnly", true);
+        $("#input-" + contenedor + id).removeClass("is-invalid is-valid");
     }
 };
 

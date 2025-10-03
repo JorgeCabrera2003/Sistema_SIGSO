@@ -6,6 +6,7 @@ class ComponenteAtendido extends Conexion
     private $id;
     private $id_hoja_servicio;
     private $id_componente;
+    private $estado;
     private $observacion;
     private $componente;
     private $conexion;
@@ -16,6 +17,7 @@ class ComponenteAtendido extends Conexion
         $this->id = 0;
         $this->id_hoja_servicio = 0;
         $this->observacion = "";
+        $this->estado = 0;
         $this->id_componente = 0;
         $this->tipo_servicio = NULL;
         $this->conexion = NULL;
@@ -31,6 +33,11 @@ class ComponenteAtendido extends Conexion
         $this->id_hoja_servicio = $id_hoja_servicio;
     }
 
+    public function set_estado($estado)
+    {
+        $this->estado = $estado;
+    }
+
     public function set_observacion($observacion)
     {
         $this->observacion = $observacion;
@@ -40,6 +47,10 @@ class ComponenteAtendido extends Conexion
         $this->id_componente = $id_componente;
     }
 
+    public function get_id()
+    {
+        return $this->id;
+    }
     public function get_id_hoja_servicio()
     {
         return $this->id_hoja_servicio;
@@ -54,6 +65,10 @@ class ComponenteAtendido extends Conexion
         return $this->id_componente;
     }
 
+    public function get_estado()
+    {
+        return $this->estado;
+    }
     private function LlamarComponente()
     {
         if ($this->componente == NULL) {
@@ -73,7 +88,7 @@ class ComponenteAtendido extends Conexion
                 $this->conexion->beginTransaction();
                 $transaccion = true;
             }
-            $query = "SELECT * FROM componente WHERE id = :id";
+            $query = "SELECT * FROM componente_atendido WHERE id = :id";
 
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
@@ -117,24 +132,27 @@ class ComponenteAtendido extends Conexion
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
                     foreach ($arrayComponente as $key) {
-                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id']) == 0) {
+                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id_atendido']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['nombre']) == 0) {
+                        } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id_check']) == 0) {
+                            $dato['total_errores'] = $dato['total_errores'] + 1;
+
+                        } else if ($key['observacion'] != NULL && preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['observacion']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else if (preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else {
-                            $this->set_id($key['id']);
-                            $this->set_id_hoja_servicio($key['hoja_servicio']);
-                            $this->set_id_componente($key['id_componente']);
+                            $this->set_id($key['id_atendido']);
+                            $this->set_id_componente($key['id_check']);
+                            $this->set_estado($key['estado']);
                             $this->set_observacion($key['observacion']);
 
                             $bool = $this->Validar();
                             if ($bool['bool'] == 0) {
-                                $this->Registrar();
+                                $dato['msg_registrar'] = $this->Registrar();
                             } else if ($bool['bool'] == 1) {
                                 $this->Actualizar();
                             } else {
@@ -175,13 +193,14 @@ class ComponenteAtendido extends Conexion
                         $this->conexion->beginTransaction();
                         $transaccion = true;
                     }
-                    $query = "INSERT INTO componente_atendido(id, id_componente, id_hoja_servicio, observación)
-                    VALUES (:id, :id_componente, :id_hoja_servicio, :observacion";
+                    $query = "INSERT INTO componente_atendido(id, id_componente, id_hoja_servicio, estado, observacion)
+                    VALUES (:id, :id_componente, :id_hoja_servicio, :estado, :observacion)";
 
                     $stm = $this->conexion->prepare($query);
                     $stm->bindParam(":id", $this->id);
-                    $stm->bindParam(":id_componente ", $this->id_componente);
+                    $stm->bindParam(":id_componente", $this->id_componente);
                     $stm->bindParam(":id_hoja_servicio", $this->id_hoja_servicio);
+                    $stm->bindParam(":estado", $this->estado);
                     $stm->bindParam(":observacion", $this->observacion);
                     $stm->execute();
                     if ($transaccion) {
@@ -232,11 +251,13 @@ class ComponenteAtendido extends Conexion
                     $this->conexion->beginTransaction();
                     $transaccion = true;
                 }
-                $query = "UPDATE componente SET observacion = :observacion WHERE id = :id";
+                $query = "UPDATE componente_atendido SET observacion = :observacion, estado = :estado WHERE id = :id";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
+                $stm->bindParam(":estado", $this->estado);
                 $stm->bindParam(":observacion", $this->observacion);
+
                 $stm->execute();
                 if ($transaccion) {
                     $this->conexion->commit();
@@ -325,6 +346,39 @@ class ComponenteAtendido extends Conexion
         return $dato;
     }
 
+    private function FiltrarComponenteAtendido()
+    {
+        $dato = [];
+
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $query = "SELECT id AS id_atendido, id_componente AS clave, id_hoja_servicio, estado, observacion FROM componente_atendido
+            WHERE id_hoja_servicio = :id_hoja_servicio";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(':id_hoja_servicio', $this->id_hoja_servicio);
+            $stm->execute();
+            if($stm->rowCount() > 0){
+                $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                $dato['datos'] = NULL;
+            }
+            $this->conexion->commit();
+
+            $dato['resultado'] = "consultar";
+            
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
     public function Transaccion($peticion)
     {
 
@@ -349,7 +403,9 @@ class ComponenteAtendido extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
-
+            
+            case 'filtrar':
+                return $this->FiltrarComponenteAtendido();
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
         }

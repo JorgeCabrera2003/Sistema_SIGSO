@@ -92,7 +92,7 @@ if (is_file("view/" . $page . ".php")) {
 
 					if ($contadorS['total_errores'] > 0 || $contadorS['total_errores'] > 0) {
 						$total = $contadorS['total_errores'] + $contadorS['total_errores'];
-						$msg = $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio pero: " . $total . "";
+						$msg = $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio pero: " . $total . " errores en los items";
 					}
 
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo tipo de servicio";

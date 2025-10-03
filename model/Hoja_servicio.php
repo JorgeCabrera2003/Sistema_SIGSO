@@ -68,6 +68,50 @@ class HojaServicio extends Conexion
         $this->estatus = in_array($estatus, ['A', 'I', 'E']) ? $estatus : 'A';
     }
 
+    public function get_codigo_hoja_servicio()
+    {
+        return $this->codigo_hoja_servicio;
+    }
+
+    public function get_nro_solicitud()
+    {
+        return $this->nro_solicitud;
+    }
+
+    public function get_id_tipo_servicio()
+    {
+        return $this->id_tipo_servicio;
+    }
+
+    public function get_redireccion()
+    {
+        return $this->redireccion;
+    }
+
+    public function get_cedula_tecnico()
+    {
+        return $this->cedula_tecnico;
+    }
+
+    public function get_fecha_resultado($fecha)
+    {
+        return $this->fecha_resultado;
+    }
+
+    public function get_resultado_hoja_servicio()
+    {
+        return $this->resultado_hoja_servicio;
+    }
+
+    public function get_observacion()
+    {
+        return $this->observacion;
+    }
+
+    public function get_estatus()
+    {
+        return $this->estatus;
+    }
     public function set_detalles($detalles)
     {
         if (is_array($detalles)) {
@@ -148,7 +192,7 @@ class HojaServicio extends Conexion
 
             // Obtener técnico con menor carga para este tipo de servicio
             $id_cargoTecnico = Ccargo[0]['id'];
-            
+
             $sqlTecnico = "SELECT 
                 e.cedula_empleado, 
                 CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
@@ -178,7 +222,7 @@ class HojaServicio extends Conexion
                 $cedula_tecnico = $tecnico['cedula_empleado'];
             }
 
-            
+
 
             // Insertar la hoja de servicio
             $sql = "INSERT INTO hoja_servicio 
