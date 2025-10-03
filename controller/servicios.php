@@ -410,7 +410,7 @@ if (is_file("view/" . $page . ".php")) {
 
             foreach ($arrayServicio as &$keyS) {
                 $boolArray['boolServicio'] = 1;
-                if ($keyS['id_atendido'] == NULL) {
+                if ($keyS['id_atendido'] == 'null') {
                     usleep(100000);
                     $id = generarID($keyS['id_check'], $_POST["codigo_hoja_servicio"]);
                     $keyS['id_atendido'] = $id;
@@ -420,7 +420,7 @@ if (is_file("view/" . $page . ".php")) {
 
             foreach ($arrayComponente as &$keyC) {
                 $boolArray['boolComponente'] = 1;
-                if ($keyC['id_atendido'] == NULL) {
+                if ($keyC['id_atendido'] == 'null') {
                     usleep(100000);
                     $id = generarID($keyC['id_check'], $_POST["codigo_hoja_servicio"]);
                     $keyC['id_atendido'] = $id;
