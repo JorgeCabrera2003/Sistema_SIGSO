@@ -4,7 +4,7 @@
     <?php require_once("Componentes/menu.php"); ?>
 
     <div class="pagetitle mb-4">
-        <h1>Reportes Papus</h1>
+        <h1>Reportes</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="?page=home">Home</a></li>

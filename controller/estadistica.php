@@ -1,3 +1,4 @@
+
 <?php
 if (!isset($_SESSION) || !isset($_SESSION['user'])) {
     // Si es una petición AJAX o POST para reportes, responde con JSON de error
