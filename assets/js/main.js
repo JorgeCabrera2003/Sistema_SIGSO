@@ -4,7 +4,7 @@ function initializeTheme() {
   const htmlElement = document.documentElement;
 
   if (!themeToggle) {
-    console.warn("Elemento theme-toggle no encontrado");
+    //console.warn("Elemento theme-toggle no encontrado");
     return;
   }
 
@@ -88,8 +88,8 @@ function initializeDropdowns() {
   const dropdownMenus = document.querySelectorAll(".dropdown-menu");
   const closeDropdownBtns = document.querySelectorAll(".close-dropdown");
 
-  console.log("Dropdown toggles encontrados:", dropdownToggles.length);
-  console.log("Dropdown menus encontrados:", dropdownMenus.length);
+  //console.log("Dropdown toggles encontrados:", dropdownToggles.length);
+  //console.log("Dropdown menus encontrados:", dropdownMenus.length);
 
   // Toggle dropdown on click
   dropdownToggles.forEach((toggle) => {
@@ -109,7 +109,7 @@ function initializeDropdowns() {
       }
 
       if (!dropdown) {
-        console.warn("Dropdown menu no encontrado para:", this);
+        //console.warn("Dropdown menu no encontrado para:", this);
         return;
       }
 
@@ -121,7 +121,7 @@ function initializeDropdowns() {
       });
 
       dropdown.classList.toggle("show");
-      console.log("Dropdown toggled:", dropdown.classList.contains("show"));
+      //console.log("Dropdown toggled:", dropdown.classList.contains("show"));
     });
   });
 
@@ -277,7 +277,7 @@ function initializeTable() {
   const searchInput = document.getElementById("searchInput");
 
   if (!tableBody || !pagination) {
-    console.warn("Elementos de tabla no encontrados");
+    //console.warn("Elementos de tabla no encontrados");
     return;
   }
 
@@ -391,7 +391,7 @@ function initializeResizeHandler() {
 
 // Initialize all functionality when DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
-  console.log("Inicializando aplicación...");
+  //console.log("Inicializando aplicación...");
   
   initializeTheme();
   initializeSidebar();
@@ -399,15 +399,15 @@ document.addEventListener("DOMContentLoaded", function() {
   initializeTable();
   initializeResizeHandler();
   
-  console.log("Aplicación inicializada correctamente");
+  //console.log("Aplicación inicializada correctamente");
 });
 
 // Event listener for debugging
 var someElement = document.getElementById('someId');
 if (someElement) {
     someElement.addEventListener('click', function() {
-        console.log('Elemento clickeado');
+        //console.log('Elemento clickeado');
     });
 } else {
-    console.warn('El elemento #someId no existe en el DOM.');
+    //console.warn('El elemento #someId no existe en el DOM.');
 }

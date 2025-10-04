@@ -12,7 +12,7 @@
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="90">
               <span id="snombre"></span>
-              <label for="nombre" class="form-label">Nombre del Ente</label>
+              <label for="nombre" class="form-label">Nombre del Ente *</label>
             </div>
           </div>
           
@@ -22,14 +22,14 @@
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="responsable" type="text" id="responsable" maxlength="65">
               <span id="sresponsable"></span>
-              <label for="responsable" class="form-label">Nombre del Responsable</label>
+              <label for="responsable" class="form-label">Nombre del Responsable *</label>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-floating mb-3 mt-4">
               <input placeholder="" class="form-control" name="telefono" type="text" id="telefono" maxlength="14">
               <span id="stelefono"></span>
-              <label for="telefono" class="form-label">Teléfono</label>
+              <label for="telefono" class="form-label">Teléfono *</label>
             </div>
           </div>
         </div>
@@ -42,7 +42,7 @@
                 <option value="Externo">Externo</option>
               </select>
               <span id="stipo_ente"></span>
-              <label for="tipo_ente" class="form-label">Tipo de Ente</label>
+              <label for="tipo_ente" class="form-label">Tipo de Ente *</label>
             </div>
           </div>
           <div class="col-md-9">
@@ -50,7 +50,7 @@
               <textarea placeholder="" class="form-control" name="direccion" id="direccion"
                 maxlength="200"></textarea>
               <span id="sdireccion"></span>
-              <label for="direccion" class="form-label">Dirección del Ente</label>
+              <label for="direccion" class="form-label">Dirección del Ente *</label>
             </div>
           </div>
         </div>

@@ -30,7 +30,7 @@
                   Registrar Ente
                 </button>
               <?php } ?>
-              <?php if (isset($permisos['ente']['restaurar']['estado']) && $permisos['ente']['restaurar']['estado'] == '1') { ?>
+              <?php if (isset($permisos['ente']['reactivar']['estado']) && $permisos['ente']['reactivar']['estado'] == '1') { ?>
                 <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                   Entes Eliminados <i class="fa-solid fa-recycle"></i>
                 </button>
@@ -77,7 +77,7 @@
                   <th>Teléfono</th>
                   <th>Ubicación</th>
                   <th>Tipo de Ente</th>
-                  <th>Restaurar</th>
+                  <th>Reactivar</th>
                 </tr>
               </thead>
               <tbody>

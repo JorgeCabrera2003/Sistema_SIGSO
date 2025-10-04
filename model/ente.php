@@ -280,7 +280,7 @@ class Ente extends Conexion
         return $dato;
     }
 
-    private function Restaurar()
+    private function Reactivar()
     {
         $dato = [];
         try {
@@ -291,7 +291,7 @@ class Ente extends Conexion
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
 
@@ -332,8 +332,8 @@ class Ente extends Conexion
             case 'eliminar':
                 return $this->Eliminar();
 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->Reactivar();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
