@@ -16,7 +16,7 @@ if (is_file("view/" . $page . ".php")) {
 	$rol = new Rol();
 	$permiso = new Permiso();
 
-	if (!isset($permisos['rol']['ver']['estado']) || $permisos['rol']['ver']['estado'] == "0") {
+	if ((!isset($permisos['rol']['ver']['estado']) || $permisos['rol']['ver']['estado'] == "0") && $_SESSION['user']['nombre_usuario'] != "root") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Rol Y Permisos";
 		Bitacora($msg, "Rol Y Permisos");
 		header('Location: ?page=home');
@@ -40,6 +40,8 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
+				$id = generarID($_POST["nombre"], NULL);
+				$rol->set_id($id);
 				$rol->set_nombre($_POST["nombre"]);
 				$rol->ObjPermiso($permiso);
 				$peticion["peticion"] = "registrar";
@@ -48,10 +50,20 @@ if (is_file("view/" . $page . ".php")) {
 
 
 				if ($json_rol['estado'] == 1) {
-					$peticion["permisos"] = json_decode($_POST['datos']);
+
+					$convertir_permisos = convertirJSON(json_decode($_POST['datos']));
+
+					foreach ($convertir_permisos as &$i) {
+						foreach ($i['permisos'] as &$j) {
+							if ($j['id'] == NULL) {
+								usleep(100000);
+								$j['id'] = generarID($rol->get_id(), $j['accion']);
+							}
+						}
+					}
+					$peticion["permisos"] = $convertir_permisos;
 					$peticion["peticion"] = "cargar_permiso";
-					$id_fila = $rol->Transaccion(['peticion' => 'ultimo_id']);
-					$permiso->set_id_rol($id_fila['id_rol']);
+					$permiso->set_id_rol($rol->get_id());
 					$json = $permiso->Transaccion($peticion);
 					if ($json['estado'] == 1) {
 						$json['icon'] = "success";
@@ -100,8 +112,14 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["modificar"])) {
-		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] == "1") {
-			if (preg_match("/^[0-9]{1,11}$/", $_POST["id_rol"]) == 0) {
+		if ($_SESSION['user']['nombre_usuario'] == "root") {
+			$root_usuario = 1;
+		} else {
+			$root_usuario = 0;
+		}
+
+		if (isset($permisos['rol']['modificar']['estado']) && $permisos['rol']['modificar']['estado'] == "1" || $root_usuario == 1) {
+			if (preg_match("/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/", $_POST["id_rol"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -112,24 +130,35 @@ if (is_file("view/" . $page . ".php")) {
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} /*else if ($_POST["id_rol"] == 1) {
-			   $json['resultado'] = "error";
-			   $json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
-			   $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			 $json['resultado'] = "error";
+			 $json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
+			 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-		   } else if ($_POST["id_rol"] == $_SESSION['user']['id_rol']) {
-			   $json['resultado'] = "error";
-			   $json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
-			   $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		   }*/ else {
+		 } else if ($_POST["id_rol"] == $_SESSION['user']['id_rol']) {
+			 $json['resultado'] = "error";
+			 $json['mensaje'] = "Error, No puedes modificar los permisos de este rol";
+			 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+		 }*/ else {
 				$rol->set_id($_POST["id_rol"]);
 				$rol->set_nombre($_POST["nombre"]);
 				$peticion["peticion"] = "actualizar";
 				$json_rol = $rol->Transaccion($peticion);
 
 				if ($json_rol['estado'] == 1) {
-					$peticion["permisos"] = json_decode($_POST['datos']);
+					$convertir_permisos = convertirJSON(json_decode($_POST['datos']));
+
+					foreach ($convertir_permisos as &$i) {
+						foreach ($i['permisos'] as &$j) {
+							if ($j['id'] == NULL) {
+								usleep(100000);
+								$j['id'] = generarID($rol->get_id(), $j['accion']);
+							}
+						}
+					}
+
+					$peticion["permisos"] = $convertir_permisos;
 					$peticion["peticion"] = "cargar_permiso";
-					$permiso->set_id_rol($_POST["id_rol"]);
+					$permiso->set_id_rol($rol->get_id());
 					$json = $permiso->Transaccion($peticion);
 					if ($json['estado'] == 1) {
 						$json['icon'] = "success";

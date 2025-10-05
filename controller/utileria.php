@@ -110,21 +110,24 @@ function convertirJSON($objeto)
 
 function generarID($primaria, $secundaria = NULL)
 {
-    // Formato de ID: (XX)(XX)(XXXX)(XXXXXXXX)
-    // (Clave Primaria)(Clave Secundaria)(Milisegundos)(Fecha)
-    $primaria = strtoupper(substr(trim($primaria), 0, 2));
-    $dia = date('Ydm');
+    // Formato de ID: (XXXXX)(XXX)(XXXXXXXX)(XXXXXXXX)
+    // (Clave Primaria)(Clave Secundaria)(Fecha)(Hora Minutos Segundos Milisegundos)
+    $primaria = preg_replace('/[^A-Za-z0-9]/', '', $primaria);
+    $primaria = strtoupper(substr(trim($primaria), 0, 5));
+    $dia = date('Ymd');
+    $hora = date('Hms');
     $milisegundo = number_format(microtime(true) * 1000, 0, '', '');
-    
-    if($secundaria == NULL){
-        $secundaria = substr($milisegundo, -2);
+
+    if ($secundaria == NULL) {
+        $secundaria = substr($milisegundo, -3);
     } else {
-        $secundaria = strtoupper(substr(trim($secundaria), 0, 2));
+        $secundaria = preg_replace('/[^A-Za-z0-9]/', '', $secundaria);
+        $secundaria = strtoupper(substr(trim($secundaria), 0, 3));
     }
-    
+
     // Componer el ID
-    $id = $primaria ."". $secundaria ."". substr($milisegundo, -4) ."". $dia;
-    
+    $id = $primaria . "" . $secundaria . "" . $dia . "". $hora . "" . substr($milisegundo, -2);
+
     return $id;
 }
 
@@ -154,7 +157,8 @@ function Bitacora($msg, $modulo)
     $peticion["peticion"] = "registrar";
     $hora = date('H:i:s');
     $fecha = date('Y-m-d');
-
+    $id = generarID($modulo, $_SESSION['user']['nombre_usuario']);
+    $bitacora->set_id($id);
     $bitacora->set_usuario($_SESSION['user']['nombre_usuario']);
     $bitacora->set_modulo($modulo);
     $bitacora->set_accion($msg);

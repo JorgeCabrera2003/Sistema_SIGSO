@@ -1,104 +1,104 @@
 <?php
-
+//Formato XXXXXXXXXXXXXXXX
 const modulos = [
     [
-        'id' => 1,
+        'id' => 'USUAR00120251001',
         'modulo' => 'usuario'
     ],
     [
-        'id' => 2,
+        'id' => 'ROL0000220251001',
         'modulo' => 'rol'
     ],
     [
-        'id' => 3,
+        'id' => 'BITAC00320251001',
         'modulo' => 'bitacora'
     ],
     [
-        'id' => 4,
+        'id' => 'MANTE00420251001',
         'modulo' => 'mantenimiento'
     ],
     [
-        'id' => 5,
+        'id' => 'EMPLE00520251001',
         'modulo' => 'empleado'
     ],
     [
-        'id' => 6,
+        'id' => 'TECNI00620251001',
         'modulo' => 'tecnico'
     ],
     [
-        'id' => 7,
+        'id' => 'SOLIC00720251001',
         'modulo' => 'solicitud'
     ],
     [
-        'id' => 8,
+        'id' => 'HOJAS00820251001',
         'modulo' => 'hoja_servicio'
     ],
     [
-        'id' => 9,
+        'id' => 'ENTE000920251001',
         'modulo' => 'ente'
     ],
     [
-        'id' => 10,
+        'id' => 'DEPEN01020251001',
         'modulo' => 'dependencia'
     ],
     [
-        'id' => 11,
+        'id' => 'UNIDA01120251001',
         'modulo' => 'unidad'
     ],
     [
-        'id' => 12,
+        'id' => 'CARGO01220251001',
         'modulo' => 'cargo'
     ],
     [
-        'id' => 13,
+        'id' => 'TIPOS01320251001',
         'modulo' => 'tipo_servicio'
     ],
     [
-        'id' => 14,
+        'id' => 'BIEN001420251001',
         'modulo' => 'bien'
     ],
     [
-        'id' => 15,
+        'id' => 'CATEG01520251001',
         'modulo' => 'categoria'
     ],
     [
-        'id' => 16,
+        'id' => 'MARCA01620251001',
         'modulo' => 'marca'
     ],
     [
-        'id' => 17,
+        'id' => 'EQUIP01720251001',
         'modulo' => 'equipo'
     ],
     [
-        'id' => 18,
+        'id' => 'SWITC01820251001',
         'modulo' => 'switch'
     ],
     [
-        'id' => 19,
+        'id' => 'PATCH01920251001',
         'modulo' => 'patch_panel'
     ],
     [
-        'id' => 20,
+        'id' => 'INTER02020251001',
         'modulo' => 'interconexion'
     ],
     [
-        'id' => 21,
+        'id' => 'PUNTO02120251001',
         'modulo' => 'punto_conexion'
     ],
     [
-        'id' => 22,
+        'id' => 'PISO002220251001',
         'modulo' => 'piso'
     ],
     [
-        'id' => 23,
+        'id' => 'OFICIN02320251001',
         'modulo' => 'oficina'
     ],
     [
-        'id' => 24,
+        'id' => 'MATER02420251001',
         'modulo' => 'material'
     ],
     [
-        'id' => 25,
+        'id' => 'MODSI02520251001',
         'modulo' => 'modulo_sistema'
     ]
 ];

@@ -116,9 +116,10 @@ class Bitacora extends Conexion
             try {
                 $this->conexion->beginTransaction();
                 $query = "INSERT INTO bitacora (id_bitacora, usuario, modulo, accion_bitacora, fecha, hora)
-            VALUES (NULL, :usuario, :modulo, :accion, :fecha, :hora)";
+            VALUES (:id, :usuario, :modulo, :accion, :fecha, :hora)";
 
                 $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":usuario", $this->usuario);
                 $stm->bindParam(":modulo", $this->modulo);
                 $stm->bindParam(":accion", $this->accion);

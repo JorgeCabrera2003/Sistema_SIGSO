@@ -16,17 +16,9 @@ if (is_file("view/".$page.".php")) {
 		$json['resultado'] = "entrada";
 		echo json_encode($json);
 
-		$peticion['peticion'] = "registrar";
 		$msg = "(".$_SESSION['user']['nombre_usuario']."), Ingresó al módulo de Bitácora";
-		$hora = date('H:i:s');
-		$fecha = date('Y-m-d');
-	
-		$bitacora->set_usuario($_SESSION['user']['nombre_usuario']);
-		$bitacora->set_modulo("Bitácora");
-		$bitacora->set_accion($msg);
-		$bitacora->set_fecha($fecha);
-		$bitacora->set_hora($hora);
-		$bitacora->Transaccion($peticion);
+		
+		Bitacora($msg, "Bitacora");
 		exit;
 	}
 

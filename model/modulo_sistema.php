@@ -49,12 +49,27 @@ class Modulo_Sistema extends Conexion
             $stm = $this->conexion->prepare($query);
             $stm->execute();
             $this->conexion->commit();
+            $validacion = $stm->fetchAll(PDO::FETCH_ASSOC);
             $dato['resultado'] = "comprobar";
 
             if ($stm->rowCount() == count(modulos)) {
-                $dato['mensaje'] = "Módulos cumplen con la validación";
-                $dato['icon'] = "success";
-                $dato['bool'] = true;
+
+
+
+                foreach (modulos as $indice) {
+                    foreach ($validacion as $llave) {
+                        if (($indice['id'] == $llave['id_modulo']) && ($indice['modulo'] == $llave['nombre_modulo'])) {
+                            $dato['bool'] = true;
+                            $dato['mensaje'] = "Módulos cumplen con la validación";
+                            $dato['icon'] = "success";
+                            break;
+                        } else {
+                            $dato['bool'] = false;
+                            $dato['mensaje'] = "Validación fallida";
+                            $dato['icon'] = "warning";
+                        }
+                    }
+                }
             } else {
                 $dato['mensaje'] = "Error al comprobar módulos";
                 $dato['icon'] = "warning";
@@ -82,7 +97,10 @@ class Modulo_Sistema extends Conexion
             $this->conexion = new Conexion("usuario");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
-
+            $queryRegistrar = "INSERT INTO modulo (id_modulo, nombre_modulo) VALUES (:id, :modulo)";
+            $queryModificar = "UPDATE modulo SET nombre_modulo = :modulo WHERE id_modulo = :id";
+            $stmR = $this->conexion->prepare($queryRegistrar);
+            $stmM = $this->conexion->prepare($queryModificar);
             foreach (modulos as $key) {
                 $this->set_id($key['id']);
                 $this->set_modulo($key['modulo']);
@@ -90,18 +108,13 @@ class Modulo_Sistema extends Conexion
 
                 if ($busqueda['bool'] == 0) {
 
-                    $queryRegistrar = "INSERT INTO modulo m (m.id_modulo, m.nombre_modulo) VALUES (:id, :modulo)";
-
-                    $stmR = $this->conexion->prepare($queryRegistrar);
                     $stmR->bindParam(":id", $this->id);
                     $stmR->bindParam(":modulo", $this->modulo);
                     $stmR->execute();
 
                 } else {
 
-                    $queryModificar = "UPDATE modulo m SET m.nombre_modulo = :modulo WHERE m.id_modulo = :id";
-                    $stmM = $this->conexion->prepare($queryModificar);
-                    $stmM->bindParam(":id", $this->id, PDO::PARAM_INT);
+                    $stmM->bindParam(":id", $this->id);
                     $stmM->bindParam(":modulo", $this->modulo);
 
                     $stmM->execute();

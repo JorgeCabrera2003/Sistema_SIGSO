@@ -210,6 +210,7 @@ class Permiso extends Conexion
                 $this->conexion->rollBack();
                 $dato['resultado'] = 'error_permiso';
                 $dato['mensaje'] = $e->getMessage();
+                $dato['alerta'] = $e->getMessage();
                 $dato['estado'] = -1;
             }
         } else {

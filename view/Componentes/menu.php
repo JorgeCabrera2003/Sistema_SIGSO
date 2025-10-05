@@ -321,12 +321,13 @@
             <?php } ?>
           </ul>
         <?php }
+      
         $permiso_usuario = isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1";
         $permiso_rol = isset($permisos['rol']['ver']['estado']) && $permisos['rol']['ver']['estado'] == "1";
         $permiso_modulo = isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "1";
         $permiso_bitacora = isset($permisos['bitacora']['ver']['estado']) && $permisos['bitacora']['ver']['estado'] == "1";
         $permiso_mantenimiento = isset($permisos['mantenimiento']['ver']['estado']) && $permisos['mantenimiento']['ver']['estado'] == "1";
-        if ($permiso_usuario || $permiso_rol || $permiso_modulo || $permiso_bitacora || $permiso_mantenimiento) { ?>
+        if ($permiso_usuario || $permiso_rol || $permiso_modulo || $permiso_bitacora || $permiso_mantenimiento || $datos['nombre_usuario'] == "root") { ?>
           <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
           <li class="menu-title">
             <span>Seguridad</span>
@@ -345,7 +346,7 @@
           <ul id="seguridad-submenu" style="margin-left: 1em;"
             class="nav-content collapse<?php echo in_array($page, ["usuario", "rol", "modulo_sistema", "bitacora", "backup"]) ? " show" : "" ?>"
             data-bs-parent="#sidebar-nav">
-            <?php if (isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1") { ?>
+            <?php if ((isset($permisos['usuario']['ver']['estado']) && $permisos['usuario']['ver']['estado'] == "1") || $datos['nombre_usuario'] == "root") { ?>
               <li class="menu-item <?php echo ($page == "usuario") ? "active" : "" ?>" title="Gestión de Usuarios">
                 <a href="?page=usuario">
                   <i class="fa-solid fa-user-shield"></i>
@@ -353,7 +354,7 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['rol']['ver']['estado']) && $permisos['rol']['ver']['estado'] == "1") { ?>
+            <?php if ((isset($permisos['rol']['ver']['estado']) && $permisos['rol']['ver']['estado'] == "1") || $datos['nombre_usuario'] == "root") { ?>
               <li class="menu-item <?php echo ($page == "rol") ? "active" : "" ?>" title="Roles y Permisos">
                 <a href="?page=rol">
                   <i class="fa-solid fa-user-lock"></i>
@@ -361,7 +362,7 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "1") { ?>
+            <?php if ((isset($permisos['modulo_sistema']['ver']['estado']) && $permisos['modulo_sistema']['ver']['estado'] == "1") || $datos['nombre_usuario'] == "root") { ?>
               <li class="menu-item <?php echo ($page == "modulo_sistema") ? "active" : "" ?>" title="Módulos del Sistema">
                 <a href="?page=modulo_sistema">
                   <i class="fa-solid fa-microchip"></i>
@@ -369,7 +370,7 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['bitacora']['ver']['estado']) && $permisos['bitacora']['ver']['estado'] == "1") { ?>
+            <?php if ((isset($permisos['bitacora']['ver']['estado']) && $permisos['bitacora']['ver']['estado'] == "1") || $datos['nombre_usuario'] == "root") { ?>
               <li class="menu-item <?php echo ($page == "bitacora") ? "active" : "" ?>" title="Bitácora">
                 <a href="?page=bitacora">
                   <i class="fa-solid fa-clipboard-list"></i>
@@ -377,7 +378,7 @@
                 </a>
               </li>
             <?php } ?>
-            <?php if (isset($permisos['mantenimiento']['ver']['estado']) && $permisos['mantenimiento']['ver']['estado'] == "1") { ?>
+            <?php if ((isset($permisos['mantenimiento']['ver']['estado']) && $permisos['mantenimiento']['ver']['estado'] == "1") || $datos['nombre_usuario'] == "root") { ?>
               <li class="menu-item <?php echo ($page == "backup") ? "active" : "" ?>" title="BackUp">
                 <a href="?page=backup">
                   <i class="fa-solid fa-database"></i>

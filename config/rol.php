@@ -2,23 +2,23 @@
 
 const roles = [
     [
-        'id' => 1,
+        'id' => 'SUPER00120251001',
         'rol' => 'SUPERUSUARIO'
     ],
     [
-        'id' => 2,
+        'id' => 'ADMIN00220251001',
         'rol' => 'ADMINISTRADOR'
     ],
     [
-        'id' => 3,
+        'id' => 'TECNI00320251001',
         'rol' => 'TECNICO'
     ],
     [
-        'id' => 4,
+        'id' => 'SECRE00420251001',
         'rol' => 'SECRETARIA'
     ],
     [
-        'id' => 5,
+        'id' => 'SOLIC00520251001',
         'rol' => 'SOLICITANTE'
     ]
 ];

@@ -113,9 +113,10 @@ class Rol extends Conexion
                 $this->conexion = new Conexion("usuario");
                 $this->conexion = $this->conexion->Conex();
                 $this->conexion->beginTransaction();
-                $query = "INSERT INTO rol (id_rol, nombre_rol) VALUES (NULL, :nombre)";
+                $query = "INSERT INTO rol (id_rol, nombre_rol) VALUES (:id, :nombre)";
 
                 $stm = $this->conexion->prepare($query);
+                $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
 

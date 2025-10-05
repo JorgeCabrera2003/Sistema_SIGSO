@@ -15,6 +15,13 @@ if (is_file("view/" . $page . ".php")) {
 
 	$modulo_sistema = new Modulo_Sistema();
 
+	if ((!isset($permisos['modulo_sistema']['ver']['estado']) || $permisos['modulo_sistema']['ver']['estado'] == "0") && $datos['nombre_usuario'] != "root") {
+		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Sistema";
+		Bitacora($msg, "Material");
+		header('Location: ?page=home');
+		exit;
+	}
+
 	if (isset($_POST["entrada"])) {
 		$json['resultado'] = "entrada";
 		echo json_encode($json);
@@ -24,15 +31,22 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+
 	if (isset($_POST["cargar"])) {
-		$peticion["peticion"] = "cargar";
+		if ((isset($permisos['modulo_sistema']['cargar']['estado']) && $permisos['modulo_sistema']['cargar']['estado'] == '1') || $datos['nombre_usuario'] == "root") {
+			$peticion["peticion"] = "cargar";
 
-		$json = $modulo_sistema->Transaccion($peticion);
+			$json = $modulo_sistema->Transaccion($peticion);
 
-		if ($json['estado'] == 1) {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), cargó los módulos del sistema";
+			if ($json['estado'] == 1) {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), cargó los módulos del sistema";
+			} else {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al realizar la carga";
+			}
 		} else {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al realizar la carga";
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para cargar los Módulos del Sistema";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'cargar' denegado";
 		}
 
 		echo json_encode($json);
@@ -49,15 +63,22 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["comprobar"])) {
-		$peticion["peticion"] = "comprobar";
+		if ((isset($permisos['modulo_sistema']['comprobar']['estado']) && $permisos['modulo_sistema']['comprobar']['estado'] == '1') || $datos['nombre_usuario'] == "root") {
+			$peticion["peticion"] = "comprobar";
 
-		$datos = $modulo_sistema->Transaccion($peticion);
+			$datos = $modulo_sistema->Transaccion($peticion);
 
-		if ($datos['bool']) {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), comprobó los módulos del sistema";
+			if ($datos['bool']) {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), comprobó los módulos del sistema";
+			} else {
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al realizar la comprobación";
+			}
 		} else {
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al realizar la comprobación";
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para cargar los Módulos del Sistema";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'comprobar' denegado";
 		}
+
 		echo json_encode($datos);
 		Bitacora($msg, "Módulo Sistema");
 		exit;

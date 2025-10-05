@@ -43,11 +43,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-usuario"
-                            data-modulo="1">
+                            data-modulo="USUAR00120251001">
                           <label class="form-check-label" for="group-usuario">Gestionar Usuario</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="1">
+                      <div class="row permission-options" data-modulo-string="USUAR00120251001">
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
@@ -79,8 +79,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="usuario-restaurar">
-                            <label class="form-check-label" for="usuario-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="usuario-reactivar">
+                            <label class="form-check-label" for="usuario-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -91,11 +91,11 @@
                     <fieldset class="permission-group">
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input group-checkbox" type="checkbox" id="group-rol" data-modulo="2">
+                          <input class="form-check-input group-checkbox" type="checkbox" id="group-rol" data-modulo="ROL0000220251001">
                           <label class="form-check-label" for="group-rol">Gestionar Rol</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="2">
+                      <div class="row permission-options" data-modulo-string="ROL0000220251001">
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
@@ -127,8 +127,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="rol-restaurar">
-                            <label class="form-check-label" for="rol-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="rol-reactivar">
+                            <label class="form-check-label" for="rol-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -142,11 +142,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-bitacora"
-                            data-modulo="3">
+                            data-modulo="BITAC00320251001">
                           <label class="form-check-label" for="group-bitacora">Gestionar Bitácora</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="3">
+                      <div class="row permission-options" data-modulo-string="BITAC00320251001">
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
@@ -163,11 +163,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-mantenimiento"
-                            data-modulo="4">
+                            data-modulo="MANTE00420251001">
                           <label class="form-check-label" for="group-mantenimiento">Gestionar Mantenimiento</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="4">
+                      <div class="row permission-options" data-modulo-string="MANTE00420251001">
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
@@ -205,11 +205,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-modulo_sistema"
-                            data-modulo="25">
+                            data-modulo="MODSI02520251001">
                           <label class="form-check-label" for="group-mantenimiento">Módulos del Sistema</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="25">
+                      <div class="row permission-options" data-modulo-string="MODSI02520251001">
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
@@ -257,11 +257,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-empleado"
-                            data-modulo="5">
+                            data-modulo="EMPLE00520251001">
                           <label class="form-check-label" for="group-empleado">Gestionar Empleado</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="5">
+                      <div class="row permission-options" data-modulo-string="EMPLE00520251001">
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
@@ -293,8 +293,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="empleado-restaurar">
-                            <label class="form-check-label" for="empleado-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="empleado-reactivar">
+                            <label class="form-check-label" for="empleado-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -306,11 +306,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-tecnico"
-                            data-modulo="6">
+                            data-modulo="TECNI00620251001">
                           <label class="form-check-label" for="group-tecnico">Gestionar Técnico</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="6">
+                      <div class="row permission-options" data-modulo-string="TECNI00620251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -343,8 +343,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="tecnico-restaurar">
-                            <label class="form-check-label" for="tecnico-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="tecnico-reactivar">
+                            <label class="form-check-label" for="tecnico-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -373,11 +373,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-solicitud"
-                            data-modulo="7">
+                            data-modulo="SOLIC00720251001">
                           <label class="form-check-label" for="group-solicitud">Gestionar Solicitud</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="7">
+                      <div class="row permission-options" data-modulo-string="SOLIC00720251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-12">
                           <div class="form-check form-switch">
@@ -417,8 +417,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="solicitud-restaurar">
-                            <label class="form-check-label" for="solicitud-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="solicitud-reactivar">
+                            <label class="form-check-label" for="solicitud-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -430,11 +430,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-hoja_servicio"
-                            data-modulo="8">
+                            data-modulo="HOJAS00820251001">
                           <label class="form-check-label" for="group-hoja_servicio">Gestionar Hoja de Servicio</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="8">
+                      <div class="row permission-options" data-modulo-string="HOJAS00820251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -467,8 +467,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="hoja_servicio-restaurar">
-                            <label class="form-check-label" for="hoja_servicio-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="hoja_servicio-reactivar">
+                            <label class="form-check-label" for="hoja_servicio-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -497,11 +497,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-ente"
-                            data-modulo="9">
+                            data-modulo="ENTE000920251001">
                           <label class="form-check-label" for="group-ente">Gestionar Ente</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="9">
+                      <div class="row permission-options" data-modulo-string="ENTE000920251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -534,8 +534,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="ente-restaurar">
-                            <label class="form-check-label" for="ente-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="ente-reactivar">
+                            <label class="form-check-label" for="ente-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -547,11 +547,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-dependencia"
-                            data-modulo="10">
+                            data-modulo="DEPEN01020251001">
                           <label class="form-check-label" for="group-dependencia">Gestionar Dependencia</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="10">
+                      <div class="row permission-options" data-modulo-string="DEPEN01020251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -584,8 +584,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="dependencia-restaurar">
-                            <label class="form-check-label" for="dependencia-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="dependencia-reactivar">
+                            <label class="form-check-label" for="dependencia-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -599,11 +599,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-unidad"
-                            data-modulo="11">
+                            data-modulo="UNIDA01120251001">
                           <label class="form-check-label" for="group-unidad">Gestionar Unidad</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="11">
+                      <div class="row permission-options" data-modulo-string="UNIDA01120251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -636,8 +636,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="unidad-restaurar">
-                            <label class="form-check-label" for="unidad-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="unidad-reactivar">
+                            <label class="form-check-label" for="unidad-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -649,11 +649,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-cargo"
-                            data-modulo="12">
+                            data-modulo="CARGO01220251001">
                           <label class="form-check-label" for="group-cargo">Gestionar Cargo</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="12">
+                      <div class="row permission-options" data-modulo-string="CARGO01220251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -686,8 +686,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="cargo-restaurar">
-                            <label class="form-check-label" for="cargo-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="cargo-reactivar">
+                            <label class="form-check-label" for="cargo-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -701,11 +701,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-tipo_servicio"
-                            data-modulo="13">
+                            data-modulo="TIPOS01320251001">
                           <label class="form-check-label" for="group-tipo_servicio">Gestionar Tipo de Servicio</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="13">
+                      <div class="row permission-options" data-modulo-string="TIPOS01320251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -738,8 +738,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="cargo-restaurar">
-                            <label class="form-check-label" for="cargo-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="cargo-reactivar">
+                            <label class="form-check-label" for="cargo-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -768,11 +768,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-bien"
-                            data-modulo="14">
+                            data-modulo="BIEN001420251001">
                           <label class="form-check-label" for="group-bien">Gestionar Bien</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="14">
+                      <div class="row permission-options" data-modulo-string="BIEN001420251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -805,8 +805,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="bien-restaurar">
-                            <label class="form-check-label" for="bien-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="bien-reactivar">
+                            <label class="form-check-label" for="bien-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -818,11 +818,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-categoria"
-                            data-modulo="15">
+                            data-modulo="CATEG01520251001">
                           <label class="form-check-label" for="group-categoria">Gestionar Categoría</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="15">
+                      <div class="row permission-options" data-modulo-string="CATEG01520251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -855,8 +855,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="categoria-restaurar">
-                            <label class="form-check-label" for="categoria-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="categoria-reactivar">
+                            <label class="form-check-label" for="categoria-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -870,11 +870,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-marca"
-                            data-modulo="16">
+                            data-modulo="MARCA01620251001">
                           <label class="form-check-label" for="group-bien">Gestionar Marca</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="16">
+                      <div class="row permission-options" data-modulo-string="MARCA01620251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -907,8 +907,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="marca-restaurar">
-                            <label class="form-check-label" for="marca-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="marca-reactivar">
+                            <label class="form-check-label" for="marca-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -920,11 +920,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-equipo"
-                            data-modulo="17">
+                            data-modulo="EQUIP01720251001">
                           <label class="form-check-label" for="group-bien">Gestionar Equipo</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="17">
+                      <div class="row permission-options" data-modulo-string="EQUIP01720251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -964,8 +964,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="equipo-restaurar">
-                            <label class="form-check-label" for="equipo-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="equipo-reactivar">
+                            <label class="form-check-label" for="equipo-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -979,11 +979,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-material"
-                            data-modulo="24">
+                            data-modulo="MATER02420251001">
                           <label class="form-check-label" for="group-material">Gestionar Material</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="24">
+                      <div class="row permission-options" data-modulo-string="MATER02420251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1023,8 +1023,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="material-restaurar">
-                            <label class="form-check-label" for="material-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="material-reactivar">
+                            <label class="form-check-label" for="material-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -1053,11 +1053,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-switch"
-                            data-modulo="18">
+                            data-modulo="SWITC01820251001">
                           <label class="form-check-label" for="group-switch">Gestionar Switch</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="18">
+                      <div class="row permission-options" data-modulo-string="SWITC01820251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1090,8 +1090,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="switch-restaurar">
-                            <label class="form-check-label" for="switch-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="switch-reactivar">
+                            <label class="form-check-label" for="switch-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -1103,11 +1103,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-patch_panel"
-                            data-modulo="19">
+                            data-modulo="PATCH01920251001">
                           <label class="form-check-label" for="group-patch_panel">Gestionar Patch Panel</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="19">
+                      <div class="row permission-options" data-modulo-string="PATCH01920251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1140,8 +1140,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="patch_panel-restaurar">
-                            <label class="form-check-label" for="patch_panel-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="patch_panel-reactivar">
+                            <label class="form-check-label" for="patch_panel-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -1155,11 +1155,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-interconexion"
-                            data-modulo="20">
+                            data-modulo="INTER02020251001">
                           <label class="form-check-label" for="group-interconexion">Gestionar Interconexión</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="20">
+                      <div class="row permission-options" data-modulo-string="INTER02020251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1198,11 +1198,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-punto_conexion"
-                            data-modulo="21">
+                            data-modulo="PUNTO02120251001">
                           <label class="form-check-label" for="group-punto_conexion">Gestionar Punto de Conexión</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="21">
+                      <div class="row permission-options" data-modulo-string="PUNTO02120251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1243,11 +1243,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-piso"
-                            data-modulo="22">
+                            data-modulo="PISO002220251001">
                           <label class="form-check-label" for="group-piso">Gestionar Piso</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="22">
+                      <div class="row permission-options" data-modulo-string="PISO002220251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1280,8 +1280,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="piso-restaurar">
-                            <label class="form-check-label" for="piso-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="piso-reactivar">
+                            <label class="form-check-label" for="piso-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
@@ -1293,11 +1293,11 @@
                       <legend class="group-header">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input group-checkbox" type="checkbox" id="group-oficina"
-                            data-modulo="23">
+                            data-modulo="OFICIN02320251001">
                           <label class="form-check-label" for="group-oficina">Gestionar Oficina</label>
                         </div>
                       </legend>
-                      <div class="row permission-options" data-modulo-string="23">
+                      <div class="row permission-options" data-modulo-string="OFICIN02320251001">
                         <!-- Opciones de permisos -->
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
@@ -1330,8 +1330,8 @@
                         <div class="col-lg-6">
                           <div class="form-check form-switch">
                             <input class="form-check-input permission-checkbox" data-id-permiso="" type="checkbox"
-                              role="switch" value="restaurar" id="oficina-restaurar">
-                            <label class="form-check-label" for="oficina-restaurar">Restaurar</label>
+                              role="switch" value="reactivar" id="oficina-reactivar">
+                            <label class="form-check-label" for="oficina-reactivar">Reactivar</label>
                           </div>
                         </div>
                       </div>
