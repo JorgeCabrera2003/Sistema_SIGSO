@@ -85,7 +85,7 @@ const SistemaValidacion = {
         break;
 
       case 'id_cargo':
-        esValido = patrones.numeros.test(valor);
+        esValido = patrones.letrasConNumeros.test(valor);
         mensajeError = 'El ID del cargo debe ser numérico';
         break;
 
@@ -370,9 +370,16 @@ function formatearTelefonoSimple($input) {
 // Funcion para capitalizar texto
 function capitalizarTexto(texto) {
   if (!texto) return texto;
-  return texto.replace(/\b\w/g, function (l) {
-    return l.toUpperCase();
-  });
+  
+  return texto.toLowerCase()
+    .split(' ')
+    .map(palabra => {
+      if (palabra.length > 0) {
+        return palabra.charAt(0).toUpperCase() + palabra.slice(1);
+      }
+      return palabra;
+    })
+    .join(' ');
 }
 
 console.log("Terminado de cargar Expresiones Regulares");

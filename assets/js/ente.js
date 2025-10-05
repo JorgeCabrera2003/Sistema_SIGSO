@@ -128,7 +128,7 @@ $(document).ready(function () {
   });
 
   // Aplicar capitalización automática cuando el modal se muestra
-  $('#modal2').on('shown.bs.modal', function () {
+  $('#modal1').on('shown.bs.modal', function () {
     // Forzar validación inicial cuando se abre el modal
     setTimeout(() => {
       SistemaValidacion.validarFormulario(elementosEnte);
