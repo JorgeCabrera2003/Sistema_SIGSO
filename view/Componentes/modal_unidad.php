@@ -16,7 +16,7 @@
               <select class="form-select" name="id_dependencia" id="id_dependencia" disabled>
               </select>
               <span id="sid_dependencia" class="text-danger small"></span>
-              <label for="id_dependencia" class="form-label">Dependencia</label>
+              <label for="id_dependencia" class="form-label">Dependencia *</label>
             </div>
           </div>
           <div class="col-6">
@@ -25,7 +25,7 @@
                 class="form-control" name="nombre" type="text"
                 id="nombre" maxlength="200" disabled>
               <span id="snombre" class="text-danger small"></span>
-              <label for="nombre" class="form-label">Nombre de la Unidad</label>
+              <label for="nombre" class="form-label">Nombre de la Unidad *</label>
             </div>
           </div>
 

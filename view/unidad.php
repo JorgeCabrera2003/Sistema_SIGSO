@@ -30,7 +30,7 @@
                   Registrar Unidad
                 </button>
               <?php } ?>
-              <?php if (isset($permisos['unidad']['restaurar']['estado']) && $permisos['unidad']['restaurar']['estado'] == '1') { ?>
+              <?php if (isset($permisos['unidad']['reactivar']['estado']) && $permisos['unidad']['reactivar']['estado'] == '1') { ?>
                 <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                   Unidades Eliminadas <i class="fa-solid fa-recycle"></i>
                 </button>
@@ -72,7 +72,7 @@
                   <th>#</th>
                   <th>Dependencia</th>
                   <th>Nombre</th>
-                  <th>Restaurar</th>
+                  <th>Reactivar</th>
                 </tr>
               </thead>
               <tbody>

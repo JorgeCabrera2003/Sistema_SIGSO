@@ -110,7 +110,7 @@ $(document).ready(function () {
     });
 
     // Forzar validación inicial cuando se abre el modal
-    $('#modalCargo2').on('shown.bs.modal', function () {
+    $('#modalCargo').on('shown.bs.modal', function () {
         setTimeout(() => {
             SistemaValidacion.validarFormulario(elementosCargo);
         }, 100);

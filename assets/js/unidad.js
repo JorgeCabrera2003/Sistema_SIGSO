@@ -1,16 +1,41 @@
+// Elementos del formulario para Unidad
+const elementosUnidad = {
+  nombre: $('#nombre'),
+  id_dependencia: $('#id_dependencia'),
+  id_unidad: $('#id_unidad')
+};
+
+// Función para manejar el cambio de estado del formulario
+function manejarCambioEstadoUnidad(formularioValido) {
+  const accion = $("#enviar").text();
+  
+  if (accion === "Eliminar") {
+    // Para eliminar solo validamos el ID
+    const idValido = $("#id_unidad").length && $("#id_unidad").hasClass("is-valid");
+    $('#enviar').prop('disabled', !idValido);
+  } else {
+    // Para registrar y modificar validamos todos los campos
+    $('#enviar').prop('disabled', !formularioValido);
+  }
+}
+
 $(document).ready(function () {
 	consultar();
 	registrarEntrada();
 	capaValidar();
 	cargarDependencia();
 
-	$("#enviar").on("click", async function () {
+	// Inicializar sistema de validación con callback
+	SistemaValidacion.inicializar(elementosUnidad, manejarCambioEstadoUnidad);
+	
+	// Validar estado inicial del formulario
+	manejarCambioEstadoUnidad(false);
 
+	$("#enviar").on("click", async function () {
 		var confirmacion = false;
 		var envio = false;
 
 		switch ($(this).text()) {
-
 			case "Registrar":
 				if (validarenvio()) {
 					confirmacion = await confirmarAccion("Se registrará una Unidad", "¿Está seguro de realizar la acción?", "question");
@@ -22,8 +47,12 @@ $(document).ready(function () {
 						enviaAjax(datos);
 						envio = true;
 					}
+				} else {
+					envio = false;
+					mensajes("error", 10000, "Error de Validación", "Por favor corrija los errores en el formulario antes de enviar.");
 				}
 				break;
+
 			case "Modificar":
 				if (validarenvio()) {
 					confirmacion = await confirmarAccion("Se modificará una Unidad", "¿Está seguro de realizar la acción?", "question");
@@ -36,10 +65,15 @@ $(document).ready(function () {
 						enviaAjax(datos);
 						envio = true;
 					}
+				} else {
+					envio = false;
+					mensajes("error", 10000, "Error de Validación", "Por favor corrija los errores en el formulario antes de enviar.");
 				}
 				break;
+
 			case "Eliminar":
-				if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_unidad"), $("#sid_unidad"), "") == 1) {
+				// Validar solo el ID para eliminar
+				if ($("#id_unidad").length && SistemaValidacion.validarCampo.call(document.getElementById('id_unidad'))) {
 					confirmacion = await confirmarAccion("Se eliminará una Unidad", "¿Está seguro de realizar la acción?", "warning");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -48,36 +82,44 @@ $(document).ready(function () {
 						enviaAjax(datos);
 						envio = true;
 					}
+				} else {
+					envio = false;
+					mensajes("error", 10000, "Error de Validación", "El ID de la unidad no es válido.");
 				}
 				break;
 
 			default:
-				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());;
+				mensajes("question", 10000, "Error", "Acción desconocida: " + $(this).text());
 		}
+
 		if (envio) {
 			$('#enviar').prop('disabled', true);
-		} else {
-			$('#enviar').prop('disabled', false);
 		}
 
 		if (!confirmacion) {
 			$('#enviar').prop('disabled', false);
-		} else {
-			$('#enviar').prop('disabled', true);
 		}
 	});
 
-	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
+	$("#btn-registrar").on("click", function () {
 		limpia();
 		$("#idUnidad").remove();
 		$("#modalTitleId").text("Registrar Unidad");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
-	}); //<----Fin Evento del Boton Registrar
+		// El botón se habilita automáticamente mediante el callback cuando los campos sean válidos
+	});
 
 	$("#btn-consultar-eliminados").on("click", function () {
 		consultarEliminadas();
 		$("#modalEliminadas").modal("show");
+	});
+
+	// Forzar validación inicial cuando se abre el modal
+	$('#modal1').on('shown.bs.modal', function () {
+		setTimeout(() => {
+			SistemaValidacion.validarFormulario(elementosUnidad);
+		}, 100);
 	});
 });
 
@@ -86,7 +128,6 @@ function consultarEliminadas() {
 	datos.append('consultar_eliminadas', 'consultar_eliminadas');
 	enviaAjax(datos);
 }
-
 
 function cargarDependencia() {
 	var datos = new FormData();
@@ -104,7 +145,7 @@ function enviaAjax(datos) {
 		processData: false,
 		cache: false,
 		beforeSend: function () { },
-		timeout: 10000, //tiempo maximo de espera por la respuesta del servidor
+		timeout: 10000,
 		success: function (respuesta) {
 			console.log(respuesta);
 			try {
@@ -135,7 +176,6 @@ function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
-
 				} else if (lee.resultado == "permisos_modulo") {
 					vistaPermiso(lee.permisos);
 
@@ -159,49 +199,37 @@ function enviaAjax(datos) {
 	});
 }
 
-
 function capaValidar() {
-	// --- VALIDAR SELECT ---
-	$('#id_dependencia').on('change', function () {
-		if ($(this).val() === 'default') {
-			estadoSelect(this, '#sid_dependencia',
-				"Debe seleccionar una dependencia válida", 0);
-			$("#nombre").prop("disabled", true); // sigue bloqueado
-		} else {
-			estadoSelect(this, '#sid_dependencia', "", 1);
-			$("#nombre").prop("disabled", false); // desbloquea nombre
-		}
-	});
-
-	// --- VALIDAR NOMBRE ---
+	// Validación con formato en tiempo real para nombre
 	$("#nombre").on("keypress", function (e) {
 		validarKeyPress(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
 	});
 
-	$("#nombre").on("keyup", function () {
-		let valido = validarKeyUp(
-			/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/, $(this), $("#snombre"),
-			"El nombre debe tener entre 4 y 45 caracteres. " +
-			"No se permiten símbolos extraños."
-		);
-
-		if (valido) {
-			$("#enviar").prop("disabled", false); // habilita enviar
-		} else {
-			$("#enviar").prop("disabled", true); // bloquea enviar
+	// Aplicar capitalización en tiempo real
+	$("#nombre").on("input", function() {
+		const valor = $(this).val();
+		if (valor.length === 1) {
+			$(this).val(valor.toUpperCase());
 		}
+	});
+
+	// Habilitar/deshabilitar nombre según dependencia seleccionada
+	$('#id_dependencia').on('change', function () {
+		if ($(this).val() === 'default') {
+			$("#nombre").prop("disabled", true);
+		} else {
+			$("#nombre").prop("disabled", false);
+		}
+		// Validar automáticamente después de cambiar
+		setTimeout(() => SistemaValidacion.validarCampo.call(this), 100);
 	});
 }
 
 function vistaPermiso(permisos = null) {
-
 	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
-
 		$('.modificar').remove();
 		$('.eliminar').remove();
-
 	} else {
-
 		if (permisos['unidad']['modificar']['estado'] == '0') {
 			$('.modificar').remove();
 		}
@@ -210,53 +238,15 @@ function vistaPermiso(permisos = null) {
 			$('.eliminar').remove();
 		}
 	}
-};
-
-function validarKeyUp(expresion, input, span, mensaje) {
-	let valor = $(input).val();
-	let errores = [];
-
-	if (valor.length < 4) {
-		errores.push("Debe tener al menos 4 caracteres.");
-	}
-	if (valor.length > 45) {
-		errores.push("No puede superar los 45 caracteres.");
-	}
-	if (!expresion.test(valor)) {
-		errores.push("Solo se permiten letras, números y guiones.");
-	}
-
-	if (errores.length > 0) {
-		$(input).removeClass("is-valid").addClass("is-invalid");
-		$(span).removeClass("is-valid").addClass("is-invalid");
-		$(span).html(errores.join("<br>"));
-		return 0;
-	} else {
-		$(input).removeClass("is-invalid").addClass("is-valid");
-		$(span).removeClass("is-invalid").addClass("is-valid");
-		$(span).html("");
-		return 1;
-	}
 }
 
-
 function validarenvio() {
-
-	if (validarKeyUp(/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre"), $("#snombre"), "") == 0) {
-		mensajes("error", 10000, "Verifica", "El nombre de la Unidad debe tener de 4 a 45 carácteres");
-		return false;
-
-	} else if ($('#id_dependencia').val() === 'default') {
-		mensajes("error", 10000, "Verifica", "Seleccione una dependencia");
-		return false;
-	}
-	return true;
+	return SistemaValidacion.validarFormulario(elementosUnidad);
 }
 
 function selectDependencia(arreglo) {
 	$("#id_dependencia").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
-
 		$("#id_dependencia").append(
 			new Option('Seleccione una Dependencia', 'default')
 		);
@@ -280,7 +270,7 @@ function crearDataTable(arreglo) {
 	$('#tabla1').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'id_unidad' },
+			{ data: 'id_unidad', visible: false },
 			{ data: 'dependencia' },
 			{ data: 'nombre_unidad' },
 			{
@@ -310,13 +300,13 @@ function iniciarTablaEliminadas(arreglo) {
 	$('#tablaEliminadas').DataTable({
 		data: arreglo,
 		columns: [
-			{ data: 'id_unidad' },
+			{ data: 'id_unidad', visible: false },
 			{ data: 'dependencia' },
 			{ data: 'nombre_unidad' },
 			{
 				data: null,
 				render: function () {
-					return `<button onclick="restaurarUnidad(this)" class="btn btn-success restaurar">
+					return `<button onclick="reactivarUnidad(this)" class="btn btn-success reactivar">
                             <i class="fa-solid fa-recycle"></i>
                             </button>`;
 				}
@@ -330,16 +320,22 @@ function iniciarTablaEliminadas(arreglo) {
 }
 
 function limpia() {
-	$("#nombre").removeClass("is-valid is-invalid").val("").prop("disabled", true);
-	$("#id_dependencia").removeClass("is-valid is-invalid").val("default").prop("disabled", false);
-	$("#snombre, #sid_dependencia").html("");
+	SistemaValidacion.limpiarValidacion(elementosUnidad);
+	
+	$("#nombre").val("").prop("disabled", true);
+	$("#id_dependencia").val("default").prop("disabled", false);
+	$("#nombre").prop("readOnly", false);
+	$("#id_dependencia").prop("disabled", false);
+
+	// Deshabilitar el botón al limpiar (se habilitará automáticamente cuando los campos sean válidos)
 	$('#enviar').prop('disabled', true);
 }
 
-
 function rellenar(pos, accion) {
 	limpia();
-	linea = $(pos).closest('tr');
+	const linea = $(pos).closest('tr');
+	const tabla = $('#tabla1').DataTable();
+	const datosFila = tabla.row(linea).data();
 
 	$("#idUnidad").remove();
 	$("#Fila1").prepend(`<div class="col-4" id="idUnidad">
@@ -349,41 +345,48 @@ function rellenar(pos, accion) {
               <label for="id_unidad" class="form-label">ID de la Unidad</label>
             </div>`);
 
-	$("#id_unidad").val($(linea).find("td:eq(0)").text());
-	buscarSelect("#id_dependencia", $(linea).find("td:eq(1)").text(), "text");
-	$("#nombre").val($(linea).find("td:eq(2)").text());
+	// Actualizar elementosUnidad para incluir el nuevo campo
+	elementosUnidad.id_unidad = $('#id_unidad');
+
+	// Usar los datos directamente de DataTable (más confiable)
+	$("#id_unidad").val(datosFila.id_unidad);
+	buscarSelect("#id_dependencia", datosFila.dependencia, "text");
+	$("#nombre").val(capitalizarTexto(datosFila.nombre_unidad));
 
 	if (accion == 0) {
 		$("#modalTitleId").text("Modificar Unidad");
 		$("#enviar").text("Modificar");
-	}
-	else {
+	} else {
 		$("#nombre").prop('readOnly', true);
 		$("#id_dependencia").prop('disabled', true);
 		$("#modalTitleId").text("Eliminar Unidad");
 		$("#enviar").text("Eliminar");
 	}
+	
+	// Habilitar el botón inmediatamente para Modificar/Eliminar ya que los datos vienen pre-validados
 	$('#enviar').prop('disabled', false);
 	$("#modal1").modal("show");
 }
 
-function restaurarDependencia(boton) {
-	var linea = $(boton).closest('tr');
-	var id = $(linea).find('td:eq(0)').text();
+function reactivarUnidad(boton) {
+	const linea = $(boton).closest('tr');
+	const tabla = $('#tablaEliminadas').DataTable();
+	const datosFila = tabla.row(linea).data();
+	const id = datosFila.id_unidad;
 
 	Swal.fire({
-		title: '¿Restaurar Unidad?',
-		text: "¿Está seguro que desea restaurar este dependencia?",
+		title: '¿Reactivar Unidad?',
+		text: "¿Está seguro que desea reactivar esta unidad?",
 		icon: 'question',
 		showCancelButton: true,
 		confirmButtonColor: '#3085d6',
 		cancelButtonColor: '#d33',
-		confirmButtonText: 'Sí, restaurar',
+		confirmButtonText: 'Sí, reactivar',
 		cancelButtonText: 'Cancelar'
 	}).then((result) => {
 		if (result.isConfirmed) {
 			var datos = new FormData();
-			datos.append('restaurar', 'restaurar');
+			datos.append('reactivar', 'reactivar');
 			datos.append('id_unidad', id);
 
 			$.ajax({
@@ -407,7 +410,7 @@ function restaurarDependencia(boton) {
 					}
 				},
 				error: function () {
-					mensajes("error", null, "Error", "No se pudo restaurar la dependencia");
+					mensajes("error", null, "Error", "No se pudo reactivar la unidad");
 				}
 			});
 		}

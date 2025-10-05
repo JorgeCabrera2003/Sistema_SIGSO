@@ -89,6 +89,21 @@ const SistemaValidacion = {
         mensajeError = 'El ID del cargo debe ser numérico';
         break;
 
+      case 'nombre':
+        esValido = patrones.letrasConNumeros.test(valor) && valor.length >= 4 && valor.length <= 45;
+        mensajeError = 'El nombre de la unidad debe tener de 4 a 45 caracteres';
+        break;
+
+      case 'id_dependencia':
+        esValido = valor !== "default" && valor !== "";
+        mensajeError = 'Debe seleccionar una dependencia';
+        break;
+
+      case 'id_unidad':
+        esValido = patrones.letrasConNumeros.test(valor);
+        mensajeError = 'El ID de la unidad debe ser numérico';
+        break;
+
       default:
         // Validación genérica para campos de texto
         if ($campo.attr('type') === 'text' || $campo.is('input')) {
@@ -370,7 +385,7 @@ function formatearTelefonoSimple($input) {
 // Funcion para capitalizar texto
 function capitalizarTexto(texto) {
   if (!texto) return texto;
-  
+
   return texto.toLowerCase()
     .split(' ')
     .map(palabra => {

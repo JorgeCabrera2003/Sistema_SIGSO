@@ -128,8 +128,8 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
-	if (isset($_POST["restaurar"])) {
-		if (isset($permisos['unidad']['restaurar']['estado']) && $permisos['unidad']['restaurar']['estado'] == '1') {
+	if (isset($_POST["reactivar"])) {
+		if (isset($permisos['unidad']['reactivar']['estado']) && $permisos['unidad']['reactivar']['estado'] == '1') {
 			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_unidad"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de la Depedencia no válido";
@@ -137,20 +137,20 @@ if (is_file("view/" . $page . ".php")) {
 
 			} else {
 				$unidad->set_id($_POST["id_unidad"]);
-				$peticion["peticion"] = "restaurar";
+				$peticion["peticion"] = "reactivar";
 				$json = $unidad->Transaccion($peticion);
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Unidad con el id: " . $_POST["id_unidad"];
 					$msgN = "Se restauró una Unidad con el id" . $_POST["id_unidad"];
 					NotificarUsuarios($msgN, "Unidad", ['modulo' => 11, 'accion' => 'ver']);
 				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Unidad";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Unidad";
 				}
 			}
 		} else {
 			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, No tienes permiso para restaurar una Unidad";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+			$json['mensaje'] = "Error, No tienes permiso para reactivar una Unidad";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Unidad");
