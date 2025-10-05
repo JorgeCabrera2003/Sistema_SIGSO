@@ -75,8 +75,8 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if (isset($_POST["restaurar"])) {
-        if (isset($permisos['cargo']['restaurar']['estado']) && $permisos['cargo']['restaurar']['estado'] == '1') {
+    if (isset($_POST["reactivar"])) {
+        if (isset($permisos['cargo']['reactivar']['estado']) && $permisos['cargo']['reactivar']['estado'] == '1') {
             if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_cargo"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Cargo no válido";
@@ -84,20 +84,20 @@ if (is_file("view/" . $page . ".php")) {
 
             } else {
                 $cargo->set_id($_POST["id_cargo"]);
-                $peticion["peticion"] = "restaurar";
+                $peticion["peticion"] = "reactivar";
                 $json = $cargo->Transaccion($peticion);
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Cargo con el id" . $_POST["id_cargo"];
                     $msgN = "Se restauró una Cargo con el id: " . $_POST["id_cargo"];
                     NotificarUsuarios($msgN, "Cargo", ['modulo' => 10, 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Cargo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Cargo";
                 }
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para restaurar una Cargo";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+            $json['mensaje'] = "Error, No tienes permiso para reactivar una Cargo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
         }
         echo json_encode($json);
         Bitacora($msg, "Cargo");

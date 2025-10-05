@@ -20,18 +20,18 @@ const patrones = {
 // Sistema de Validación Reutilizable
 const SistemaValidacion = {
   // Inicializar validación para un formulario
-  inicializar: function(elements, callbackCambioEstado = null) {
+  inicializar: function (elements, callbackCambioEstado = null) {
     this.elementos = elements;
     this.callbackCambioEstado = callbackCambioEstado;
-    
+
     $.each(elements, function (key, element) {
       if (element.length) {
         element.on('blur', SistemaValidacion.validarCampo);
         element.on('input', SistemaValidacion.validarCampo);
-        
+
         // Aplicar autocapitalización a campos de texto
         if (key === 'nombre' || key === 'responsable') {
-          element.on('blur', function() {
+          element.on('blur', function () {
             SistemaValidacion.autoCapitalizar($(this));
           });
         }
@@ -40,7 +40,7 @@ const SistemaValidacion = {
   },
 
   // Validar campo individual
-  validarCampo: function() {
+  validarCampo: function () {
     const $campo = $(this);
     const valor = $campo.val().trim();
     const id = this.id;
@@ -48,37 +48,47 @@ const SistemaValidacion = {
     let mensajeError = '';
 
     // Asignar patrones y mensajes según el campo
-    switch(id) {
+    switch (id) {
       case 'nombre':
         esValido = patrones.nombreEnte.test(valor);
         mensajeError = 'El nombre del ente debe tener de 4 a 90 carácteres';
         break;
-      
+
       case 'responsable':
         esValido = patrones.responsable.test(valor);
         mensajeError = 'El nombre del responsable debe tener de 4 a 65 carácteres';
         break;
-      
+
       case 'telefono':
         esValido = patrones.telefonoSimple.test(valor);
         mensajeError = 'El número debe tener el siguiente formato: ****-*******';
         break;
-      
+
       case 'direccion':
         esValido = patrones.direccion.test(valor);
         mensajeError = 'La dirección del Ente debe tener de 10 a 100 carácteres';
         break;
-      
+
       case 'tipo_ente':
         esValido = valor !== "default" && valor !== "";
         mensajeError = 'Debe seleccionar un tipo de ente';
         break;
-      
+
       case 'id_ente':
         esValido = patrones.letrasConNumeros.test(valor);
         mensajeError = 'El ID debe contener solo letras y números';
         break;
-      
+
+      case 'nombre_cargo':
+        esValido = patrones.letras.test(valor) && valor.length >= 3 && valor.length <= 45;
+        mensajeError = 'El nombre del cargo debe tener de 3 a 45 caracteres (solo letras)';
+        break;
+
+      case 'id_cargo':
+        esValido = patrones.numeros.test(valor);
+        mensajeError = 'El ID del cargo debe ser numérico';
+        break;
+
       default:
         // Validación genérica para campos de texto
         if ($campo.attr('type') === 'text' || $campo.is('input')) {
@@ -89,51 +99,51 @@ const SistemaValidacion = {
 
     // Aplicar estilos de validación
     SistemaValidacion.aplicarEstilos($campo, esValido, mensajeError);
-    
+
     // Verificar estado general del formulario después de cada validación
     if (SistemaValidacion.callbackCambioEstado) {
       const formularioValido = SistemaValidacion.verificarEstadoFormulario();
       SistemaValidacion.callbackCambioEstado(formularioValido);
     }
-    
+
     return esValido;
   },
 
   // Verificar estado general del formulario
-  verificarEstadoFormulario: function() {
+  verificarEstadoFormulario: function () {
     let esValido = true;
-    
-    $.each(this.elementos, function(key, elemento) {
+
+    $.each(this.elementos, function (key, elemento) {
       if (elemento.length && elemento.attr('id') !== 'id_ente') {
         if (elemento.hasClass('is-invalid') || !elemento.hasClass('is-valid')) {
           esValido = false;
         }
       }
     });
-    
+
     return esValido;
   },
 
   // Aplicar autocapitalización
-  autoCapitalizar: function($elemento) {
+  autoCapitalizar: function ($elemento) {
     const valor = $elemento.val().trim();
     if (valor) {
       // Capitalizar primera letra de cada palabra
-      const capitalizado = valor.replace(/\b\w/g, function(l) {
+      const capitalizado = valor.replace(/\b\w/g, function (l) {
         return l.toUpperCase();
       });
       $elemento.val(capitalizado);
-      
+
       // Re-validar después de capitalizar
       setTimeout(() => SistemaValidacion.validarCampo.call($elemento[0]), 100);
     }
   },
 
   // Aplicar estilos de validación
-  aplicarEstilos: function($elemento, esValido, mensajeError) {
+  aplicarEstilos: function ($elemento, esValido, mensajeError) {
     const id = $elemento.attr('id');
     const $feedback = $(`#s${id}`);
-    
+
     if (esValido) {
       $elemento.removeClass("is-invalid").addClass("is-valid");
       if ($feedback.length) {
@@ -148,10 +158,10 @@ const SistemaValidacion = {
   },
 
   // Validar formulario completo
-  validarFormulario: function(elementos) {
+  validarFormulario: function (elementos) {
     let esValido = true;
-    
-    $.each(elementos, function(key, elemento) {
+
+    $.each(elementos, function (key, elemento) {
       if (elemento.length) {
         // Forzar validación de cada campo
         elemento.trigger('blur');
@@ -160,13 +170,13 @@ const SistemaValidacion = {
         }
       }
     });
-    
+
     return esValido;
   },
 
   // Limpiar validación de formulario
-  limpiarValidacion: function(elementos) {
-    $.each(elementos, function(key, elemento) {
+  limpiarValidacion: function (elementos) {
+    $.each(elementos, function (key, elemento) {
       if (elemento.length) {
         elemento.removeClass("is-valid is-invalid");
         const id = elemento.attr('id');
@@ -250,7 +260,7 @@ function mensajes(icono, tiempo, titulo, mensaje) {
 
 async function confirmarAccion(titulo, mensaje, icono) {
   let resultado = false;
-  
+
   await Swal.fire({
     title: titulo,
     text: mensaje,
@@ -327,7 +337,7 @@ async function buscarSelect(id_select, valor, opcion) {
 function selectEdificio(arreglo) {
   $("#id_edificio").empty();
   $("#id_edificio").append(new Option('Seleccione un Edificio', null));
-  
+
   arreglo.forEach(item => {
     $("#id_edificio").append(new Option(item.nombre, item.id_edificio));
   });
@@ -337,7 +347,7 @@ function selectEdificio(arreglo) {
 function formatearTelefono($input) {
   let numeros = $input.val().replace(/\D/g, '');
   numeros = numeros.substring(0, 10);
-  
+
   if (numeros.length >= 6) {
     $input.val('(' + numeros.substring(0, 3) + ') ' + numeros.substring(3, 6) + '-' + numeros.substring(6));
   } else if (numeros.length >= 3) {
@@ -349,7 +359,7 @@ function formatearTelefono($input) {
 
 function formatearTelefonoSimple($input) {
   let numeros = $input.val().replace(/\D/g, '');
-  
+
   if (numeros.length > 4) {
     $input.val(numeros.substring(0, 4) + '-' + numeros.substring(4));
   } else {
@@ -360,7 +370,7 @@ function formatearTelefonoSimple($input) {
 // Funcion para capitalizar texto
 function capitalizarTexto(texto) {
   if (!texto) return texto;
-  return texto.replace(/\b\w/g, function(l) {
+  return texto.replace(/\b\w/g, function (l) {
     return l.toUpperCase();
   });
 }

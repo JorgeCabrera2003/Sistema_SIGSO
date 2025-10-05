@@ -26,7 +26,7 @@
                                     Registrar Cargo
                                 </button>
                             <?php } ?>
-                            <?php if (isset($permisos['cargo']['restaurar']['estado']) && $permisos['cargo']['restaurar']['estado'] == '1') { ?>
+                            <?php if (isset($permisos['cargo']['reactivar']['estado']) && $permisos['cargo']['reactivar']['estado'] == '1') { ?>
                                 <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                     Cargos Eliminadas <i class="fa-solid fa-recycle"></i>
                                 </button>

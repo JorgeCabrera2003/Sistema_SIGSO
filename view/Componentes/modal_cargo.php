@@ -12,7 +12,7 @@
                         <div class="form-floating mb-3 mt-4">
                             <input placeholder="" class="form-control" name="nombre_cargo" type="text" id="nombre_cargo" maxlength="45">
                             <span id="snombre_cargo"></span>
-                            <label for="nombre_cargo" class="form-label">Nombre del Cargo</label>
+                            <label for="nombre_cargo" class="form-label">Nombre del Cargo *</label>
                         </div>
                     </div>
                 </div>

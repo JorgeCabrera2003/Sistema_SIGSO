@@ -8,13 +8,6 @@
 
   <div class="pagetitle">
     <h1>Entes</h1>
-    <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="">Home</a></li>
-        <li class="breadcrumb-item active"><a href="">Entes</a>
-        </li>
-      </ol>
-    </nav>
   </div>
 
   <section class="section">

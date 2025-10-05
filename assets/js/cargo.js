@@ -1,6 +1,32 @@
+// Elementos del formulario para Cargo
+const elementosCargo = {
+  nombre_cargo: $('#nombre_cargo'),
+  id_cargo: $('#id_cargo')
+};
+
+// Función para manejar el cambio de estado del formulario
+function manejarCambioEstadoCargo(formularioValido) {
+  const accion = $("#enviarCargo").text();
+  
+  if (accion === "Eliminar") {
+    // Para eliminar solo validamos el ID
+    const idValido = $("#id_cargo").length && $("#id_cargo").hasClass("is-valid");
+    $('#enviarCargo').prop('disabled', !idValido);
+  } else {
+    // Para registrar y modificar validamos todos los campos
+    $('#enviarCargo').prop('disabled', !formularioValido);
+  }
+}
+
 $(document).ready(function () {
     consultar();
     capaValidar();
+
+    // Inicializar sistema de validación con callback
+    SistemaValidacion.inicializar(elementosCargo, manejarCambioEstadoCargo);
+    
+    // Validar estado inicial del formulario
+    manejarCambioEstadoCargo(false);
 
     $("#enviarCargo").on("click", async function () {
         var confirmacion = false;
@@ -17,8 +43,12 @@ $(document).ready(function () {
                         enviaAjax(datos);
                         envio = true;
                     }
+                } else {
+                    envio = false;
+                    mensajes("error", 10000, "Error de Validación", "Por favor corrija los errores en el formulario antes de enviar.");
                 }
                 break;
+
             case "Modificar":
                 if (validarEnvioCargo()) {
                     confirmacion = await confirmarAccion("Se modificará un Cargo", "¿Está seguro de realizar la acción?", "question");
@@ -30,11 +60,16 @@ $(document).ready(function () {
                         enviaAjax(datos);
                         envio = true;
                     }
+                } else {
+                    envio = false;
+                    mensajes("error", 10000, "Error de Validación", "Por favor corrija los errores en el formulario antes de enviar.");
                 }
                 break;
+
             case "Eliminar":
-                if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_cargo"), $("#sid_cargo"), "") == 1) {
-                    confirmacion = await confirmarAccion("Se eliminará un Cargo", "¿Está seguro de realizar la acción?", "question");
+                // Validar solo el ID para eliminar
+                if ($("#id_cargo").length && SistemaValidacion.validarCampo.call(document.getElementById('id_cargo'))) {
+                    confirmacion = await confirmarAccion("Se eliminará un Cargo", "¿Está seguro de realizar la acción?", "warning");
                     if (confirmacion) {
                         var datos = new FormData();
                         datos.append('eliminar', 'eliminar');
@@ -42,21 +77,22 @@ $(document).ready(function () {
                         enviaAjax(datos);
                         envio = true;
                     }
+                } else {
+                    envio = false;
+                    mensajes("error", 10000, "Error de Validación", "El ID del cargo no es válido.");
                 }
                 break;
+
             default:
                 mensajes("error", null, "Acción desconocida: " + $(this).text());
         }
+
         if (envio) {
-            $('#enviar').prop('disabled', true);
-        } else {
-            $('#enviar').prop('disabled', false);
+            $('#enviarCargo').prop('disabled', true);
         }
 
         if (!confirmacion) {
-            $('#enviar').prop('disabled', false);
-        } else {
-            $('#enviar').prop('disabled', true);
+            $('#enviarCargo').prop('disabled', false);
         }
     });
 
@@ -65,11 +101,19 @@ $(document).ready(function () {
         $("#modalCargoTitle").text("Registrar Cargo");
         $("#enviarCargo").text("Registrar");
         $("#modalCargo").modal("show");
+        // El botón se habilita automáticamente mediante el callback cuando los campos sean válidos
     });
 
     $("#btn-consultar-eliminados").on("click", function () {
         consultarEliminadas();
         $("#modalEliminadas").modal("show");
+    });
+
+    // Forzar validación inicial cuando se abre el modal
+    $('#modalCargo2').on('shown.bs.modal', function () {
+        setTimeout(() => {
+            SistemaValidacion.validarFormulario(elementosCargo);
+        }, 100);
     });
 });
 
@@ -117,7 +161,6 @@ function enviaAjax(datos) {
 
                 } else if (lee.resultado == "entrada") {
 
-
                 } else if (lee.resultado == "permisos_modulo") {
                     vistaPermiso(lee.permisos);
 
@@ -145,20 +188,21 @@ function capaValidar() {
     $("#nombre_cargo").on("keypress", function (e) {
         validarKeyPress(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.\b]*$/, e);
     });
-    $("#nombre_cargo").on("keyup", function () {
-        validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre_cargo"), $("#snombre_cargo"), "");
+
+    // Aplicar capitalización en tiempo real
+    $("#nombre_cargo").on("input", function() {
+        const valor = $(this).val();
+        if (valor.length === 1) {
+            $(this).val(valor.toUpperCase());
+        }
     });
 }
 
 function vistaPermiso(permisos = null) {
-
     if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
-
         $('.modificar').remove();
         $('.eliminar').remove();
-
     } else {
-
         if (permisos['cargo']['modificar']['estado'] == '0') {
             $('.modificar').remove();
         }
@@ -167,7 +211,7 @@ function vistaPermiso(permisos = null) {
             $('.eliminar').remove();
         }
     }
-};
+}
 
 function iniciarTablaEliminadas(arreglo) {
     if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
@@ -177,12 +221,12 @@ function iniciarTablaEliminadas(arreglo) {
     $('#tablaEliminadas').DataTable({
         data: arreglo,
         columns: [
-            { data: 'id_cargo' },
+            { data: 'id_cargo', visible: false },
             { data: 'nombre_cargo' },
             {
                 data: null,
                 render: function () {
-                    return `<button onclick="restaurarCargo(this)" class="btn btn-success restaurar">
+                    return `<button onclick="reactivarCargo(this)" class="btn btn-success reactivar">
                             <i class="fa-solid fa-recycle"></i>
                             </button>`;
                 }
@@ -205,7 +249,7 @@ function crearDataTable(arreglo) {
     $('#tablaCargos').DataTable({
         data: arreglo,
         columns: [
-            { data: 'id_cargo' },
+            { data: 'id_cargo', visible: false },
             { data: 'nombre_cargo' },
             {
                 data: null,
@@ -225,23 +269,23 @@ function crearDataTable(arreglo) {
     ConsultarPermisos();
 }
 
-function restaurarCargo(boton) {
+function reactivarCargo(boton) {
     var linea = $(boton).closest('tr');
     var id = $(linea).find('td:eq(0)').text();
 
     Swal.fire({
-        title: '¿Restaurar Cargo?',
-        text: "¿Está seguro que desea restaurar esta cargo?",
+        title: '¿Reactivar Cargo?',
+        text: "¿Está seguro que desea reactivar esta cargo?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, restaurar',
+        confirmButtonText: 'Sí, reactivar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             var datos = new FormData();
-            datos.append('restaurar', 'restaurar');
+            datos.append('reactivar', 'reactivar');
             datos.append('id_cargo', id);
 
             $.ajax({
@@ -265,7 +309,7 @@ function restaurarCargo(boton) {
                     }
                 },
                 error: function () {
-                    mensajes("error", null, "Error", "No se pudo restaurar el cargo");
+                    mensajes("error", null, "Error", "No se pudo reactivar el cargo");
                 }
             });
         }
@@ -274,7 +318,9 @@ function restaurarCargo(boton) {
 
 function rellenar(pos, accion) {
     limpiarCargo();
-    linea = $(pos).closest('tr');
+    const linea = $(pos).closest('tr');
+    const tabla = $('#tablaCargos').DataTable();
+    const datosFila = tabla.row(linea).data();
 
     $("#idCargo").remove();
     $("#Fila1").prepend(`<div class="col-4" id="idCargo">
@@ -284,40 +330,39 @@ function rellenar(pos, accion) {
               <label for="id_cargo" class="form-label">ID del Cargo</label>
             </div>`);
 
-    $("#id_cargo").val($(linea).find("td:eq(0)").text());
-    $("#nombre_cargo").val($(linea).find("td:eq(1)").text());
+    // Actualizar elementosCargo para incluir el nuevo campo
+    elementosCargo.id_cargo = $('#id_cargo');
 
-    $("#id_cargo").prop('readOnly', true);
+    // Usar los datos directamente de DataTable (más confiable)
+    $("#id_cargo").val(datosFila.id_cargo);
+    $("#nombre_cargo").val(capitalizarTexto(datosFila.nombre_cargo));
 
     if (accion == 0) {
         $("#modalCargoTitle").text("Modificar Cargo")
         $("#enviarCargo").text("Modificar");
-    }
-    else {
+    } else {
         $("#nombre_cargo").prop('readOnly', true);
         $("#modalCargoTitle").text("Eliminar Cargo")
         $("#enviarCargo").text("Eliminar");
-
     }
+    
+    // Habilitar el botón inmediatamente para Modificar/Eliminar ya que los datos vienen pre-validados
     $('#enviarCargo').prop('disabled', false);
     $("#modalCargo").modal("show");
 }
 
 function limpiarCargo() {
+    SistemaValidacion.limpiarValidacion(elementosCargo);
+    
     $("#idCargo").remove();
     $("#id_cargo").val("");
     $("#nombre_cargo").val("");
-
     $("#nombre_cargo").prop('readOnly', false);
 
-    $('#enviar').prop('disabled', false);
+    // Deshabilitar el botón al limpiar (se habilitará automáticamente cuando los campos sean válidos)
+    $('#enviarCargo').prop('disabled', true);
 }
 
 function validarEnvioCargo() {
-
-    if (validarKeyUp(/^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{3,45}$/, $("#nombre_cargo"), $("#snombre_cargo"), "") == 0) {
-        mensajes("error", null, "El nombre del cargo debe tener al menos 3 caracteres");
-        return false;
-    }
-    return true;
+    return SistemaValidacion.validarFormulario(elementosCargo);
 }
