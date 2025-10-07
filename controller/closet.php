@@ -1,9 +1,18 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+  if($_SESSION == NULL){
+        header("Location: ?page=login");
+    }
     require_once "controller/utileria.php";
 
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
+
+  
 
     Bitacora("Cerró sesión", "Usuario");
 

@@ -11,6 +11,7 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "model/cargo.php";
 	require_once "model/unidad.php";
 	require_once "model/dependencia.php";
+	
 
 	$titulo = "Gestionar Empleados";
 	$cabecera = array('Cédula', "Nombre", "Apellido", "Teléfono", "Correo", "Dependencia", "Unidad", "Cargo", "Modificar/Eliminar");
@@ -93,38 +94,27 @@ if (is_file("view/" . $page . ".php")) {
 					$empleado->set_telefono($_POST["telefono"]);
 					$empleado->set_id_unidad($_POST["unidad"]);
 					$empleado->set_id_cargo($_POST["cargo"]);
+					
+					$clave = password_hash($_POST['cedula'], PASSWORD_DEFAULT);
+					$usuario->set_nombre_usuario($_POST["cedula"]);
+					$usuario->set_rol(5);
+					$usuario->set_nombres($_POST["nombre"]);
+					$usuario->set_apellidos($_POST["apellido"]);
+					$usuario->set_correo($_POST["correo"]);
+					$usuario->set_telefono($_POST["telefono"]);
+					$usuario->set_clave($clave);
+
 					$peticion["peticion"] = "registrar";
 					$json = $empleado->Transaccion($peticion);
 
 					if ($json['estado'] == 1) {
+						$usuario->Transaccion(['peticion' => 'registrar']);
 						$json['resultado'] = "registrar";
 						$json['mensaje'] = "Se registró el empleado exitosamente";
 						$msgN = "Se registró un Nuevo Empleado";
-                    
 						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado";
 
-						if ($_POST["check_usuario"] == 1) {
-							$clave = password_hash($_POST['cedula'], PASSWORD_DEFAULT);
-
-							$usuario->set_nombre_usuario($_POST["cedula"]);
-							$usuario->set_rol(5);
-							$usuario->set_nombres($_POST["nombre"]);
-							$usuario->set_apellidos($_POST["apellido"]);
-							$usuario->set_correo($_POST["correo"]);
-							$usuario->set_telefono($_POST["telefono"]);
-							$usuario->set_clave($clave);
-							$estado = $usuario->Transaccion(['peticion' => 'registrar']);
-
-							if ($estado['estado'] == 1) {
-								$json['resultado'] = "registrar";
-								$json['mensaje'] = "Se registró el empleado exitosamente";
-								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado y también como usuario";
-								$msgN = "Se registró un Nuevo Empleado tambien como Usuario";
-							} else {
-								$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Error al registrar el empleado también como usuario";
-							}
-						}
-						NotificarUsuarios($msgN, "Empleado", ['modulo' => 5, 'accion' => 'ver']);
+						NotificarUsuarios($msgN, "Empleado", ['modulo' => modulos[4]['id'], 'accion' => 'ver']);
 					} else {
 						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo empleado";
 					}
@@ -220,9 +210,11 @@ if (is_file("view/" . $page . ".php")) {
 
 						if ($estado) {
 							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del usuario empleado con la CI: " . $_POST['cedula'];
+							$msgN = "Se modificó un Empleado con la Cédula: ".$_POST['cedula'];
 						} else {
 							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar al usuario empleado";
 						}
+						NotificarUsuarios($msgN, "Empleado", ['modulo' => modulos[4]['id'], 'accion' => 'ver']);
 					}
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar empleado";

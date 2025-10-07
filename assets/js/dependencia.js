@@ -1,7 +1,7 @@
 // Definir variables globales para validación
 const regexValidacion = {
     nombre: /^[0-9a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\s\-.]{4,45}$/,
-    id: /^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/
+    id: /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
 };
 
 const mensajesError = {
@@ -220,6 +220,8 @@ function validarCampo(campo, span, regex, mensajesError) {
         campo.removeClass('is-valid');
         campo.addClass('is-invalid');
         span.text(mensajesError.requerido);
+        span.removeClass('is-valid');
+        span.addClass('is-invalid');
         return false;
     }
 
@@ -238,6 +240,8 @@ function validarCampo(campo, span, regex, mensajesError) {
 
     campo.removeClass('is-invalid');
     campo.addClass('is-valid');
+    span.removeClass('is-invalid');
+    span.addClass('is-valid');
     span.text('');
     return true;
 }

@@ -44,28 +44,27 @@ if (is_file("view/" . $page . ".php")) {
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['dependencia']['registrar']['estado']) && $permisos['dependencia']['registrar']['estado'] == "1") {
 
-			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["ente"]) == 0) {
+			if (!isset($_POST["ente"]) || preg_match(c_regex['ID_Generado'], $_POST["ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+			} else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 			} else {
 
-				$dependencia->set_id(generarID($_POST["ente"], $_POST["nombre"]));
+				$dependencia->set_id(generarID($_POST["nombre"], $_POST["ente"]));
 				$dependencia->set_nombre($_POST["nombre"]);
 				$dependencia->set_id_ente($_POST["ente"]);
 				$peticion["peticion"] = "registrar";
 				$json = $dependencia->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo Depedencia";
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo ente";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Depedencia";
 					$msgN = "Se registró una Nueva Dependencia";
-					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 'DEPEN01020251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo Depedencia";
 				}
@@ -96,17 +95,17 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['dependencia']['modificar']['estado']) && $permisos['dependencia']['modificar']['estado'] == "1") {
-			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["ente"]) == 0) {
+			if (!isset($_POST["ente"]) || preg_match(c_regex['ID_Generado'], $_POST["ente"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Ente no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
+			} else if (!isset($_POST["id_dependencia"]) || preg_match(c_regex['ID_Generado'], $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[0-9 a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+			} else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -120,7 +119,7 @@ if (is_file("view/" . $page . ".php")) {
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó la dependencia con el id: " . $_POST["id_dependencia"];
 					$msgN = "Dependencia con ID: " . $_POST["id_dependencia"] . " fue modificado";
-					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 'DEPEN01020251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Depedencia";
 				}
@@ -139,7 +138,7 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['dependencia']['eliminar']['estado']) && $permisos['dependencia']['eliminar']['estado'] == "1") {
-			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
+			if (!isset($_POST["id_dependencia"]) || preg_match(c_regex['ID_Generado'], $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -152,7 +151,7 @@ if (is_file("view/" . $page . ".php")) {
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó la dependencia con el id:" . $_POST["id_dependencia"];
 					$msgN = "Dependencia con ID: " . $_POST["id_dependencia"] . " fue eliminada";
-					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 'DEPEN01020251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una Depedencia";
 				}
@@ -168,29 +167,29 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
-	if (isset($_POST["restaurar"])) {
-		if (isset($permisos['dependencia']['restaurar']['estado']) && $permisos['dependencia']['restaurar']['estado'] == '1') {
-			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_dependencia"]) == 0) {
+	if (isset($_POST["reactivar"])) {
+		if (isset($permisos['dependencia']['reactivar']['estado']) && $permisos['dependencia']['reactivar']['estado'] == '1') {
+			if (!isset($_POST["id_dependencia"]) || preg_match(c_regex['ID_Generado'], $_POST["id_dependencia"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id de la Depedencia no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
 				$dependencia->set_id($_POST["id_dependencia"]);
-				$peticion["peticion"] = "restaurar";
+				$peticion["peticion"] = "reactivar";
 				$json = $dependencia->Transaccion($peticion);
 				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Depedencia con el id" . $_POST["id_dependencia"];
-					$msgN = "Se restauró una Depedencia con el id" . $_POST["id_dependencia"];
-					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 10, 'accion' => 'ver']);
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se reactivó una Depedencia con el id: " . $_POST["id_dependencia"];
+					$msgN = "Se reactivó una Depedencia con el id" . $_POST["id_dependencia"];
+					NotificarUsuarios($msgN, "Dependencia", ['modulo' => 'DEPEN01020251001', 'accion' => 'ver']);
 				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Depedencia";
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Depedencia";
 				}
 			}
 		} else {
 			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, No tienes permiso para restaurar una Depedencia";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+			$json['mensaje'] = "Error, No tienes permiso para reactivar una Depedencia";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
 		}
 		echo json_encode($json);
 		Bitacora($msg, "Depedencia");

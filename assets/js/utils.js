@@ -13,7 +13,7 @@ const patrones = {
   password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
   postalCode: /^\d{5}$/,
   direccion: /^[0-9 a-zA-ZÀ-ÿ\s-./#]{10,100}$/,
-  nombreEnte: /^[0-9 a-zA-ZÀ-ÿ\s-.]{4,90}$/,
+  nombreEnte: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/,
   responsable: /^[a-zA-ZÀ-ÿ\s-.]{4,65}$/
 };
 

@@ -284,7 +284,7 @@ class Dependencia extends Conexion
         return $dato;
     }
 
-        private function Restaurar()
+        private function Reactivar()
     {
         $dato = [];
         try {
@@ -297,7 +297,7 @@ class Dependencia extends Conexion
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Dependecia restaurada exitosamente";
 
@@ -351,8 +351,8 @@ class Dependencia extends Conexion
             case 'consultar_eliminadas':
                 return $this->ConsultarEliminados();
 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->Reactivar();
 
             case 'consultar_areas':
                 return $this->ConsultarAreas();

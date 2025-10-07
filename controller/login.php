@@ -4,6 +4,10 @@ ob_start();
 
 if (is_file("view/$page.php")) {
 
+	if($_SESSION != NULL){
+		header("Location: ?page=home");
+	}
+	
 	$peticion = [];
 	$titulo = "Login";
 	$css = [];

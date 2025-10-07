@@ -252,9 +252,9 @@ class Usuario extends Conexion
             $this->conexion = new Conexion("usuario");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
-            $stm = $this->conexion->prepare("SELECT * FROM usuario WHERE cedula = :cedula
-            OR nombre_usuario = :nombre_usuario
-            OR correo = :correo");
+            $query = "SELECT * FROM usuario WHERE cedula = :cedula
+            OR nombre_usuario = :nombre_usuario OR correo = :correo";
+            $stm = $this->conexion->prepare($query);
             $stm->bindParam(':correo', $this->correo);
             $stm->bindParam(":cedula", $this->cedula);
             $stm->bindParam(':nombre_usuario', $this->nombre_usuario);

@@ -1,4 +1,7 @@
 <?php
+require_once "config/rol.php";
+require_once "config/modulo.php";
+require_once "config/regex.php";
 require_once "model/usuario.php";
 require_once "model/rol.php";
 require_once "model/permiso.php";
