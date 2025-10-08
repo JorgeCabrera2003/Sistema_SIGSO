@@ -279,7 +279,7 @@ class Piso extends Conexion
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
-    private function Restaurar()
+    private function Reactivar()
     {
         $dato = [];
         try {
@@ -329,8 +329,8 @@ class Piso extends Conexion
             case 'eliminar':
                 return $this->Eliminar();
 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->Reactivar();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

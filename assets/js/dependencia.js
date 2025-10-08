@@ -495,18 +495,18 @@ function restaurarDependencia(boton) {
     var id = $(linea).find('td:eq(0)').text();
 
     Swal.fire({
-        title: '¿Restaurar Dependencia?',
-        text: "¿Está seguro que desea restaurar este dependencia?",
+        title: 'Reactivar Dependencia?',
+        text: "¿Está seguro que desea reactivar esta dependencia?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, restaurar',
+        confirmButtonText: 'Sí, reactivar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             var datos = new FormData();
-            datos.append('restaurar', 'restaurar');
+            datos.append('reactivar', 'reactivar');
             datos.append('id_dependencia', id);
 
             $.ajax({

@@ -36,7 +36,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_categoria"), $("#sid_categoria"), "") == 1) {
+				if (validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_categoria"), $("#sid_categoria"), "") == 1) {
 					confirmacion = await confirmarAccion("Se eliminará un Categoría", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -348,18 +348,18 @@ function restaurarTipoBien(boton) {
 	var id = $(linea).find('td:eq(0)').text();
 
 	Swal.fire({
-		title: '¿Restaurar Categoría?',
-		text: "¿Está seguro que desea restaurar esta categoría?",
+		title: '¿Reactivar Categoría?',
+		text: "¿Está seguro que desea reactivar esta categoría?",
 		icon: 'question',
 		showCancelButton: true,
 		confirmButtonColor: '#3085d6',
 		cancelButtonColor: '#d33',
-		confirmButtonText: 'Sí, restaurar',
+		confirmButtonText: 'Sí, reactivar',
 		cancelButtonText: 'Cancelar'
 	}).then((result) => {
 		if (result.isConfirmed) {
 			var datos = new FormData();
-			datos.append('restaurar', 'restaurar');
+			datos.append('reactivar', 'reactivar');
 			datos.append('id_categoria', id);
 
 			$.ajax({

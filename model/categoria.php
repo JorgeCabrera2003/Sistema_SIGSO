@@ -255,7 +255,7 @@ class Categoria extends Conexion
         return $dato;
     }
 
-    private function Restaurar()
+    private function Reactivar()
     {
         $dato = [];
         try {
@@ -304,8 +304,8 @@ class Categoria extends Conexion
             case 'eliminar':
                 return $this->Eliminar();
             
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->Reactivar();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

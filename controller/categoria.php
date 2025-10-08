@@ -41,7 +41,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         if (isset($permisos['categoria']['registrar']['estado']) && $permisos['categoria']['registrar']['estado'] == '1') {
-            if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+            if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Nombre de la Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -56,7 +56,7 @@ if (is_file("view/" . $page . ".php")) {
 
                 if ($json['estado'] == 1) {
                     $msgN = "Se registró una Nueva Categoria";
-                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 13, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 'CATEG01520251001', 'accion' => 'ver']);
 
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva Categoria con ID: " . $categoria->get_id();
                     $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
@@ -94,29 +94,29 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if (isset($_POST["restaurar"])) {
-        if (isset($permisos['categoria']['restaurar']['estado']) && $permisos['categoria']['restaurar']['estado'] == '1') {
-            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
+    if (isset($_POST["reactivar"])) {
+        if (isset($permisos['categoria']['reactivar']['estado']) && $permisos['categoria']['reactivar']['estado'] == '1') {
+            if (!isset($_POST["id_categoria"]) || preg_match(c_regex['ID_Generado'], $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
                 $categoria->set_id($_POST["id_categoria"]);
-                $peticion["peticion"] = "restaurar";
+                $peticion["peticion"] = "reactivar";
                 $json = $categoria->Transaccion($peticion);
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Categoria con el id: " . $_POST["id_categoria"];
                     $msgN = "Se registró una Nuevo Categoria";
-                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 'CATEG01520251001', 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar una Categoria";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Categoria";
                 }
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para restaurar un Categoria";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+            $json['mensaje'] = "Error, No tienes permiso para reactivar un Categoria";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
         }
         echo json_encode($json);
         Bitacora($msg, "Categoria");
@@ -125,12 +125,12 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['categoria']['modificar']['estado']) && $permisos['categoria']['modificar']['estado'] == '1') {
-            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
+            if (!isset($_POST["id_categoria"]) || preg_match(c_regex['ID_Generado'], $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+            } else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Nombre de la Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -148,7 +148,7 @@ if (is_file("view/" . $page . ".php")) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Categoria con el id: " . $_POST["id_categoria"];
                     $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue modificado";
 
-                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 'CATEG01520251001', 'accion' => 'ver']);
                     $texto = $tipo_servicio->Transaccion(['peticion' => 'validar']);
 
                     if ($json['servicio_asignado'] == 1 && ($buscarServicio['arreglo']['id_tipo_servicio'] != $texto['arreglo']['id_tipo_servicio'])) {
@@ -185,7 +185,7 @@ if (is_file("view/" . $page . ".php")) {
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una Categoria con el id: " . $_POST["id_categoria"];
                     $msgN = "Categoria con ID: " . $_POST["id_categoria"] . " fue eliminado";
-                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 15, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Categoria", ['modulo' => 'CATEG01520251001', 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Categoria";
                 }
