@@ -21,7 +21,7 @@
                                 Registrar Categoría
                             </button>
                             <?php }?>
-                            <?php if (isset($permisos['categoria']['restaurar']['estado']) && $permisos['categoria']['restaurar']['estado'] == '1') {?>
+                            <?php if (isset($permisos['categoria']['reactivar']['estado']) && $permisos['categoria']['reactivar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Categorías Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>

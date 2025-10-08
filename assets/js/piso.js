@@ -237,6 +237,10 @@ function vistaPermiso(permisos = null) {
         if (permisos['piso']['eliminar']['estado'] == '0') {
             $('.eliminar').remove();
         }
+
+        if (permisos['piso']['reactivar']['estado'] == '0') {
+            $('.reactivar').remove();
+        }
     }
 };
 

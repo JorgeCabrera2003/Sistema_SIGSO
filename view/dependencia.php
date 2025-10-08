@@ -30,7 +30,7 @@
                   Registrar Depedencia
                 </button>
               <?php } ?>
-              <?php if (isset($permisos['dependencia']['restaurar']['estado']) && $permisos['dependencia']['restaurar']['estado'] == '1') { ?>
+              <?php if (isset($permisos['dependencia']['reactuvar']['estado']) && $permisos['dependencia']['reactuvar']['estado'] == '1') { ?>
                 <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                   Dependencias Eliminados <i class="fa-solid fa-recycle"></i>
                 </button>

@@ -21,12 +21,16 @@
           <div class="card-body">
             <h5 class="card-title">Materiales</h5>
             <div class="d-flex justify-content-between">
-              <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Registrar Material">
-                Registrar Material
-              </button>
+              <?php if (isset($permisos['material']['registrar']['estado']) && $permisos['material']['registrar']['estado'] == '1') { ?>
+                <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Registrar Material">
+                  Registrar Material
+                </button>
+              <?php } ?>
+              <?php if (isset($permisos['material']['reactivar']['estado']) && $permisos['material']['reactivar']['estado'] == '1') { ?>
               <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                 Materiales Eliminados <i class="fa-solid fa-recycle"></i>
               </button>
+              <?php } ?>
             </div>
             <div class="table-responsive">
               <table class="table" id="tabla1">
@@ -48,7 +52,8 @@
                     <span class="input-group-text">a</span>
                     <input type="date" name="fecha_fin" class="form-control" id="fecha_fin" required
                       max="<?php echo date('Y-m-d'); ?>">
-                    <button title="Generar Reporte PDF" type="submit" class="btn btn-primary" id="btn-generar-reporte" name="generar_reporte" target="_blank">
+                    <button title="Generar Reporte PDF" type="submit" class="btn btn-primary" id="btn-generar-reporte"
+                      name="generar_reporte" target="_blank">
                       Reporte <i class="fa-solid fa-file-pdf"></i>
                     </button>
                   </div>
@@ -64,7 +69,8 @@
   </main><!-- End #main -->
 
   <!-- ModalEliminados -->
-  <div class="modal fade" id="modalEliminadas" tabindex="-1" role="dialog" aria-labelledby="modalEliminadasTitle" aria-hidden="true">
+  <div class="modal fade" id="modalEliminadas" tabindex="-1" role="dialog" aria-labelledby="modalEliminadasTitle"
+    aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header bg-warning">

@@ -33,12 +33,12 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         if (isset($permisos['oficina']['registrar']['estado']) && $permisos['oficina']['registrar']['estado'] == '1') {
-            if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+            if (!isset($_POST["nombre"]) || preg_match(C_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Nombre de la Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
+            } else if (!isset($_POST["id_piso"]) || preg_match(C_regex['ID_Generado'], $_POST["id_piso"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Piso no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -53,7 +53,7 @@ if (is_file("view/" . $page . ".php")) {
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva oficina";
                     $msgN = "Se registró una Nueva Oficina";
-                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 'OFICIN02320251001', 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar una nueva oficina";
                 }
@@ -82,29 +82,29 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if (isset($_POST["restaurar"])) {
-        if (isset($permisos['oficina']['restaurar']['estado']) && $permisos['oficina']['restaurar']['estado'] == '1') {
-            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
+    if (isset($_POST["reactivar"])) {
+        if (isset($permisos['oficina']['reactivar']['estado']) && $permisos['oficina']['reactivar']['estado'] == '1') {
+            if (!isset($_POST["id_oficina"]) || preg_match(c_regex['ID_Generado'], $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de la OFicina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
                 $oficina->set_id($_POST["id_oficina"]);
-                $peticion["peticion"] = "restaurar";
+                $peticion["peticion"] = "reactivar";
                 $json = $oficina->Transaccion($peticion);
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el registro de la oficina con el id: " . $_POST["id_oficina"];
                     $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue restaurada";
-                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 'OFICIN02320251001', 'accion' => 'ver']);
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar la oficina";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar la oficina";
                 }
             }
         } else {
             $json['resultado'] = "error";
-            $json['mensaje'] = "Error, No tienes permiso para restaurar una Oficina";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+            $json['mensaje'] = "Error, No tienes permiso para reactivar una Oficina";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
         }
         echo json_encode($json);
         exit;
@@ -120,17 +120,19 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['oficina']['modificar']['estado']) && $permisos['oficina']['modificar']['estado'] == '1') {
-            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
+            if (!isset($_POST["id_oficina"]) || preg_match(c_regex['ID_Generado'], $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_piso"]) == 0) {
+            } else if (!isset($_POST["id_piso"]) || preg_match(c_regex['ID_Generado'], $_POST["id_piso"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de Piso no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-            } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
-
+            } else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error, Nombre de Oficina no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
             } else {
 
                 $oficina->set_id($_POST["id_oficina"]);
@@ -142,7 +144,7 @@ if (is_file("view/" . $page . ".php")) {
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro de la oficina con el id: " . $_POST["id_oficina"];
                     $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue modificada";
-                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 'OFICIN02320251001', 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar oficina";
                 }
@@ -158,8 +160,8 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["eliminar"])) {
-        if (isset($permisos['oficina']['modificar']['estado']) && $permisos['oficina']['modificar']['estado'] == '1') {
-            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_oficina"]) == 0) {
+        if (isset($permisos['oficina']['eliminar']['estado']) && $permisos['oficina']['eliminar']['estado'] == '1') {
+            if (!isset($_POST["id_oficina"]) || preg_match(c_regex['ID_Generado'], $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id de Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -172,7 +174,7 @@ if (is_file("view/" . $page . ".php")) {
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó una oficina con el id: " . $_POST["id_oficina"];
                     $msgN = "Oficina con ID: " . $_POST["id_oficina"] . " fue eliminada";
-                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 23, 'accion' => 'ver']);
+                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 'OFICIN02320251001', 'accion' => 'ver']);
                 } else {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar una oficina";
                 }

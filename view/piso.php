@@ -26,9 +26,9 @@
                     Registrar Piso
                   </button>
                 <?php } ?>
-                <?php if (isset($permisos['piso']['restaurar']['estado']) && $permisos['piso']['restaurar']['estado'] == '1') { ?>
+                <?php if (isset($permisos['piso']['reactivar']['estado']) && $permisos['piso']['reactivar']['estado'] == '1') { ?>
                   <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
-                    Pisos Eliminadas <i class="fa-solid fa-recycle"></i>
+                    Pisos Eliminados <i class="fa-solid fa-recycle"></i>
                   </button>
                 <?php } ?>
               </div>

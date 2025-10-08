@@ -33,15 +33,15 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['material']['registrar']['estado']) && $permisos['material']['registrar']['estado'] == '1') {
-			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
+			if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalLargo'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Material no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["ubicacion"]) == 0) {
+			} else if (!isset($_POST["ubicacion"]) || preg_match(c_regex['ID_Generado'], $_POST["ubicacion"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Ubicación no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
+			} else if (!isset($_POST["stock"]) || preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Stock no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -55,7 +55,7 @@ if (is_file("view/" . $page . ".php")) {
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo material";
 					$msgN = "Se registró un Nuevo Material";
-					NotificarUsuarios($msgN, "Material", ['modulo' => 24, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Material", ['modulo' => 'MATER02420251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo material";
 				}
@@ -97,19 +97,19 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['material']['modificar']['estado']) && $permisos['material']['modificar']['estado'] == '1') {
-			if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["id_material"]) == 0) {
+			if (!isset($_POST["id_material"]) || preg_match(c_regex['ID_Generado'], $_POST["id_material"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/", $_POST["nombre"]) == 0) {
+			} else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalLargo'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Material no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["ubicacion"]) == 0) {
+			} else if (!isset($_POST["ubicacion"]) || preg_match(c_regex['ID_Generado'], $_POST["ubicacion"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Ubicación no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
+			} else if (!isset($_POST["stock"]) || preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Stock no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -124,7 +124,7 @@ if (is_file("view/" . $page . ".php")) {
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del Materia con el id: " . $_POST["id_material"];
 					$msgN = "Material con ID: " . $_POST["id_material"] . " fue modificado";
-					NotificarUsuarios($msgN, "Material", ['modulo' => 24, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Material", ['modulo' => 'MATER02420251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar Material";
 				}
@@ -146,17 +146,38 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
-	if (isset($_POST["restaurar"])) {
-		$material->set_id($_POST["id_material"]);
-		$peticion["peticion"] = "restaurar";
-		$datos = $material->Transaccion($peticion);
+	if (isset($_POST["reactivar"])) {
+		if (isset($permisos['material']['eliminar']['estado']) && $permisos['material']['eliminar']['estado'] == '1') {
+			if (!isset($_POST["id_material"]) || preg_match(c_regex['ID_Generado'], $_POST["id_material"])) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Id no válido";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+			} else {
+				$material->set_id($_POST["id_material"]);
+				$peticion["peticion"] = "reactivar";
+				$json = $material->Transaccion($peticion);
+
+				if ($json['estado'] == 1) {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se reactivó un Material";
+					$msgN = "Material con ID: " . $_POST["id_material"] . " fue reactivado";
+					NotificarUsuarios($msgN, "Material", ['modulo' => 'MATER02420251001', 'accion' => 'ver']);
+				} else {
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar un Material";
+				}
+			}
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, No tienes permiso para reactivar Material";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
+		}
 		echo json_encode($datos);
+		Bitacora($msg, "Material");
 		exit;
 	}
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['material']['eliminar']['estado']) && $permisos['material']['eliminar']['estado'] == '1') {
-			if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{2,45}$/", $_POST["id_material"]) == 0) {
+			if (!isset($_POST["id_material"]) || preg_match(c_regex['ID_Generado'], $_POST["id_material"])) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Id no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -168,7 +189,7 @@ if (is_file("view/" . $page . ".php")) {
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un Material";
 					$msgN = "Material con ID: " . $_POST["id_material"] . " fue eliminado";
-					NotificarUsuarios($msgN, "Material", ['modulo' => 24, 'accion' => 'ver']);
+					NotificarUsuarios($msgN, "Material", ['modulo' => 'MATER02420251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un Material";
 				}

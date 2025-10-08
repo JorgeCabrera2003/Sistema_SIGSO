@@ -39,7 +39,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/, $("#id_oficina"), $("#sid_oficina"), "") == 1) {
+				if (validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_oficina"), $("#sid_oficina"), "") == 1) {
 					confirmacion = await confirmarAccion("Se registrará una Oficina", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -167,7 +167,7 @@ function vistaPermiso(permisos = null) {
 			$('.eliminar').remove();
 		}
 
-		if (permisos['oficina']['restaurar']['estado'] == '0') {
+		if (permisos['oficina']['reactivar']['estado'] == '0') {
 			$('.restaurar').remove();
 		}
 	}
@@ -360,18 +360,18 @@ function restaurarOficina(boton) {
 	var id = $(linea).find('td:eq(0)').text();
 
 	Swal.fire({
-		title: '¿Restaurar Oficina?',
-		text: "¿Está seguro que desea restaurar esta oficina?",
+		title: '¿Reactivar Oficina?',
+		text: "¿Está seguro que desea reactivar esta oficina?",
 		icon: 'question',
 		showCancelButton: true,
 		confirmButtonColor: '#3085d6',
 		cancelButtonColor: '#d33',
-		confirmButtonText: 'Sí, restaurar',
+		confirmButtonText: 'Sí, reactivar',
 		cancelButtonText: 'Cancelar'
 	}).then((result) => {
 		if (result.isConfirmed) {
 			var datos = new FormData();
-			datos.append('restaurar', 'restaurar');
+			datos.append('reactivar', 'reactivar');
 			datos.append('id_oficina', id);
 
 			$.ajax({
@@ -384,7 +384,7 @@ function restaurarOficina(boton) {
 					try {
 						var lee = JSON.parse(respuesta);
 						if (lee.estado == 1) {
-							mensajes("success", null, "Oficina restaurada", lee.mensaje);
+							mensajes("success", null, "Oficina reactivar", lee.mensaje);
 							consultarEliminadas();
 							consultar();
 						} else {
@@ -395,7 +395,7 @@ function restaurarOficina(boton) {
 					}
 				},
 				error: function () {
-					mensajes("error", null, "Error", "No se pudo restaurar la oficina");
+					mensajes("error", null, "Error", "No se pudo reactivar la oficina");
 				}
 			});
 		}

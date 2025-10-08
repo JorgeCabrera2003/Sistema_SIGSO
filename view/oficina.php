@@ -26,7 +26,7 @@
                                     Registrar Oficina
                                 </button>
                             <?php } ?>
-                            <?php if (isset($permisos['oficina']['restaurar']['estado']) && $permisos['oficina']['restaurar']['estado'] == '1') { ?>
+                            <?php if (isset($permisos['oficina']['reactivar']['estado']) && $permisos['oficina']['reactivar']['estado'] == '1') { ?>
                                 <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                     Oficinas Eliminadas <i class="fa-solid fa-recycle"></i>
                                 </button>

@@ -122,59 +122,70 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         header('Content-Type: application/json');
-        
-        try {
-            // Generar ID único para la solicitud
-            $nro_solicitud = generarID("PR", substr($_POST["motivo"], 0, 2));
-            $solicitud->set_nro_solicitud($nro_solicitud);
-            $solicitud->set_motivo($_POST["motivo"]);
-            $solicitud->set_cedula_solicitante($_POST["cedula"]);
-            $solicitud->set_id_equipo($_POST["serial"] ?: null);
+
+        if (isset($permisos['solicitud']['registrar']['estado']) && $permisos['solicitud']['registrar']['estado'] == '1') {
             
+            if(!isset($_POST["cedula"]) || preg_match(c_regex[''], $_POST["cedula"])){
 
-            $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
-
-            if ($resultado['bool']) {
-                // Crear hoja de servicio asociada usando el nuevo método directo
-                $codigoHoja = generarID("HS", substr($nro_solicitud, -2));
-                $id_tipo_servicio = $_POST["area"] ?? 1; // Default a Soporte Técnico
-                
-                $peticionHoja = [
-                    'peticion' => 'crear',
-                    'codigo_hoja_servicio' => $codigoHoja,
-                    'nro_solicitud' => $nro_solicitud,
-                    'id_tipo_servicio' => $id_tipo_servicio
-                ];
-                
-                // Asignar técnico si viene
-                if (!empty($_POST["tecnico"])) {
-                    $peticionHoja['cedula_tecnico'] = $_POST["tecnico"];
-                }
-                
-                $resultHoja = $hojaServicio->Transaccion($peticionHoja);
-
-                if ($resultHoja['resultado'] !== 'success') {
-                    throw new Exception("Error al crear hoja de servicio: " . $resultHoja['mensaje']);
-                }
-
-                $response = [
-                    "resultado" => "success",
-                    "mensaje" => "Solicitud y hoja de servicio registradas correctamente",
-                    "nro_solicitud" => $nro_solicitud
-                ];
-                
-                // Notificar al técnico si fue asignado
-                if (!empty($_POST["tecnico"])) {
-                    $msgTecnico = "Se le ha asignado una nueva solicitud (#{$nro_solicitud})";
-                    Notificar($msgTecnico, "Solicitud", $_POST["tecnico"]);
-                }
-                
             } else {
-                $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+
+            try {
+                // Generar ID único para la solicitud
+                $nro_solicitud = generarID($_POST["cedula"], $_POST["serial"]);
+                $solicitud->set_nro_solicitud($nro_solicitud);
+                $solicitud->set_motivo($_POST["motivo"]);
+                $solicitud->set_cedula_solicitante($_POST["cedula"]);
+                $solicitud->set_id_equipo($_POST["serial"] ?: null);
+                $resultado = $solicitud->Transaccion(['peticion' => "registrar"]);
+
+                if ($resultado['bool']) {
+                    // Crear hoja de servicio asociada usando el nuevo método directo
+                    $codigoHoja = generarID("HS", $nro_solicitud);
+                    $id_tipo_servicio = $_POST["area"] ?? '1'; // Default a Soporte Técnico
+
+                    $peticionHoja = [
+                        'peticion' => 'crear',
+                        'codigo_hoja_servicio' => $codigoHoja,
+                        'nro_solicitud' => $nro_solicitud,
+                        'id_tipo_servicio' => $id_tipo_servicio
+                    ];
+
+                    // Asignar técnico si viene
+                    if (!empty($_POST["tecnico"]) && isset($_POST["tecnico"])) {
+                        $peticionHoja['cedula_tecnico'] = $_POST["tecnico"];
+                    }
+
+                    $resultHoja = $hojaServicio->Transaccion($peticionHoja);
+
+                    if ($resultHoja['resultado'] !== 'success') {
+                        throw new Exception("Error al crear hoja de servicio: " . $resultHoja['mensaje']);
+                    }
+
+                    $response = [
+                        "resultado" => "success",
+                        "mensaje" => "Solicitud y hoja de servicio registradas correctamente",
+                        "nro_solicitud" => $nro_solicitud
+                    ];
+
+                    // Notificar al técnico si fue asignado
+                    if (!empty($_POST["tecnico"]) && isset($_POST["tecnico"])) {
+                        $msgTecnico = "Se le ha asignado una nueva solicitud (#{$nro_solicitud})";
+                        Notificar($msgTecnico, "Solicitud", $_POST["tecnico"]);
+                    }
+
+                } else {
+                    $response = ["resultado" => "error", "mensaje" => $resultado['mensaje']];
+                }
+            } catch (Exception $e) {
+                $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
             }
-        } catch (Exception $e) {
-            $response = ["resultado" => "error", "mensaje" => $e->getMessage()];
         }
+        } else {
+
+        }
+
+
+
         $response["equipo"] = $solicitud->get_id_equipo();
         echo json_encode($response);
         exit;
@@ -250,12 +261,12 @@ if (is_file("view/" . $page . ".php")) {
                             'codigo_hoja_servicio' => $consultaHoja['datos']['codigo_hoja_servicio'],
                             'id_tipo_servicio' => $_POST["area"]
                         ];
-                        
+
                         // Asignar técnico si viene
                         if (!empty($_POST["tecnico"])) {
                             $peticionActualizar['cedula_tecnico'] = $_POST["tecnico"];
                         }
-                        
+
                         $resultHoja = $hojaServicio->Transaccion($peticionActualizar);
                     } else {
                         // Si no existe, crear una nueva usando el método directo
@@ -266,12 +277,12 @@ if (is_file("view/" . $page . ".php")) {
                             'nro_solicitud' => $_POST["nroSolicitud"],
                             'id_tipo_servicio' => $_POST["area"]
                         ];
-                        
+
                         // Asignar técnico si viene
                         if (!empty($_POST["tecnico"])) {
                             $peticionCrear['cedula_tecnico'] = $_POST["tecnico"];
                         }
-                        
+
                         $resultHoja = $hojaServicio->Transaccion($peticionCrear);
                     }
 
@@ -290,7 +301,7 @@ if (is_file("view/" . $page . ".php")) {
                     $Nmsg = "Tienes un nuevo servicio con la solicitud: " . $_POST["nroSolicitud"];
                     Notificar($Nmsg, "Solicitud", $_POST["tecnico"]);
                 }
-                
+
                 $Nmsg = "Se esta atendiendo su solicitud nro: " . $_POST["nroSolicitud"] . " y se direccionó al Servicio de: " . $_POST["area"];
                 Notificar($Nmsg, "Solicitud", $_POST["cedula"]);
 

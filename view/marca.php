@@ -30,7 +30,7 @@
                   Registrar Marca
                 </button>
               <?php } ?>
-              <?php if (isset($permisos['marca']['restaurar']['estado']) && $permisos['marca']['restaurar']['estado'] == '1') { ?>
+              <?php if (isset($permisos['marca']['reactivar']['estado']) && $permisos['marca']['reactivar']['estado'] == '1') { ?>
                 <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                   Marcas Eliminadas <i class="fa-solid fa-recycle"></i>
                 </button>
