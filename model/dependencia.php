@@ -208,7 +208,7 @@ class Dependencia extends Conexion
                 $stm->execute();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
-                $dato['mensaje'] = "Se eliminó el dependencia exitosamente";
+                $dato['mensaje'] = "Se eliminó la dependencia exitosamente";
                 $this->conexion->commit();
             } catch (PDOException $e) {
                 $this->conexion->rollBack();
@@ -253,7 +253,35 @@ class Dependencia extends Conexion
         return $dato;
     }
 
-        private function ConsultarEliminados()
+    private function FiltradoDependencia()
+    {
+        $dato = [];
+
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $query = "SELECT DISTINCT d.id AS id_dependencia, d.nombre AS nombre_dependencia  FROM dependencia d
+            INNER JOIN ente e ON e.id = d.id_ente
+            INNER JOIN unidad u ON d.id = u.id_dependencia
+            WHERE e.id = :id_ente AND d.estatus = 1
+            AND u.estatus = 1";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":id_ente", $this->id_ente);
+            $stm->execute();
+            $dato['resultado'] = "consultar";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+    private function ConsultarEliminados()
     {
         $dato = [];
         try {
@@ -284,14 +312,12 @@ class Dependencia extends Conexion
         return $dato;
     }
 
-        private function Reactivar()
+    private function Reactivar()
     {
         $dato = [];
         try {
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
-
-
             $this->conexion->beginTransaction();
             $query = "UPDATE dependencia SET estatus = 1 WHERE id = :id";
             $stm = $this->conexion->prepare($query);
@@ -347,7 +373,7 @@ class Dependencia extends Conexion
 
             case 'consultar':
                 return $this->Consultar();
-            
+
             case 'consultar_eliminadas':
                 return $this->ConsultarEliminados();
 
@@ -362,6 +388,9 @@ class Dependencia extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
+
+            case 'filtrar':
+                return $this->FiltradoDependencia();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

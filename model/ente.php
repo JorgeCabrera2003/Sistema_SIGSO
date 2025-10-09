@@ -255,6 +255,34 @@ class Ente extends Conexion
         return $dato;
     }
 
+    private function FiltradoEnte()
+    {
+        $dato = [];
+
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+            $query = "SELECT DISTINCT e.nombre AS nombre_ente, e.id AS id_ente FROM ente e
+            INNER JOIN dependencia d ON e.id = d.id_ente
+            INNER JOIN unidad u ON d.id = u.id_dependencia
+            WHERE e.estatus = 1 AND d.estatus = 1
+            AND u.estatus = 1";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->execute();
+            $dato['resultado'] = "consultar";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
     private function ConsultarEliminados()
     {
         $dato = [];
@@ -334,6 +362,9 @@ class Ente extends Conexion
 
             case 'reactivar':
                 return $this->Reactivar();
+
+            case 'filtrar':
+                return $this->FiltradoEnte();
 
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";

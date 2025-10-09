@@ -7,6 +7,6 @@ const c_regex =
         'Cedula' => '/^[VE]{1}[-]{1}[0-9]{7,10}$/', //Para Cédula de Identidad
         'ID_Generado' => '/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/', //Para Validar IDs Generados por el SIstema
         'Telefono' => '/^[0-9]{4}[-]{1}[0-9]{7}$/', //Para validar NÚmero de Teléfono
-        'Correo' => '/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/' //Validar Correo Electrónico
+        'Correo' => '/^[-0-9A-Za-zç_]{6,36}[@]{1}[0-9a-zA-Z]{5,25}[.]{1}[com]{3}$/' //Validar Correo Electrónico
     ]
 ?>

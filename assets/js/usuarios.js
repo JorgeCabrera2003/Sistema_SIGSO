@@ -1,22 +1,24 @@
 $(document).ready(function () {
 
-	$(".toggle-password").click(function() {
-    const target = $(this).data("target");
-    const input = $(target);
-    const icon = $(this).find("i");
-    
-    if (input.attr("type") === "password") {
-      input.attr("type", "text");
-      icon.removeClass("fa-eye").addClass("fa-eye-slash");
-    } else {
-      input.attr("type", "password");
-      icon.removeClass("fa-eye-slash").addClass("fa-eye");
-    }
-  });
+	$(".toggle-password").click(function () {
+		const target = $(this).data("target");
+		const input = $(target);
+		const icon = $(this).find("i");
+
+		if (input.attr("type") === "password") {
+			input.attr("type", "text");
+			icon.removeClass("fa-eye").addClass("fa-eye-slash");
+		} else {
+			input.attr("type", "password");
+			icon.removeClass("fa-eye-slash").addClass("fa-eye");
+		}
+	});
 	consultar();
 	registrarEntrada();
 	capaValidar();
 	cargarRol();
+	cargarCargo();
+	cargarEnte();
 
 	$("#enviar").on("click", async function () {
 
@@ -32,6 +34,9 @@ $(document).ready(function () {
 						var datos = new FormData();
 						datos.append('registrar', 'registrar');
 						datos.append('nombre_usuario', $("#nombre_usuario").val());
+						datos.append('particle', $("#particle").val());
+						datos.append('cargo', $("#cargo").val());
+						datos.append('unidad', $("#unidad").val());
 						datos.append('cedula', $("#cedula").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('apellido', $("#apellido").val());
@@ -53,6 +58,9 @@ $(document).ready(function () {
 						datos.append('modificar', 'modificar');
 						datos.append('nombre_usuario', $("#nombre_usuario").val());
 						datos.append('cedula', $("#cedula").val());
+						datos.append('particle', $("#particle").val());
+						datos.append('cargo', $("#cargo").val());
+						datos.append('unidad', $("#unidad").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('apellido', $("#apellido").val());
 						datos.append('telefono', $("#telefono").val());
@@ -70,7 +78,7 @@ $(document).ready(function () {
 					/^[VE]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
 					"Cédula no válida, el formato es: V-**********"
 				)) {
-					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
+					confirmacion = await confirmarAccion("Se elimanrá un Usuario", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
@@ -111,6 +119,32 @@ function cargarRol() {
 	enviaAjax(datos);
 };
 
+function cargarCargo() {
+	var datos = new FormData();
+	datos.append('cargar_cargo', 'cargar_cargo');
+	enviaAjax(datos);
+};
+
+function cargarEnte() {
+	var datos = new FormData();
+	datos.append('cargar_ente', 'cargar_ente');
+	enviaAjax(datos);
+};
+
+function cargarDependencia(id) {
+	var datos = new FormData();
+	datos.append('id_ente', id);
+	datos.append('cargar_dependencia', 'cargar_dependencia');
+	enviaAjax(datos);
+};
+
+function cargarUnidad(id) {
+	var datos = new FormData();
+	datos.append('id_dependencia', id);
+	datos.append('cargar_unidad', 'cargar_unidad');
+	enviaAjax(datos);
+};
+
 async function enviaAjax(datos) {
 	return await $.ajax({
 		async: true,
@@ -146,6 +180,18 @@ async function enviaAjax(datos) {
 
 				} else if (lee.resultado == "cargar_rol") {
 					selectRol(lee.datos);
+
+				} else if (lee.resultado == "cargar_cargo") {
+					selectCargo(lee.datos);
+
+				} else if (lee.resultado == "cargar_ente") {
+					selectEnte(lee.datos);
+
+				} else if (lee.resultado == "cargar_dependencia") {
+					selectDependencia(lee.datos);
+
+				} else if (lee.resultado == "cargar_unidad") {
+					selectUnidad(lee.datos);
 
 				} else if (lee.resultado == "entrada") {
 
@@ -270,7 +316,38 @@ function capaValidar() {
 			$("#srclave").addClass("invalid-feedback");
 		}
 	});
+	
+		$("#ente").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sdependencia", "Debe seleccionar un Ente", 0);
+			$("#dependencia").empty();
+			$("#unidad").empty();
+			$("#dependencia").attr("disabled", true);
+			$("#unidad").attr("disabled", true);
+		} else {
+			estadoSelect(this, "sid_dependencia", "", 1);
+			cargarDependencia($(this).val());
+		}
+	})
 
+	$("#dependencia").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sdependencia", "Debe seleccionar una Dependencia", 0);
+			$("#unidad").empty();
+			$("#unidad").attr("disabled", true);
+		} else {
+			estadoSelect(this, "sid_dependencia", "", 1);
+			cargarUnidad($(this).val()); // <-- Esto carga el modal de unidad según la dependencia seleccionada
+		}
+	})
+		$("#unidad").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sunidad", "Debe seleccionar una Unidad", 0);
+
+		} else {
+			estadoSelect(this, "#sunidad", "", 1);
+		}
+	})
 }
 
 function validarenvio() {
@@ -297,7 +374,7 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El apellido debe tener de 4 a 45 carácteres");
 		return false;
 
-	} else if (validarKeyUp(/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"),
+	} else if (validarKeyUp(/^[-0-9A-Za-zç_]{6,36}[@]{1}[0-9a-zA-Z]{5,25}[.]{1}[com]{3}$/, $("#correo"), $("#scorreo"),
 		"") == 0) {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;
@@ -340,6 +417,89 @@ function selectRol(arreglo) {
 		$("#rol").append(
 			new Option('No Hay Cargos', 'default')
 		);
+	}
+}
+
+function selectCargo(arreglo) {
+	$("#cargo").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#cargo").attr('disabled', false);
+		$("#cargo").append(
+			new Option('Seleccione un Cargo', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#cargo").append(
+				new Option(item.nombre_cargo, item.id_cargo)
+			);
+		});
+	} else {
+		$("#cargo").append(
+			new Option('No Hay Cargos', 'default')
+		);
+
+		$("#cargo").attr('disabled', true);
+	}
+}
+
+function selectEnte(arreglo) {
+	$("#ente").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#ente").attr('disabled', false);
+
+		$("#ente").append(
+			new Option('Seleccione un Ente', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#ente").append(
+				new Option(item.nombre_ente, item.id_ente)
+			);
+		});
+	} else {
+		$("#ente").append(
+			new Option('No Hay Entes', 'default')
+		);
+		$("#ente").attr('disabled', false);
+	}
+}
+
+function selectDependencia(arreglo) {
+	$("#dependencia").empty();
+
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#dependencia").attr('disabled', false);
+		$("#dependencia").append(
+			new Option('Seleccione una Dependencia', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#dependencia").append(
+				new Option(item.nombre_dependencia, item.id_dependencia)
+			);
+		});
+	} else {
+		$("#dependencia").append(
+			new Option('No Hay Dependencias', 'default')
+		);
+		$("#dependencia").attr('disabled', true);
+	}
+}
+
+function selectUnidad(arreglo) {
+	$("#unidad").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#unidad").attr('disabled', false);
+		$("#unidad").append(
+			new Option('Seleccione una Unidad', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#unidad").append(
+				new Option(item.nombre_unidad, item.id_unidad)
+			);
+		});
+	} else {
+		$("#unidad").append(
+			new Option('No Hay Unidades', 'default')
+		);
+		$("#unidad").attr('disabled', true);
 	}
 }
 

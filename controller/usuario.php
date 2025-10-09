@@ -9,10 +9,18 @@ require_once "controller/utileria.php";
 require_once "model/usuario.php";
 require_once "model/empleado.php";
 require_once "model/rol.php";
+require_once "model/cargo.php";
+require_once "model/unidad.php";
+require_once "model/dependencia.php";
+require_once "model/ente.php";
 
 $usuario = new Usuario();
 $empleado = new Empleado();
 $rol = new Rol();
+$cargo = new Cargo();
+$unidad = new Unidad();
+$dependencia = new Dependencia();
+$ente = new Ente();
 
 $peticion = [];
 $peticion['peticion'] = "permiso";
@@ -51,32 +59,32 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre de Usuario no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			} else if (preg_match(c_regex['Cedula'], $_POST["cedula"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/", $_POST["nombre"]) == 0) {
+			} else if (preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,45}$/", $_POST["apellido"]) == 0) {
+			} else if (preg_match(c_regex['Nombre_NaturalCorto'], $_POST["apellido"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Apellido no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/", $_POST["correo"]) == 0) {
+			} else if (preg_match(c_regex['Correo'], $_POST["correo"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Correo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[0-9]{4}[-]{1}[0-9]{7}$/", $_POST["telefono"]) == 0) {
+			} else if (preg_match(c_regex['Telefono'], $_POST["telefono"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Teléfono no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if (preg_match("/^[0-9]{1,11}$/", $_POST["rol"]) == 0) {
+			} else if (preg_match(c_regex['ID_Generado'], $_POST["rol"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Rol no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -214,8 +222,8 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $usuario->Transaccion($peticion);
 
 				if ($json['estado'] == 1) {
-					
-					if($_POST["cedula"] == $_SESSION['user']['cedula']){
+
+					if ($_POST["cedula"] == $_SESSION['user']['cedula']) {
 						$_SESSION['user']['nombres'] == $_POST["nombre"];
 						$_SESSION['user']['apellidos'] == $_POST["apellido"];
 						$_SESSION['user']['telefono'] == $_POST["telefono"];
@@ -287,6 +295,41 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST['cargar_ente'])) {
+		$peticion["peticion"] = "filtrar";
+		$json = $ente->Transaccion($peticion);
+		$json["resultado"] = "cargar_ente";
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST['cargar_dependencia'])) {
+		$peticion["peticion"] = "filtrar";
+		$dependencia->set_id_ente($_POST['id_ente']);
+		$json = $dependencia->Transaccion($peticion);
+		$json["resultado"] = "cargar_dependencia";
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST['cargar_unidad'])) {
+		$peticion["peticion"] = "filtrar";
+		$unidad->set_id_dependencia($_POST['id_dependencia']);
+		$json = $unidad->Transaccion($peticion);
+		$json["resultado"] = "cargar_unidad";
+		echo json_encode($json);
+		exit;
+	}
+
+
+
+	if (isset($_POST['cargar_cargo'])) {
+		$peticion["peticion"] = "consultar";
+		$json = $cargo->Transaccion($peticion);
+		$json["resultado"] = "cargar_cargo";
+		echo json_encode($json);
+		exit;
+	}
 
 	if (isset($_POST["reporte"])) {
 
