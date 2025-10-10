@@ -28,7 +28,7 @@
                                 Registrar Bien
                             </button>
                             <?php } ?>
-                            <?php if(isset($permisos['bien']['restaurar']['estado']) && $permisos['bien']['restaurar']['estado'] == '1') {?>
+                            <?php if(isset($permisos['bien']['reactivar']['estado']) && $permisos['bien']['reactivar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Bienes Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
@@ -76,7 +76,7 @@
                                     <th>Marca</th>
                                     <th>Descripción</th>
                                     <th>Estado</th>
-                                    <th>Restaurar</th>
+                                    <th>Reactivar</th>
                                 </tr>
                             </thead>
                             <tbody>

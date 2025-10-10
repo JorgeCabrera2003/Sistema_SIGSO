@@ -444,7 +444,7 @@ class Bien extends Conexion
         return $dato;
     }
 
-    private function Restaurar()
+    private function Reactivar()
     {
         $dato = [];
         try {
@@ -458,7 +458,7 @@ class Bien extends Conexion
             $stm->bindParam(":codigo", $this->codigo_bien);
             $stm->execute();
             $this->conex->commit();
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Bien restaurado exitosamente";
 
@@ -573,8 +573,8 @@ class Bien extends Conexion
             case 'eliminar':
                 return $this->Eliminar();
 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->Reactivar();
 
             case 'consultar_bienes_empleado':
                 return $this->ConsultarPorEmpleado($peticion['cedula_empleado']);

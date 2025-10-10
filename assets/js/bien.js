@@ -1,4 +1,4 @@
-// bien.js - Versión Mejorada
+// bien.js - Versión Mejorada y Corregida
 
 // Elementos del formulario para Bien
 const elementosBien = {
@@ -17,7 +17,7 @@ const elementosBien = {
 // Función para manejar el cambio de estado del formulario
 function manejarCambioEstadoBien(formularioValido) {
     const accion = $("#enviar").text();
-    
+
     if (accion === "Eliminar") {
         // Para eliminar solo validamos el código del bien
         const idValido = $("#codigo_bien").length && $("#codigo_bien").hasClass("is-valid");
@@ -35,8 +35,10 @@ $(document).ready(function () {
     cargarDatosIniciales();
 
     // Inicializar sistema de validación con callback
-    SistemaValidacion.inicializar(elementosBien, manejarCambioEstadoBien);
-    
+    if (typeof SistemaValidacion !== 'undefined') {
+        SistemaValidacion.inicializar(elementosBien, manejarCambioEstadoBien);
+    }
+
     // Validar estado inicial del formulario
     manejarCambioEstadoBien(false);
 
@@ -55,7 +57,7 @@ $(document).ready(function () {
         $("#carruselEquipo").hide();
         consultarUnidadEquipo();
         $("#modal1").modal("show");
-        
+
         // Deshabilitar botón inicialmente
         $('#enviar').prop('disabled', true);
     });
@@ -66,8 +68,9 @@ $(document).ready(function () {
         $("#carruselEquipo").hide();
         $("#checkRegistrarEquipo").prop("checked", false);
         // Limpia campos del carrusel
-        $("#serial_equipo").val('');
-        $("#tipo_equipo").val('');
+        $("#serial_equipo").val('').prop('disabled', true);
+        $("#tipo_equipo").val('').prop('disabled', true);
+        $("#id_unidad_equipo").val('default').prop('disabled', true).trigger('change');
     }
 
     // Detectar cambio de acción en el modal
@@ -81,19 +84,20 @@ $(document).ready(function () {
     $("#checkRegistrarEquipo").on("change", function () {
         if ($(this).is(":checked")) {
             $("#carruselEquipo").show();
-            // Habilitar validación para campos de equipo
+            // Habilitar campos de equipo
             $('#serial_equipo, #tipo_equipo, #id_unidad_equipo').prop('disabled', false);
         } else {
             $("#carruselEquipo").hide();
-            // Limpia campos del carrusel y deshabilita validación
-            $("#serial_equipo").val('').removeClass('is-valid is-invalid');
-            $("#tipo_equipo").val('').removeClass('is-valid is-invalid');
-            $("#id_unidad_equipo").val('default').removeClass('is-valid is-invalid').trigger('change');
-            $('#serial_equipo, #tipo_equipo, #id_unidad_equipo').prop('disabled', true);
+            // Limpia campos del carrusel y deshabilita
+            $("#serial_equipo").val('').prop('disabled', true);
+            $("#tipo_equipo").val('').prop('disabled', true);
+            $("#id_unidad_equipo").val('default').prop('disabled', true).trigger('change');
         }
         // Re-validar formulario completo
         setTimeout(() => {
-            SistemaValidacion.validarFormulario(elementosBien);
+            if (typeof SistemaValidacion !== 'undefined') {
+                SistemaValidacion.validarFormulario(elementosBien);
+            }
         }, 100);
     });
 
@@ -103,7 +107,7 @@ $(document).ready(function () {
 
         switch ($(this).text()) {
             case "Registrar":
-                if (SistemaValidacion.validarFormulario(elementosBien)) {
+                if (typeof SistemaValidacion !== 'undefined' && SistemaValidacion.validarFormulario(elementosBien)) {
                     confirmacion = await confirmarAccion("Se registrará un Bien", "¿Está seguro de realizar la acción?", "question");
                     if (confirmacion) {
                         enviarFormulario('registrar');
@@ -115,7 +119,7 @@ $(document).ready(function () {
                 break;
 
             case "Modificar":
-                if (SistemaValidacion.validarFormulario(elementosBien)) {
+                if (typeof SistemaValidacion !== 'undefined' && SistemaValidacion.validarFormulario(elementosBien)) {
                     confirmacion = await confirmarAccion("Se modificará un Bien", "¿Está seguro de realizar la acción?", "question");
                     if (confirmacion) {
                         enviarFormulario('modificar');
@@ -128,7 +132,7 @@ $(document).ready(function () {
 
             case "Eliminar":
                 // Validar solo el código para eliminar
-                if ($("#codigo_bien").length && SistemaValidacion.validarCampo.call(document.getElementById('codigo_bien'))) {
+                if ($("#codigo_bien").length && $("#codigo_bien").hasClass("is-valid")) {
                     confirmacion = await confirmarAccion("Se eliminará un Bien", "¿Está seguro de realizar la acción?", "warning");
                     if (confirmacion) {
                         enviarFormulario('eliminar');
@@ -159,14 +163,18 @@ $(document).ready(function () {
 
     // Limpia los campos y clases de validación al cerrar el modal
     $('#modal1').on('hidden.bs.modal', function () {
-        SistemaValidacion.limpiarValidacion(elementosBien);
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.limpiarValidacion(elementosBien);
+        }
         ocultarEquipoOpcional();
     });
 
     // Forzar validación inicial cuando se abre el modal
     $('#modal1').on('shown.bs.modal', function () {
         setTimeout(() => {
-            SistemaValidacion.validarFormulario(elementosBien);
+            if (typeof SistemaValidacion !== 'undefined') {
+                SistemaValidacion.validarFormulario(elementosBien);
+            }
         }, 100);
     });
 });
@@ -177,12 +185,13 @@ function inicializarSelect2() {
         width: '100%'
     };
 
-    $("#id_oficina").select2(select2Config);
-    $("#cedula_empleado").select2(select2Config);
-    $("#id_categoria").select2(select2Config);
-    $("#id_marca").select2(select2Config);
-    $("#estado").select2(select2Config);
-    $("#id_unidad_equipo").select2(select2Config);
+    // Solo inicializar Select2 si los elementos existen
+    if ($("#id_oficina").length) $("#id_oficina").select2(select2Config);
+    if ($("#cedula_empleado").length) $("#cedula_empleado").select2(select2Config);
+    if ($("#id_categoria").length) $("#id_categoria").select2(select2Config);
+    if ($("#id_marca").length) $("#id_marca").select2(select2Config);
+    if ($("#estado").length) $("#estado").select2(select2Config);
+    if ($("#id_unidad_equipo").length) $("#id_unidad_equipo").select2(select2Config);
 }
 
 function cargarDatosIniciales() {
@@ -222,15 +231,17 @@ function consultarEliminadas() {
     enviaAjax(datos);
 }
 
-async function restaurarBien(boton) {
-    const confirmacion = await confirmarAccion("¿Restaurar Bien?", "¿Está seguro que desea restaurar este bien?", "question");
+async function reactivarBien(boton) {
+    const confirmacion = await confirmarAccion("¿Reactivar Bien?", "¿Está seguro que desea reactivar este bien?", "question");
 
     if (confirmacion) {
         const linea = $(boton).closest('tr');
-        const codigo = $(linea).find('td:eq(1)').text();
+        const tabla = $('#tablaEliminados').DataTable();
+        const datosFila = tabla.row(linea).data();
+        const codigo = datosFila.codigo_bien; // Obtener desde los datos
         
         var datos = new FormData();
-        datos.append('restaurar', 'restaurar');
+        datos.append('reactivar', 'reactivar');
         datos.append('codigo_bien', codigo);
         enviaAjax(datos);
     }
@@ -239,7 +250,7 @@ async function restaurarBien(boton) {
 function enviarFormulario(accion) {
     const formData = new FormData();
     formData.append(accion, accion);
-    
+
     // Campos base del bien
     formData.append('codigo_bien', $("#codigo_bien").val());
     formData.append('id_categoria', $("#id_categoria").val());
@@ -271,11 +282,11 @@ function enviarFormulario(accion) {
         success: function (respuesta) {
             try {
                 var lee = JSON.parse(respuesta);
-                if (lee.resultado === accion) {
+                if (lee.resultado === accion || lee.estado === 1) {
                     $("#modal1").modal("hide");
                     mensajes("success", 10000, lee.mensaje, null);
                     consultar();
-                    
+
                     // Si también se registró el equipo, muestra mensaje
                     if (lee.equipo && lee.equipo.estado == 1) {
                         mensajes("success", 5000, "Equipo registrado correctamente", null);
@@ -299,7 +310,7 @@ function enviarFormulario(accion) {
             }
         },
         complete: function () {
-            // Restaurar el texto del botón según la acción
+            // Reactivar el texto del botón según la acción
             let buttonText = 'Registrar';
             if (accion === 'modificar') {
                 buttonText = 'Modificar';
@@ -320,13 +331,13 @@ function enviaAjax(datos) {
         data: datos,
         processData: false,
         cache: false,
-        beforeSend: function () { },
+        beforeSend: function () {},
         timeout: 10000,
         success: function (respuesta) {
             try {
                 var lee = JSON.parse(respuesta);
                 console.log(lee);
-                
+
                 switch (lee.resultado) {
                     case "registrar":
                     case "modificar":
@@ -335,63 +346,102 @@ function enviaAjax(datos) {
                         mensajes("success", 10000, lee.mensaje, null);
                         consultar();
                         break;
-                        
+
                     case "consultar":
                         crearDataTable(lee.datos);
                         break;
-                        
+
                     case "consultar_eliminadas":
                         TablaEliminados(lee.datos);
                         break;
-                        
+
                     case "consultar_tipos_bien":
                         selectTipoBien(lee.datos);
                         break;
-                        
+
                     case "consultar_marcas":
                         selectMarca(lee.datos);
                         break;
-                        
+
                     case "consultar_oficinas":
                         selectOficina(lee.datos);
                         break;
-                        
+
                     case "consultar_empleados":
                         selectEmpleado(lee.datos);
                         break;
-                        
-                    case "restaurar":
+
+                    case "consultar_unidades":
+                    case "consultar_unidad_equipo":
+                        selectUnidadEquipo(lee.datos);
+                        break;
+
+                    case "reactivar":
                         mensajes("success", null, "Bien restaurado", lee.mensaje);
                         consultarEliminadas();
                         consultar();
                         break;
-                        
+
                     case "permisos_modulo":
                         vistaPermiso(lee.permisos);
                         break;
-                        
+
                     case "entrada":
                         // No action needed
                         break;
-                        
+
+                    case "consultar_bienes_empleado":
+                        // Manejar bienes por empleado si es necesario
+                        console.log("Bienes del empleado:", lee.datos);
+                        break;
+
+                    case "filtrar_bien":
+                        // Manejar filtrado de bienes
+                        console.log("Bienes filtrados:", lee.datos);
+                        break;
+
+                    case "obtener_tipo_servicio":
+                        // Manejar tipo de servicio
+                        console.log("Tipo de servicio:", lee.id_tipo_servicio);
+                        break;
+
                     case "error":
                         mensajes("error", null, lee.mensaje, null);
                         break;
+
+                    default:
+                        console.warn("Caso no manejado en enviaAjax:", lee.resultado);
+                        break;
                 }
             } catch (e) {
-                mensajes("error", null, "Error en JSON Tipo: " + e.name + "\n" +
-                    "Mensaje: " + e.message + "\n" +
-                    "Posición: " + e.lineNumber);
+                // Si la respuesta es HTML en lugar de JSON, mostrar error
+                if (respuesta.includes('<!DOCTYPE html>') || respuesta.includes('<html') || respuesta.trim().startsWith('<!')) {
+                    mensajes("error", null, "Error del Servidor", "El servidor devolvió una página HTML en lugar de datos JSON. Verifique la configuración del controlador.");
+                    console.error("Respuesta HTML recibida:", respuesta.substring(0, 500));
+
+                    // Debug: mostrar qué se envió
+                    console.error("Datos enviados:", Array.from(datos.entries()));
+                } else {
+                    mensajes("error", null, "Error procesando respuesta",
+                        "Tipo: " + e.name + "\n" +
+                        "Mensaje: " + e.message + "\n" +
+                        "Respuesta: " + respuesta.substring(0, 200));
+                }
             }
         },
         error: function (request, status, err) {
             if (status == "timeout") {
                 mensajes("error", null, "Servidor ocupado", "Intente de nuevo");
             } else {
-                mensajes("error", null, "Ocurrió un error", "ERROR: <br/>" + request + status + err);
+                mensajes("error", null, "Error de conexión",
+                    "Estado: " + status + "\n" +
+                    "Error: " + err + "\n" +
+                    "Detalles: " + request.status + " - " + request.statusText);
             }
         },
-        complete: function () { },
+        complete: function () {
+            // Cualquier limpieza que necesites hacer después de la petición
+        },
     });
 }
 
@@ -402,16 +452,18 @@ function capaValidar() {
     });
 
     // Aplicar capitalización en tiempo real para descripción
-    $("#descripcion").on("input", function() {
+    $("#descripcion").on("input", function () {
         const valor = $(this).val();
-        if (valor.length === 1) {
+        if (valor && valor.length === 1) {
             $(this).val(valor.toUpperCase());
         }
     });
 
     // Aplicar capitalización al perder el foco
     $("#descripcion").on("blur", function () {
-        SistemaValidacion.autoCapitalizar($(this));
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.autoCapitalizar($(this));
+        }
     });
 
     // Validación con formato en tiempo real para serial_equipo
@@ -420,25 +472,31 @@ function capaValidar() {
     });
 
     // Aplicar capitalización en tiempo real para tipo_equipo
-    $("#tipo_equipo").on("input", function() {
+    $("#tipo_equipo").on("input", function () {
         const valor = $(this).val();
-        if (valor.length === 1) {
+        if (valor && valor.length === 1) {
             $(this).val(valor.toUpperCase());
         }
     });
 
     // Aplicar capitalización al perder el foco
     $("#tipo_equipo").on("blur", function () {
-        SistemaValidacion.autoCapitalizar($(this));
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.autoCapitalizar($(this));
+        }
     });
 
     // Sincronizar validación de Select2 con el sistema de validación
-    $('select').on('change', function() {
-        SistemaValidacion.validarCampo.call(this);
+    $('select').on('change', function () {
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.validarCampo.call(this);
+        }
     });
 }
 
 function selectTipoBien(arreglo) {
+    if (!$("#id_categoria").length) return;
+
     $("#id_categoria").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
         $("#id_categoria").append(
@@ -458,6 +516,8 @@ function selectTipoBien(arreglo) {
 }
 
 function selectMarca(arreglo) {
+    if (!$("#id_marca").length) return;
+
     $("#id_marca").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
         $("#id_marca").append(
@@ -477,6 +537,8 @@ function selectMarca(arreglo) {
 }
 
 function selectOficina(arreglo) {
+    if (!$("#id_oficina").length) return;
+
     $("#id_oficina").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
         $("#id_oficina").append(
@@ -496,6 +558,8 @@ function selectOficina(arreglo) {
 }
 
 function selectEmpleado(arreglo) {
+    if (!$("#cedula_empleado").length) return;
+
     $("#cedula_empleado").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
         $("#cedula_empleado").append(
@@ -506,7 +570,7 @@ function selectEmpleado(arreglo) {
         );
         arreglo.forEach(item => {
             $("#cedula_empleado").append(
-                new Option(item.nombre + " " + item.apellido, item.cedula)
+                new Option(item.nombre + " " + item.apellido + " - " + item.cedula, item.cedula)
             );
         });
     } else {
@@ -517,184 +581,19 @@ function selectEmpleado(arreglo) {
     $("#cedula_empleado").val('default').trigger('change');
 }
 
-function vistaPermiso(permisos = null) {
-    if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
-        $('.modificar').remove();
-        $('.eliminar').remove();
-        $('.restaurar').remove();
-    } else {
-        if (permisos['bien']['modificar']['estado'] == '0') {
-            $('.modificar').remove();
-        }
-        if (permisos['bien']['eliminar']['estado'] == '0') {
-            $('.eliminar').remove();
-        }
-        if (permisos['bien']['restaurar']['estado'] == '0') {
-            $('.restaurar').remove();
-        }
-    }
-}
-
-function crearDataTable(arreglo) {
-    if ($.fn.DataTable.isDataTable('#tabla1')) {
-        $('#tabla1').DataTable().destroy();
-    }
-    
-    $('#tabla1').DataTable({
-        data: arreglo,
-        columns: [
-            {
-                data: null, 
-                render: function (data, type, row, meta) {
-                    return meta.row + 1;
-                }
-            },
-            { data: 'codigo_bien' },
-            { data: 'nombre_categoria' },
-            { data: 'nombre_marca' },
-            { data: 'descripcion' },
-            { data: 'estado' },
-            { data: 'nombre_oficina' },
-            { data: 'empleado' },
-            {
-                data: null, 
-                render: function () {
-                    const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button onclick="rellenar(this, 1)" class="btn btn-danger eliminar" title="Eliminar">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>`;
-                    return botones;
-                }
-            }
-        ],
-        language: {
-            url: idiomaTabla,
-        },
-        order: [[1, 'asc']],
-        responsive: true
-    });
-    
-    ConsultarPermisos();
-}
-
-function TablaEliminados(arreglo) {
-    if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
-        $('#tablaEliminadas').DataTable().destroy();
-    }
-
-    $('#tablaEliminadas').DataTable({
-        data: arreglo,
-        columns: [
-            {
-                data: null, 
-                render: function (data, type, row, meta) {
-                    return meta.row + 1;
-                }
-            },
-            { data: 'codigo_bien' },
-            { data: 'nombre_categoria' },
-            { data: 'nombre_marca' },
-            { data: 'descripcion' },
-            { data: 'estado' },
-            {
-                data: null,
-                render: function () {
-                    return `<button onclick="restaurarBien(this)" class="btn btn-success restaurar" title="Restaurar">
-                        <i class="fa-solid fa-recycle"></i>
-                    </button>`;
-                }
-            }
-        ],
-        language: {
-            url: idiomaTabla,
-        },
-        order: [[1, 'asc']],
-        responsive: true
-    });
-    
-    ConsultarPermisos();
-}
-
-function limpia() {
-    SistemaValidacion.limpiarValidacion(elementosBien);
-    
-    $("#codigo_bien").val("");
-    $("#descripcion").val("");
-    $("#id_categoria").val("default").trigger('change');
-    $("#id_marca").val("default").trigger('change');
-    $("#estado").val("");
-    $("#id_oficina").val("default").trigger('change');
-    $("#cedula_empleado").val("default").trigger('change');
-
-    // Limpia campos del carrusel
-    $("#serial_equipo").val('');
-    $("#tipo_equipo").val('');
-    $("#id_unidad_equipo").val('default').trigger('change');
-
-    // Deshabilitar el botón al limpiar
-    $('#enviar').prop('disabled', true);
-}
-
-function rellenar(pos, accion) {
-    limpia();
-    
-    const linea = $(pos).closest('tr');
-    const tabla = $('#tabla1').DataTable();
-    const datosFila = tabla.row(linea).data();
-
-    // Usar los datos directamente de DataTable (más confiable)
-    $("#codigo_bien").val(datosFila.codigo_bien);
-    buscarSelect("#id_categoria", datosFila.nombre_categoria, "text");
-    buscarSelect("#id_marca", datosFila.nombre_marca, "text");
-    $("#descripcion").val(capitalizarTexto(datosFila.descripcion));
-    buscarSelect("#estado", datosFila.estado, "text");
-    buscarSelect("#id_oficina", datosFila.nombre_oficina, "text");
-    buscarSelect("#cedula_empleado", datosFila.empleado, "text");
-
-    if (accion == 0) {
-        $("#modalTitleId").text("Modificar Bien");
-        $("#enviar").text("Modificar");
-    } else {
-        $("#modalTitleId").text("Eliminar Bien");
-        $("#enviar").text("Eliminar");
-    }
-    
-    // Habilitar el botón inmediatamente para Modificar/Eliminar ya que los datos vienen pre-validados
-    $('#enviar').prop('disabled', false);
-    $("#modal1").modal("show");
-}
-
 function consultarUnidadEquipo() {
     var datos = new FormData();
-    datos.append('consultar_unidades', 'consultar_unidades');
-    $.ajax({
-        async: true,
-        url: "",
-        type: "POST",
-        contentType: false,
-        data: datos,
-        processData: false,
-        cache: false,
-        success: function (respuesta) {
-            try {
-                var lee = JSON.parse(respuesta);
-                if (lee.resultado == "consultar_unidades") {
-                    selectUnidadEquipo(lee.datos);
-                }
-            } catch (e) { 
-                console.error("Error al cargar unidades:", e);
-            }
-        }
-    });
+    datos.append('consultar_unidad_equipo', 'consultar_unidad_equipo');
+    enviaAjax(datos);
 }
 
 function selectUnidadEquipo(arreglo) {
+    if (!$("#id_unidad_equipo").length) return;
+
     $("#id_unidad_equipo").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
         $("#id_unidad_equipo").append(
-            new Option('Seleccione una unidad', 'default')
+            new Option('Seleccione una Unidad', 'default')
         );
         arreglo.forEach(item => {
             $("#id_unidad_equipo").append(
@@ -703,32 +602,296 @@ function selectUnidadEquipo(arreglo) {
         });
     } else {
         $("#id_unidad_equipo").append(
-            new Option('No hay unidades', 'default')
+            new Option('No Hay Unidades', 'default')
         );
     }
     $("#id_unidad_equipo").val('default').trigger('change');
 }
 
-function ConsultarPermisos() {
-    var datos = new FormData();
-    datos.append('permisos', 'permisos');
-    $.ajax({
-        async: true,
-        url: "",
-        type: "POST",
-        contentType: false,
-        data: datos,
-        processData: false,
-        cache: false,
-        success: function (respuesta) {
-            try {
-                var lee = JSON.parse(respuesta);
-                if (lee.resultado == "permisos_modulo") {
-                    vistaPermiso(lee.permisos);
+function vistaPermiso(permisos) {
+    try {
+        console.log("Permisos recibidos:", permisos);
+
+        // Verificar que permisos existe y tiene la propiedad estado
+        if (!permisos || typeof permisos.estado === 'undefined') {
+            console.error("Permisos no definidos o sin propiedad estado:", permisos);
+            return;
+        }
+
+        const estado = permisos.estado;
+        console.log("Estado de permisos:", estado);
+
+        // Mostrar/ocultar botones según permisos
+        if (estado === 1) {
+            $("#btn-registrar").show();
+            $("#btn-consultar-eliminados").show();
+        } else {
+            $("#btn-registrar").hide();
+            $("#btn-consultar-eliminados").hide();
+        }
+
+        // Manejar permisos específicos
+        if (permisos.registrar === 1) {
+            $("#btn-registrar").show();
+        } else {
+            $("#btn-registrar").hide();
+        }
+
+        if (permisos.eliminados === 1) {
+            $("#btn-consultar-eliminados").show();
+        } else {
+            $("#btn-consultar-eliminados").hide();
+        }
+
+    } catch (error) {
+        console.error("Error al cargar permisos:", error);
+    }
+}
+
+function limpia() {
+    // Limpiar campos del formulario
+    $("#codigo_bien").val('');
+    $("#id_categoria").val('default').trigger('change');
+    $("#id_marca").val('default').trigger('change');
+    $("#descripcion").val('');
+    $("#estado").val('default').trigger('change');
+    $("#id_oficina").val('default').trigger('change');
+    $("#cedula_empleado").val('default').trigger('change');
+    $("#serial_equipo").val('');
+    $("#tipo_equipo").val('');
+    $("#id_unidad_equipo").val('default').trigger('change');
+
+    // Limpiar validación
+    if (typeof SistemaValidacion !== 'undefined') {
+        SistemaValidacion.limpiarValidacion(elementosBien);
+    }
+
+    // Ocultar sección de equipo
+    $("#row-registro-equipo").hide();
+    $("#carruselEquipo").hide();
+    $("#checkRegistrarEquipo").prop("checked", false);
+}
+
+function crearDataTable(arreglo) {
+    if ($.fn.DataTable.isDataTable('#tabla1')) {
+        $('#tabla1').DataTable().destroy();
+    }
+
+    $('#tabla1').DataTable({
+        data: arreglo,
+        columns: [
+            {
+                data: null,
+                render: function (data, type, row, meta) {
+                    return meta.row + 1;
                 }
-            } catch (e) { 
-                console.error("Error al cargar permisos:", e);
+            },
+            {
+                data: 'codigo_bien',
+                
+            },
+            {data: 'nombre_categoria'},
+            {data: 'nombre_marca'},
+            {
+                data: 'descripcion',
+                render: function (data) {
+                    return capitalizarTexto(data || '');
+                }
+            },
+            {data: 'estado'},
+            {data: 'nombre_oficina'},
+            {
+                data: 'empleado',
+                render: function (data, type, row) {
+                    return data || 'No asignado';
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar" title="Modificar">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button onclick="rellenar(this, 1)" class="btn btn-danger eliminar" title="Eliminar">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>`;
+                    return botones;
+                },
+                orderable: false
             }
+        ],
+        language: {
+            url: idiomaTabla,
+        },
+        order: [[2, 'asc']], // Ordenar por nombre_categoria (columna 2 ahora)
+        responsive: true
+    });
+
+    ConsultarPermisos();
+}
+
+function rellenar(pos, accion) {
+    limpia();
+
+    const linea = $(pos).closest('tr');
+    const tabla = $('#tabla1').DataTable();
+    const datosFila = tabla.row(linea).data();
+
+    // Usar los nombres de campo correctos
+    $("#codigo_bien").val(datosFila.codigo_bien); // El código está oculto pero disponible en los datos
+    buscarSelect("#id_categoria", datosFila.nombre_categoria, "text");
+    buscarSelect("#id_marca", datosFila.nombre_marca, "text");
+    $("#descripcion").val(capitalizarTexto(datosFila.descripcion));
+    buscarSelect("#estado", datosFila.estado, "text");
+    buscarSelect("#id_oficina", datosFila.nombre_oficina, "text");
+
+    // Usar 'empleado' en lugar de 'nombre_empleado'
+    if (datosFila.empleado && datosFila.empleado !== 'No asignado') {
+        buscarSelect("#cedula_empleado", datosFila.empleado, "text");
+    } else {
+        $("#cedula_empleado").val('').trigger('change');
+    }
+
+    if (accion == 0) {
+        $("#modalTitleId").text("Modificar Bien");
+        $("#enviar").text("Modificar");
+    } else {
+        $("#modalTitleId").text("Eliminar Bien");
+        $("#enviar").text("Eliminar");
+    }
+
+    $('#enviar').prop('disabled', false);
+    $("#modal1").modal("show");
+}
+
+function modificar(datos) {
+    limpia();
+    $("#modalTitleId").text("Modificar Bien");
+    $("#enviar").text("Modificar");
+    $("#codigo_bien").parent().parent().show();
+
+    // Llenar campos con los datos
+    $("#codigo_bien").val(datos.codigo_bien);
+    $("#descripcion").val(datos.descripcion);
+
+    // Seleccionar valores en los selects
+    buscarSelect("#id_categoria", datos.id_categoria, 'value');
+    buscarSelect("#id_marca", datos.id_marca, 'value');
+    buscarSelect("#estado", datos.estado, 'value');
+    buscarSelect("#id_oficina", datos.id_oficina, 'value');
+
+    if (datos.cedula_empleado) {
+        buscarSelect("#cedula_empleado", datos.cedula_empleado, 'value');
+    } else {
+        $("#cedula_empleado").val('').trigger('change');
+    }
+
+    // Ocultar sección de equipo para modificar
+    $("#row-registro-equipo").hide();
+    $("#carruselEquipo").hide();
+
+    $("#modal1").modal("show");
+
+    // Forzar validación inicial
+    setTimeout(() => {
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.validarFormulario(elementosBien);
+        }
+    }, 100);
+}
+
+function eliminar(datos) {
+    limpia();
+    $("#modalTitleId").text("Eliminar Bien");
+    $("#enviar").text("Eliminar");
+    $("#codigo_bien").parent().parent().show();
+
+    // Solo mostrar código del bien para eliminar
+    $("#codigo_bien").val(datos.codigo_bien);
+
+    // Deshabilitar todos los campos excepto el código
+    $("#id_categoria, #id_marca, #descripcion, #estado, #id_oficina, #cedula_empleado").prop('disabled', true);
+
+    // Ocultar sección de equipo
+    $("#row-registro-equipo").hide();
+    $("#carruselEquipo").hide();
+
+    $("#modal1").modal("show");
+
+    // Forzar validación inicial
+    setTimeout(() => {
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.validarFormulario(elementosBien);
+        }
+    }, 100);
+}
+
+function TablaEliminados(arreglo) {
+    if ($.fn.DataTable.isDataTable('#tablaEliminados')) {
+        $('#tablaEliminados').DataTable().destroy();
+    }
+
+    const tabla = $('#tablaEliminados').DataTable({
+        data: arreglo,
+        columns: [
+            { 
+                data: null,
+                defaultContent: '',
+                className: 'text-center'
+            },
+            { 
+                data: 'codigo_bien',
+                visible: false // Ocultar código del bien
+            },
+            { data: 'nombre_categoria' },
+            { data: 'nombre_marca' },
+            { 
+                data: 'descripcion',
+                render: function(data) {
+                    return capitalizarTexto(data || '');
+                }
+            },
+            { data: 'estado' },
+            { data: 'nombre_oficina' },
+            { 
+                data: 'nombre_empleado',
+                render: function(data) {
+                    return data || 'No asignado';
+                }
+            },
+            { 
+                data: null,
+                defaultContent: '<button class="btn btn-success btn-sm" title="Reactivar"><i class="bi bi-arrow-counterclockwise"></i></button>',
+                className: 'text-center',
+                orderable: false
+            }
+        ],
+        language: {
+            url: idiomaTabla
+        },
+        pageLength: 10,
+        responsive: true,
+        order: [[2, 'asc']], // Ordenar por nombre_categoria (columna 2 ahora)
+        createdRow: function (row, data, dataIndex) {
+            $(row).find('button').tooltip({
+                trigger: 'hover',
+                placement: 'top'
+            });
+        }
+    });
+
+    // Agregar números de fila
+    tabla.on('order.dt search.dt', function () {
+        tabla.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1;
+        });
+    }).draw();
+
+    // Evento para botón Reactivar
+    $('#tablaEliminados tbody').on('click', 'button.btn-success', function () {
+        const data = tabla.row($(this).parents('tr')).data();
+        if (data) {
+            reactivarBien(this);
         }
     });
 }

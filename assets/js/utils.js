@@ -14,7 +14,11 @@ const patrones = {
   postalCode: /^\d{5}$/,
   direccion: /^[0-9 a-zA-ZÀ-ÿ\s-./#]{10,100}$/,
   nombreEnte: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/,
-  responsable: /^[a-zA-ZÀ-ÿ\s-.]{4,65}$/
+  responsable: /^[a-zA-ZÀ-ÿ\s-.]{4,65}$/,
+  codigoBien: /^[0-9a-zA-Z\-]{3,20}$/,
+  descripcion: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.,]{3,100}$/,
+  serial: /^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/,
+  tipoEquipo: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/
 };
 
 // Sistema de Validación Reutilizable
@@ -25,12 +29,12 @@ const SistemaValidacion = {
     this.callbackCambioEstado = callbackCambioEstado;
 
     $.each(elements, function (key, element) {
-      if (element.length) {
+      if (element && element.length) {
         element.on('blur', SistemaValidacion.validarCampo);
         element.on('input', SistemaValidacion.validarCampo);
 
         // Aplicar autocapitalización a campos de texto
-        if (key === 'nombre' || key === 'responsable') {
+        if (key === 'descripcion' || key === 'tipo_equipo') {
           element.on('blur', function () {
             SistemaValidacion.autoCapitalizar($(this));
           });
@@ -42,71 +46,41 @@ const SistemaValidacion = {
   // Validar campo individual
   validarCampo: function () {
     const $campo = $(this);
-    const valor = $campo.val().trim();
+    const valor = $campo.val() ? $campo.val().trim() : '';
     const id = this.id;
     let esValido = true;
     let mensajeError = '';
 
     // Asignar patrones y mensajes según el campo
     switch (id) {
-      case 'nombre':
-        esValido = patrones.nombreEnte.test(valor);
-        mensajeError = 'El nombre del ente debe tener de 4 a 90 carácteres';
+      case 'codigo_bien':
+        esValido = patrones.codigoBien.test(valor);
+        mensajeError = 'El código del bien debe tener de 3 a 20 caracteres (letras, números y guiones)';
         break;
 
-      case 'responsable':
-        esValido = patrones.responsable.test(valor);
-        mensajeError = 'El nombre del responsable debe tener de 4 a 65 carácteres';
+      case 'descripcion':
+        esValido = patrones.descripcion.test(valor);
+        mensajeError = 'La descripción debe tener de 3 a 100 caracteres';
         break;
 
-      case 'telefono':
-        esValido = patrones.telefonoSimple.test(valor);
-        mensajeError = 'El número debe tener el siguiente formato: ****-*******';
+      case 'serial_equipo':
+        esValido = patrones.serial.test(valor);
+        mensajeError = 'El serial debe tener de 3 a 45 caracteres';
         break;
 
-      case 'direccion':
-        esValido = patrones.direccion.test(valor);
-        mensajeError = 'La dirección del Ente debe tener de 10 a 100 carácteres';
+      case 'tipo_equipo':
+        esValido = patrones.tipoEquipo.test(valor);
+        mensajeError = 'El tipo de equipo debe tener de 3 a 45 caracteres';
         break;
 
-      case 'tipo_ente':
-        esValido = valor !== "default" && valor !== "";
-        mensajeError = 'Debe seleccionar un tipo de ente';
-        break;
-
-      case 'id_ente':
-        esValido = patrones.letrasConNumeros.test(valor);
-        mensajeError = 'El ID debe contener solo letras y números';
-        break;
-
-      case 'nombre_cargo':
-        esValido = patrones.letras.test(valor) && valor.length >= 3 && valor.length <= 45;
-        mensajeError = 'El nombre del cargo debe tener de 3 a 45 caracteres (solo letras)';
-        break;
-
-      case 'id_cargo':
-        esValido = patrones.letrasConNumeros.test(valor);
-        mensajeError = 'El ID del cargo debe ser numérico';
-        break;
-
-      case 'nombre':
-        esValido = patrones.letrasConNumeros.test(valor) && valor.length >= 4 && valor.length <= 45;
-        mensajeError = 'El nombre de la unidad debe tener de 4 a 45 caracteres';
-        break;
-
-      case 'id_dependencia':
-        esValido = valor !== "default" && valor !== "";
-        mensajeError = 'Debe seleccionar una dependencia';
-        break;
-
-      case 'id_unidad':
-        esValido = patrones.letrasConNumeros.test(valor);
-        mensajeError = 'El ID de la unidad debe ser numérico';
-        break;
-        
-      case 'tipo_servicio':
-        esValido = valor !== "default" && valor !== "";
-        mensajeError = 'Debe seleccionar un tipo de servicio';
+      case 'id_categoria':
+      case 'id_marca':
+      case 'id_oficina':
+      case 'cedula_empleado':
+      case 'id_unidad_equipo':
+      case 'estado':
+        esValido = valor !== "default" && valor !== "" && valor !== null;
+        mensajeError = 'Debe seleccionar una opción válida';
         break;
 
       default:
@@ -134,9 +108,12 @@ const SistemaValidacion = {
     let esValido = true;
 
     $.each(this.elementos, function (key, elemento) {
-      if (elemento.length && elemento.attr('id') !== 'id_ente') {
-        if (elemento.hasClass('is-invalid') || !elemento.hasClass('is-valid')) {
-          esValido = false;
+      if (elemento && elemento.length) {
+        // Solo validar campos visibles y habilitados
+        if (elemento.is(':visible') && !elemento.prop('disabled')) {
+          if (elemento.hasClass('is-invalid') || (!elemento.hasClass('is-valid') && elemento.val() && elemento.val() !== "default")) {
+            esValido = false;
+          }
         }
       }
     });
@@ -146,11 +123,15 @@ const SistemaValidacion = {
 
   // Aplicar autocapitalización
   autoCapitalizar: function ($elemento) {
-    const valor = $elemento.val().trim();
+    const valor = $elemento.val() ? $elemento.val().trim() : '';
     if (valor) {
       const capitalizado = capitalizarTexto(valor);
       $elemento.val(capitalizado);
-      setTimeout(() => SistemaValidacion.validarCampo.call($elemento[0]), 100);
+      setTimeout(() => {
+        if ($elemento[0]) {
+          SistemaValidacion.validarCampo.call($elemento[0]);
+        }
+      }, 100);
     }
   },
 
@@ -177,7 +158,7 @@ const SistemaValidacion = {
     let esValido = true;
 
     $.each(elementos, function (key, elemento) {
-      if (elemento.length) {
+      if (elemento && elemento.length && elemento.is(':visible') && !elemento.prop('disabled')) {
         // Forzar validación de cada campo
         elemento.trigger('blur');
         if (elemento.hasClass('is-invalid') || !SistemaValidacion.validarCampo.call(elemento[0])) {
@@ -192,7 +173,7 @@ const SistemaValidacion = {
   // Limpiar validación de formulario
   limpiarValidacion: function (elementos) {
     $.each(elementos, function (key, elemento) {
-      if (elemento.length) {
+      if (elemento && elemento.length) {
         elemento.removeClass("is-valid is-invalid");
         const id = elemento.attr('id');
         const $feedback = $(`#s${id}`);
@@ -215,7 +196,8 @@ function validarKeyPress(er, e) {
 }
 
 function validarKeyUp(er, etiqueta, etiquetamensaje, mensaje) {
-  const a = er.test(etiqueta.val());
+  const valor = etiqueta.val() ? etiqueta.val().trim() : '';
+  const a = er.test(valor);
   if (a) {
     $(etiqueta).removeClass("is-invalid");
     $(etiqueta).addClass("is-valid")
@@ -319,14 +301,20 @@ async function ConsultarPermisos() {
 }
 
 async function buscarSelect(id_select, valor, opcion) {
+  if (!$(id_select).length) {
+    console.error("El selector " + id_select + " no existe");
+    return false;
+  }
+
   if (opcion === 'text') {
     let bool = false;
 
     $(`${id_select} option`).each(function () {
       if ($(this).text().trim() === valor.trim()) {
         $(this).prop('selected', true);
-        $(this).change();
+        $(id_select).trigger('change');
         bool = true;
+        return false; // break the loop
       }
     })
 
@@ -338,7 +326,8 @@ async function buscarSelect(id_select, valor, opcion) {
 
   } else if (opcion === 'value') {
     if ($(`${id_select} option[value="${valor}"]`).length > 0) {
-      $(`${id_select}`).val(`${valor}`).change();
+      $(`${id_select}`).val(`${valor}`).trigger('change');
+      return true;
     } else {
       console.error("El valor " + valor + " no se encuentra en el campo select.");
     }
@@ -346,20 +335,26 @@ async function buscarSelect(id_select, valor, opcion) {
   } else {
     console.error("Opcion no Válida: " + opcion + "")
   }
-  return true;
+  return false;
 }
 
 function selectEdificio(arreglo) {
+  if (!$("#id_edificio").length) return;
+  
   $("#id_edificio").empty();
-  $("#id_edificio").append(new Option('Seleccione un Edificio', null));
+  $("#id_edificio").append(new Option('Seleccione un Edificio', 'default'));
 
-  arreglo.forEach(item => {
-    $("#id_edificio").append(new Option(item.nombre, item.id_edificio));
-  });
+  if (Array.isArray(arreglo)) {
+    arreglo.forEach(item => {
+      $("#id_edificio").append(new Option(item.nombre, item.id_edificio));
+    });
+  }
 }
 
 // Funciones de formato
 function formatearTelefono($input) {
+  if (!$input.length) return;
+  
   let numeros = $input.val().replace(/\D/g, '');
   numeros = numeros.substring(0, 10);
 
@@ -373,6 +368,8 @@ function formatearTelefono($input) {
 }
 
 function formatearTelefonoSimple($input) {
+  if (!$input.length) return;
+  
   let numeros = $input.val().replace(/\D/g, '');
 
   if (numeros.length > 4) {
