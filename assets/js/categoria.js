@@ -85,8 +85,8 @@ function consultarTipoServicio() {
 	enviaAjax(datos);
 }
 
-function enviaAjax(datos) {
-	$.ajax({
+async function enviaAjax(datos) {
+	return $.ajax({
 		async: true,
 		url: "",
 		type: "POST",
@@ -122,9 +122,6 @@ function enviaAjax(datos) {
 					$("#modal1").modal("hide");
 					mensajes("success", 10000, lee.mensaje, null);
 					consultar();
-
-				} else if (lee.resultado == "permisos_modulo") {
-					vistaPermiso(lee.permisos);
 
 				} else if (lee.resultado == "consultar_tipoServicio") {
 					selectTipoServicio(lee.datos);
@@ -185,31 +182,13 @@ function validarenvio() {
 	return true;
 }
 
-function vistaPermiso(permisos = null) {
 
-	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+async function crearDataTable(arreglo) {
 
-		$('.modificar').remove();
-		$('.eliminar').remove();
-		$('.restaurar').remove();
+	json = await ConsultarPermisos();
+	json = JSON.parse(json);
+	console.log(json.permisos.categoria);
 
-	} else {
-
-		if (permisos['categoria']['modificar']['estado'] == '0') {
-			$('.modificar').remove();
-		}
-
-		if (permisos['categoria']['eliminar']['estado'] == '0') {
-			$('.eliminar').remove();
-		}
-
-		if (permisos['categoria']['restaurar']['estado'] == '0') {
-			$('.restaurar').remove();
-		}
-	}
-};
-
-function crearDataTable(arreglo) {
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
@@ -233,19 +212,36 @@ function crearDataTable(arreglo) {
 			},
 			{
 				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
-					return botones;
+					const html = [];
+
+					if (Array.isArray(json) || Object.keys(json).length == 0 || json == null) {
+					} else {
+						if (json.permisos.categoria.modificar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 0)" title="Modificar" class="btn btn-update">
+                    					<i class="fa-solid fa-pen-to-square"></i>
+                						</button>`);
+						}
+
+						if (json.permisos.categoria.eliminar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 1)" title="Eliminar" class="btn btn-danger">
+											<i class="fa-solid fa-trash"></i>
+										</button>`);
+						}
+					}
+					return html.join();
 				}
 			}],
 		language: {
 			url: idiomaTabla,
 		}
 	});
-	ConsultarPermisos();
 }
 
-function iniciarTablaEliminadas(arreglo) {
+async function iniciarTablaEliminadas(arreglo) {
+	json = await ConsultarPermisos();
+	json = JSON.parse(json);
+	console.log(json.permisos.categoria);
+
 	if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
 		$('#tablaEliminadas').DataTable().destroy();
 	}
@@ -270,9 +266,18 @@ function iniciarTablaEliminadas(arreglo) {
 			{
 				data: null,
 				render: function () {
-					return `<button onclick="restaurarTipoBien(this)" class="btn btn-success restaurar">
+					const html = [];
+
+					if (Array.isArray(json) || Object.keys(json).length == 0 || json == null) {
+
+					} else {
+						if (json.permisos.categoria.reactivar.estado == '1') {
+							html.push(`<button onclick="restaurarTipoBien(this)" class="btn btn-success restaurar">
                             <i class="fa-solid fa-recycle"></i>
-                            </button>`;
+                            </button>`);
+						}
+					}
+					return html.join();
 				}
 			}
 		],
@@ -280,23 +285,29 @@ function iniciarTablaEliminadas(arreglo) {
 			url: idiomaTabla,
 		}
 	});
-	ConsultarPermisos();
 }
 
 function selectTipoServicio(arreglo) {
 	$("#tipo_servicio").empty();
-
-	$("#tipo_servicio").append(
-		new Option('Seleccione un Tipo de Servicio', 'default')
-	);
-	$("#tipo_servicio").append(
-		new Option('No asignar Servicio', 'none')
-	);
-	arreglo.forEach(item => {
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#tipo_servicio").attr('disabled', false);
 		$("#tipo_servicio").append(
-			new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
+			new Option('Seleccione un Tipo de Servicio', 'default')
 		);
-	});
+		$("#tipo_servicio").append(
+			new Option('No asignar Servicio', 'none')
+		);
+		arreglo.forEach(item => {
+			$("#tipo_servicio").append(
+				new Option(item.nombre_tipo_servicio, item.id_tipo_servicio)
+			);
+		});
+	} else {
+		$("#tipo_servicio").append(
+			new Option('No hay Áreas Disponibles', 'none')
+		);
+		$("#tipo_servicio").attr('disabled', true);
+	}
 }
 
 function limpia() {

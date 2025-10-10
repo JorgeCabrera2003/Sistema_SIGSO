@@ -163,17 +163,23 @@ class Usuario extends Conexion
         return $dato;
     }
 
-    private function ModificarUsuario()
+    private function ModificarUsuario($cambioClave = false)
     {
         $dato = [];
         try {
+
+            if ($cambioClave) {
+                $string_clave = "clave = :clave";
+            } else {
+                $string_clave = "";
+            }
             $this->conexion = new Conexion("usuario");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
             $query = "UPDATE usuario SET 
                 nombre_usuario = nombre_usuario, id_rol = :rol,
                 nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
-                correo = :correo, clave = :clave
+                correo = :correo, " . $string_clave . "
                 WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
 
             $stm = $this->conexion->prepare($query);
@@ -184,7 +190,10 @@ class Usuario extends Conexion
             $stm->bindParam(':apellidos', $this->apellidos);
             $stm->bindParam(':telefono', $this->telefono);
             $stm->bindParam(':correo', $this->correo);
-            $stm->bindParam(':clave', $this->clave);
+            if ($cambioClave) {
+                $stm->bindParam(':clave', $this->clave);
+            }
+
 
             $stm->execute();
             $this->conexion->commit();
@@ -555,7 +564,7 @@ class Usuario extends Conexion
 
             case 'modificar':
 
-                return $this->ModificarUsuario();
+                return $this->ModificarUsuario($peticion["clave_bool"]);
 
             case 'modificar_empleado':
 

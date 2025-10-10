@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(async function () {
 
 	$(".toggle-password").click(function () {
 		const target = $(this).data("target");
@@ -13,6 +13,11 @@ $(document).ready(function () {
 			icon.removeClass("fa-eye-slash").addClass("fa-eye");
 		}
 	});
+	datos_sesion = new FormData();
+	datos_sesion.append('traer_sesion', 'traer_sesion');
+	arraySesion = await enviaAjax(datos_sesion);
+	arraySesion = JSON.parse(arraySesion);
+
 	consultar();
 	registrarEntrada();
 	capaValidar();
@@ -29,47 +34,63 @@ $(document).ready(function () {
 
 			case "Registrar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
-					if (confirmacion) {
-						var datos = new FormData();
-						datos.append('registrar', 'registrar');
-						datos.append('nombre_usuario', $("#nombre_usuario").val());
-						datos.append('particle', $("#particle").val());
-						datos.append('cargo', $("#cargo").val());
-						datos.append('unidad', $("#unidad").val());
-						datos.append('cedula', $("#cedula").val());
-						datos.append('nombre', $("#nombre").val());
-						datos.append('apellido', $("#apellido").val());
-						datos.append('telefono', $("#telefono").val());
-						datos.append('correo', $("#correo").val());
-						datos.append('clave', $("#clave").val());
-						datos.append('rclave', $("#rclave").val());
-						datos.append('rol', $("#rol").val());
-						enviaAjax(datos);
-						envio = true;
+					if (validarClaves()) {
+						confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
+						if (confirmacion) {
+							var datos = new FormData();
+							datos.append('registrar', 'registrar');
+							datos.append('nombre_usuario', $("#nombre_usuario").val());
+							datos.append('particle', $("#particle").val());
+							datos.append('cargo', $("#cargo").val());
+							datos.append('unidad', $("#unidad").val());
+							datos.append('cedula', $("#cedula").val());
+							datos.append('nombre', $("#nombre").val());
+							datos.append('apellido', $("#apellido").val());
+							datos.append('telefono', $("#telefono").val());
+							datos.append('correo', $("#correo").val());
+							datos.append('clave', $("#clave").val());
+							datos.append('rclave', $("#rclave").val());
+							datos.append('rol', $("#rol").val());
+							enviaAjax(datos);
+							envio = true;
+						}
 					}
 				}
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se modificará un Usuario", "¿Está seguro de realizar la acción?", "question");
-					if (confirmacion) {
-						var datos = new FormData();
-						datos.append('modificar', 'modificar');
-						datos.append('nombre_usuario', $("#nombre_usuario").val());
-						datos.append('cedula', $("#cedula").val());
-						datos.append('particle', $("#particle").val());
-						datos.append('cargo', $("#cargo").val());
-						datos.append('unidad', $("#unidad").val());
-						datos.append('nombre', $("#nombre").val());
-						datos.append('apellido', $("#apellido").val());
-						datos.append('telefono', $("#telefono").val());
-						datos.append('correo', $("#correo").val());
+					var datos = new FormData();
+					var bool_clave
+					if (arraySesion.rol == "SUPERUSUARIO") {
+						bool_clave = validarClaves();
+						datos.append('bool_clave', true);
 						datos.append('clave', $("#clave").val());
 						datos.append('rclave', $("#rclave").val());
-						datos.append('rol', $("#rol").val());
-						enviaAjax(datos);
-						envio = true;
+					} else {
+						datos.append('bool_clave', false);
+						bool_clave = true
+					}
+					if (bool_clave) {
+
+						confirmacion = await confirmarAccion("Se modificará un Usuario", "¿Está seguro de realizar la acción?", "question");
+						if (confirmacion) {
+
+							datos.append('modificar', 'modificar');
+							datos.append('nombre_usuario', $("#nombre_usuario").val());
+							datos.append('cedula', $("#cedula").val());
+							datos.append('particle', $("#particle").val());
+							datos.append('cargo', $("#cargo").val());
+							datos.append('unidad', $("#unidad").val());
+							datos.append('nombre', $("#nombre").val());
+							datos.append('apellido', $("#apellido").val());
+							datos.append('telefono', $("#telefono").val());
+							datos.append('correo', $("#correo").val());
+							datos.append('clave', $("#clave").val());
+							datos.append('rclave', $("#rclave").val());
+							datos.append('rol', $("#rol").val());
+							enviaAjax(datos);
+							envio = true;
+						}
 					}
 				}
 				break;
@@ -107,6 +128,7 @@ $(document).ready(function () {
 
 	$("#btn-registrar").on("click", function () {
 		limpia();
+		$("#Fila5").removeClass("d-none")
 		$("#modalTitleId").text("Registrar Usuario");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
@@ -232,8 +254,8 @@ function capaValidar() {
 	});
 	$("#cedula").on("keyup", function () {
 		validarKeyUp(
-			/^[V]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
-			"Cédula no válida, el formato es: V-**********"
+			/^[0-9]{7,10}$/, $(this), $("#scedula"),
+			"Cédula no válida, el formato es: **********"
 		);
 	});
 
@@ -358,9 +380,9 @@ function validarenvio() {
 		return false;
 
 	} else if (validarKeyUp(
-		/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
+		/^[0-9]{7,10}$/, $("#cedula"), $("#scedula"),
 		"") == 0) {
-		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
+		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: **********");
 		return false;
 
 	} else if (validarKeyUp(
@@ -405,8 +427,8 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un Unidad");
 		return false;
 	}
-
 	return true;
+
 }
 function validarClaves() {
 	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/, $("#clave"), $("#sclave"),
@@ -648,8 +670,6 @@ async function rellenar(pos, accion, ci = null) {
 		}
 		buscarSelect('#cargo', info_empleado.empleado.arreglo.id_cargo, 'value');
 	}
-
-
 
 	$("#nombre_usuario").val($(linea).find("td:eq(0)").text());
 	buscarSelect('#rol', $(linea).find("td:eq(1)").text(), 'text');

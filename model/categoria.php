@@ -168,7 +168,7 @@ class Categoria extends Conexion
             $stm->execute();
             $dato['resultado'] = "modificar";
             $dato['estado'] = 1;
-            $dato['mensaje'] = "Se modificaron los datos dla categoria con éxito";
+            $dato['mensaje'] = "Se modificaron los datos de la categoria con éxito";
         } catch (PDOException $e) {
             $dato['estado'] = -1;
             $dato['resultado'] = "error";

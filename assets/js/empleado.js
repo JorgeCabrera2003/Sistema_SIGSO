@@ -3,7 +3,7 @@ $(document).ready(function () {
 	registrarEntrada();
 	capaValidar();
 	cargarCargo();
-	cargarDependencia();
+	cargarEnte()
 
 	$("#enviar").on("click", async function () {
 		var confirmacion = false;
@@ -16,6 +16,7 @@ $(document).ready(function () {
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('registrar', 'registrar');
+						datos.append('particle', $("#particle").val());
 						datos.append('cedula', $("#cedula").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('apellido', $("#apellido").val());
@@ -24,11 +25,6 @@ $(document).ready(function () {
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
 
-						if($("#check_user").prop('checked')){
-							datos.append('check_usuario', 1);
-						} else {
-							datos.append('check_usuario', 0);
-						}
 						enviaAjax(datos);
 					}
 				}
@@ -39,6 +35,7 @@ $(document).ready(function () {
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('modificar', 'modificar');
+						datos.append('particle', $("#particle").val());
 						datos.append('cedula', $("#cedula").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('apellido', $("#apellido").val());
@@ -51,11 +48,12 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[V]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
+				if (validarKeyUp(/^[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 1) {
 					confirmacion = await confirmarAccion('Se elminará Empleado', '¿Seguro de realizar la acción?', 'question');
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
+						datos.append('particle', $("#particle").val());
 						datos.append('cedula', $("#cedula").val());
 						enviaAjax(datos);
 					}
@@ -81,33 +79,30 @@ $(document).ready(function () {
 	$("#btn-registrar").on("click", function () { //<---- Evento del Boton Registrar
 		limpia();
 
-		$("#Fila1").prepend(`<div class="col-md-4" id="CheckUsuario">
-			<div class="form-check form-switch">
-              <input class="form-check-input permission-checkbox d-flex align-items-center" type="checkbox" role="switch"
-                id="check_user" maxlength="45">
-              <label for="check_user" class="form-label">Registrar como Usuario</label>
-              <span id="scheck_user"></span>
-            </div>
-          </div>`);
-
 		$("#modalTitleId").text("Registrar Empleado");
 		$("#enviar").text("Registrar");
 		$("#modal1").modal("show");
 	}); //<----Fin Evento del Boton Registrar
 });
 
-function cargarDependencia() {
+function cargarEnte() {
 	var datos = new FormData();
-	datos.append('cargar_dependencia', 'cargar_dependencia');
+	datos.append('cargar_ente', 'cargar_ente');
 	enviaAjax(datos);
 };
 
-async function cargarUnidad(parametro = 0) {
+async function cargarDependencia(id) {
 	var datos = new FormData();
+	datos.append('id_ente', id);
+	datos.append('cargar_dependencia', 'cargar_dependencia');
+	return await enviaAjax(datos);
+};
+
+async function cargarUnidad(id) {
+	var datos = new FormData();
+	datos.append('id_dependencia', id);
 	datos.append('cargar_unidad', 'cargar_unidad');
-	datos.append('id_dependencia', parametro);
-	await enviaAjax(datos);
-	return true;
+	return await enviaAjax(datos);
 };
 
 function cargarCargo() {
@@ -149,11 +144,14 @@ async function enviaAjax(datos) {
 					mensajes("success", 10000, lee.mensaje, null);
 					consultar();
 
-				} else if (lee.resultado == "cargar_unidad") {
-					selectUnidad(lee.datos);
+				} else if (lee.resultado == "cargar_ente") {
+					selectEnte(lee.datos);
 
 				} else if (lee.resultado == "cargar_dependencia") {
 					selectDependencia(lee.datos);
+
+				} else if (lee.resultado == "cargar_unidad") {
+					selectUnidad(lee.datos);
 
 				} else if (lee.resultado == "cargar_cargo") {
 					selectCargo(lee.datos);
@@ -204,31 +202,52 @@ function selectCargo(arreglo) {
 	}
 }
 
+function selectEnte(arreglo) {
+	$("#ente").empty();
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#ente").attr('disabled', false);
+
+		$("#ente").append(
+			new Option('Seleccione un Ente', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#ente").append(
+				new Option(item.nombre_ente, item.id_ente)
+			);
+		});
+	} else {
+		$("#ente").append(
+			new Option('No Hay Entes', 'default')
+		);
+		$("#ente").attr('disabled', false);
+	}
+}
+
 function selectDependencia(arreglo) {
 	$("#dependencia").empty();
-	if (Array.isArray(arreglo) && arreglo.length > 0) {
 
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#dependencia").attr('disabled', false);
 		$("#dependencia").append(
 			new Option('Seleccione una Dependencia', 'default')
 		);
 		arreglo.forEach(item => {
 			$("#dependencia").append(
-				new Option(item.ente + " - " + item.nombre, item.id)
+				new Option(item.nombre_dependencia, item.id_dependencia)
 			);
 		});
 	} else {
 		$("#dependencia").append(
 			new Option('No Hay Dependencias', 'default')
 		);
+		$("#dependencia").attr('disabled', true);
 	}
 }
 
-async function selectUnidad(arreglo) {
-	$("#unidad").removeClass("is-valid is-invalid");
-	$("#unidad").val("");
+function selectUnidad(arreglo) {
 	$("#unidad").empty();
 	if (Array.isArray(arreglo) && arreglo.length > 0) {
-
+		$("#unidad").attr('disabled', false);
 		$("#unidad").append(
 			new Option('Seleccione una Unidad', 'default')
 		);
@@ -239,11 +258,10 @@ async function selectUnidad(arreglo) {
 		});
 	} else {
 		$("#unidad").append(
-			new Option('No hay unidades en esta dependencia', 'default')
+			new Option('No Hay Unidades', 'default')
 		);
-		estadoSelect("#unidad", "#sunidad", "", 0);
+		$("#unidad").attr('disabled', true);
 	}
-	return true;
 }
 
 function capaValidar() {
@@ -307,24 +325,37 @@ function capaValidar() {
 		}
 	});
 
+	$("#ente").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sdependencia", "Debe seleccionar un Ente", 0);
+			$("#dependencia").empty();
+			$("#unidad").empty();
+			$("#dependencia").attr("disabled", true);
+			$("#unidad").attr("disabled", true);
+		} else {
+			estadoSelect(this, "sid_dependencia", "", 1);
+			cargarDependencia($(this).val());
+		}
+	})
+
 	$("#dependencia").on("change", function () {
 		if ($(this).val() == "default") {
-			estadoSelect(this, "#sdependencia", "Debe seleccionar una dependencia", 0);
-			estadoSelect("#unidad", "#sunidad", "", 0);
-			cargarUnidad(0);
+			estadoSelect(this, "#sdependencia", "Debe seleccionar una Dependencia", 0);
+			$("#unidad").empty();
+			$("#unidad").attr("disabled", true);
 		} else {
 			estadoSelect(this, "sid_dependencia", "", 1);
 			cargarUnidad($(this).val()); // <-- Esto carga el modal de unidad según la dependencia seleccionada
 		}
-	});
-
+	})
 	$("#unidad").on("change", function () {
 		if ($(this).val() == "default") {
-			estadoSelect(this, "#sunidad", "Debe seleccionar una unidad", 0);
+			estadoSelect(this, "#sunidad", "Debe seleccionar una Unidad", 0);
+
 		} else {
 			estadoSelect(this, "#sunidad", "", 1);
 		}
-	});
+	})
 
 }
 
@@ -350,14 +381,17 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "El formato del correo electrónico es: usuario@servidor.com");
 		return false;
 
-	} else if ($("#dependencia").val() == "default") {
-		mensajes("error", 10000, "Verifica", "Debe seleccionar una dependencia");
+	} else if ($("#ente").val() == "default") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Ente");
 		return false;
 
-	} else if ($("#unidad").val() == "default") {
-		mensajes("error", 10000, "Verifica", "Debe seleccionar una unidad");
+	} else if ($("#dependenia").val() == "default" && $("#dependenia").val() == null) {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Dependencia");
 		return false;
 
+	} else if ($("#unidad").val() == "default" && $("#unidad").val() == null) {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Unidad");
+		return false;
 	} else if ($("#cargo").val() == "default") {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un cargo");
 		return false;
@@ -418,7 +452,6 @@ function crearDataTable(arreglo) {
 
 
 function limpia() {
-	$("#CheckUsuario").remove();
 	$("#cedula").removeClass("is-valid is-invalid");
 	$("#cedula").val("");
 	$("#scedula").text("");
@@ -467,8 +500,30 @@ async function rellenar(pos, accion) {
 	limpia();
 	var espera;
 	linea = $(pos).closest('tr');
+	var info_empleado = null;
+	var cedula_completa = $(linea).find("td:eq(0)").text()
+	var cedula = cedula_completa.substring(2);
+	var letra_ci = cedula_completa.substring(0, 2);
 
-	$("#cedula").val($(linea).find("td:eq(0)").text());
+	datos = new FormData();
+	datos.append("buscar_usuario", null);
+	datos.append("cedula", cedula_completa);
+	info_empleado = await enviaAjax(datos);
+	info_empleado = JSON.parse(info_empleado);
+
+	if (info_empleado != null) {
+		if (info_empleado.unidad != null && info_empleado.dependencia && info_empleado.ente) {
+			buscarSelect('#ente', info_empleado.ente.arreglo.id, 'value');
+			await cargarDependencia(info_empleado.ente.arreglo.id);
+			buscarSelect('#dependencia', info_empleado.dependencia.arreglo.id, 'value');
+			await cargarUnidad(info_empleado.dependencia.arreglo.id);
+			buscarSelect('#unidad', info_empleado.unidad.arreglo.id_unidad, 'value');
+		}
+		buscarSelect('#cargo', info_empleado.empleado.arreglo.id_cargo, 'value');
+	}
+
+	buscarSelect('#particle', letra_ci, 'value');
+	$("#cedula").val(cedula);
 	$("#nombre").val($(linea).find("td:eq(1)").text());
 	$("#apellido").val($(linea).find("td:eq(2)").text());
 	$("#telefono").val($(linea).find("td:eq(3)").text());
