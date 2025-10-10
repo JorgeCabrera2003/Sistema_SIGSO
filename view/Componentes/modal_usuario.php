@@ -14,6 +14,7 @@
                 <option selected value="V-">V-</option>
                 <option value="E-">E-</option>
               </select>
+              <label for="cedula" class="form-label">Letra</label>
             </div>
           </div>
           <div class="col-sm-6">
@@ -97,7 +98,7 @@
             </div>
           </div>
         </div>
-        <div class="row justify-content-center mt-4" id="Fila4">
+        <div class="row justify-content-center mt-4" id="Fila5">
           <div class="col-md-6">
             <div class="form-floating mb-3">
               <div class="input-group">
@@ -125,7 +126,7 @@
             </div>
           </div>
         </div>
-        <div class="row justify-content-center" id="Fila5">
+        <div class="row justify-content-center" id="Fila6">
           <div class="col-md-6">
             <div class="form-floating mb-3">
               <input placeholder="Nombre de Usuario" class="form-control" name="nombre_usuario" type="text"

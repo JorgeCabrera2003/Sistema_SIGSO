@@ -52,7 +52,7 @@ $(document).ready(function () {
 				break;
 			case "Modificar":
 				if (validarenvio()) {
-					confirmacion = await confirmarAccion("Se registrará un Usuario", "¿Está seguro de realizar la acción?", "question");
+					confirmacion = await confirmarAccion("Se modificará un Usuario", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('modificar', 'modificar');
@@ -131,18 +131,18 @@ function cargarEnte() {
 	enviaAjax(datos);
 };
 
-function cargarDependencia(id) {
+async function cargarDependencia(id) {
 	var datos = new FormData();
 	datos.append('id_ente', id);
 	datos.append('cargar_dependencia', 'cargar_dependencia');
-	enviaAjax(datos);
+	return await enviaAjax(datos);
 };
 
-function cargarUnidad(id) {
+async function cargarUnidad(id) {
 	var datos = new FormData();
 	datos.append('id_dependencia', id);
 	datos.append('cargar_unidad', 'cargar_unidad');
-	enviaAjax(datos);
+	return await enviaAjax(datos);
 };
 
 async function enviaAjax(datos) {
@@ -316,8 +316,8 @@ function capaValidar() {
 			$("#srclave").addClass("invalid-feedback");
 		}
 	});
-	
-		$("#ente").on("change", function () {
+
+	$("#ente").on("change", function () {
 		if ($(this).val() == "default") {
 			estadoSelect(this, "#sdependencia", "Debe seleccionar un Ente", 0);
 			$("#dependencia").empty();
@@ -340,7 +340,7 @@ function capaValidar() {
 			cargarUnidad($(this).val()); // <-- Esto carga el modal de unidad según la dependencia seleccionada
 		}
 	})
-		$("#unidad").on("change", function () {
+	$("#unidad").on("change", function () {
 		if ($(this).val() == "default") {
 			estadoSelect(this, "#sunidad", "Debe seleccionar una Unidad", 0);
 
@@ -388,7 +388,28 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un rol");
 		return false;
 
-	} else if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/, $("#clave"), $("#sclave"),
+
+	} else if ($("#cargo").val() == "default") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Cargo");
+		return false;
+
+	} else if ($("#ente").val() == "default") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Ente");
+		return false;
+
+	} else if ($("#dependenia").val() == "default" && $("#dependenia").val() == null) {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Dependencia");
+		return false;
+
+	} else if ($("#unidad").val() == "default" && $("#unidad").val() == null) {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Unidad");
+		return false;
+	}
+
+	return true;
+}
+function validarClaves() {
+	if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]{8,45}$/, $("#clave"), $("#sclave"),
 		"") == 0) {
 		mensajes("error", 10000, "Verifica", "La clave debe tener mínimo 8 caracteres");
 		return false;
@@ -396,7 +417,6 @@ function validarenvio() {
 	} else if ($("#rclave").val() != $("#clave").val()) {
 		mensajes("error", 10000, "Verifica", "La clave no coincide");
 		return false;
-
 	}
 	return true;
 }
@@ -503,8 +523,11 @@ function selectUnidad(arreglo) {
 	}
 }
 
-function crearDataTable(arreglo) {
+async function crearDataTable(arreglo) {
 
+	json = await ConsultarPermisos();
+	arrayPermiso = JSON.parse(json);
+	console.log(arrayPermiso.permisos.usuario.modificar);
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
@@ -520,10 +543,24 @@ function crearDataTable(arreglo) {
 			{ data: 'telefono' },
 			{ data: 'correo' },
 			{
-				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" title="Modificar" class="btn btn-update"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" title="Eliminar" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>`;
-					return botones;
+				data: null, render: function (row) {
+					const html = [];
+
+					if (Array.isArray(arrayPermiso) || Object.keys(arrayPermiso).length == 0 || arrayPermiso == null) {
+					} else {
+						if (arrayPermiso.permisos.usuario.modificar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 0, '${row.cedula}')" title="Modificar" class="btn btn-update">
+                    					<i class="fa-solid fa-pen-to-square"></i>
+                						</button>`);
+						}
+
+						if (arrayPermiso.permisos.usuario.eliminar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 1, '${row.cedula}')" title="Eliminar" class="btn btn-danger">
+											<i class="fa-solid fa-trash"></i>
+										</button>`);
+						}
+					}
+					return html.join();
 				}
 			}
 		],
@@ -566,14 +603,58 @@ function limpia() {
 	$("#rclave").removeClass("is-valid is-invalid");
 	$("#rclave").val("");
 	$("#srclave").text("");
+	$("#rol").val("default").prop("disabled", false);
+	$("#ente").val("default").prop("disabled", false);
+	$("#cargo").val("default").prop("disabled", false);
+	$("#unidad").attr('disabled', true);
+	$("#dependencia").attr('disabled', true);
 
+	$("#unidad").empty();
+	$("#dependencia").empty();
 }
-async function rellenar(pos, accion) {
+async function rellenar(pos, accion, ci = null) {
 	limpia();
+
+	datos_sesion = new FormData();
+	datos_sesion.append('traer_sesion', 'traer_sesion');
+	arraySesion = await enviaAjax(datos_sesion);
+	arraySesion = JSON.parse(arraySesion);
+	console.log(arraySesion);
+	if (arraySesion.rol == "SUPERUSUARIO") {
+		$("#Fila5").removeClass("d-none")
+	} else {
+		$("#Fila5").addClass("d-none")
+	}
+
 	linea = $(pos).closest('tr');
+	var info_empleado = null;
+	var cedula_completa = $(linea).find("td:eq(2)").text()
+	var cedula = cedula_completa.substring(2);
+	var letra_ci = cedula_completa.substring(0, 2);
+	if (ci != null) {
+		datos = new FormData();
+		datos.append("buscar_usuario", null);
+		datos.append("cedula", ci);
+		json = await enviaAjax(datos);
+		info_empleado = JSON.parse(json);
+	}
+	if (info_empleado != null) {
+		if (info_empleado.unidad != null && info_empleado.dependencia && info_empleado.ente) {
+			buscarSelect('#ente', info_empleado.ente.arreglo.id, 'value');
+			await cargarDependencia(info_empleado.ente.arreglo.id);
+			buscarSelect('#dependencia', info_empleado.dependencia.arreglo.id, 'value');
+			await cargarUnidad(info_empleado.dependencia.arreglo.id);
+			buscarSelect('#unidad', info_empleado.unidad.arreglo.id_unidad, 'value');
+		}
+		buscarSelect('#cargo', info_empleado.empleado.arreglo.id_cargo, 'value');
+	}
+
+
+
 	$("#nombre_usuario").val($(linea).find("td:eq(0)").text());
 	buscarSelect('#rol', $(linea).find("td:eq(1)").text(), 'text');
-	$("#cedula").val($(linea).find("td:eq(2)").text());
+	buscarSelect('#particle', letra_ci, 'value');
+	$("#cedula").val(cedula);
 	$("#nombre").val($(linea).find("td:eq(3)").text());
 	$("#apellido").val($(linea).find("td:eq(4)").text());
 	$("#telefono").val($(linea).find("td:eq(5)").text());

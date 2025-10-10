@@ -83,6 +83,7 @@ class Unidad extends Conexion
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $dato['bool'] = 1;
             } else {
+                $dato['arreglo'] = NULL;
                 $dato['bool'] = 0;
             }
             $this->conexion->commit();
@@ -90,6 +91,7 @@ class Unidad extends Conexion
         } catch (PDOException $e) {
             $this->rollBack();
             $dato['error'] = $e->getMessage();
+            $dato['bool'] = -1;
         }
         $this->Cerrar_Conexion($none, $stm);
         return $dato;
@@ -346,6 +348,9 @@ class Unidad extends Conexion
 
             case 'registrar':
                 return $this->Registrar();
+
+            case 'validar':
+                return $this->Validar();
 
             case 'consultar':
                 return $this->Consultar();
