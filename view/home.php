@@ -152,26 +152,26 @@
             <i class="fas fa-user text-muted"></i>
           </div>
           <div class="card-body">
-            <h2 class="total-balance mb-3"><?php echo $cantidadHojas['datos'][0]['Cantidad de hojas']; ?> Disponibles</h2>
+            <h2 class="total-balance mb-3"><?php echo $cantidadHojas['datos'][0]['Cantidad de hojas'] ?? 0; ?> Disponibles</h2>
             <p class="text-muted mb-4">
               Total de hojas procesadas
             </p>
             <div class="account-list">
               <div class="account-item d-flex justify-content-between mb-2">
                 <span class="account-name">Área con más hojas</span>
-                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Área con más hojas']; ?></span>
+                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Área con más hojas'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between mb-2">
                 <span class="account-name">Hojas activos</span>
-                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas activas']; ?></span>
+                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas activas'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between mb-2">
                 <span class="account-name">Hojas eliminadas</span>
-                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas eliminadas']; ?></span>
+                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas eliminadas'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between">
                 <span class="account-name">Hojas finalizadas</span>
-                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas finalizadas']; ?></span>
+                <span class="account-balance"><?php echo $cantidadHojas['datos'][0]['Hojas finalizadas'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between" style="width: 100%; height: 200px;">
                 <span class="account-name">Gráfico</span>

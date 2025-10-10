@@ -482,19 +482,31 @@ function enviaAjax(datos) {
     timeout: 10000,
     success: function (respuesta) {
       try {
-        const lee = JSON.parse(respuesta);
+        // Limpiar respuesta de posibles warnings de PHP
+        const respuestaLimpia = respuesta.replace(/<br \/>\s*<b>.*?<\/b><br \/>/g, '');
+        const lee = JSON.parse(respuestaLimpia);
+
         if (lee.resultado === "grafico") {
           datosGraficos = lee.datos;
 
-          // Renderiza todos los gráficos
-          renderGrafico('GraUsuario', tiposGraficos['GraUsuario'], datosGraficos['GraUsuario']);
-          renderGrafico('Graftecnicos', tiposGraficos['Graftecnicos'], datosGraficos['Graftecnicos']);
-          renderGrafico('miGrafico', tiposGraficos['miGrafico'], datosGraficos['miGrafico']);
-          renderGrafico('hojas', tiposGraficos['hojas'], datosGraficos['hojas']);
+          // Verificar que los datos existen antes de renderizar
+          if (datosGraficos['GraUsuario']) {
+            renderGrafico('GraUsuario', tiposGraficos['GraUsuario'], datosGraficos['GraUsuario']);
+          }
+          if (datosGraficos['Graftecnicos']) {
+            renderGrafico('Graftecnicos', tiposGraficos['Graftecnicos'], datosGraficos['Graftecnicos']);
+          }
+          if (datosGraficos['miGrafico']) {
+            renderGrafico('miGrafico', tiposGraficos['miGrafico'], datosGraficos['miGrafico']);
+          }
+          if (datosGraficos['hojas']) {
+            renderGrafico('hojas', tiposGraficos['hojas'], datosGraficos['hojas']);
+          }
         }
       } catch (e) {
+        console.error("Error procesando respuesta:", e);
+        console.log("Respuesta original:", respuesta);
         mensajes("error", null, "Error en JSON: " + e.message);
-        console.log(respuesta);
       }
     },
     error: function (request, status, err) {
