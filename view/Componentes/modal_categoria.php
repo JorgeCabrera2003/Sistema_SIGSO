@@ -8,14 +8,7 @@
             </div>
             <div class="modal-body">
                 <div class="row justify-content-center" id="Fila1">
-                    <div class="col-md-4">
-                        <div class="form-floating mb-3 mt-4">
-                            <input placeholder="" class="form-control" name="id_categoria" type="text" id="id_categoria"
-                                readonly>
-                            <span id="sid_categoria"></span>
-                            <label for="id_categoria" class="form-label">ID Categoría</label>
-                        </div>
-                    </div>
+                    <!-- Campo ID solo se mostrará para Modificar/Eliminar -->
                     <div class="col-md-6">
                         <div class="form-floating mb-3 mt-4">
                             <input placeholder="" class="form-control" name="nombre" type="text" id="nombre"

@@ -103,6 +103,11 @@ const SistemaValidacion = {
         esValido = patrones.letrasConNumeros.test(valor);
         mensajeError = 'El ID de la unidad debe ser numérico';
         break;
+        
+      case 'tipo_servicio':
+        esValido = valor !== "default" && valor !== "";
+        mensajeError = 'Debe seleccionar un tipo de servicio';
+        break;
 
       default:
         // Validación genérica para campos de texto
@@ -141,13 +146,13 @@ const SistemaValidacion = {
 
   // Aplicar autocapitalización
   autoCapitalizar: function ($elemento) {
-  const valor = $elemento.val().trim();
-  if (valor) {
-    const capitalizado = capitalizarTexto(valor);
-    $elemento.val(capitalizado);
-    setTimeout(() => SistemaValidacion.validarCampo.call($elemento[0]), 100);
-  }
-},
+    const valor = $elemento.val().trim();
+    if (valor) {
+      const capitalizado = capitalizarTexto(valor);
+      $elemento.val(capitalizado);
+      setTimeout(() => SistemaValidacion.validarCampo.call($elemento[0]), 100);
+    }
+  },
 
   // Aplicar estilos de validación
   aplicarEstilos: function ($elemento, esValido, mensajeError) {
@@ -380,19 +385,19 @@ function formatearTelefonoSimple($input) {
 // Funcion para capitalizar texto - VERSIÓN ROBUSTA
 function capitalizarTexto(texto) {
   if (!texto || typeof texto !== 'string') return texto;
-  
+
   return texto
     .toLowerCase()
     .split(/(\s+)/) // Mantener los espacios múltiples
     .map(segmento => {
       // Si es un espacio, mantenerlo tal cual
       if (/^\s+$/.test(segmento)) return segmento;
-      
+
       // Si es una palabra, capitalizar primera letra
       if (segmento.length > 0) {
         return segmento.charAt(0).toUpperCase() + segmento.slice(1);
       }
-      
+
       return segmento;
     })
     .join('');

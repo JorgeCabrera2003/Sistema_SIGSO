@@ -17,7 +17,7 @@ if (is_file("view/" . $page . ".php")) {
     $piso = new Piso();
 
     if (!isset($permisos['oficina']['ver']['estado']) || $permisos['oficina']['ver']['estado'] == "0") {
-        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Tipo de Bien";
+        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Oficina";
         Bitacora($msg, "Oficina");
         header('Location: ?page=home');
         exit;
@@ -33,29 +33,37 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         if (isset($permisos['oficina']['registrar']['estado']) && $permisos['oficina']['registrar']['estado'] == '1') {
-            if (!isset($_POST["nombre"]) || preg_match(C_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
+            // CORREGIDO: Usar c_regex en lugar de C_regex
+            if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Nombre de la Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-            } else if (!isset($_POST["id_piso"]) || preg_match(C_regex['ID_Generado'], $_POST["id_piso"]) == 0) {
+            } else if (!isset($_POST["id_piso"]) || preg_match(c_regex['ID_Generado'], $_POST["id_piso"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Piso no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
-                $oficina->set_id(generarID($_POST["nombre"], $_POST["id_piso"]));
-                $oficina->set_id_piso($_POST["id_piso"]);
-                $oficina->set_nombre($_POST["nombre"]);
-                $peticion["peticion"] = "registrar";
-                $json = $oficina->Transaccion($peticion);
-
-                if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva oficina";
-                    $msgN = "Se registró una Nueva Oficina";
-                    NotificarUsuarios($msgN, "Oficina", ['modulo' => 'OFICIN02320251001', 'accion' => 'ver']);
+                // CORREGIDO: Verificar que la función generarID exista
+                $id_oficina = generarID($_POST["nombre"], $_POST["id_piso"]);
+                if (!$id_oficina) {
+                    $json['resultado'] = "error";
+                    $json['mensaje'] = "Error al generar el ID de la oficina";
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar una nueva oficina";
+                    $oficina->set_id($id_oficina);
+                    $oficina->set_id_piso($_POST["id_piso"]);
+                    $oficina->set_nombre($_POST["nombre"]);
+                    $peticion["peticion"] = "registrar";
+                    $json = $oficina->Transaccion($peticion);
+
+                    if ($json['estado'] == 1) {
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró una nueva oficina";
+                        $msgN = "Se registró una Nueva Oficina";
+                        NotificarUsuarios($msgN, "Oficina", ['modulo' => 'OFICIN02320251001', 'accion' => 'ver']);
+                    } else {
+                        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar una nueva oficina";
+                    }
                 }
             }
         } else {
@@ -86,7 +94,7 @@ if (is_file("view/" . $page . ".php")) {
         if (isset($permisos['oficina']['reactivar']['estado']) && $permisos['oficina']['reactivar']['estado'] == '1') {
             if (!isset($_POST["id_oficina"]) || preg_match(c_regex['ID_Generado'], $_POST["id_oficina"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Id de la OFicina no válido";
+                $json['mensaje'] = "Error, Id de la Oficina no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
             } else {
