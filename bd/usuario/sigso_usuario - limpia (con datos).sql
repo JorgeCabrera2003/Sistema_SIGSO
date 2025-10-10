@@ -20,14 +20,15 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `sigso_usuario`
 --
-
+CREATE DATABASE IF NOT EXISTS `sigso_usuario` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `sigso_usuario`;
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `bitacora`
 --
 
-CREATE TABLE `bitacora` (
+CREATE TABLE IF NOT EXISTS `bitacora` (
   `id_bitacora` varchar(24) NOT NULL,
   `usuario` varchar(45) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT NULL,
   `modulo` varchar(45) NOT NULL,
@@ -100,7 +101,7 @@ INSERT INTO `bitacora` (`id_bitacora`, `usuario`, `modulo`, `accion_bitacora`, `
 -- Estructura de tabla para la tabla `modulo`
 --
 
-CREATE TABLE `modulo` (
+CREATE TABLE IF NOT EXISTS `modulo` (
   `id_modulo` varchar(24) NOT NULL,
   `nombre_modulo` varchar(45) CHARACTER SET armscii8 COLLATE armscii8_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -111,7 +112,7 @@ CREATE TABLE `modulo` (
 -- Estructura de tabla para la tabla `notificacion`
 --
 
-CREATE TABLE `notificacion` (
+CREATE TABLE IF NOT EXISTS `notificacion` (
   `id` int(11) NOT NULL,
   `usuario` varchar(45) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
   `modulo` varchar(45) NOT NULL,
@@ -127,7 +128,7 @@ CREATE TABLE `notificacion` (
 -- Estructura de tabla para la tabla `permiso`
 --
 
-CREATE TABLE `permiso` (
+CREATE TABLE IF NOT EXISTS `permiso` (
   `id_permiso` varchar(24) NOT NULL,
   `id_rol` varchar(24) NOT NULL,
   `id_modulo` varchar(24) NOT NULL,
@@ -742,7 +743,7 @@ INSERT INTO `permiso` (`id_permiso`, `id_rol`, `id_modulo`, `accion_permiso`, `e
 -- Estructura de tabla para la tabla `rol`
 --
 
-CREATE TABLE `rol` (
+CREATE TABLE IF NOT EXISTS `rol` (
   `id_rol` varchar(24) NOT NULL,
   `nombre_rol` varchar(45) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `estatus` int(1) NOT NULL DEFAULT 1
@@ -765,7 +766,7 @@ INSERT INTO `rol` (`id_rol`, `nombre_rol`, `estatus`) VALUES
 -- Estructura de tabla para la tabla `usuario`
 --
 
-CREATE TABLE `usuario` (
+CREATE TABLE IF NOT EXISTS `usuario` (
   `nombre_usuario` varchar(45) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
   `cedula` varchar(12) NOT NULL,
   `id_rol` varchar(24) NOT NULL,

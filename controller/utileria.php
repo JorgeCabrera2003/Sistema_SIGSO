@@ -57,7 +57,14 @@ if (isset($_POST['cambiarTema'])) {
 $usuario->set_cedula($_SESSION['user']['cedula']);
 $datos = $_SESSION['user'];
 $perfil = $usuario->Transaccion(['peticion' => 'perfil']);
-$datos = array_merge($datos, $perfil['datos']);
+
+// Verificar que $perfil['datos'] existe y es un array antes de hacer merge
+if (isset($perfil['datos']) && is_array($perfil['datos'])) {
+    $datos = array_merge($datos, $perfil['datos']);
+} else {
+    // Si no hay datos adicionales, mantener los datos de sesión actuales
+    error_log("Error: No se pudieron cargar los datos del perfil para el usuario: " . $_SESSION['user']['cedula']);
+}
 
 // Cargar el tema actual
 $tema_actual = isset($_SESSION['user']['tema']) ? $_SESSION['user']['tema'] : 0;

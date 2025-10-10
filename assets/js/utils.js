@@ -141,18 +141,13 @@ const SistemaValidacion = {
 
   // Aplicar autocapitalización
   autoCapitalizar: function ($elemento) {
-    const valor = $elemento.val().trim();
-    if (valor) {
-      // Capitalizar primera letra de cada palabra
-      const capitalizado = valor.replace(/\b\w/g, function (l) {
-        return l.toUpperCase();
-      });
-      $elemento.val(capitalizado);
-
-      // Re-validar después de capitalizar
-      setTimeout(() => SistemaValidacion.validarCampo.call($elemento[0]), 100);
-    }
-  },
+  const valor = $elemento.val().trim();
+  if (valor) {
+    const capitalizado = capitalizarTexto(valor);
+    $elemento.val(capitalizado);
+    setTimeout(() => SistemaValidacion.validarCampo.call($elemento[0]), 100);
+  }
+},
 
   // Aplicar estilos de validación
   aplicarEstilos: function ($elemento, esValido, mensajeError) {
@@ -315,7 +310,7 @@ function registrarEntrada() {
 async function ConsultarPermisos() {
   var peticion = new FormData();
   peticion.append('permisos', 'permisos');
-  return enviaAjax(peticion);
+  enviaAjax(peticion);
 }
 
 async function buscarSelect(id_select, valor, opcion) {
@@ -382,19 +377,25 @@ function formatearTelefonoSimple($input) {
   }
 }
 
-// Funcion para capitalizar texto
+// Funcion para capitalizar texto - VERSIÓN ROBUSTA
 function capitalizarTexto(texto) {
-  if (!texto) return texto;
-
-  return texto.toLowerCase()
-    .split(' ')
-    .map(palabra => {
-      if (palabra.length > 0) {
-        return palabra.charAt(0).toUpperCase() + palabra.slice(1);
+  if (!texto || typeof texto !== 'string') return texto;
+  
+  return texto
+    .toLowerCase()
+    .split(/(\s+)/) // Mantener los espacios múltiples
+    .map(segmento => {
+      // Si es un espacio, mantenerlo tal cual
+      if (/^\s+$/.test(segmento)) return segmento;
+      
+      // Si es una palabra, capitalizar primera letra
+      if (segmento.length > 0) {
+        return segmento.charAt(0).toUpperCase() + segmento.slice(1);
       }
-      return palabra;
+      
+      return segmento;
     })
-    .join(' ');
+    .join('');
 }
 
 console.log("Terminado de cargar Expresiones Regulares");

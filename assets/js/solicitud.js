@@ -1,4 +1,30 @@
+// solicitud.js - Versión Mejorada
 let areaSeleccionadaManualmente = false;
+
+// Elementos del formulario para Solicitud
+const elementosSolicitud = {
+    dependencia: $('#dependencia'),
+    solicitante: $('#solicitante'),
+    equipo: $('#equipo'),
+    area: $('#area'),
+    tecnico: $('#tecnico'),
+    motivo: $('#motivo'),
+    nroSolicitud: $('#nroSolicitud')
+};
+
+// Función para manejar el cambio de estado del formulario
+function manejarCambioEstadoSolicitud(formularioValido) {
+    const accion = $("#btnGuardar").text();
+    
+    if (accion === "Eliminar") {
+        // Para eliminar solo validamos el número de solicitud
+        const idValido = $("#nroSolicitud").length && $("#nroSolicitud").val().trim() !== '';
+        $('#btnGuardar').prop('disabled', !idValido);
+    } else {
+        // Para registrar y modificar validamos todos los campos requeridos
+        $('#btnGuardar').prop('disabled', !formularioValido);
+    }
+}
 
 $(document).ready(function () {
     // Arrays de palabras clave para cada área de servicio
@@ -13,6 +39,12 @@ $(document).ready(function () {
     inicializarComponentes();
     cargarDatosIniciales();
     configurarEventos(palabrasClave);
+    
+    // Inicializar sistema de validación con callback
+    SistemaValidacion.inicializar(elementosSolicitud, manejarCambioEstadoSolicitud);
+    
+    // Validar estado inicial del formulario
+    manejarCambioEstadoSolicitud(false);
 });
 
 // --- FUNCIONES DE CONFIGURACIÓN Y EVENTOS ---
@@ -31,37 +63,65 @@ function configurarEventos(palabrasClave) {
         // 1. Resetear el formulario base
         $('#formSolicitud')[0].reset();
 
-        // 2. Limpiar los select2 que no deben tener valor por defecto
-        $('#dependencia, #solicitante, #equipo, #tecnico').val(null).trigger('change');
+        // 2. Limpiar validación
+        SistemaValidacion.limpiarValidacion(elementosSolicitud);
 
-        // 3. Establecer el área por defecto (con un breve retardo para asegurar la renderización de select2)
-        setTimeout(function() {
-            $('#area').val(1).trigger('change');
-        }, 50); // 50ms de retardo
+        // 3. Limpiar los select2 que no deben tener valor por defecto
+        $('#dependencia, #solicitante, #equipo, #tecnico').val(null).trigger('change');
 
         // 4. Configurar el modal para una nueva solicitud
         $('#modalSolicitudLabel').text('Nueva Solicitud');
         $('#btnGuardar').text('Guardar').attr('name', 'registrar');
         gestionarEstadoCampos(true);
+        
+        // Deshabilitar botón inicialmente
+        $('#btnGuardar').prop('disabled', true);
+        
+        // Cargar áreas disponibles
+        cargarAreas();
     });
 
     $('#dependencia').on('change', function () {
         const dependenciaId = $(this).val();
         if (dependenciaId) {
+            // Validar campo
+            SistemaValidacion.validarCampo.call(this);
+            // Habilitar siguiente campo
+            $('#solicitante').prop('disabled', false);
             cargarSolicitantes(dependenciaId);
         } else {
+            $('#solicitante').prop('disabled', true);
+            $('#equipo').prop('disabled', true);
             $('#solicitante').empty().append('<option value="" selected disabled>Seleccione un solicitante</option>').trigger('change');
             $('#equipo').empty().append('<option value="">No especificar equipo</option>').trigger('change');
+            SistemaValidacion.validarCampo.call(this);
         }
     });
 
     $('#solicitante').on('change', function () {
         const cedula = $(this).val();
-        const nro_solicitud = $('#nro_solicitud').val();
+        const nro_solicitud = $('#nroSolicitud').val();
         if (cedula) {
+            // Validar campo
+            SistemaValidacion.validarCampo.call(this);
+            // Habilitar siguiente campo
+            $('#equipo').prop('disabled', false);
+            $('#area').prop('disabled', false);
             cargarEquiposPorSolicitante(cedula, nro_solicitud);
         } else {
+            $('#equipo').prop('disabled', true);
+            $('#area').prop('disabled', true);
+            $('#tecnico').prop('disabled', true);
             $('#equipo').empty().append('<option value="">No especificar equipo</option>').trigger('change');
+            SistemaValidacion.validarCampo.call(this);
+        }
+    });
+
+    $('#equipo').on('change', function () {
+        SistemaValidacion.validarCampo.call(this);
+        // Habilitar área si aún no está habilitada
+        if ($(this).val() && $('#area').prop('disabled')) {
+            $('#area').prop('disabled', false);
         }
     });
 
@@ -72,14 +132,33 @@ function configurarEventos(palabrasClave) {
         }
         const areaId = $(this).val();
         if (areaId) {
+            // Validar campo
+            SistemaValidacion.validarCampo.call(this);
+            // Habilitar siguiente campo
+            $('#tecnico').prop('disabled', false);
+            $('#motivo').prop('disabled', false);
             cargarTecnicosPorArea(areaId);
         } else {
+            $('#tecnico').prop('disabled', true);
+            $('#motivo').prop('disabled', true);
             $('#tecnico').empty().append('<option value="" selected disabled>Seleccione un técnico</option>').trigger('change');
+            SistemaValidacion.validarCampo.call(this);
         }
     });
 
+    $('#tecnico').on('change', function () {
+        SistemaValidacion.validarCampo.call(this);
+    });
+
     $('#motivo').on('input', function () {
-        validarMotivo($(this).val());
+        // Aplicar capitalización en tiempo real para la primera letra
+        const valor = $(this).val();
+        if (valor.length === 1) {
+            $(this).val(valor.toUpperCase());
+        }
+        
+        SistemaValidacion.validarCampo.call(this);
+        
         if (!areaSeleccionadaManualmente) {
             const areaId = detectarAreaPorMotivo($(this).val(), palabrasClave);
             if (areaId) {
@@ -88,14 +167,27 @@ function configurarEventos(palabrasClave) {
         }
     });
 
+    $('#motivo').on('blur', function () {
+        // Aplicar capitalización completa al perder el foco
+        SistemaValidacion.autoCapitalizar($(this));
+    });
+
     $('#formSolicitud').on('submit', e => {
         e.preventDefault();
         enviarFormulario();
+    });
+
+    // Validación con formato en tiempo real para motivo
+    $("#motivo").on("keypress", function (e) {
+        // Expresión regular corregida - sin \b dentro de la clase de caracteres
+        validarKeyPress(/^[0-9a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ\s.,-]*$/, e);
     });
 }
 
 // --- FUNCIONES DE LÓGICA ---
 function detectarAreaPorMotivo(motivo, palabrasClave) {
+    if (!motivo || motivo.trim().length < 3) return null;
+    
     const texto = motivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const conteo = { soporte: 0, electronica: 0, telefonia: 0, redes: 0 };
 
@@ -119,9 +211,17 @@ function detectarAreaPorMotivo(motivo, palabrasClave) {
         }
     }
 
-    if (!areaSeleccionada) return null;
+    // Solo retornar si hay al menos una coincidencia
+    if (maxCoincidencias === 0) return null;
 
-    const mapAreaToId = { 'soporte': 1, 'redes': 2, 'telefonia': 3, 'electronica': 4 };
+    // Mapear nombres de áreas a IDs según lo que exista en la base de datos
+    const mapAreaToId = { 
+        'soporte': 1, 
+        'redes': 2, 
+        'telefonia': 3, 
+        'electronica': 4 
+    };
+    
     return mapAreaToId[areaSeleccionada];
 }
 
@@ -153,10 +253,10 @@ function inicializarComponentes() {
         processing: true,
         serverSide: false,
         ajax: {
-            url: '?page=solicitud', // URL correcta
+            url: '?page=solicitud',
             type: 'POST',
             data: function (d) {
-                d.consultar = 'consultar'; // Parámetro esperado por el backend
+                d.consultar = 'consultar';
             },
             dataType: 'json',
             dataSrc: function (response) {
@@ -205,15 +305,14 @@ function inicializarComponentes() {
             {
                 data: 'ID',
                 render: function (data, type, row) {
-                    // Agrega el botón de redirección
                     return `<div class="btn-group">
-            <button class="btn btn-sm btn-warning" onclick="rellenarSolicitud(this, 0)" title="Editar solicitud">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="rellenarSolicitud(this, 1)" title="Eliminar solicitud">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </div>`;
+                        <button class="btn btn-sm btn-warning modificar" onclick="rellenarSolicitud(this, 0)" title="Editar solicitud">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger eliminar" onclick="rellenarSolicitud(this, 1)" title="Eliminar solicitud">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>`;
                 },
                 orderable: false
             }
@@ -229,57 +328,42 @@ function inicializarComponentes() {
         width: '100%',
         placeholder: 'Seleccione una dependencia'
     });
+    
     $('#solicitante').select2({
         dropdownParent: $('#modalSolicitud'),
         width: '100%',
         placeholder: 'Seleccione un solicitante'
     });
+    
     $('#equipo').select2({
         dropdownParent: $('#modalSolicitud'),
         width: '100%',
         placeholder: 'Seleccione un equipo (opcional)',
         allowClear: true
     });
+    
     $('#area').select2({
         dropdownParent: $('#modalSolicitud'),
         width: '100%',
         placeholder: 'Seleccione un área'
     });
-    // Nuevo: inicializar select2 para técnico
+    
     $('#tecnico').select2({
         dropdownParent: $('#modalSolicitud'),
         width: '100%',
         placeholder: 'Seleccione un técnico'
     });
 
-    // Cuando cambia el solicitante, cargar equipos de ese solicitante
-    $('#solicitante').on('change', function () {
-        const cedula = $(this).val();
-        if (cedula) {
-            cargarEquiposPorSolicitante(cedula);
-        } else {
-            $('#equipo').empty().append('<option value="">No especificar equipo</option>').val('').trigger('change');
-        }
-    });
-
-    // Cuando cambia el área, cargar técnicos del área
-    $('#area').on('change', function () {
-        const areaId = $(this).val();
-        if (areaId) {
-            cargarTecnicosPorArea(areaId);
-        } else {
-            $('#tecnico').empty().append('<option value="" selected disabled>Seleccione un técnico</option>').val('').trigger('change');
-        }
-    });
+    // Deshabilitar campos inicialmente (excepto dependencia)
+    $('#solicitante, #equipo, #area, #tecnico, #motivo').prop('disabled', true);
 }
 
 function cargarDatosIniciales() {
     cargarDependencias();
-    cargarAreas(); // Cargar áreas al inicializar
+    cargarAreas();
 }
 
 // --- NUEVAS FUNCIONES PARA PAPELERA DE SOLICITUDES ---
-
 function consultarEliminadas() {
     var datos = new FormData();
     datos.append('consultar_eliminadas', 'consultar_eliminadas');
@@ -368,14 +452,14 @@ function cargarAreas(areaActual = null) {
             if (response.resultado === 'consultar_areas') {
                 const $areaSelect = $('#area');
                 $areaSelect.empty().append('<option value="" selected disabled>Seleccione un área</option>');
+                
+                // Usar las áreas que vienen de la base de datos
                 response.datos.forEach(area => {
                     $areaSelect.append(`<option value="${area.id_tipo_servicio}">${area.nombre_servicio}</option>`);
                 });
+                
                 if (areaActual) {
                     $areaSelect.val(areaActual).trigger('change');
-                } else {
-                    // Por defecto, seleccionar 'Soporte Técnico' si no hay un área actual
-                    $areaSelect.val(1).trigger('change');
                 }
             } else {
                 mostrarError('Error al cargar áreas: ' + (response.mensaje || 'Respuesta inesperada'));
@@ -422,7 +506,6 @@ function restaurarSolicitud(nro_solicitud) {
                 if (lee.resultado === "restaurar" && lee.bool) {
                     Swal.fire('¡Restaurado!', 'La solicitud ha sido restaurada.', 'success');
                     consultarEliminadas();
-                    // Si tienes una función para recargar la tabla principal, llama aquí
                     if (typeof recargarTabla === "function") recargarTabla();
                 } else {
                     Swal.fire('Error', lee.mensaje || "No se pudo restaurar la solicitud", 'error');
@@ -442,7 +525,6 @@ function gestionarEstadoCampos(habilitar) {
 
     campos.forEach(selector => {
         const elemento = $(selector);
-        // Para Select2, se debe usar 'disabled' y luego refrescar si es necesario
         if (elemento.hasClass('select2-hidden-accessible')) {
             elemento.prop('disabled', !habilitar).trigger('change');
         } else {
@@ -482,11 +564,11 @@ async function rellenarSolicitud(pos, accion) {
         if (accion === 0) { // Editar
             $("#modalSolicitudLabel").text("Editar Solicitud");
             $("#btnGuardar").text("Actualizar").attr("name", "modificar");
-            gestionarEstadoCampos(true); // Habilitar campos
+            gestionarEstadoCampos(true);
         } else { // Eliminar
             $("#modalSolicitudLabel").text("Eliminar Solicitud");
             $("#btnGuardar").text("Eliminar").attr("name", "eliminar");
-            gestionarEstadoCampos(false); // Deshabilitar campos
+            gestionarEstadoCampos(false);
         }
 
         limpiarFormulario();
@@ -496,13 +578,10 @@ async function rellenarSolicitud(pos, accion) {
         if (datos.id_dependencia) {
             $('#dependencia').val(datos.id_dependencia).trigger('change');
 
-            // Esperar a que se carguen los solicitantes y equipos
-            await Promise.all([
-                cargarSolicitantes(datos.id_dependencia),
-                cargarEquipos(datos.id_dependencia)
-            ]);
+            // Esperar a que se carguen los solicitantes
+            await cargarSolicitantes(datos.id_dependencia);
 
-            // Seleccionar solicitante y equipo si existen
+            // Seleccionar solicitante si existe
             if (datos.cedula_solicitante) {
                 $('#solicitante').val(datos.cedula_solicitante).trigger('change');
 
@@ -522,7 +601,6 @@ async function rellenarSolicitud(pos, accion) {
             // Cargar técnicos del área seleccionada y luego seleccionar el técnico guardado
             await cargarTecnicosPorArea(datos.id_tipo_servicio);
             if (datos.cedula_tecnico) {
-                // Usar un pequeño retardo para asegurar que el select2 se haya renderizado completamente
                 setTimeout(function() {
                     $('#tecnico').val(datos.cedula_tecnico).trigger('change');
                 }, 100);
@@ -533,6 +611,11 @@ async function rellenarSolicitud(pos, accion) {
         $("#nroSolicitud").val(datos.nro_solicitud);
         $("#motivo").val(datos.motivo);
 
+        // Forzar validación de todos los campos
+        setTimeout(() => {
+            SistemaValidacion.validarFormulario(elementosSolicitud);
+        }, 200);
+
         // Mostrar el modal
         $("#modalSolicitud").modal("show");
 
@@ -540,82 +623,6 @@ async function rellenarSolicitud(pos, accion) {
         console.error("Error al rellenar solicitud:", error);
         mostrarError("Ocurrió un error al cargar los datos de la solicitud");
     }
-}
-
-function detectarAreaPorMotivo(motivo) {
-    // Convertir a minúsculas y eliminar acentos
-    const texto = motivo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-    // Contador de coincidencias
-    const conteo = {
-        soporte: 0,
-        electronica: 0,
-        telefonia: 0,
-        redes: 0
-    };
-
-    // Contar coincidencias para cada área
-    for (const area in palabrasClave) {
-        palabrasClave[area].forEach(palabra => {
-            const regex = new RegExp(`\\b${palabra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}\\b`, 'i');
-            if (regex.test(texto)) {
-                conteo[area]++;
-            }
-        });
-    }
-
-    // Encontrar el área con más coincidencias
-    let areaSeleccionada = 'soporte'; // Valor por defecto
-    let maxCoincidencias = 0;
-
-    for (const area in conteo) {
-        if (conteo[area] > maxCoincidencias) {
-            maxCoincidencias = conteo[area];
-            areaSeleccionada = area;
-        }
-    }
-
-    // Mapear el nombre del área al ID correspondiente
-    const mapAreaToId = {
-        'soporte': 1,
-        'redes': 2,
-        'telefonia': 3,
-        'electronica': 4
-    };
-
-    return mapAreaToId[areaSeleccionada];
-}
-
-function buscarSelect(selector, valor, tipoBusqueda = "text") {
-    const $select = $(selector);
-    let encontrado = false;
-    let valorEncontrado = null;
-
-    $select.find("option").each(function () {
-        const optionText = $(this).text();
-        const optionValue = $(this).val();
-
-        if ((tipoBusqueda === "text") && optionText.includes(valor)) {
-            $(this).prop("selected", true);
-            encontrado = true;
-            valorEncontrado = optionValue;
-            return false; // Salir del each
-        } else if (tipoBusqueda === "value" && optionValue === valor) {
-            $(this).prop("selected", true);
-            encontrado = true;
-            valorEncontrado = optionValue;
-            return false; // Salir del each
-        }
-    });
-
-    // Disparar evento change si es necesario
-    if (encontrado) {
-        $select.trigger("change");
-    } else {
-        $select.val($select.find("option:first").val());
-    }
-
-    return valorEncontrado;
 }
 
 function recargarTabla() {
@@ -676,63 +683,6 @@ async function cargarSolicitantes(dependenciaId) {
     }
 }
 
-async function cargarEquipos(dependenciaId) {
-    try {
-        const response = await $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                action: 'load_equipos',
-                dependencia_id: dependenciaId
-            },
-            dataType: 'json'
-        });
-
-        const $select = $('#equipo');
-        $select.empty().append('<option value="" selected>No especificar equipo</option>');
-
-        if (response && response.datos) {
-            response.datos.forEach(equipo => {
-                $select.append(`<option value="${equipo.id_equipo}">${equipo.serial} - ${equipo.tipo_equipo}</option>`);
-            });
-        }
-    } catch (error) {
-        console.error('Error al cargar equipos:', error);
-        throw error;
-    }
-}
-
-async function cargarAreas() {
-    try {
-        const response = await $.ajax({
-            url: '',
-            type: 'POST',
-            data: {action: 'load_areas'},
-            dataType: 'json'
-        });
-
-        if (response && response.datos) {
-            const $select = $('#area');
-            $select.empty().append('<option value="" selected disabled>Seleccione un área</option>');
-
-            response.datos.forEach(area => {
-                $select.append(`<option value="${area.id_tipo_servicio}">${area.nombre_servicio}</option>`);
-            });
-        }
-    } catch (error) {
-        console.error('Error al cargar áreas:', error);
-        throw error;
-    }
-}
-
-$('#btn-nueva-solicitud').on('click', function () {
-    limpiarFormulario();
-    gestionarEstadoCampos(true); // Habilitar campos para nuevo registro
-    $('#modalSolicitud').modal('show');
-    $('#modalSolicitudLabel').text('Nueva Solicitud');
-    $('#btnGuardar').text('Guardar').attr('name', 'registrar');
-});
-
 // Nueva función para cargar técnicos por área
 async function cargarTecnicosPorArea(areaId) {
     const $select = $('#tecnico');
@@ -785,103 +735,64 @@ function enviarFormulario() {
 
     // Solo validar si la acción no es 'eliminar'
     if (accion !== 'eliminar' && !validarFormulario()) {
-        return; // Detener si la validación falla
+        return;
     }
 
     const formData = new FormData($('#formSolicitud')[0]);
 
-        // Asegurarnos de incluir el nroSolicitud aunque esté oculto
-        if ($('#nroSolicitud').val()) {
-            formData.append('nroSolicitud', $('#nroSolicitud').val());
-        }
-        // Asegurarnos de incluir el técnico seleccionado
-        if ($('#tecnico').val()) {
-            formData.set('tecnico', $('#tecnico').val());
-        }
+    // Asegurarnos de incluir el nroSolicitud aunque esté oculto
+    if ($('#nroSolicitud').val()) {
+        formData.append('nroSolicitud', $('#nroSolicitud').val());
+    }
+    // Asegurarnos de incluir el técnico seleccionado
+    if ($('#tecnico').val()) {
+        formData.set('tecnico', $('#tecnico').val());
+    }
 
-        formData.append(accion, accion);
+    formData.append(accion, accion);
 
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            beforeSend: function () {
-                $('#btnGuardar').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
-            },
-            success: function (response) {
-                if (response.resultado === 'success') {
-                    $('#modalSolicitud').modal('hide');
-                    mostrarExito(response.mensaje || 'Operación realizada con éxito');
-                    recargarTabla();
-                } else {
-                    mostrarError(response.mensaje || 'Error al procesar la solicitud');
-                }
-            },
-            error: function (xhr, status, error) {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    mostrarError(response.mensaje || 'Error en la solicitud');
-                } catch (e) {
-                    mostrarError('Error en la solicitud: ' + error);
-                }
-            },
-            complete: function () {
-                // Restaurar el texto del botón según la acción
-                let buttonText = 'Guardar';
-                if (accion === 'modificar') {
-                    buttonText = 'Actualizar';
-                } else if (accion === 'eliminar') {
-                    buttonText = 'Eliminar';
-                }
-                $('#btnGuardar').prop('disabled', false).text(buttonText);
+    $.ajax({
+        url: '',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        beforeSend: function () {
+            $('#btnGuardar').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
+        },
+        success: function (response) {
+            if (response.resultado === 'success') {
+                $('#modalSolicitud').modal('hide');
+                mostrarExito(response.mensaje || 'Operación realizada con éxito');
+                recargarTabla();
+            } else {
+                mostrarError(response.mensaje || 'Error al procesar la solicitud');
             }
-        });
+        },
+        error: function (xhr, status, error) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                mostrarError(response.mensaje || 'Error en la solicitud');
+            } catch (e) {
+                mostrarError('Error en la solicitud: ' + error);
+            }
+        },
+        complete: function () {
+            // Restaurar el texto del botón según la acción
+            let buttonText = 'Guardar';
+            if (accion === 'modificar') {
+                buttonText = 'Actualizar';
+            } else if (accion === 'eliminar') {
+                buttonText = 'Eliminar';
+            }
+            $('#btnGuardar').prop('disabled', false).text(buttonText);
+        }
+    });
 }
 
 function validarFormulario() {
-    let valido = true;
-
-    // Validar motivo
-    if (!validarMotivo($('#motivo').val())) {
-        valido = false;
-    }
-
-    // Validar selects requeridos
-    ['#dependencia', '#solicitante', '#area', '#tecnico'].forEach(selector => {
-        if (!$(selector).val()) {
-            $(selector).addClass('is-invalid');
-            valido = false;
-        } else {
-            $(selector).removeClass('is-invalid');
-        }
-    });
-
-    if (!valido) {
-        mostrarError('Complete todos los campos requeridos');
-    }
-
-    return valido;
-}
-
-function validarMotivo(texto) {
-    const regex = /^[\w\sáéíóúüñÑçÇ.,-]{3,200}$/;
-    const valido = regex.test(texto);
-
-    if (valido) {
-        $('#motivo').removeClass('is-invalid').addClass('is-valid');
-    } else {
-        $('#motivo').removeClass('is-valid').addClass('is-invalid');
-        $('#motivo').next('.invalid-feedback').text(
-            texto.length < 3 ? 'El motivo debe tener al menos 3 caracteres' :
-                texto.length > 200 ? 'El motivo no puede exceder 200 caracteres' :
-                    'Solo se permiten letras, números y los símbolos ,.-'
-        );
-    }
-
-    return valido;
+    return SistemaValidacion.validarFormulario(elementosSolicitud);
 }
 
 function getBadgeColor(estado) {
@@ -902,6 +813,13 @@ function limpiarFormulario() {
     $('#equipo').empty().append('<option value="" selected>No especificar equipo</option>');
     $('#tecnico').empty().append('<option value="" selected disabled>Seleccione un técnico</option>');
     $('#motivo').removeClass('is-valid is-invalid');
+    
+    // Limpiar validación
+    SistemaValidacion.limpiarValidacion(elementosSolicitud);
+    
+    // Deshabilitar campos secuenciales
+    $('#solicitante, #equipo, #area, #tecnico, #motivo').prop('disabled', true);
+    $('#dependencia').prop('disabled', false);
 }
 
 function registrarEntrada() {
@@ -910,42 +828,6 @@ function registrarEntrada() {
         type: 'POST',
         data: {entrada: 'entrada'}
     });
-}
-
-async function confirmarEliminacion(id) {
-    const confirmado = await Swal.fire({
-        title: '¿Eliminar Solicitud?',
-        text: "Esta acción no se puede deshacer",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    });
-
-    if (confirmado.isConfirmed) {
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                eliminar: 'eliminar',
-                nrosol: id
-            },
-            dataType: 'json',
-            success: function (response) {
-                if (response.resultado === 'success') {
-                    mostrarExito(response.mensaje);
-                    recargarTabla();
-                } else {
-                    mostrarError(response.mensaje);
-                }
-            },
-            error: function (xhr, status, error) {
-                mostrarError('Error al eliminar la solicitud: ' + error);
-            }
-        });
-    }
 }
 
 function mostrarExito(mensaje) {
@@ -970,7 +852,7 @@ function mostrarError(mensaje) {
     });
 }
 
-// Nueva función: cargar equipos por solicitante (como en mis_servicios)
+// Nueva función: cargar equipos por solicitante
 async function cargarEquiposPorSolicitante(cedula, nro_solicitud = null) {
     const $select = $('#equipo');
     $select.empty().append('<option value="">Cargando equipos...</option>');
@@ -998,109 +880,29 @@ async function cargarEquiposPorSolicitante(cedula, nro_solicitud = null) {
 
         if (response && Array.isArray(response.datos) && response.datos.length > 0) {
             response.datos.forEach(equipo => {
-                let texto = equipo.tipo_equipo || 'Equipo';
-                if (equipo.serial) texto += ` (${equipo.serial})`;
-                if (equipo.descripcion) texto += ` - ${equipo.descripcion}`;
-                $select.append(
-                    new Option(texto, equipo.id_equipo)
-                );
+                let texto = equipo.serial;
+                if (equipo.tipo_equipo) {
+                    texto += ` - ${equipo.tipo_equipo}`;
+                }
+                $select.append(new Option(texto, equipo.id_equipo));
             });
         } else {
-            $select.append('<option value="">No tiene equipos asignados</option>');
+            $select.append('<option value="">No hay equipos asignados</option>');
         }
 
-        // Re-inicializa select2 para refrescar opciones
         $select.select2({
             dropdownParent: $('#modalSolicitud'),
             width: '100%',
             placeholder: 'Seleccione un equipo (opcional)',
             allowClear: true
         });
+
         $select.val('').trigger('change');
+
     } catch (error) {
-        console.error('Error al cargar equipos:', error);
+        console.error('Error al cargar equipos del solicitante:', error);
         $select.empty().append('<option value="">Error al cargar equipos</option>');
         $select.val('').trigger('change');
         mostrarError("Error al cargar equipos del solicitante");
     }
 }
-
-// Función para mostrar modal de redirección
-window.redireccionarHoja = function (idHoja) {
-    // Puedes crear un modal dinámico o reutilizar uno existente
-    // Aquí solo ejemplo básico
-    Swal.fire({
-        title: 'Redireccionar Hoja',
-        html: `
-            <select id="areaDestino" class="form-select mb-2">
-                <option value="">Seleccione área destino</option>
-                <option value="1">Soporte técnico</option>
-                <option value="2">Redes</option>
-                <option value="3">Telefonía</option>
-                <option value="4">Electrónica</option>
-            </select>
-            <select id="tecnicoDestino" class="form-select">
-                <option value="">Seleccione técnico destino</option>
-            </select>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Redireccionar',
-        preConfirm: () => {
-            const area = $('#areaDestino').val();
-            const tecnico = $('#tecnicoDestino').val();
-            if (!area || !tecnico) {
-                Swal.showValidationMessage('Seleccione área y técnico destino');
-                return false;
-            }
-            return {area, tecnico};
-        },
-        didOpen: () => {
-            $('#areaDestino').on('change', function () {
-                // Cargar técnicos del área seleccionada
-                const areaId = $(this).val();
-                if (!areaId) return;
-                $.ajax({
-                    url: '',
-                    type: 'POST',
-                    data: {action: 'load_tecnicos_por_area', area_id: areaId},
-                    dataType: 'json',
-                    success: function (resp) {
-                        const $tec = $('#tecnicoDestino');
-                        $tec.empty().append('<option value="">Seleccione técnico destino</option>');
-                        if (resp.resultado === 'success' && Array.isArray(resp.datos)) {
-                            resp.datos.forEach(t => {
-                                $tec.append(`<option value="${t.cedula_empleado}">${t.nombre}</option>`);
-                            });
-                        }
-                    }
-                });
-            });
-        }
-    }).then(result => {
-        if (result.isConfirmed && result.value) {
-            // Llama al backend para redireccionar
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {
-                    action: 'redireccionar_hoja',
-                    id_hoja: idHoja,
-                    area_destino: result.value.area,
-                    tecnico_destino: result.value.tecnico
-                },
-                dataType: 'json',
-                success: function (resp) {
-                    if (resp.resultado === 'success') {
-                        mostrarExito('Hoja redireccionada correctamente');
-                        recargarTabla();
-                    } else {
-                        mostrarError(resp.mensaje || 'Error al redireccionar');
-                    }
-                },
-                error: function () {
-                    mostrarError('Error al redireccionar');
-                }
-            });
-        }
-    });
-};

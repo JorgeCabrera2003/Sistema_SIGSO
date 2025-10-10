@@ -143,33 +143,36 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["reactivar"])) {
-		if (isset($permisos['marca']['reactivar']['estado']) && $permisos['marca']['reactivar']['estado'] == '1') {
-			if (!isset($_POST["id_marca"]) || preg_match(c_regex['ID_Generado'], $_POST["id_marca"]) == 0) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Id de la Marca no válido";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+    if (isset($permisos['marca']['reactivar']['estado']) && $permisos['marca']['reactivar']['estado'] == '1') {
+        if (!isset($_POST["id_marca"]) || preg_match(c_regex['ID_Generado'], $_POST["id_marca"]) == 0) {
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error, Id de la Marca no válido";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else {
-				$marca->set_id($_POST["id_marca"]);
-				$peticion["peticion"] = "reactivar";
-				$json = $marca->Transaccion($peticion);
-				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró un Marca con el id: " . $_POST["id_marca"];
-					$msgN = "Se restauró una Marca con el id" . $_POST["id_marca"];
-					NotificarUsuarios($msgN, "Marca", ['modulo' => 'MARCA01620251001', 'accion' => 'ver']);
-				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Marca";
-				}
-			}
-		} else {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, No tienes permiso para reactivar una Maraca";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
-		}
-		echo json_encode($json);
-		Bitacora($msg, "Marca");
-		exit;
-	}
+        } else {
+            $marca->set_id($_POST["id_marca"]);
+            $peticion["peticion"] = "reactivar";
+            $json = $marca->Transaccion($peticion);
+            if ($json['estado'] == 1) {
+                $json['resultado'] = "reactivar";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se reactivó una Marca con el id: " . $_POST["id_marca"];
+                $msgN = "Se reactivó una Marca con el id" . $_POST["id_marca"];
+                NotificarUsuarios($msgN, "Marca", ['modulo' => 'MARCA01620251001', 'accion' => 'ver']);
+            } else {
+                $json['resultado'] = "error";
+                $json['mensaje'] = "Error al reactivar la marca";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Marca";
+            }
+        }
+    } else {
+        $json['resultado'] = "error";
+        $json['mensaje'] = "Error, No tienes permiso para reactivar una Marca";
+        $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
+    }
+    echo json_encode($json);
+    Bitacora($msg, "Marca");
+    exit;
+}
 
 	if (isset($_POST["reporte"])) {
 
