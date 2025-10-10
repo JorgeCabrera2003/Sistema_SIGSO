@@ -106,29 +106,29 @@
             <i class="fa-solid fa-server text-muted"></i>
           </div>
           <div class="card-body">
-            <h2 class="total-balance mb-3"><?php echo $cantidadTecnicos['datos'][0]['Total tecnicos']; ?> Técnicos Disponibles</h2>
+            <h2 class="total-balance mb-3"><?php echo $cantidadTecnicos['datos'][0]['Total tecnicos'] ?? 0; ?> Técnicos Disponibles</h2>
             <div class="account-list">
               <div class="account-item d-flex justify-content-between mb-2">
                 <span class="account-name">Técnico más eficiente</span>
                 <span class="account-balance">
-                  <?php echo $cantidadTecnicos['datos'][0]['Tecnico eficiente']; ?>
+                  <?php echo $cantidadTecnicos['datos'][0]['Tecnico eficiente'] ?? 0; ?>
                 </span>
               </div>
               <div class="account-item d-flex justify-content-between mb-2">
                 <span class="account-name">Redes</span>
-                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total redes']; ?></span>
+                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total redes'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between mb-2">
                 <span class="account-name">Soporte</span>
-                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total soporte']; ?></span>
+                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total soporte'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between">
                 <span class="account-name">Electronica</span>
-                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total electronica']; ?></span>
+                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total electronica'] ?? 0; ?></span>
               </div>
               <div class="account-item d-flex justify-content-between">
                 <span class="account-name">Telefonia</span>
-                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total telefono']; ?></span>
+                <span class="account-balance"><?php echo $cantidadTecnicos['datos'][0]['Total telefono'] ?? 0; ?></span>
               </div>
               <span class="account-name">Gráfico</span>
               <div class="grafico-container" style="width: 100%; height: 200px;">
