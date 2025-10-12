@@ -82,7 +82,6 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="dependencia" id="dependencia">
-                <option selected value="default">Seleccione una Dependencia</option>
               </select>
               <span id="sdependencia"></span>
               <label for="dependencia">Dependencia</label>

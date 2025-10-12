@@ -101,8 +101,8 @@ if (is_file("view/" . $page . ".php")) {
 					$empleado->set_id_cargo($_POST["cargo"]);
 
 					$clave = password_hash($cedula, PASSWORD_DEFAULT);
-					$usuario->set_nombre_usuario($_POST["cedula"]);
-					$usuario->set_rol(5);
+					$usuario->set_nombre_usuario($cedula);
+					$usuario->set_rol('SOLIC00520251001');
 					$usuario->set_nombres($_POST["nombre"]);
 					$usuario->set_apellidos($_POST["apellido"]);
 					$usuario->set_correo($_POST["correo"]);

@@ -176,7 +176,8 @@ class Empleado extends Conexion
             LEFT JOIN dependencia AS d ON u.id_dependencia = d.id
             LEFT JOIN ente AS et ON d.id_ente = et.id
             LEFT JOIN cargo AS c ON e.id_cargo = c.id_cargo
-            LEFT JOIN tipo_servicio AS ts ON e.id_servicio = ts.id_tipo_servicio";
+            LEFT JOIN tipo_servicio AS ts ON e.id_servicio = ts.id_tipo_servicio
+            WHERE e.nombre_empleado != 'root' AND e.estatus = 1";
             // Filtro por cédula
             if ($filtro && isset($filtro['cedula'])) {
                 $query .= " WHERE e.cedula_empleado = :cedula";

@@ -169,7 +169,7 @@ class Usuario extends Conexion
         try {
 
             if ($cambioClave) {
-                $string_clave = "clave = :clave";
+                $string_clave = ", clave = :clave";
             } else {
                 $string_clave = "";
             }
@@ -179,7 +179,7 @@ class Usuario extends Conexion
             $query = "UPDATE usuario SET 
                 nombre_usuario = nombre_usuario, id_rol = :rol,
                 nombres = :nombres, apellidos = :apellidos, telefono = :telefono,
-                correo = :correo, " . $string_clave . "
+                correo = :correo" . $string_clave . "
                 WHERE nombre_usuario = :nombre_usuario OR cedula = :cedula";
 
             $stm = $this->conexion->prepare($query);
@@ -193,19 +193,11 @@ class Usuario extends Conexion
             if ($cambioClave) {
                 $stm->bindParam(':clave', $this->clave);
             }
-
-
             $stm->execute();
             $this->conexion->commit();
-            if ($stm->rowCount() > 0) {
-                $dato['mensaje'] = "Se modificó el usuario exitosamente";
-                $dato['bool'] = 1;
-            } else {
-                $dato['mensaje'] = "Error al modificar Usuario";
-                $dato['bool'] = 0;
-            }
-            $dato['resultado'] = "modificar";
-            $dato['estado'] = 1;
+            $dato['mensaje'] = "Se modificó el usuario exitosamente";
+            $dato['bool'] = 1;
+
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";

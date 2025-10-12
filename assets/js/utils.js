@@ -297,7 +297,7 @@ function registrarEntrada() {
 async function ConsultarPermisos() {
   var peticion = new FormData();
   peticion.append('permisos', 'permisos');
-  enviaAjax(peticion);
+  return enviaAjax(peticion);
 }
 
 async function buscarSelect(id_select, valor, opcion) {

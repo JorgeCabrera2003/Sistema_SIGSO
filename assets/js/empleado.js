@@ -158,9 +158,6 @@ async function enviaAjax(datos) {
 
 				} else if (lee.resultado == "entrada") {
 
-				} else if (lee.resultado == "permisos_modulo") {
-					vistaPermiso(lee.permisos);
-
 				} else if (lee.resultado == "error") {
 					mensajes("error", null, lee.mensaje, null);
 				}
@@ -266,15 +263,19 @@ function selectUnidad(arreglo) {
 
 function capaValidar() {
 
-
 	$("#cedula").on("keypress", function (e) {
-		validarKeyPress(/^[-0-9VE\B]*$/, e);
+		validarKeyPress(/^[0-9\B]*$/, e);
 	});
+
 	$("#cedula").on("keyup", function () {
-		validarKeyUp(
-			/^[VE]{1}[-]{1}[0-9]{7,10}$/, $(this), $("#scedula"),
-			"Cédula no válida, el formato es: V-**********"
-		);
+		if(validarKeyUp(
+			/^[0-9]{7,10}$/, $(this), $("#scedula"),
+			"Cédula no válida, el formato es: 00000000"
+		)){
+			$(this).attr("placeholder", "")
+		} else{
+			$(this).attr("placeholder", "00000000")
+		}
 	});
 
 	$("#nombre").on("keypress", function (e) {
@@ -339,7 +340,7 @@ function capaValidar() {
 	})
 
 	$("#dependencia").on("change", function () {
-		if ($(this).val() == "default") {
+		if ($(this).val() == "default" || $(this).val() == null) {
 			estadoSelect(this, "#sdependencia", "Debe seleccionar una Dependencia", 0);
 			$("#unidad").empty();
 			$("#unidad").attr("disabled", true);
@@ -356,12 +357,11 @@ function capaValidar() {
 			estadoSelect(this, "#sunidad", "", 1);
 		}
 	})
-
 }
 
 function validarenvio() {
 
-	if (validarKeyUp(/^[VE]{1}[-]{1}[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
+	if (validarKeyUp(/^[0-9]{7,10}$/, $("#cedula"), $("#scedula"), "") == 0) {
 		mensajes("error", 10000, "Verifica", "Cédula no válida, el formato es: V-**********");
 		return false;
 
@@ -385,42 +385,25 @@ function validarenvio() {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un Ente");
 		return false;
 
-	} else if ($("#dependenia").val() == "default" && $("#dependenia").val() == null) {
+	} else if ($("#dependencia").val() == "default" || $("#dependencia").val() == null) {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un Dependencia");
 		return false;
 
-	} else if ($("#unidad").val() == "default" && $("#unidad").val() == null) {
-		mensajes("error", 10000, "Verifica", "Debe seleccionar un Unidad");
+	} else if ($("#unidad").val() == "default" || $("#unidad").val() == null) {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar una Unidad");
 		return false;
 	} else if ($("#cargo").val() == "default") {
-		mensajes("error", 10000, "Verifica", "Debe seleccionar un cargo");
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un Cargo");
 		return false;
 	}
 	return true;
 }
 
-function vistaPermiso(permisos = null) {
+async function crearDataTable(arreglo) {
 
-	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
-		$('.modificar').remove();
-		$('.eliminar').remove();
-		$('.restaurar').remove();
-	} else {
-		if (permisos['empleado']['modificar']['estado'] == '0') {
-			$('.modificar').remove();
-		}
-		if (permisos['empleado']['eliminar']['estado'] == '0') {
-			$('.eliminar').remove();
-		}
-		if (permisos['empleado']['restaurar']['estado'] == '0') {
-			$('.restaurar').remove();
-		}
-	}
-};
+	json = await ConsultarPermisos();
+	arrayPermiso = JSON.parse(json);
 
-function crearDataTable(arreglo) {
-
-	console.log(arreglo);
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
@@ -437,61 +420,60 @@ function crearDataTable(arreglo) {
 			{ data: 'unidad' },
 			{ data: 'cargo' },
 			{
-				data: null, render: function () {
-					const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
-					<button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
-					return botones;
+				data: null, render: function (row) {
+					const html = [];
+
+					if (Array.isArray(arrayPermiso) || Object.keys(arrayPermiso).length == 0 || arrayPermiso == null) {
+					} else {
+						if (arrayPermiso.permisos.empleado.modificar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 0)" data-ci='${row.cedula}' title="Modificar" class="btn btn-update">
+                    					<i class="fa-solid fa-pen-to-square"></i>
+                						</button>`);
+						}
+
+						if (arrayPermiso.permisos.empleado.eliminar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 1, )" data-ci='${row.cedula}' title="Eliminar" class="btn btn-danger">
+											<i class="fa-solid fa-trash"></i>
+										</button>`);
+						}
+					}
+					return html.join();
 				}
 			}],
 		language: {
 			url: idiomaTabla,
 		}
 	});
-
 }
 
 
 function limpia() {
-	$("#cedula").removeClass("is-valid is-invalid");
-	$("#cedula").val("");
+	$("#cedula").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#scedula").text("");
 
-	$("#nombre").removeClass("is-valid is-invalid");
-	$("#nombre").val("");
+	$("#nombre").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#snombre").text("");
 
-	$("#apellido").removeClass("is-valid is-invalid");
-	$("#apellido").val("");
+	$("#apellido").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#sapellido").text("");
 
-	$("#correo").removeClass("is-valid is-invalid");
-	$("#correo").val("");
+	$("#correo").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#scorreo").text("");
 
-	$("#telefono").removeClass("is-valid is-invalid");
-	$("#telefono").val("");
+	$("#telefono").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#stelefono").text("");
 
-	$("#dependencia").val('default').change();
-	$("#dependencia").removeClass("is-valid is-invalid")
+	$("#ente").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', true);
+	$("#sente").text("");
+
+	$("#dependencia").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', true).empty();
 	$("#sdependencia").text("");
 
-	$("#unidad").val('default').change();
-	$("#unidad").removeClass("is-valid is-invalid")
+	$("#unidad").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', true).empty();
 	$("#sunidad").text("");
 
-	$("#cargo").val('default').change();
-	$("#cargo").removeClass("is-valid is-invalid")
+	$("#cargo").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', false);
 	$("#scargo").text("");
-
-	$("#cedula").prop('readOnly', false);
-	$("#nombre").prop('readOnly', false);
-	$("#apellido").prop('readOnly', false);
-	$("#telefono").prop('readOnly', false);
-	$("#correo").prop('readOnly', false);
-	$("#dependencia").prop('disable', false);
-	$("#unidad").prop('disable', false);
-	$("#cargo").prop('disable', false);
 
 	$('#enviar').val('default').change();
 }
@@ -528,9 +510,6 @@ async function rellenar(pos, accion) {
 	$("#apellido").val($(linea).find("td:eq(2)").text());
 	$("#telefono").val($(linea).find("td:eq(3)").text());
 	$("#correo").val($(linea).find("td:eq(4)").text());
-	buscarSelect('#dependencia', $(linea).find("td:eq(5)").text(), 'text');
-
-	espera = await cargarUnidad($('#dependencia').val());
 
 	if (espera) {
 		buscarSelect('#unidad', $(linea).find("td:eq(6)").text(), 'text');

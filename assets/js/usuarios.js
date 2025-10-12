@@ -250,7 +250,7 @@ function capaValidar() {
 	});
 
 	$("#cedula").on("keypress", function (e) {
-		validarKeyPress(/^[-0-9VE\B]*$/, e);
+		validarKeyPress(/^[0-9\B]*$/, e);
 	});
 	$("#cedula").on("keyup", function () {
 		validarKeyUp(
@@ -549,7 +549,7 @@ async function crearDataTable(arreglo) {
 
 	json = await ConsultarPermisos();
 	arrayPermiso = JSON.parse(json);
-	console.log(arrayPermiso.permisos.usuario.modificar);
+
 	if ($.fn.DataTable.isDataTable('#tabla1')) {
 		$('#tabla1').DataTable().destroy();
 	}
@@ -594,45 +594,38 @@ async function crearDataTable(arreglo) {
 }
 
 function limpia() {
-	$("#nombre_usuario").removeClass("is-valid is-invalid");
-	$("#nombre_usuario").val("");
+	$("#nombre_usuario").removeClass("is-valid is-invalid").val("");
+	$("#nombre_usuario");
 	$("#snombre_usuario").text("");
 
-	$("#cedula").removeClass("is-valid is-invalid");
-	$("#cedula").val("");
+	$("#cedula").removeClass("is-valid is-invalid").val("");
+	$("#cedula");
 	$("#scedula").text("");
 
-	$("#nombre").removeClass("is-valid is-invalid");
-	$("#nombre").val("");
+	$("#nombre").removeClass("is-valid is-invalid").val("");
+	$("#nombre");
 	$("#snombre").text("");
 
-	$("#apellido").removeClass("is-valid is-invalid");
-	$("#apellido").val("");
+	$("#apellido").removeClass("is-valid is-invalid").val("");
 	$("#sapellido").text("");
 
-	$("#correo").removeClass("is-valid is-invalid");
-	$("#correo").val("");
+	$("#correo").removeClass("is-valid is-invalid").val("");
 	$("#scorreo").text("");
 
-	$("#telefono").removeClass("is-valid is-invalid");
-	$("#telefono").val("");
+	$("#telefono").removeClass("is-valid is-invalid").val("");
 	$("#stelefono").text("");
 
-	$("#clave").removeClass("is-valid is-invalid");
-	$("#clave").val("");
+	$("#clave").removeClass("is-valid is-invalid").val("");
 	$("#sclave").text("");
 
-	$("#rclave").removeClass("is-valid is-invalid");
-	$("#rclave").val("");
+	$("#rclave").removeClass("is-valid is-invalid").val("");
 	$("#srclave").text("");
+	
 	$("#rol").val("default").prop("disabled", false);
 	$("#ente").val("default").prop("disabled", false);
 	$("#cargo").val("default").prop("disabled", false);
-	$("#unidad").attr('disabled', true);
-	$("#dependencia").attr('disabled', true);
-
-	$("#unidad").empty();
-	$("#dependencia").empty();
+	$("#dependencia").attr('disabled', true).empty();
+	$("#unidad").attr('disabled', true).empty();
 }
 async function rellenar(pos, accion, ci = null) {
 	limpia();
