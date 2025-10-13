@@ -3,15 +3,14 @@ require_once('model/conexion.php');
 
 class Empleado extends Conexion
 {
-    private $cedula;
-    private $nombre;
-    private $apellido;
-    private $id_cargo;
-    private $id_servicio;
-    private $id_unidad;
-    private $telefono;
-    private $correo;
-    private $id_dependencia;
+    protected $cedula;
+    protected $nombre;
+    protected $apellido;
+    protected $id_cargo;
+    protected $id_unidad;
+    protected $telefono;
+    protected $correo;
+    protected $id_dependencia;
     private $conexion;
 
     public function __construct()
@@ -20,7 +19,6 @@ class Empleado extends Conexion
         $this->nombre = "";
         $this->cedula = "";
         $this->id_cargo = NULL;
-        $this->id_servicio = NULL;
         $this->id_unidad = NULL;
         $this->telefono = "";
         $this->correo = "";
@@ -91,15 +89,6 @@ class Empleado extends Conexion
         return $this->id_cargo;
     }
 
-    public function set_id_servicio($id_servicio)
-    {
-        $this->id_servicio = $id_servicio;
-    }
-    public function get_id_servicio()
-    {
-        return $this->id_servicio;
-    }
-
     public function set_id_unidad($id_unidad)
     {
         $this->id_unidad = $id_unidad;
@@ -121,14 +110,13 @@ class Empleado extends Conexion
                 $this->conexion->beginTransaction();
 
                 $stm = $this->conexion->prepare("INSERT INTO empleado 
-                (cedula_empleado, nombre_empleado, apellido_empleado, id_cargo, id_servicio, id_unidad, telefono_empleado, correo_empleado) 
-                VALUES (:cedula, :nombre, :apellido, :cargo, :servicio, :unidad, :telefono, :correo)");
+                (cedula_empleado, nombre_empleado, apellido_empleado, id_cargo, id_unidad, telefono_empleado, correo_empleado) 
+                VALUES (:cedula, :nombre, :apellido, :cargo, :unidad, :telefono, :correo)");
 
                 $stm->bindParam(':cedula', $this->cedula);
                 $stm->bindParam(':nombre', $this->nombre);
                 $stm->bindParam(':apellido', $this->apellido);
                 $stm->bindParam(':cargo', $this->id_cargo);
-                $stm->bindParam(':servicio', $this->id_servicio);
                 $stm->bindParam(':unidad', $this->id_unidad);
                 $stm->bindParam(':telefono', $this->telefono);
                 $stm->bindParam(':correo', $this->correo);
@@ -273,8 +261,9 @@ class Empleado extends Conexion
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
 
-            $stm = $this->conexion->prepare("SELECT * FROM empleado WHERE cedula_empleado = ?");
-            $stm->execute([$this->cedula]);
+            $stm = $this->conexion->prepare("SELECT * FROM empleado WHERE cedula_empleado = :cedula");
+            $stm->bindParam(":cedula", $this->cedula);
+            $stm->execute();
             $this->conexion->commit();
             if ($stm->rowCount() > 0) {
                 $datos['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
@@ -297,7 +286,7 @@ class Empleado extends Conexion
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
 
-            $query = "DELETE FROM empleado WHERE cedula_empleado = :cedula";
+            $query = "UPDATE empleado SET estatus = 0 WHERE cedula_empleado = :cedula";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":cedula", $this->cedula);
             $stm->execute();
@@ -329,22 +318,16 @@ class Empleado extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
+            $query = "UPDATE empleado SET nombre_empleado = :nombre, apellido_empleado = :apellido, 
+                id_cargo = :cargo, id_unidad = :unidad, telefono_empleado = :telefono, correo_empleado = :correo 
+                WHERE cedula_empleado = :cedula";
 
-            $stm = $this->conexion->prepare("UPDATE empleado SET 
-                nombre_empleado = :nombre, 
-                apellido_empleado = :apellido, 
-                id_cargo = :cargo,
-                id_servicio = :servicio,
-                id_unidad = :unidad,
-                telefono_empleado = :telefono, 
-                correo_empleado = :correo 
-                WHERE cedula_empleado = :cedula");
+            $stm = $this->conexion->prepare($query);
 
             $stm->bindParam(':cedula', $this->cedula);
             $stm->bindParam(':nombre', $this->nombre);
             $stm->bindParam(':apellido', $this->apellido);
             $stm->bindParam(':cargo', $this->id_cargo);
-            $stm->bindParam(':servicio', $this->id_servicio);
             $stm->bindParam(':unidad', $this->id_unidad);
             $stm->bindParam(':telefono', $this->telefono);
             $stm->bindParam(':correo', $this->correo);
@@ -477,7 +460,7 @@ class Empleado extends Conexion
                 ts.nombre_tipo_servicio
             FROM empleado e
             LEFT JOIN tipo_servicio ts ON e.id_servicio = ts.id_tipo_servicio
-            WHERE e.id_cargo = 'TE91320620252806'"; // 1 = Técnico
+            WHERE (e.id_cargo = 'TECNI0012025100112013227' OR e.id_cargo = 'ENCAR0022025100112011321') AND e.nombre_empleado != 'root'" ; // 1 = Técnico
 
             $stm = $this->conexion->prepare($query);
             $stm->execute();

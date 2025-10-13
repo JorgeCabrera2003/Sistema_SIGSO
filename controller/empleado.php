@@ -241,17 +241,28 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['empleado']['eliminar']['estado']) && $permisos['empleado']['eliminar']['estado'] == '1') {
-			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["cedula"]) == 0) {
+			$cedula = "";
+			if (isset($_POST["cedula"]) && isset($_POST["particle"])) {
+				$cedula = $_POST["particle"] . "" . $_POST["cedula"];
+			}
+			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $cedula) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
+			} else if ($_SESSION['user']['cedula'] == $cedula) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, No puede eliminarse el empleado actual";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+
 			} else {
 
-				$empleado->set_cedula($_POST["cedula"]);
+				$empleado->set_cedula($cedula);
 				$peticion["peticion"] = "eliminar";
 				$json = $empleado->Transaccion($peticion);
 				if ($json['estado'] == 1) {
+					$usuario->set_cedula($cedula);
+					$usuario->Transaccion(['peticion' => 'eliminar']);
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un empleado con la CI: " . $_POST['cedula'];
 					$msgN = "Se eliminó un Empleado con la Cédula: " . $_POST['cedula'];
 					NotificarUsuarios($msgN, "Empleado", ['modulo' => 'EMPLE00520251001', 'accion' => 'ver']);

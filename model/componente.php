@@ -4,6 +4,7 @@ class Componente extends Conexion
 {
     private $id;
     private $nombre;
+    private $prefijo;
     private $id_servicio;
     private $bool_texto;
     private $tipo_servicio;
@@ -15,6 +16,7 @@ class Componente extends Conexion
         $this->id;
         $this->id_servicio;
         $this->nombre = "";
+        $this->prefijo = "";
         $this->bool_texto = 0;
         $this->tipo_servicio = NULL;
         $this->conexion = NULL;
@@ -33,6 +35,11 @@ class Componente extends Conexion
     public function set_nombre($nombre)
     {
         $this->nombre = $nombre;
+    }
+
+    public function set_prefijo($prefijo)
+    {
+        $this->prefijo = $prefijo;
     }
     public function set_bool_texto($bool_texto)
     {
@@ -53,6 +60,10 @@ class Componente extends Conexion
         return $this->nombre;
     }
 
+    public function get_prefijo()
+    {
+        return $this->prefijo;
+    }
     public function get_bool_texto()
     {
         return $this->bool_texto;
@@ -121,16 +132,31 @@ class Componente extends Conexion
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
                     foreach ($arrayComponente as $key) {
-                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id']) == 0) {
+                        if (preg_match(c_regex['ID_Generado'], $key['id']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['nombre']) == 0) {
+                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,65}$/", $key['nombre']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else if (preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else {
+                            if ($key['estado'] == 0 || $key['estado'] > 2) {
+                                $this->set_prefijo(NULL);
+                            }
+
+                            if ($key['estado'] == 1) {
+                                $this->set_prefijo($key['prefijo']);
+                                if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['prefijo']) == 0) {
+                                    $this->set_prefijo("Observación");
+                                }
+                            }
+
+                            if ($key['prefijo'] == NULL) {
+                                $this->set_prefijo(NULL);
+                            }
+
                             $this->set_id($key['id']);
                             $this->set_nombre($key['nombre']);
                             $this->set_bool_texto($key['estado']);
@@ -178,12 +204,14 @@ class Componente extends Conexion
                         $this->conexion->beginTransaction();
                         $transaccion = true;
                     }
-                    $query = "INSERT INTO componente (id, id_tipo_servicio, nombre, bool_texto, estatus) VALUES (:id, :id_servicio, :nombre, :bool_texto, 1)";
+                    $query = "INSERT INTO componente (id, id_tipo_servicio, nombre, prefijo, bool_texto, estatus) 
+                    VALUES (:id, :id_servicio, :nombre, :prefijo, :bool_texto, 1)";
 
                     $stm = $this->conexion->prepare($query);
                     $stm->bindParam(":id", $this->id);
                     $stm->bindParam(":id_servicio", $this->id_servicio);
                     $stm->bindParam(":nombre", $this->nombre);
+                    $stm->bindParam(":prefijo", $this->prefijo);
                     $stm->bindParam(":bool_texto", $this->bool_texto);
                     $stm->execute();
                     if ($transaccion) {
@@ -234,11 +262,12 @@ class Componente extends Conexion
                     $this->conexion->beginTransaction();
                     $transaccion = true;
                 }
-                $query = "UPDATE componente SET nombre = :nombre, bool_texto = :bool_texto WHERE id = :id";
+                $query = "UPDATE componente SET nombre = :nombre, prefijo = :prefijo, bool_texto = :bool_texto WHERE id = :id";
 
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->bindParam(":nombre", $this->nombre);
+                $stm->bindParam(":prefijo", $this->prefijo);
                 $stm->bindParam(":bool_texto", $this->bool_texto);
                 $stm->execute();
                 if ($transaccion) {
@@ -307,7 +336,7 @@ class Componente extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
-            $query = "SELECT sp.id, sp.id_tipo_servicio, tp.nombre_tipo_servicio, sp.nombre, sp.bool_texto FROM componente AS sp 
+            $query = "SELECT sp.id, sp.id_tipo_servicio, tp.nombre_tipo_servicio, sp.nombre, sp.prefijo, sp.bool_texto FROM componente AS sp 
             INNER JOIN tipo_servicio as tp ON tp.id_tipo_servicio = sp.id_tipo_servicio
             WHERE tp.id_tipo_servicio = :servicio";
 

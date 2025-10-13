@@ -225,7 +225,7 @@ function capaValidar() {
 	$("#nombre").on("keyup", function () {
 		validarKeyUp(
 			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#snombre"),
-			"El nombre del edificio debe tener de 4 a 45 carácteres"
+			"El nombre del servicio debe tener de 4 a 45 carácteres"
 		);
 	});
 
@@ -249,7 +249,7 @@ function capaValidar() {
 		var idSpan = $(this).attr('id');
 		validarKeyUp(
 			/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, $(this), $("#s" + idSpan),
-			"El nombre debe contener entre 3 a 20 carácteres"
+			"El nombre debe contener entre 3 a 45 carácteres"
 		);
 	})
 }
@@ -271,15 +271,19 @@ function procesarServicio(parametro) {
 	}
 	$('.row-' + clase).each(function () {
 		var nombre = $(this).find('.grupo-' + grupo).val();
+		var prefijo = null;
 		var bool;
 		if ($(this).find('.form-check-input').prop('checked')) {
+			prefijo = $(this).find('.prefijo-' + grupo).val();
 			bool = 1;
 		} else {
 			bool = 0;
+			prefijo = null
 		};
 
 		arreglo.push({
 			nombre: nombre,
+			prefijo: prefijo,
 			estado: bool,
 			id: $(this).find('.grupo-' + grupo).attr('data-id-item') || null
 		})
@@ -388,22 +392,24 @@ function crearInput(etiqueta) {
 		}
 
 		$("." + id).append(`<div id="${grupo}${idInput}" class="row text-center d-flex align-items-center row-${id}">
-                  <div class="col-xl-6">
-                    <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" class="form-control input-grupo grupo-${grupo}" name="nombre" data-id-item= type="text" id="nombre-${grupo}${idInput}"
-                        maxlength="20">
+                  <div class="col-xl-4">
+                      <input placeholder="${labelStr}" class="form-control input-grupo grupo-${grupo}" name="nombre" data-id-item= type="text" id="nombre-${grupo}${idInput}"
+                        maxlength="45">
                       <span id="snombre-${grupo}${idInput}"></span>
-                      <label for="nombre-${grupo}${idInput}" class="form-label">${labelStr}</label>
-                    </div>
                   </div>
                   <div class="col-xl-3 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" role="switch" value="" id=""><br>
-                      <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="" onchange="bloquearInputCheck(this,'${grupo}${idInput}')"><br>
+                      <label class="form-check-label d-flex justify-content-center" for="" >Observación</label>
                     </div>
                     </button>
                   </div>
-                  <div class="col-xl-3 align-self-center">
+				  <div class="col-xl-3">
+                      <input placeholder="Prefijo" readOnly class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item= type="text" id="prefijo-${grupo}${idInput}"
+                        maxlength="45">
+                      <span id="sprefijo-${grupo}${idInput}"></span>
+                  </div>
+                  <div class="col-xl-2 align-self-center">
                     <button type="button" id="boton-${grupo}${idInput}" onclick="eliminarItem('boton-${grupo}${idInput}')" class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
@@ -414,6 +420,16 @@ function crearInput(etiqueta) {
 	}
 	capaValidar();
 }
+
+function bloquearInputCheck(input, id) {
+	
+	if ($(input).prop('checked')) {
+		$("#prefijo-" + id).prop("readOnly", false);
+	} else {
+		$("#prefijo-" + id).prop("readOnly", true);
+		$("#prefijo-" + id).removeClass("is-invalid is-valid");
+	}
+};
 
 $("#btn-configuarS").on("click", function () {
 	listarServicio($("#id_servicio").val(), "input")
@@ -477,29 +493,27 @@ function crearInputConfiguracion() {
 
 
 		$("#div-configurar").prepend(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
-                <div class="col-xl-2">
-                    <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" value="(Generar Automàticamente)" class="form-control input-grupo input-id" name="id"  type="text" id="id-${grupo}-${idInput}"
-                        maxlength="20" disabled>
+                <div class="col-xl-1">
+                      <input placeholder="" value="(Generar Automáticamente)" class="form-control input-grupo input-id" name="id"  type="text" id="id-${grupo}-${idInput}"
+                        maxlength="24" disabled>
                       <span id="sid-${grupo}-${idInput}"></span>
-                      <label for="id-$${grupo}-${idInput}" class="form-label">ID</label>
-                    </div>
                   </div>  
 				<div class="col-xl-4">
-                    <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" value="" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item="" type="text" id="nombre-${grupo}-${idInput}"
-                        maxlength="30">
+                      <input placeholder="Nombre" value="" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item="" type="text" id="nombre-${grupo}-${idInput}"
+                        maxlength="65">
                       <span id="snombre-${grupo}-${idInput}""></span>
-                      <label for="nombre-${grupo}-${idInput}"" class="form-label">Nombre</label>
-                    </div>
-                  </div>
-                  <div class="col-xl-4 align-self-center d-flex justify-content-center">
+                </div>
+                  <div class="col-xl-2 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${grupo}-${idInput}""><br>
-                      <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${grupo}-${idInput}" onchange="bloquearInputCheck(this, '${grupo}${idInput}')"><br>
+                      <label class="form-check-label d-flex justify-content-center" for="">Observación</label>
                     </div>
-                    </button>
                   </div>
+				  <div class="col-xl-3">
+                      <input placeholder="Prefijo" readOnly class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item= type="text" id="prefijo-${grupo}${idInput}"
+                        maxlength="45">
+                      <span id="sprefijo-${grupo}${idInput}"></span>
+                	</div>
                   <div class="col-xl-2 align-self-center">
                     <button type="button" id="boton-${grupo}-${idInput}" onclick="eliminarItemConfiguracion('boton-${grupo}-${idInput}')"class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
@@ -523,11 +537,11 @@ async function eliminarRegistro(id) {
 	console.log(id);
 	confirmacion = await confirmarAccion("Se eliminarà este registro", "¿Está seguro de realizar la acción?", "question");
 	if (confirmacion) {
-		if($("#titulo-configurar").text() == "Componentes"){
+		if ($("#titulo-configurar").text() == "Componentes") {
 			tabla = "componente"
-		}else if($("#titulo-configurar").text() == "Servicios"){
+		} else if ($("#titulo-configurar").text() == "Servicios") {
 			tabla = "servicio"
-		} else{
+		} else {
 			tabla = "error";
 		}
 		datos.append('eliminar_item', 'eliminar_item');
@@ -582,29 +596,27 @@ function itemServicio(datos, item) {
 
 		datos.forEach(item => {
 			$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
-                <div class="col-xl-2">
-                    <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" value="${item.id}" class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
+                <div class="col-xl-1">
+                      <input placeholder="ID" value="${item.id}" class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
                         maxlength="20">
                       <span id="sid-${item.id}"></span>
-                      <label for="id-${item.id}" class="form-label">ID</label>
-                    </div>
                   </div>  
 				<div class="col-xl-4">
-                    <div class="form-floating mb-3 mt-4">
-                      <input placeholder="" value="${item.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item=${item.id} type="text" id="nombre-${item.id}"
+                      <input placeholder="Nombre" value="${item.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item=${item.id} type="text" id="nombre-${item.id}"
                         maxlength="20">
                       <span id="snombre-${item.id}"></span>
-                      <label for="nombre-${item.id}" class="form-label">Nombre</label>
-                    </div>
                   </div>
-                  <div class="col-xl-4 align-self-center d-flex justify-content-center">
+                  <div class="col-xl-2 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${item.id}"><br>
-                      <label class="form-check-label d-flex justify-content-center" for="">Incluir Observación</label>
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${item.id}" onchange="bloquearInputCheck(this, '${item.id}')"><br>
+                      <label class="form-check-label d-flex justify-content-center" for="">Observación</label>
                     </div>
-                    </button>
                   </div>
+				  	<div class="col-xl-3">
+                      <input placeholder="Prefijo" value="${item.prefijo}" class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${item.id}"
+                        maxlength="45">
+                      <span id="sprefijo-${item.id}"></span>
+                	</div>
                   <div class="col-xl-2 align-self-center">
                     <button type="button" id="boton-quitar" onclick= eliminarRegistro("${item.id}") class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>

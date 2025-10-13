@@ -6,17 +6,19 @@ if (!$_SESSION) {
 
 ob_start();
 if (is_file("view/" . $page . ".php")) {
+	require_once "config/cargo.php";
 	require_once "controller/utileria.php";
 	require_once "model/tecnico.php";
 	require_once "model/cargo.php";
 	require_once "model/unidad.php";
 	require_once "model/dependencia.php";
 	require_once "model/tipo_servicio.php";
+	require_once "model/usuario.php";
 
 	$titulo = "Gestionar Técnicos";
 	$cabecera = array('Cédula', "Nombre", "Apellido", "Teléfono", "Correo", "Dependencia", "Unidad", "Cargo", "Área", "Modificar/Eliminar");
 
-	$tecnico = new tecnico();
+	$tecnico = new Tecnico();
 	$cargo = new Cargo();
 	$unidad = new Unidad();
 	$dependencia = new Dependencia();
@@ -244,6 +246,54 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
+	if (isset($_POST['buscar_usuario'])) {
+		if (!isset($_POST["cedula"]) || preg_match(c_regex['Cedula'], $_POST["cedula"]) == 0) {
+			$json["resultado"] = "error";
+			$json["mensaje"] = "Cédula no válida";
+		} else {
+			$peticion["peticion"] = "validar";
+			$empleado->set_cedula($_POST["cedula"]);
+			$json['empleado'] = $empleado->Transaccion($peticion);
+			$json['unidad'] = NULL;
+			$json['dependencia'] = NULL;
+			$json['ente'] = NULL;
+
+			if ($json['empleado']['bool'] == 1) {
+				$unidad->set_id($json['empleado']['arreglo']['id_unidad']);
+				$json['unidad'] = $unidad->Transaccion($peticion);
+				if ($json['unidad']['bool'] == 1) {
+					$dependencia->set_id($json['unidad']['arreglo']['id_dependencia']);
+					$json['dependencia'] = $dependencia->Transaccion($peticion);
+					if ($json['dependencia']['bool'] == 1) {
+						$ente->set_id($json['dependencia']['arreglo']['id_ente']);
+						$json['ente'] = $ente->Transaccion($peticion);
+					}
+				}
+			}
+			$json["resultado"] = "buscar_usuario";
+		}
+
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST['cargar_ente'])) {
+		$peticion["peticion"] = "filtrar";
+		$json = $ente->Transaccion($peticion);
+		$json["resultado"] = "cargar_ente";
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST['cargar_dependencia'])) {
+		$peticion["peticion"] = "filtrar";
+		$dependencia->set_id_ente($_POST['id_ente']);
+		$json = $dependencia->Transaccion($peticion);
+		$json["resultado"] = "cargar_dependencia";
+		echo json_encode($json);
+		exit;
+	}
+
 	if (isset($_POST['cargar_unidad'])) {
 		$peticion["peticion"] = "filtrar";
 		$unidad->set_id_dependencia($_POST['id_dependencia']);
@@ -253,17 +303,9 @@ if (is_file("view/" . $page . ".php")) {
 		exit;
 	}
 
-	if (isset($_POST['cargar_dependencia'])) {
-		$peticion["peticion"] = "consultar";
-		$json = $dependencia->Transaccion($peticion);
-		$json["resultado"] = "cargar_dependencia";
-		echo json_encode($json);
-		exit;
-	}
-
 	if (isset($_POST['cargar_cargo'])) {
 		$peticion["peticion"] = "consultar";
-		$json = $cargo->Transaccion($peticion);
+		$json['datos'] = Ccargo;
 		$json["resultado"] = "cargar_cargo";
 		echo json_encode($json);
 		exit;

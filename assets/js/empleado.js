@@ -448,6 +448,7 @@ async function crearDataTable(arreglo) {
 
 
 function limpia() {
+	$("#particle").prop('disabled', false);
 	$("#cedula").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#scedula").text("");
 
@@ -463,24 +464,23 @@ function limpia() {
 	$("#telefono").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 	$("#stelefono").text("");
 
-	$("#ente").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', true);
+	$("#ente").val('default').change().removeClass("is-valid is-invalid").prop('disabled', false);
 	$("#sente").text("");
 
-	$("#dependencia").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', true).empty();
+	$("#dependencia").val('default').change().removeClass("is-valid is-invalid").prop('disabled', true).empty();
 	$("#sdependencia").text("");
 
-	$("#unidad").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', true).empty();
+	$("#unidad").val('default').change().removeClass("is-valid is-invalid").prop('disabled', true).empty();
 	$("#sunidad").text("");
 
-	$("#cargo").val('default').change().removeClass("is-valid is-invalid").prop('readOnly', false);
+	$("#cargo").val('default').change().removeClass("is-valid is-invalid").prop('disabled', false);
 	$("#scargo").text("");
 
-	$('#enviar').val('default').change();
+	$('#enviar').val('default');
 }
 
 async function rellenar(pos, accion) {
 	limpia();
-	var espera;
 	linea = $(pos).closest('tr');
 	var info_empleado = null;
 	var cedula_completa = $(linea).find("td:eq(0)").text()
@@ -511,10 +511,6 @@ async function rellenar(pos, accion) {
 	$("#telefono").val($(linea).find("td:eq(3)").text());
 	$("#correo").val($(linea).find("td:eq(4)").text());
 
-	if (espera) {
-		buscarSelect('#unidad', $(linea).find("td:eq(6)").text(), 'text');
-	}
-
 	buscarSelect('#cargo', $(linea).find("td:eq(7)").text(), 'text');
 
 
@@ -528,9 +524,11 @@ async function rellenar(pos, accion) {
 		$("#apellido").prop('readOnly', true);
 		$("#telefono").prop('readOnly', true);
 		$("#correo").prop('readOnly', true);
-		$("#dependencia").prop('disable', true);
-		$("#unidad").prop('disable', true);
-		$("#cargo").prop('disable', true);
+		$("#particle").prop('disabled', true);
+		$("#dependencia").prop('disabled', true).removeClass("is-valid is-invalid");
+		$("#ente").prop('disabled', true).removeClass("is-valid is-invalid");
+		$("#unidad").prop('disabled', true).removeClass("is-valid is-invalid");
+		$("#cargo").prop('disabled', true).removeClass("is-valid is-invalid");
 
 		$("#modalTitleId").text("Eliminar Empleado")
 		$("#enviar").text("Eliminar");

@@ -8,7 +8,16 @@
       </div>
       <div class="modal-body">
         <div class="row justify-content-center" id="Fila1">
-          <div class="col-md-6">
+          <div class="col-sm-2">
+            <div class="form-floating mb-3">
+              <select class="form-select" id="particle" name="particle">
+                <option selected value="V-">V-</option>
+                <option value="E-">E-</option>
+              </select>
+              <label for="cedula" class="form-label">Letra</label>
+            </div>
+          </div>
+          <div class="col-sm-6">
             <div class="form-floating mb-3">
               <input placeholder="Cédula de Identidad" class="form-control" name="cedula" type="text" id="cedula"
                 maxlength="45">
@@ -35,7 +44,7 @@
           </div>
         </div>
         <div class="row justify-content-center" id="Fila3">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="form-floating mb-3">
               <input placeholder="Teléfono" class="form-control" name="telefono" type="text" id="telefono"
                 maxlength="15">
@@ -43,36 +52,14 @@
               <span id="stelefono"></span>
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="form-floating mb-3">
               <input placeholder="Correo" class="form-control" name="correo" type="email" id="correo" maxlength="45">
               <label for="correo" class="form-label">Correo Electrónico</label>
               <span id="scorreo"></span>
             </div>
           </div>
-        </div>
-        <div class="row justify-content-center" id="Fila4">
-          <div class="col-md-6">
-            <div class="form-floating mb-3">
-              <select class="form-select" name="dependencia" id="dependencia">
-                <option selected value="default">Seleccione una Dependencia</option>
-              </select>
-              <span id="sdependencia"></span>
-              <label for="dependencia">Dependencia</label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-floating mb-3">
-              <select class="form-select" name="unidad" id="unidad">
-                <option selected value="default">Seleccione una Unidad </option>
-              </select>
-              <span id="sunidad"></span>
-              <label for="unidad">Unidad</label>
-            </div>
-          </div>
-        </div>
-        <div class="row justify-content-center" id="Fila5">
-          <div class="col-md-8">
+          <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="cargo" id="cargo">
                 <option selected value="default">Seleccione un Cargo</option>
@@ -82,14 +69,55 @@
             </div>
           </div>
         </div>
-        <div class="row justify-content-center" id="Fila6">
-          <div class="col-md-8">
+        <div class="row justify-content-center" id="Fila4">
+          <div class="col-md-4">
+            <div class="form-floating mb-3">
+              <select class="form-select" name="ente" id="ente">
+                <option selected value="default">Seleccione un Ente</option>
+              </select>
+              <span id="sente" class="invalid-feedback"></span>
+              <label for="ente" class="form-label">Ente</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating mb-3">
+              <select class="form-select" name="dependencia" id="dependencia">
+              </select>
+              <span id="sdependencia"></span>
+              <label for="dependencia">Dependencia</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating mb-3">
+              <select class="form-select" name="unidad" id="unidad">
+                <option selected value="default">Seleccione una Unidad</option>
+              </select>
+              <span id="sunidad"></span>
+              <label for="unidad">Unidad</label>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center" id="Fila5">
+          <div class="col-md-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="servicio" id="servicio">
-                <option selected value="default">Seleccione un Área</option>
+                <option selected value="default">Seleccione un Área de Servicio</option>
               </select>
               <span id="sservicio"></span>
-              <label for="servicio">Área</label>
+              <label for="servicio">Área de Servicio</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating mb-3">
+              <select class="form-select" name="grado_experiencia" id="grado_experiencia">
+                <option selected value="1">1 - Principiante</option>
+                <option  value="2">2 - Capacitado</option>
+                <option  value="3">3 - Hábil</option>
+                <option  value="4">4 - Profesional</option>
+                <option  value="5">5 - Experto</option>
+              </select>
+              <span id="sgrado_experiencia"></span>
+              <label for="grado_experiencia">Grado de Experiencia</label>
             </div>
           </div>
         </div>
