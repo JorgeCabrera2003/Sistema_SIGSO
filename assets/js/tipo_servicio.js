@@ -613,7 +613,7 @@ function itemServicio(datos, item) {
                     </div>
                   </div>
 				  	<div class="col-xl-3">
-                      <input placeholder="Prefijo" value="${item.prefijo}" class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${item.id}"
+                      <input placeholder="Prefijo" value="${item.prefijo}" readOnly class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${item.id}"
                         maxlength="45">
                       <span id="sprefijo-${item.id}"></span>
                 	</div>
@@ -625,6 +625,7 @@ function itemServicio(datos, item) {
                 </div>`)
 			if (item.bool_texto == 1) {
 				$(`#checkbox-${item.id}`).prop('checked', true);
+				$(`#prefijo-${item.id}`).attr('readOnly', false);
 			}
 			$(`#id-${item.id}`).prop('readOnly', true)
 

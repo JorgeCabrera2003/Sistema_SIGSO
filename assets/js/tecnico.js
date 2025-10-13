@@ -10,6 +10,7 @@ $(document).ready(function () {
 	capaValidar();
 	cargarEnte()
 	cargarDependencia();
+	cargarCargo();
 	cargarServicio(); // <--- Cargar áreas al iniciar
 
 	$("#enviar").on("click", async function () {
@@ -30,6 +31,7 @@ $(document).ready(function () {
 						datos.append('correo', $("#correo").val());
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
+						datos.append('grado_experiencia', $("#grado_experiencia").val());
 						datos.append('servicio', $("#servicio").val()); // <-- Agrega el área
 						if ($("#check_user").prop('checked')) {
 							datos.append('check_usuario', 1);
@@ -53,6 +55,7 @@ $(document).ready(function () {
 						datos.append('correo', $("#correo").val());
 						datos.append('unidad', $("#unidad").val());
 						datos.append('cargo', $("#cargo").val());
+						datos.append('grado_experiencia', $("#grado_experiencia").val());
 						datos.append('servicio', $("#servicio").val()); // <-- Agrega el área
 						enviaAjax(datos);
 					}
@@ -535,6 +538,7 @@ async function rellenar(pos, accion) {
 			buscarSelect('#unidad', info_empleado.unidad.arreglo.id_unidad, 'value');
 		}
 		buscarSelect('#cargo', info_empleado.empleado.arreglo.id_cargo, 'value');
+		buscarSelect('#cargo', info_empleado.empleado.arreglo.grado_experiencia_empleado, 'value');
 	}
 
 	buscarSelect('#particle', letra_ci, 'value');
