@@ -14,7 +14,7 @@
                 <option selected value="V-">V-</option>
                 <option value="E-">E-</option>
               </select>
-              <label for="cedula" class="form-label">Letra</label>
+              <label for="cedula" class="form-label">Nacionalidad</label>
             </div>
           </div>
           <div class="col-sm-6">

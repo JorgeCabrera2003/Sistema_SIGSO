@@ -428,8 +428,12 @@ function validarenvio() {
 	} else if ($("#unidad").val() == "default" || $("#unidad").val() == null) {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar una Unidad");
 		return false;
-		
+
 	} else if ($("#cargo").val() == "default") {
+		mensajes("error", 10000, "Verifica", "Debe seleccionar un cargo");
+		return false;
+
+	} else if ($("#grado_experiencia").val() < 0 || $("#grado_experiencia").val() > 5) {
 		mensajes("error", 10000, "Verifica", "Debe seleccionar un cargo");
 		return false;
 	}
@@ -538,7 +542,7 @@ async function rellenar(pos, accion) {
 			buscarSelect('#unidad', info_empleado.unidad.arreglo.id_unidad, 'value');
 		}
 		buscarSelect('#cargo', info_empleado.empleado.arreglo.id_cargo, 'value');
-		buscarSelect('#cargo', info_empleado.empleado.arreglo.grado_experiencia_empleado, 'value');
+		buscarSelect('#grado_experiencia', info_empleado.empleado.arreglo.grado_experiencia_empleado, 'value');
 	}
 
 	buscarSelect('#particle', letra_ci, 'value');

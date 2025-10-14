@@ -244,6 +244,10 @@ function capaValidar() {
 		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
 	})
 
+	$(".prefijo-input").on("keypress", function (e) {
+		validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ - \b]*$/, e);
+	})
+
 	$(".input-grupo").on("keyup", function () {
 		console.log($(this).attr('id'));
 		var idSpan = $(this).attr('id');
@@ -252,6 +256,15 @@ function capaValidar() {
 			"El nombre debe contener entre 3 a 45 carácteres"
 		);
 	})
+	$(".prefijo-input").on("keyup", function () {
+		console.log($(this).attr('id'));
+		var idSpan = $(this).attr('id');
+		validarKeyUp(
+			/^[0-9 a-zA-ZáéíóúüñÑçÇ - ]{5,45}$/, $(this), $("#s" + idSpan),
+			"El Prefijo debe tener entre 4 a 45 carácteres"
+		);
+	})
+
 }
 
 function procesarServicio(parametro) {
@@ -295,10 +308,16 @@ function inputServicio() {
 	let idS = [];
 	let resultado = 1
 	let bool;
+	let prefijoid = [];
 
-	idS = Array.from(document.querySelectorAll('.btn-agregarS input[type="text"][id]'))
+	idS = Array.from(document.querySelectorAll('.btn-agregarS input.input-grupo[type="text"][id]'))
 		.map(input => input.id)
-		.concat(Array.from(document.querySelectorAll('.btn-agregarC input[type="text"][id]'))
+		.concat(Array.from(document.querySelectorAll('.btn-agregarC input.input-grupo[type="text"][id]'))
+			.map(input => input.id));
+
+	prefijoid = Array.from(document.querySelectorAll('.btn-agregarS input.prefijo-input[type="text"][id]'))
+		.map(input => input.id)
+		.concat(Array.from(document.querySelectorAll('.btn-agregarC input.prefijo-input[type="text"][id]'))
 			.map(input => input.id));
 
 	idS.forEach((id, index) => {
@@ -306,6 +325,16 @@ function inputServicio() {
 		bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
 		if (bool === 0) {
 			resultado = 0;
+		}
+	})
+
+	prefijoid.forEach((id, index) => {
+		console.log($(`#${id}`));
+		if ($(`checkbox-${id}`).prop('checked')) {
+			bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ - ]{5,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
+			if (bool === 0) {
+				resultado = 0;
+			}
 		}
 	})
 
@@ -399,13 +428,13 @@ function crearInput(etiqueta) {
                   </div>
                   <div class="col-xl-3 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" role="switch" value="" id="" onchange="bloquearInputCheck(this,'${grupo}${idInput}')"><br>
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${grupo}${idInput}" onchange="bloquearInputCheck(this,'${grupo}${idInput}')"><br>
                       <label class="form-check-label d-flex justify-content-center" for="" >Observación</label>
                     </div>
                     </button>
                   </div>
 				  <div class="col-xl-3">
-                      <input placeholder="Prefijo" readOnly class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item= type="text" id="prefijo-${grupo}${idInput}"
+                      <input placeholder="Prefijo" readOnly class="form-control prefijo-input prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item= type="text" id="prefijo-${grupo}${idInput}"
                         maxlength="45">
                       <span id="sprefijo-${grupo}${idInput}"></span>
                   </div>
@@ -422,7 +451,7 @@ function crearInput(etiqueta) {
 }
 
 function bloquearInputCheck(input, id) {
-	
+
 	if ($(input).prop('checked')) {
 		$("#prefijo-" + id).prop("readOnly", false);
 	} else {
@@ -491,6 +520,14 @@ function crearInputConfiguracion() {
 	}
 	if ($("#div-configurar").find('.row-' + clase).length < 15) {
 
+		let tabla = $('#tabla_configurar').DataTable()
+
+		tabla.row.add({
+                id: "",
+                nombre: "",
+                bool_texto: false,
+                prefijo: ""
+            }).draw(false)
 
 		$("#div-configurar").prepend(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-1">
@@ -510,12 +547,12 @@ function crearInputConfiguracion() {
                     </div>
                   </div>
 				  <div class="col-xl-3">
-                      <input placeholder="Prefijo" readOnly class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item= type="text" id="prefijo-${grupo}${idInput}"
+                      <input placeholder="Prefijo" readOnly class="form-control prefijo-input prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item= type="text" id="prefijo-${grupo}${idInput}"
                         maxlength="45">
                       <span id="sprefijo-${grupo}${idInput}"></span>
                 	</div>
                   <div class="col-xl-2 align-self-center">
-                    <button type="button" id="boton-${grupo}-${idInput}" onclick="eliminarItemConfiguracion('boton-${grupo}-${idInput}')"class="btn btn-primary btn-sm mx-auto my-4 ">
+                    <button type="button" id="boton-${grupo}-${idInput}" onclick="eliminarItemConfiguracion(this, 'boton-${grupo}-${idInput}')"class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
                   </div>
@@ -524,18 +561,18 @@ function crearInputConfiguracion() {
 	capaValidar();
 }
 
-function eliminarItemConfiguracion(id) {
-	const input = $("#" + id);
-	const contenedorPadre = input.parent().parent();
-	console.log(contenedorPadre);
-	contenedorPadre.remove();
+function eliminarItemConfiguracion(etiqueta, id) {
+	let row = $(etiqueta).closest('tr')
+	const tabla = $('#tabla_configurar').DataTable()
+
+	tabla.row(row).remove().draw()
 };
 
-async function eliminarRegistro(id) {
+async function eliminarRegistro(etiqueta, id) {
 	var datos = new FormData()
 	var tabla = null
 	console.log(id);
-	confirmacion = await confirmarAccion("Se eliminarà este registro", "¿Está seguro de realizar la acción?", "question");
+	confirmacion = await confirmarAccion("Se eliminará este registro", "¿Está seguro de realizar la acción?", "question");
 	if (confirmacion) {
 		if ($("#titulo-configurar").text() == "Componentes") {
 			tabla = "componente"
@@ -593,43 +630,51 @@ function itemServicio(datos, item) {
 	$("#modalConfigurar").modal("show");
 	$("#div-configurar").empty();
 	if (Array.isArray(datos) && datos.length > 0) {
-
-		datos.forEach(item => {
-			$("#div-configurar").append(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
+		$('#tabla_configurar').DataTable({
+			data: datos,
+			columns: [
+				{
+					data: null, render: function (row) {
+						const html = `<div id="" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-1">
-                      <input placeholder="ID" value="${item.id}" class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
+                      <input placeholder="ID" value="${row.id}" readOnly class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
                         maxlength="20">
-                      <span id="sid-${item.id}"></span>
+                      <span id="sid-${row.id}"></span>
                   </div>  
 				<div class="col-xl-4">
-                      <input placeholder="Nombre" value="${item.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item=${item.id} type="text" id="nombre-${item.id}"
+                      <input placeholder="Nombre" value="${row.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item=${row.id} type="text" id="nombre-${row.id}"
                         maxlength="20">
-                      <span id="snombre-${item.id}"></span>
+                      <span id="snombre-${row.id}"></span>
                   </div>
                   <div class="col-xl-2 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${item.id}" onchange="bloquearInputCheck(this, '${item.id}')"><br>
+                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${row.id}" onchange="bloquearInputCheck(this, '${row.id}')"><br>
                       <label class="form-check-label d-flex justify-content-center" for="">Observación</label>
                     </div>
                   </div>
 				  	<div class="col-xl-3">
-                      <input placeholder="Prefijo" value="${item.prefijo}" readOnly class="form-control input-grupo prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${item.id}"
+                      <input placeholder="Prefijo" value="" readOnly class="form-control prefijo-input prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${row.id}"
                         maxlength="45">
-                      <span id="sprefijo-${item.id}"></span>
+                      <span id="sprefijo-${row.id}"></span>
                 	</div>
-                  <div class="col-xl-2 align-self-center">
-                    <button type="button" id="boton-quitar" onclick= eliminarRegistro("${item.id}") class="btn btn-primary btn-sm mx-auto my-4 ">
+				</div>`;
+						return html;
+					}
+				},
+				{
+					data: null, render: function (row) {
+						const botones = `<div class="col-xl-2 align-self-center">
+                    <button type="button" id="boton-quitar" onclick= eliminarRegistro("${row.id}") class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
-                  </div>
-                </div>`)
-			if (item.bool_texto == 1) {
-				$(`#checkbox-${item.id}`).prop('checked', true);
-				$(`#prefijo-${item.id}`).attr('readOnly', false);
+                  </div>`;
+						return botones;
+					}
+				}],
+			language: {
+				url: idiomaTabla
 			}
-			$(`#id-${item.id}`).prop('readOnly', true)
-
-		});
+		})
 	} else {
 		$("#div-configurar").append(`<div class="row mt-5 text-center d-flex align-items-center" id="row-vacio">
                 <div class="col-xl-12 align-self-center d-flex justify-content-center">

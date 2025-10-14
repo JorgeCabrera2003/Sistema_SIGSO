@@ -117,10 +117,25 @@
                       </div>
                     </div>
                   </div>
-                  <div class="container div-configurar" id="div-configurar">
+                  <div class="col-lg-12" id="div-TablaServicio">
+                    <div class="table-responsive">
+                      <table class="table" id="tabla_configurar">
+                        <thead>
+                          <tr>
+                            <th scope='col'></th>
+                            <th scope='col'></th>
+                          </tr>
+                        </thead>
+                        <tbody>
 
-
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
+                  <!--<div class="container div-configurar" id="div-configurar">
+
+
+                  </div> -->
                 </fieldset>
               </div>
             </div>
