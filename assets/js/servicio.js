@@ -697,7 +697,7 @@ function LlamarCheckbox(id, item) {
         },
         success: function (response) {
             if (response.resultado == "consultar") {
-                renderizarCheckboxServicio(response.datos, response.check.datos, item)
+                renderizarCheckboxServicio(response.check.datos, response.servicio.datos, item)
             } else {
                 mostrarError('Error al cargar los datos');
             }
@@ -761,11 +761,9 @@ function renderizarCheckboxServicio(arreglo, valores, item) {
 
         if (item == "servicio") {
             container = "servicio-realizado";
-            texto_observacion = "Observacion";
 
         } else if (item == "componente") {
             container = "componente";
-            texto_observacion = "Cantidad";
         } else {
             console.log("Error, datos no validos")
         }
@@ -774,26 +772,29 @@ function renderizarCheckboxServicio(arreglo, valores, item) {
             id_atendido = null;
             observacion = '';
             bool_check = '';
-            valores.forEach(llave => {
+            if (Array.isArray(valores) && valores.length > 0) {
+                valores.forEach(llave => {
 
-                if (llave.clave == clave.id) {
-                    id_atendido = llave.id_atendido;
-                    observacion = llave.observacion;
+                    if (llave.clave == clave.id) {
+                        id_atendido = llave.id_atendido;
+                        observacion = llave.observacion;
 
-                    if (llave.estado == 1) {
-                        bool_check = 'checked';
-                    } else {
-                        bool_check = '';
+                        if (llave.estado == 1) {
+                            bool_check = 'checked';
+                        } else {
+                            bool_check = '';
+                        }
+
+                        if (llave.observacion == null || llave.observacion == '') {
+                            observacion = '';
+                            bool_lectura = 'readOnly';
+                        } else {
+                            bool_lectura = '';
+                        }
                     }
+                })
+            }
 
-                    if(llave.observacion == null || llave.observacion == ''){
-                        observacion = '';
-                        bool_lectura = 'readOnly';
-                    } else {
-                        bool_lectura = '';
-                    }
-                }
-            })
 
             if (clave.bool_texto == 1) {
                 columnas_ocupadas = "5";
@@ -802,7 +803,7 @@ function renderizarCheckboxServicio(arreglo, valores, item) {
                                         <input placeholder="" value="${observacion}" data-idInput=${clave.id} data-idobservacion="${id_atendido}" class="form-control input-grupo input-id"
                                         name="id" type="text" id="input-${container}${clave.id}" maxlength="30" ${bool_lectura}>
                                         <span id="sinput-${container}${clave.id}"></span>
-                                        <label for="input-${container}${clave.id}" class="form-label">${texto_observacion}</label>
+                                        <label for="input-${container}${clave.id}" class="form-label">${clave.prefijo}</label>
                                     </div>
                                 </div>`;
             } else {

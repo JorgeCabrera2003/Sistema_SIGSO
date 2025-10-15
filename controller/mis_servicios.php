@@ -114,7 +114,7 @@ if (is_file("view/" . $page . ".php")) {
 
         if ($resultado['bool'] == 1) {
             // Obtener tipo de servicio basado en el equipo (si existe)
-            $id_tipo_servicio = 1; // Default a Soporte Técnico
+            $id_tipo_servicio = Ctipo_servicio[0]['id']; // Default a Soporte Técnico
 
             if (isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== "") {
                 $resultadoTipoServicio = $equipo->Transaccion([
@@ -181,7 +181,7 @@ if (is_file("view/" . $page . ".php")) {
 
     echo json_encode($json);
     Bitacora($msg, "Solicitud");
-    NotificarUsuarios($msgN, "Solicitud", ['modulo' => 7, 'accion' => 'ver_solicitud']);
+    NotificarUsuarios($msgN, "Solicitud", ['modulo' => 'SOLIC00720251001', 'accion' => 'ver_solicitud']);
     exit;
 }
 	// Consultar bienes del empleado

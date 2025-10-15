@@ -523,11 +523,11 @@ function crearInputConfiguracion() {
 		let tabla = $('#tabla_configurar').DataTable()
 
 		tabla.row.add({
-                id: "",
-                nombre: "",
-                bool_texto: false,
-                prefijo: ""
-            }).draw(false)
+			id: grupo + "" + idInput,
+			nombre: "",
+			bool_texto: false,
+			prefijo: ""
+		}).draw(false)
 
 		$("#div-configurar").prepend(`<div id="" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-1">
@@ -597,11 +597,24 @@ function inputGuardar() {
 	idS = Array.from(document.querySelectorAll('.input-nombre'))
 		.map(input => input.id);
 
+	prefijoid = Array.from(document.querySelectorAll('input.prefijo-input[type="text"][id]'))
+		.map(input => input.id)
+
 	idS.forEach((id, index) => {
 		console.log($(`#${id}`));
 		bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
 		if (bool === 0) {
 			resultado = 0;
+		}
+	})
+
+	prefijoid.forEach((id, index) => {
+		console.log($(`#${id}`));
+		if ($(`checkbox-${id}`).prop('checked')) {
+			bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ - ]{5,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
+			if (bool === 0) {
+				resultado = 0;
+			}
 		}
 	})
 
@@ -629,31 +642,55 @@ function itemServicio(datos, item) {
 	$("#modal1").modal("hide")
 	$("#modalConfigurar").modal("show");
 	$("#div-configurar").empty();
+	if ($.fn.DataTable.isDataTable('#tabla_configurar')) {
+		$('#tabla_configurar').DataTable().destroy();
+	}
 	if (Array.isArray(datos) && datos.length > 0) {
+
 		$('#tabla_configurar').DataTable({
 			data: datos,
 			columns: [
 				{
 					data: null, render: function (row) {
-						const html = `<div id="" class="row text-center d-flex align-items-center row-${clase}">
+						var funcionstring = ""
+						var idValue = null
+						var check = ""
+						var readonly = "readOnly"
+						var prefijoval = ""
+						const idRegex = /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
+						if (idRegex.test(row.id) || null) {
+							funcionstring = ""
+							idValue = row.id
+						} else {
+							funcionstring = "(ID Generado)"
+							idValue = ""
+						}
+
+						if (row.bool_texto == 1) {
+							check = 'checked'
+							readonly = ""
+							prefijoval = row.prefijo
+						}
+
+						const html = `<div id="${row.id}" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-1">
-                      <input placeholder="ID" value="${row.id}" readOnly class="form-control input-grupo input-id" name="id"  type="text" id="id-${item.id}"
-                        maxlength="20">
+                      <input placeholder="${funcionstring}" value="${idValue}" readOnly class="form-control input-grupo input-id" name="id"  type="text" id="id-${row.id}"
+                        maxlength="24">
                       <span id="sid-${row.id}"></span>
                   </div>  
 				<div class="col-xl-4">
-                      <input placeholder="Nombre" value="${row.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item=${row.id} type="text" id="nombre-${row.id}"
-                        maxlength="20">
+                      <input placeholder="Nombre" value="${row.nombre}" class="form-control input-grupo input-nombre grupo-${grupo}" name="nombre" data-id-item="${idValue}" type="text" id="nombre-${row.id}"
+                        maxlength="65">
                       <span id="snombre-${row.id}"></span>
                   </div>
                   <div class="col-xl-2 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" role="switch" value="" id="checkbox-${row.id}" onchange="bloquearInputCheck(this, '${row.id}')"><br>
+                      <input class="form-check-input" type="checkbox" ${check} role="switch" value="" id="checkbox-${row.id}" onchange="bloquearInputCheck(this, '${row.id}')"><br>
                       <label class="form-check-label d-flex justify-content-center" for="">Observación</label>
                     </div>
                   </div>
 				  	<div class="col-xl-3">
-                      <input placeholder="Prefijo" value="" readOnly class="form-control prefijo-input prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${row.id}"
+                      <input placeholder="Prefijo" value="${prefijoval}" ${readonly} class="form-control prefijo-input prefijo-${grupo} grupo-${grupo}" name="prefijo" data-id-item="" type="text" id="prefijo-${row.id}"
                         maxlength="45">
                       <span id="sprefijo-${row.id}"></span>
                 	</div>
@@ -663,8 +700,17 @@ function itemServicio(datos, item) {
 				},
 				{
 					data: null, render: function (row) {
+
+						var funcionstring = ""
+						const idRegex = /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
+						if (idRegex.test(row.id) || null) {
+							funcionstring = `eliminarRegistro('${row.id}')`
+						} else {
+							funcionstring = `eliminarItemConfiguracion(this, 'boton-${row.id}')`
+						}
+
 						const botones = `<div class="col-xl-2 align-self-center">
-                    <button type="button" id="boton-quitar" onclick= eliminarRegistro("${row.id}") class="btn btn-primary btn-sm mx-auto my-4 ">
+                    <button type="button" id="boton-quitar" onclick= "${funcionstring}" class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
                   </div>`;

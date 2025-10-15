@@ -1,11 +1,11 @@
 <?php
 const Ctipo_servicio = [
     [
-        'id' => 'SO74157420250108',
+        'id' => 'SOPOR6432025101300104143',
         'servicio' => 'Soporte Tècnico'
     ],
     [
-        'id' => 'EL99749920250809',
+        'id' => 'ELECT4322025101321101432',
         'servicio' => 'Electrònica'
     ],
 ];

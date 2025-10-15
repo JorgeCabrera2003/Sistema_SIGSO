@@ -146,8 +146,6 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         try {
-
-
             // Validar datos requeridos
             if (empty($_POST["codigo_hoja_servicio"])) {
                 throw new Exception('Datos incompletos para registrar');
@@ -181,8 +179,6 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST['redireccionar'])) {
         try {
-
-
             // Validar datos requeridos
             if (empty($_POST['codigo_hoja_servicio']) || empty($_POST['area_destino'])) {
                 throw new Exception('Datos incompletos para redireccionar');
@@ -664,17 +660,18 @@ if (is_file("view/" . $page . ".php")) {
 
         if ($_POST['traer_item'] == 'servicio') {
             $servicio_prestado->set_id_servicio($arrayHoja['datos']['id_tipo_servicio']);
-            $response = $servicio_prestado->Transaccion(['peticion' => 'consultar']);
+            $response['check'] = $servicio_prestado->Transaccion(['peticion' => 'consultar']);
 
             $servicio_realizado->set_id_hoja_servicio($_POST['id_hoja']);
-            $response['check'] = $servicio_realizado->Transaccion(['peticion' => 'filtrar']);
-
+            $response['servicio'] = $servicio_realizado->Transaccion(['peticion' => 'filtrar']);
+            $response['resultado'] = "consultar";
         } else if ($_POST['traer_item'] == 'componente') {
             $componente->set_id_servicio($arrayHoja['datos']['id_tipo_servicio']);
-            $response = $componente->Transaccion(['peticion' => 'consultar']);
+            $response['check'] = $componente->Transaccion(['peticion' => 'consultar']);
 
             $componente_atendido->set_id_hoja_servicio($_POST['id_hoja']);
-            $response['check'] = $componente_atendido->Transaccion(['peticion' => 'filtrar']);
+            $response['servicio'] = $componente_atendido->Transaccion(['peticion' => 'filtrar']);
+            $response['resultado'] = "consultar";
         } else {
             $response = ['resultado' => 'error', 'mensaje' => 'Parametro no válido'];
         }

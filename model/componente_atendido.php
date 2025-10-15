@@ -132,10 +132,10 @@ class ComponenteAtendido extends Conexion
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
                     foreach ($arrayComponente as $key) {
-                        if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id_atendido']) == 0) {
+                        if (preg_match(c_regex['ID_Generado'], $key['id_atendido']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $key['id_check']) == 0) {
+                        } else if (preg_match(c_regex['ID_Generado'], $key['id_check']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else if ($key['observacion'] != NULL && preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['observacion']) == 0) {
