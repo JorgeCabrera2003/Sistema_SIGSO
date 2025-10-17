@@ -40,20 +40,21 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['tipo_servicio']['registrar']['estado']) && $permisos['tipo_servicio']['registrar']['estado'] == 1) {
-			if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
+			if (!isset($_POST["nombre"]) || preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre del Tipo de Servicio no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["encargado"]) == 0) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Encargado no válido";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else {
+
+				if (!isset($_POST["encargado"]) || preg_match(c_regex['Cedula'], $_POST["encargado"]) == 0) {
+					$tipo_servicio->set_encargado(NULL);
+				} else {
+					$tipo_servicio->set_encargado($_POST["encargado"]);
+				}
+
 				$tipo_servicio->set_codigo(generarID($_POST["nombre"]));
 				$tipo_servicio->set_nombre($_POST["nombre"]);
-				$tipo_servicio->set_encargado($_POST["encargado"]);
 				$peticion["peticion"] = "registrar";
 				$json = $tipo_servicio->Transaccion($peticion);
 
@@ -123,9 +124,9 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["modificar"])) {
 		if (isset($permisos['tipo_servicio']['modificar']['estado']) && $permisos['tipo_servicio']['modificar']['estado'] == 1) {
-			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_servicio"]) == 0) {
+			if (preg_match(c_regex['ID_Generado'], $_POST["id_servicio"]) == 0) {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Nombre del Tipo de Servicio no válido";
+				$json['mensaje'] = "Error, ID del Tipo de Servicio no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,45}$/", $_POST["nombre"]) == 0) {
@@ -133,15 +134,16 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Nombre del Tipo de Servicio no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
-			} else if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $_POST["encargado"]) == 0) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Encargado no válido";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else {
+
+				if (!isset($_POST["encargado"]) || preg_match(c_regex['Cedula'], $_POST["encargado"]) == 0) {
+					$tipo_servicio->set_encargado(NULL);
+				} else {
+					$tipo_servicio->set_encargado($_POST["encargado"]);
+				}
+
 				$tipo_servicio->set_codigo($_POST["id_servicio"]);
 				$tipo_servicio->set_nombre($_POST["nombre"]);
-				$tipo_servicio->set_encargado($_POST["encargado"]);
 				$peticion["peticion"] = "actualizar";
 				$json = $tipo_servicio->Transaccion($peticion);
 
@@ -310,6 +312,55 @@ if (is_file("view/" . $page . ".php")) {
 				$json['componente'] = $_POST["componente"];
 			} else {
 				$json['componente'] = "error";
+			}
+		}
+		echo json_encode($json);
+		exit;
+	}
+
+	if (isset($_POST["configurar_servicio"])) {
+
+
+		$json['resultado'] = "configurar_servicio";
+		if (!isset($_POST["id_servicio"]) || preg_match(c_regex['ID_Generado'], $_POST["id_servicio"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, ID del Tipo de Servicio no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+		} else if (!isset($_POST["valores"])) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, Datos no Válidos";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+		} else {
+			$arrayDatos = convertirJSON(json_decode($_POST['valores']));
+			
+			foreach ($arrayDatos as &$key) {
+				if ($key["id"] == NULL) {
+					usleep(100000);
+					$id = generarID($_POST["id_servicio"], $key["nombre"]);
+					$key["id"] = $id;
+				}
+			}
+
+			if (isset($_POST["item"])) {
+
+				if ($_POST["item"] == "servicios") {
+					$servicio_prestado->set_id_servicio($_POST['id_servicio']);
+					$json = $servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayDatos]);
+
+				} else if ($_POST["item"] == "componentes") {
+					$componente->set_id_servicio($_POST['id_servicio']);
+					$contadorC = $componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayDatos]);
+
+				} else {
+					$json['resultado'] = "error";
+					$json['mensaje'] = "Error, Parámetro no válido";
+
+				}
+			} else {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Parámetro no válido";
 			}
 		}
 		echo json_encode($json);

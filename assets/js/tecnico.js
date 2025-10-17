@@ -24,6 +24,7 @@ $(document).ready(function () {
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('registrar', 'registrar');
+						datos.append('particle', $("#particle").val());
 						datos.append('cedula', $("#cedula").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('apellido', $("#apellido").val());
@@ -33,11 +34,6 @@ $(document).ready(function () {
 						datos.append('cargo', $("#cargo").val());
 						datos.append('grado_experiencia', $("#grado_experiencia").val());
 						datos.append('servicio', $("#servicio").val()); // <-- Agrega el área
-						if ($("#check_user").prop('checked')) {
-							datos.append('check_usuario', 1);
-						} else {
-							datos.append('check_usuario', 0);
-						}
 						enviaAjax(datos);
 					}
 				}
@@ -48,6 +44,7 @@ $(document).ready(function () {
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('modificar', 'modificar');
+						datos.append('particle', $("#particle").val());
 						datos.append('cedula', $("#cedula").val());
 						datos.append('nombre', $("#nombre").val());
 						datos.append('apellido', $("#apellido").val());
@@ -67,6 +64,7 @@ $(document).ready(function () {
 					if (confirmacion) {
 						var datos = new FormData();
 						datos.append('eliminar', 'eliminar');
+						datos.append('particle', $("#particle").val());
 						datos.append('cedula', $("#cedula").val());
 						enviaAjax(datos);
 					}

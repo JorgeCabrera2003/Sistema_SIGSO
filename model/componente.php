@@ -132,29 +132,26 @@ class Componente extends Conexion
                     $this->conexion = $this->conexion->Conex();
                     $this->conexion->beginTransaction();
                     foreach ($arrayComponente as $key) {
-                        if (preg_match(c_regex['ID_Generado'], $key['id']) == 0) {
+                        if (!isset($key['id']) || preg_match(c_regex['ID_Generado'], $key['id']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,65}$/", $key['nombre']) == 0) {
+                        } else if (!isset($key['nombre']) || preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,65}$/", $key['nombre']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
-                        } else if (preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {
+                        } else if (!isset($key['estado']) || preg_match("/^[0-9]{1}$/", $key['estado']) == 0) {
                             $dato['total_errores'] = $dato['total_errores'] + 1;
 
                         } else {
-                            if ($key['estado'] == 0 || $key['estado'] > 2) {
+                            
+                            if ($key['estado'] == 0 || $key['estado'] >= 2) {
                                 $this->set_prefijo(NULL);
                             }
 
                             if ($key['estado'] == 1) {
                                 $this->set_prefijo($key['prefijo']);
-                                if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['prefijo']) == 0) {
+                                if (!isset($key['prefijo']) || preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,30}$/", $key['prefijo']) == 0) {
                                     $this->set_prefijo("Observación");
                                 }
-                            }
-
-                            if ($key['prefijo'] == NULL) {
-                                $this->set_prefijo(NULL);
                             }
 
                             $this->set_id($key['id']);

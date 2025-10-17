@@ -92,7 +92,7 @@ function cargarTecnico() {
 	enviaAjax(datos);
 }
 
-function listarServicio(idServicio, componente = "tabla") {
+async function listarServicio(idServicio, componente = "tabla") {
 	var datos = new FormData();
 	if (componente == 'tabla') {
 		$("#div-TablaServicio").addClass("d-none");
@@ -108,10 +108,10 @@ function listarServicio(idServicio, componente = "tabla") {
 	datos.append('listar_servicio', 'listar_servicio');
 	datos.append('id_servicio', idServicio);
 	datos.append('componente', componente);
-	enviaAjax(datos);
+	return await enviaAjax(datos);
 }
 
-function listarComponente(idServicio, componente = "tabla") {
+async function listarComponente(idServicio, componente = "tabla") {
 	var datos = new FormData();
 	if (componente == 'tabla') {
 		$("#div-TablaComponente").addClass("d-none");
@@ -127,11 +127,22 @@ function listarComponente(idServicio, componente = "tabla") {
 	datos.append('listar_componente', 'listar_componente');
 	datos.append('id_servicio', idServicio);
 	datos.append('componente', componente);
-	enviaAjax(datos);
+	return await enviaAjax(datos);
 }
 
-function enviaAjax(datos, spinner = null) {
-	$.ajax({
+function iniciarValidacionContinua() {
+	// Detiene cualquier timeout existente
+	clearTimeout(timeoutId);
+	clearTimeout(timeoutRepetidoId);
+	capaValidar();
+	timeoutRepetidoId = setTimeout(function ejecutarValidacion() {
+		capaValidar();
+		timeoutRepetidoId = setTimeout(ejecutarValidacion, 1000);
+	}, 1000);
+}
+
+async function enviaAjax(datos, spinner = null) {
+	return $.ajax({
 		async: true,
 		url: "",
 		type: "POST",
@@ -166,6 +177,7 @@ function enviaAjax(datos, spinner = null) {
 
 					} else if (lee.componente == "input") {
 						itemServicio(lee.datos, "componente");
+						capaValidar();
 					} else {
 						console.log("error");
 					}
@@ -175,6 +187,7 @@ function enviaAjax(datos, spinner = null) {
 						TablaServicio(lee.datos);
 					} else if (lee.componente == "input") {
 						itemServicio(lee.datos, "servicio");
+						capaValidar();
 					} else {
 						console.log("error");
 					}
@@ -460,13 +473,14 @@ function bloquearInputCheck(input, id) {
 	}
 };
 
-$("#btn-configuarS").on("click", function () {
+$("#btn-configuarS").on("click", async function () {
 	listarServicio($("#id_servicio").val(), "input")
+	capaValidar();
 })
 
-$("#btn-configuarC").on("click", function () {
+$("#btn-configuarC").on("click", async function () {
 	listarComponente($("#id_servicio").val(), "input")
-
+	capaValidar();
 })
 
 $("#agregar-config").on("click", function () {
@@ -481,6 +495,7 @@ $("#retroceder-config").on("click", function () {
 $("#guardar-config").on("click", function () {
 
 	var valores = null;
+	var item = null;
 	if (inputGuardar() == 0) {
 
 		mensajes("error", 10000, "Verifica", "Uno de los campos no es válido")
@@ -488,14 +503,21 @@ $("#guardar-config").on("click", function () {
 	} else {
 		if ($("#titulo-configurar").text() == "Servicios") {
 			valores = procesarServicio("servicio");
+			item = "servicios"
 		} else if ($("#titulo-configurar").text() == "Componentes") {
 			valores = procesarServicio("componente");
+			item = "componentes"
 		} else {
 			console.log("error");
+			item = "error"
 		}
 	}
-
-	console.log(valores);
+	var datos = new FormData()
+	datos.append('configurar_servicio', 'configurar_servicio');
+	datos.append('item', item);
+	datos.append('id_servicio', $("#id_servicio").val());
+	datos.append('valores', JSON.stringify(valores));
+	enviaAjax(datos);
 })
 
 function crearInputConfiguracion() {
@@ -597,22 +619,24 @@ function inputGuardar() {
 	idS = Array.from(document.querySelectorAll('.input-nombre'))
 		.map(input => input.id);
 
-	prefijoid = Array.from(document.querySelectorAll('input.prefijo-input[type="text"][id]'))
+	prefijoid = Array.from(document.querySelectorAll('.prefijo-input'))
 		.map(input => input.id)
 
 	idS.forEach((id, index) => {
 		console.log($(`#${id}`));
 		bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
-		if (bool === 0) {
+		if (bool == 0) {
 			resultado = 0;
 		}
+
 	})
 
 	prefijoid.forEach((id, index) => {
 		console.log($(`#${id}`));
-		if ($(`checkbox-${id}`).prop('checked')) {
+		if ($(`#checkbox-${id}`).prop('checked')) {
+			console.log("Entrada Checkbox")
 			bool = validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ - ]{5,45}$/, ($(`#${id}`)), $(`#s${id}`), "")
-			if (bool === 0) {
+			if (bool == 0) {
 				resultado = 0;
 			}
 		}
@@ -622,7 +646,7 @@ function inputGuardar() {
 	return resultado;
 }
 
-function itemServicio(datos, item) {
+async function itemServicio(datos, item) {
 	let grupo = "";
 	let clase = "";
 
@@ -685,7 +709,7 @@ function itemServicio(datos, item) {
                   </div>
                   <div class="col-xl-2 align-self-center d-flex justify-content-center">
                     <div class="form-check form-switch d-flex justify-content-center flex-nowrap">
-                      <input class="form-check-input" type="checkbox" ${check} role="switch" value="" id="checkbox-${row.id}" onchange="bloquearInputCheck(this, '${row.id}')"><br>
+                      <input class="form-check-input" type="checkbox" ${check} role="switch" value="" id="checkbox-prefijo-${row.id}" onchange="bloquearInputCheck(this, '${row.id}')"><br>
                       <label class="form-check-label d-flex justify-content-center" for="">Observación</label>
                     </div>
                   </div>
@@ -719,8 +743,13 @@ function itemServicio(datos, item) {
 				}],
 			language: {
 				url: idiomaTabla
+			},
+
+			drawCallback: function (settings) {
+				capaValidar();
 			}
 		})
+
 	} else {
 		$("#div-configurar").append(`<div class="row mt-5 text-center d-flex align-items-center" id="row-vacio">
                 <div class="col-xl-12 align-self-center d-flex justify-content-center">
@@ -737,7 +766,6 @@ function itemServicio(datos, item) {
 	console.log(datos);
 	$("#spinner-configuracion").addClass("d-none");
 	$("#div-configurar").removeClass("d-none");
-	capaValidar();
 }
 
 function eliminarItem(id) {

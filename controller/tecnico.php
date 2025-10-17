@@ -46,9 +46,11 @@ if (is_file("view/" . $page . ".php")) {
 	if (isset($_POST["registrar"])) {
 		if (isset($permisos['tecnico']['registrar']['estado']) && $permisos['tecnico']['registrar']['estado'] == '1') {
 			$cedula = "";
+			
 			if (isset($_POST["cedula"]) && isset($_POST["particle"])) {
 				$cedula = $_POST["particle"] . "" . $_POST["cedula"];
 			}
+
 			if (preg_match(c_regex['Cedula'], $cedula) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
@@ -109,6 +111,7 @@ if (is_file("view/" . $page . ".php")) {
 					$tecnico->set_telefono($_POST["telefono"]);
 					$tecnico->set_id_unidad($_POST["unidad"]);
 					$tecnico->set_id_cargo($_POST["cargo"]);
+					$tecnico->set_grado_experiencia($_POST["grado_experiencia"]);
 					$tecnico->set_id_servicio($_POST["servicio"]); // <--- área
 					$peticion["peticion"] = "registrar";
 					$json = $tecnico->Transaccion($peticion);
@@ -205,7 +208,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json['mensaje'] = "Error, Grado de Experiencia no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 
-			} else if ($_POST["grado_experiencia"] > 5 || $_POST["grado_experiencia"] < 0) {
+			} else if ($_POST["grado_experiencia"] > 5 || $_POST["grado_experiencia"] < 1) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Grado de Experiencia no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
@@ -222,6 +225,7 @@ if (is_file("view/" . $page . ".php")) {
 				$tecnico->set_telefono($_POST["telefono"]);
 				$tecnico->set_id_unidad($_POST["unidad"]);
 				$tecnico->set_id_cargo($_POST["cargo"]);
+				$tecnico->set_grado_experiencia($_POST["grado_experiencia"]);
 				$tecnico->set_id_servicio($_POST["servicio"]); // <--- área
 				$peticion["peticion"] = "modificar";
 				$json = $tecnico->Transaccion($peticion);
@@ -262,6 +266,7 @@ if (is_file("view/" . $page . ".php")) {
 			if (isset($_POST["cedula"]) && isset($_POST["particle"])) {
 				$cedula = $_POST["particle"] . "" . $_POST["cedula"];
 			}
+
 			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $cedula) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
