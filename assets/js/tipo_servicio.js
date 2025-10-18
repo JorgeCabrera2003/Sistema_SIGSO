@@ -207,6 +207,29 @@ async function enviaAjax(datos, spinner = null) {
 				} else if (lee.resultado == "listar_tecnicos") {
 					selectTecnico(lee.datos);
 
+
+				} else if (lee.resultado == "modificar_lista_servicio") {
+					if (lee.item == "servicio") {
+						listarServicio(lee.id_servicio, "tabla")
+						listarServicio(lee.id_servicio, "input")
+
+					} else if (lee.item == "componente") {
+						listarComponente(lee.id_servicio, "tabla")
+						listarComponente(lee.id_servicio, "input")
+					}
+					mensajes("success", 10000, lee.mensaje, null);
+
+				} else if(lee.resultado == "eliminar_item"){
+					if (lee.item == "servicio") {
+						listarServicio($("#id_servicio").val(), "tabla")
+						listarServicio($("#id_servicio").val(), "input")
+
+					} else if (lee.item == "componente") {
+						listarComponente($("#id_servicio").val(), "tabla")
+						listarComponente($("#id_servicio").val(), "input")
+					}
+					mensajes("success", 10000, lee.mensaje, null);
+
 				} else if (lee.resultado == "permisos_modulo") {
 					vistaPermiso(lee.permisos);
 
@@ -492,7 +515,7 @@ $("#retroceder-config").on("click", function () {
 	$("#modalConfigurar").modal("hide");
 })
 
-$("#guardar-config").on("click", function () {
+$("#guardar-config").on("click", async function () {
 
 	var valores = null;
 	var item = null;
@@ -501,23 +524,27 @@ $("#guardar-config").on("click", function () {
 		mensajes("error", 10000, "Verifica", "Uno de los campos no es válido")
 
 	} else {
-		if ($("#titulo-configurar").text() == "Servicios") {
-			valores = procesarServicio("servicio");
-			item = "servicios"
-		} else if ($("#titulo-configurar").text() == "Componentes") {
-			valores = procesarServicio("componente");
-			item = "componentes"
-		} else {
-			console.log("error");
-			item = "error"
+		confirmacion = await confirmarAccion("Se guardarán los datos", "¿Está seguro de realizar la acción?", "question");
+		if (confirmacion) {
+			if ($("#titulo-configurar").text() == "Servicios") {
+				valores = procesarServicio("servicio");
+				item = "servicios"
+			} else if ($("#titulo-configurar").text() == "Componentes") {
+				valores = procesarServicio("componente");
+				item = "componentes"
+			} else {
+				console.log("error");
+				item = "error"
+			}
+			var datos = new FormData()
+			datos.append('configurar_servicio', 'configurar_servicio');
+			datos.append('item', item);
+			datos.append('id_servicio', $("#id_servicio").val());
+			datos.append('valores', JSON.stringify(valores));
+			enviaAjax(datos);
 		}
 	}
-	var datos = new FormData()
-	datos.append('configurar_servicio', 'configurar_servicio');
-	datos.append('item', item);
-	datos.append('id_servicio', $("#id_servicio").val());
-	datos.append('valores', JSON.stringify(valores));
-	enviaAjax(datos);
+
 })
 
 function crearInputConfiguracion() {
@@ -606,7 +633,6 @@ async function eliminarRegistro(etiqueta, id) {
 		datos.append('eliminar_item', 'eliminar_item');
 		datos.append('tabla', tabla)
 		datos.append('id', id);
-
 		enviaAjax(datos);
 	}
 }
@@ -651,12 +677,12 @@ async function itemServicio(datos, item) {
 	let clase = "";
 
 	if (item == "servicio") {
-		$("#titulo-configurar").text("Servicios");
+		$("#titulo-configurar").text("Configurar Servicios de "+ $("#nombre").val());
 		grupo = "servicio";
 		clase = "btn-agregarS";
 
 	} else if (item == "componente") {
-		$("#titulo-configurar").text("Componentes");
+		$("#titulo-configurar").text("Configurar Componentes a Atender de " + $("#nombre").val());
 		grupo = "componente";
 		clase = "btn-agregarC";
 
@@ -670,6 +696,8 @@ async function itemServicio(datos, item) {
 		$('#tabla_configurar').DataTable().destroy();
 	}
 	if (Array.isArray(datos) && datos.length > 0) {
+
+	}
 
 		$('#tabla_configurar').DataTable({
 			data: datos,
@@ -749,19 +777,6 @@ async function itemServicio(datos, item) {
 				capaValidar();
 			}
 		})
-
-	} else {
-		$("#div-configurar").append(`<div class="row mt-5 text-center d-flex align-items-center" id="row-vacio">
-                <div class="col-xl-12 align-self-center d-flex justify-content-center">
-                	<div class="alert alert-danger d-flex align-items-center" role="alert">
-  					<i class="fa-solid fa-triangle-exclamation"></i>
-  						<div>
-    						Alerta: No hay registros en esta sección
-  						</div>
-					</div>    
-                </div>
-				</div>`)
-	}
 	console.log(item);
 	console.log(datos);
 	$("#spinner-configuracion").addClass("d-none");
