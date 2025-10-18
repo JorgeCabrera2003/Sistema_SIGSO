@@ -119,7 +119,7 @@ function convertirJSON($objeto)
     return $objeto;
 }
 
-function generarID($primaria, $secundaria = NULL)
+function generarID($primaria, $secundaria = NULL, $terciaria = NULL)
 {
     // Formato de ID: (XXXXX)(XXX)(XXXXXXXX)(XXXXXXXX)
     // (Clave Primaria)(Clave Secundaria)(Fecha)(Hora Minutos Segundos Milisegundos)
@@ -136,8 +136,16 @@ function generarID($primaria, $secundaria = NULL)
         $secundaria = strtoupper(substr(trim($secundaria), 0, 3));
     }
 
+    if ($terciaria == NULL) {
+        usleep(50000);
+        $milisegundo = number_format(microtime(true) * 1000, 0, '', '');
+        $terciaria = substr($milisegundo, -2);
+    } else {
+        $terciaria = preg_replace('/[^A-Za-z0-9]/', '', $terciaria);
+        $terciaria = strtoupper(substr(trim($terciaria), 0, 2));
+    }
     // Componer el ID
-    $id = $primaria . "" . $secundaria . "" . $dia . "". $hora . "" . substr($milisegundo, -2);
+    $id = $primaria . "" . $secundaria . "" . $dia . "". $hora . "" . $terciaria;
 
     return $id;
 }

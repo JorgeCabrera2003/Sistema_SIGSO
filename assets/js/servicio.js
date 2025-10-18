@@ -771,7 +771,9 @@ function renderizarCheckboxServicio(arreglo, valores, item) {
         arreglo.forEach(clave => {
             id_atendido = null;
             observacion = '';
+            bool_lectura = 'readOnly';
             bool_check = '';
+            
             if (Array.isArray(valores) && valores.length > 0) {
                 valores.forEach(llave => {
 
@@ -787,7 +789,6 @@ function renderizarCheckboxServicio(arreglo, valores, item) {
 
                         if (llave.observacion == null || llave.observacion == '') {
                             observacion = '';
-                            bool_lectura = 'readOnly';
                         } else {
                             bool_lectura = '';
                         }
@@ -795,7 +796,7 @@ function renderizarCheckboxServicio(arreglo, valores, item) {
                 })
             }
 
-
+            console.log(bool_lectura)
             if (clave.bool_texto == 1) {
                 columnas_ocupadas = "5";
                 input_texto = `<div class="col-lg-7">

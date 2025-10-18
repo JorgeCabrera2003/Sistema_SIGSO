@@ -403,21 +403,21 @@ if (is_file("view/" . $page . ".php")) {
             $boolArray['boolComponente'] = 0;
             $arrayServicio = convertirJSON(json_decode($_POST['servicio_realizado']));
             $arrayComponente = convertirJSON(json_decode($_POST['componente_atendido']));
-
+            $i = 0;
             foreach ($arrayServicio as &$keyS) {
                 $boolArray['boolServicio'] = 1;
-                if ($keyS['id_atendido'] == 'null') {
-                    usleep(100000);
+                if ($keyS['id_atendido'] == 'null'|| $keyS['id_atendido'] == null) {
+                    $i++;
                     $id = generarID($keyS['id_check'], $_POST["codigo_hoja_servicio"]);
                     $keyS['id_atendido'] = $id;
                 }
 
             }
-
+            $i = 0;
             foreach ($arrayComponente as &$keyC) {
                 $boolArray['boolComponente'] = 1;
-                if ($keyC['id_atendido'] == 'null') {
-                    usleep(100000);
+                if ($keyC['id_atendido'] == 'null' || $keyC['id_atendido'] == null) {
+                    $i++;
                     $id = generarID($keyC['id_check'], $_POST["codigo_hoja_servicio"]);
                     $keyC['id_atendido'] = $id;
                 }
