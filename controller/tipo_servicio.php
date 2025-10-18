@@ -320,7 +320,6 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["configurar_servicio"])) {
 
-
 		$json['resultado'] = "configurar_servicio";
 		if (!isset($_POST["id_servicio"]) || preg_match(c_regex['ID_Generado'], $_POST["id_servicio"]) == 0) {
 			$json['resultado'] = "error";
@@ -334,11 +333,11 @@ if (is_file("view/" . $page . ".php")) {
 
 		} else {
 			$arrayDatos = convertirJSON(json_decode($_POST['valores']));
-			
+			$i = 0;
 			foreach ($arrayDatos as &$key) {
 				if ($key["id"] == NULL) {
-					usleep(100000);
-					$id = generarID($_POST["id_servicio"], $key["nombre"]);
+					$i++;
+					$id = generarID($_POST["id_servicio"], $key["nombre"], $i);
 					$key["id"] = $id;
 				}
 			}
@@ -348,15 +347,83 @@ if (is_file("view/" . $page . ".php")) {
 				if ($_POST["item"] == "servicios") {
 					$servicio_prestado->set_id_servicio($_POST['id_servicio']);
 					$json = $servicio_prestado->Transaccion(['peticion' => 'cargar', 'servicios' => $arrayDatos]);
+					$json['resultado'] = "modificar_lista_servicio";
+					$json['item'] = "servicio";
+
+					if ($json['total_errores'] > 0) {
+						$json['mensaje'] = "Advertencia, algunos registros no se guardaron correctamente: " . $json['total_errores'] . "";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Advertencia, algunos registros no se guardaron correctamente: " . $json['total_errores'] . "";
+					} else {
+						$json['mensaje'] = "Configuración guardada exitosamente";
+					}
 
 				} else if ($_POST["item"] == "componentes") {
 					$componente->set_id_servicio($_POST['id_servicio']);
-					$contadorC = $componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayDatos]);
+					$json = $componente->Transaccion(['peticion' => 'cargar', 'componentes' => $arrayDatos]);
+					$json['resultado'] = "modificar_lista_servicio";
+					$json['item'] = "componente";
 
+					if ($json['total_errores'] > 0) {
+						$json['mensaje'] = "Advertencia, algunos registros no se guardaron correctamente: " . $json['total_errores'] . "";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Advertencia, algunos registros no se guardaron correctamente: " . $json['total_errores'] . "";
+					} else {
+						$json['mensaje'] = "Configuración guardada exitosamente";
+					}
 				} else {
 					$json['resultado'] = "error";
 					$json['mensaje'] = "Error, Parámetro no válido";
+				}
+				$json['id_servicio'] = $_POST['id_servicio'];
+			} else {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Parámetro no válido";
+			}
+		}
+		echo json_encode($json);
+		exit;
+	}
 
+	if (isset($_POST["eliminar_item"])) {
+
+		if (!isset($_POST["id"]) || preg_match(c_regex['ID_Generado'], $_POST["od"]) == 0) {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "Error, ID no válido";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+
+		} else {
+
+			if (isset($_POST["tabla"])) {
+
+				if ($_POST["tabla"] == "servicios") {
+					$servicio_prestado->set_id($_POST['id']);
+					$json = $servicio_prestado->Transaccion(['peticion' => 'eliminar']);
+					$json['resultado'] = "eliminar_item";
+					$json['item'] = "servicio";
+
+					if ($json['estado'] == 1) {
+						$json['mensaje'] = "Error al eliminar el registroc con ID: " . $_POST["id"];
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Advertencia, algunos registros no se guardaron correctamente: " . $_POST["id"] . "";
+					} else {
+						$json['mensaje'] = "Configuración guardada exitosamente";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), No pudo eliminar el registro: " ;
+					}
+
+				} else if ($_POST["tabla"] == "componentes") {
+					$componente->set_id($_POST['id']);
+					$json = $componente->Transaccion(['peticion' => 'eliminar']);
+					$json['resultado'] = "eliminar_item";
+					$json['item'] = "componente";
+
+					if ($json['estado'] == 1) {
+						$json['mensaje'] = "Error al eliminar el registroc con ID: " . $_POST["id"];
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Advertencia, algunos registros no se guardaron correctamente: " . $_POST["id"] . "";
+					} else {
+						$json['mensaje'] = "Configuración guardada exitosamente";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), No pudo eliminar el registro: " ;
+					}
+				} else {
+					$json['resultado'] = "error";
+					$json['mensaje'] = "Error, Parámetro no válido";
 				}
 			} else {
 				$json['resultado'] = "error";

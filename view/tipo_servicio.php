@@ -132,10 +132,6 @@
                       </table>
                     </div>
                   </div>
-                  <!--<div class="container div-configurar" id="div-configurar">
-
-
-                  </div> -->
                 </fieldset>
               </div>
             </div>

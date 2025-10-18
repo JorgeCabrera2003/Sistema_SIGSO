@@ -179,7 +179,7 @@ class Componente extends Conexion
             } else {
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
-                $dato['mensaje'] = "Registro duplicado";
+                $dato['mensaje'] = "Datos no válidos";
             }
         }
         return $dato;
