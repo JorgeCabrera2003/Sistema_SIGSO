@@ -18,21 +18,29 @@ class Piso extends Conexion
 
     public function set_id($id)
     {
+        if($id == NULL || preg_match("/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/", $id) == 0){
+            throw new ValueError("Id no válido");
+        }
         $this->id = $id;
-    }
-
-    public function set_id_edificio($id_edificio)
-    {
-        $this->id_edificio = $id_edificio;
     }
 
     public function set_tipo($tipo)
     {
+        if($tipo == NULL || $tipo != 'Planta Baja' && $tipo != 'Piso' && $tipo != 'Sótano' && $tipo != 'Terraza'){
+            throw new ValueError("Tipo de Piso no Válido");
+        }
         $this->tipo = $tipo;
     }
 
     public function set_nro_piso($nro_piso)
     {
+        if($nro_piso == NULL || preg_match("/^[0-9]{1,2}$/", $nro_piso ) == 0 || $nro_piso < 0){
+            throw new ValueError("Número de Piso no válido");
+        } else if($nro_piso == 0 && $this->get_tipo() != 'Planta Baja'){
+            throw new ValueError("Número de Piso no válido");
+        } else if($nro_piso != 0 && $this->get_tipo()== 'Planta Baja'){
+            throw new ValueError("Número de Piso no válido");
+        }
         $this->nro_piso = $nro_piso;
     }
 
