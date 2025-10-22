@@ -1,28 +1,27 @@
 <?php
 declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
-require_once "model/ente.php";
+require_once "model/unidad.php";
 
 #[ExpectException(ValueError::class)]
 
-final class EnteTest extends TestCase
+final class UnidadTest extends TestCase
 {
-    private Ente $Tente;
+    private Unidad $Tunidad;
 
     public function setUp(): void
     {
-        $this->Tente = new Ente();
+        $this->Tunidad = new Unidad();
     }
 
-    public function testRegistrarEnte()
+    public function testRegistrarUnidad()
     {
 
-        $this->Tente->set_id("PARQU0122025201014043321");
-        $this->Tente->set_nombre('Parque del Este');
-        $this->Tente->set_telefono('0424-9883212');
-        $this->Tente->set_direccion('Avenida Los Horcones');
-        $this->Tente->set_responsable('Antonia de Gil');
-        $resultado = $this->Tente->Transaccion(['peticion' => 'registrar']);
+        $this->Tunidad->set_id("UNIDAGOB2025201014043321");
+        $this->Tunidad->set_nombre('Unidad de Guardia');
+        $this->Tunidad->set_id_dependencia('OFITIGOB2025100112004023');
+
+        $resultado = $this->Tunidad->Transaccion(['peticion' => 'registrar']);
 
         $this->assertIsArray($resultado);
 
@@ -36,29 +35,27 @@ final class EnteTest extends TestCase
                 $this->assertTrue(false, $resultado['mensaje']);
             }
         } else {
-            $this->fail('Fallo en Registrar Ente');
+            $this->fail('Fallo en Registrar Unidad');
         }
     }
 
-    public function testConsultarEnte()
+    public function testConsultarUnidad()
     {
 
-        $resultado = $this->Tente->Transaccion(['peticion' => 'consultar']);
+        $resultado = $this->Tunidad->Transaccion(['peticion' => 'consultar']);
 
         $this->assertIsArray($resultado);
         $this->assertEquals('consultar', $resultado['resultado']);
         $this->assertIsArray($resultado['datos']);
     }
 
-    public function testModificarEnte()
+    public function testModificarUnidad()
     {
 
-        $this->Tente->set_id("PARQU0122025201014043321");
-        $this->Tente->set_nombre('Parque del Oeste');
-        $this->Tente->set_telefono('0424-9883212');
-        $this->Tente->set_direccion('Avenida Los Horcones');
-        $this->Tente->set_responsable('Antonia de Gil');
-        $resultado = $this->Tente->Transaccion(['peticion' => 'actualizar']);
+        $this->Tunidad->set_id("UNIDAGOB2025201014043321");
+        $this->Tunidad->set_nombre('Guardia Forestal');
+        $this->Tunidad->set_id_dependencia('OFITIGOB2025100112004023');
+        $resultado = $this->Tunidad->Transaccion(['peticion' => 'actualizar']);
 
         $this->assertIsArray($resultado);
 
@@ -66,14 +63,14 @@ final class EnteTest extends TestCase
             $this->assertEquals('modificar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
         } else if ($resultado['estado'] == -1) {
-            $this->fail('Fallo en Modificar Ente');
+            $this->fail('Fallo en Modificar Unidad');
         }
     }
 
-    public function testEliminarEnte()
+    public function testEliminarUnidad()
     {
-        $this->Tente->set_id("PARQU0122025201014043321");
-        $resultado = $this->Tente->Transaccion(['peticion' => 'eliminar']);
+        $this->Tunidad->set_id("UNIDAGOB2025201014043321");
+        $resultado = $this->Tunidad->Transaccion(['peticion' => 'eliminar']);
 
         $this->assertIsArray($resultado);
 
@@ -81,7 +78,7 @@ final class EnteTest extends TestCase
             $this->assertEquals('eliminar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
         } else if ($resultado['estado'] == -1) {
-            $this->fail('Fallo en Eliminar Ente');
+            $this->fail('Fallo en Eliminar Unidad');
         }
     }
 }

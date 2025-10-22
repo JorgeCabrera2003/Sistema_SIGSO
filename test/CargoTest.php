@@ -1,28 +1,25 @@
 <?php
 declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
-require_once "model/ente.php";
+require_once "model/cargo.php";
 
 #[ExpectException(ValueError::class)]
 
-final class EnteTest extends TestCase
+final class CargoTest extends TestCase
 {
-    private Ente $Tente;
+    private Cargo $Tcargo;
 
     public function setUp(): void
     {
-        $this->Tente = new Ente();
+        $this->Tcargo = new Cargo();
     }
 
-    public function testRegistrarEnte()
+    public function testRegistrarCargo()
     {
 
-        $this->Tente->set_id("PARQU0122025201014043321");
-        $this->Tente->set_nombre('Parque del Este');
-        $this->Tente->set_telefono('0424-9883212');
-        $this->Tente->set_direccion('Avenida Los Horcones');
-        $this->Tente->set_responsable('Antonia de Gil');
-        $resultado = $this->Tente->Transaccion(['peticion' => 'registrar']);
+        $this->Tcargo->set_id("INFOR0312025201014043321");
+        $this->Tcargo->set_nombre('Informante');
+        $resultado = $this->Tcargo->Transaccion(['peticion' => 'registrar']);
 
         $this->assertIsArray($resultado);
 
@@ -36,29 +33,26 @@ final class EnteTest extends TestCase
                 $this->assertTrue(false, $resultado['mensaje']);
             }
         } else {
-            $this->fail('Fallo en Registrar Ente');
+            $this->fail('Fallo en Registrar Cargo');
         }
     }
 
-    public function testConsultarEnte()
+    public function testConsultarCargo()
     {
 
-        $resultado = $this->Tente->Transaccion(['peticion' => 'consultar']);
+        $resultado = $this->Tcargo->Transaccion(['peticion' => 'consultar']);
 
         $this->assertIsArray($resultado);
         $this->assertEquals('consultar', $resultado['resultado']);
         $this->assertIsArray($resultado['datos']);
     }
 
-    public function testModificarEnte()
+    public function testModificarCargo()
     {
 
-        $this->Tente->set_id("PARQU0122025201014043321");
-        $this->Tente->set_nombre('Parque del Oeste');
-        $this->Tente->set_telefono('0424-9883212');
-        $this->Tente->set_direccion('Avenida Los Horcones');
-        $this->Tente->set_responsable('Antonia de Gil');
-        $resultado = $this->Tente->Transaccion(['peticion' => 'actualizar']);
+        $this->Tcargo->set_id("INFOR0312025201014043321");
+        $this->Tcargo->set_nombre('Informador');
+        $resultado = $this->Tcargo->Transaccion(['peticion' => 'actualizar']);
 
         $this->assertIsArray($resultado);
 
@@ -66,14 +60,14 @@ final class EnteTest extends TestCase
             $this->assertEquals('modificar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
         } else if ($resultado['estado'] == -1) {
-            $this->fail('Fallo en Modificar Ente');
+            $this->fail('Fallo en Modificar Cargo');
         }
     }
 
-    public function testEliminarEnte()
+    public function testEliminarCargo()
     {
-        $this->Tente->set_id("PARQU0122025201014043321");
-        $resultado = $this->Tente->Transaccion(['peticion' => 'eliminar']);
+        $this->Tcargo->set_id("INFOR0312025201014043321");
+        $resultado = $this->Tcargo->Transaccion(['peticion' => 'eliminar']);
 
         $this->assertIsArray($resultado);
 

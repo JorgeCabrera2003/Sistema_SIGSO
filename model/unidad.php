@@ -93,7 +93,7 @@ class Unidad extends Conexion
             $dato['error'] = $e->getMessage();
             $dato['bool'] = -1;
         }
-        $this->Cerrar_Conexion($none, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -218,7 +218,6 @@ class Unidad extends Conexion
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Error al eliminar el registro";

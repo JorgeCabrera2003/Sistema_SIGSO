@@ -26,30 +26,48 @@ class Ente extends Conexion
 
     public function set_id($id)
     {
+        if ($id == NULL || preg_match("/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/", $id) == 0) {
+            throw new ValueError("Id no válido");
+        }
         $this->id = $id;
     }
 
     public function set_nombre($nombre)
     {
+        if ($nombre == NULL || preg_match('/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,90}$/', $nombre) == 0) {
+            throw new ValueError("Nombre no válido");
+        }
         $this->nombre = $nombre;
     }
 
     public function set_responsable($responsable)
     {
+        if ($responsable == NULL || preg_match('/^[0-9 a-zA-ZáéíóúüñÑçÇ]{3,45}$/', $responsable) == 0) {
+            throw new ValueError("Nombre del Responsable no válido no válido");
+        }
         $this->responsable = $responsable;
     }
 
     public function set_direccion($direccion)
     {
+        if ($direccion == NULL || preg_match('/^[0-9a-zA-ZáéíóúüñÑçÇ\/\-.,# ]{10,100}$/', $direccion) == 0) {
+            throw new ValueError("Nombre del Responsable no válido no válido");
+        }
         $this->direccion = $direccion;
     }
     public function set_tipo_ente($tipo_ente)
     {
+        if ($tipo_ente == NULL || ($tipo_ente != 'Interno' && $tipo_ente != 'Externo')) {
+            throw new ValueError("Nombre del Responsable no válido no válido");
+        }
         $this->tipo_ente = $tipo_ente;
     }
 
     public function set_telefono($telefono)
     {
+        if ($telefono == NULL || preg_match('/^[0-9]{4}[-]{1}[0-9]{7}$/', $telefono) == 0) {
+            throw new ValueError("Nombre del Responsable no válido no válido");
+        }
         $this->telefono = $telefono;
     }
 
@@ -131,8 +149,8 @@ class Ente extends Conexion
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
-
                 $this->conexion->beginTransaction();
+                
                 $query = "INSERT INTO ente(id, nombre, direccion, telefono, nombre_responsable, tipo_ente, estatus) VALUES 
                 (:id, :nombre, :direccion, :telefono, :responsable, :tipo_ente, 1)";
 
