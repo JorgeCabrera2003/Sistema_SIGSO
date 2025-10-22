@@ -1,25 +1,25 @@
 <?php
 declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
-require_once "model/dependencia.php";
+require_once "model/categoria.php";
 
-final class DependenciaTest extends TestCase
+final class CategoriaTest extends TestCase
 {
-    private Dependencia $Tdependencia;
+    private Categoria $Tdependencia;
 
 
     #[ExpectException(ValueError::class)]
 
     public function setUp(): void
     {
-        $this->Tdependencia = new Dependencia();
+        $this->Tdependencia = new Categoria();
     }
 
-    public function testRegistrarDependencia(): void
+    public function testRegistrarCategoria(): void
     {
         $this->Tdependencia->set_id('GUARDPAR2025201014043321');
         $this->Tdependencia->set_nombre('Seguridad');
-        $this->Tdependencia->set_id_ente('PARQU0122025201014043321');
+    
         $resultado = $this->Tdependencia->Transaccion(['peticion' => 'registrar']);
 
         $this->assertIsArray($resultado);
@@ -39,11 +39,11 @@ final class DependenciaTest extends TestCase
                 $this->assertTrue(false, $resultado['mensaje']);
             }
         } else {
-            $this->fail('Fallo en Registrar Dependencia');
+            $this->fail('Fallo en Registrar Categoria');
         }
     }
 
-    public function testConsultarDependencia()
+    public function testConsultarCategoria()
     {
 
         $resultado = $this->Tdependencia->Transaccion(['peticion' => 'consultar']);
@@ -53,12 +53,11 @@ final class DependenciaTest extends TestCase
         $this->assertIsArray($resultado['datos']);
     }
 
-    public function testModificarDependencia()
+    public function testModificarCategoria()
     {
 
         $this->Tdependencia->set_id("GUARDPAR2025201014043321");
         $this->Tdependencia->set_nombre('Seguridad del Parque');
-        $this->Tdependencia->set_id_ente('PARQU0122025201014043321');
         $resultado = $this->Tdependencia->Transaccion(['peticion' => 'actualizar']);
 
         $this->assertIsArray($resultado);
@@ -70,12 +69,12 @@ final class DependenciaTest extends TestCase
             if($resultado['mensaje'] == 'No existe el Ente seleccionado'){
                 $this->assertTrue(true, "No existe el Ente seleccionado");
             } else{
-                $this->fail('Fallo en Modificar Dependencia');
+                $this->fail('Fallo en Modificar Categoria');
             }
         }
     }
 
-    public function testEliminarDependencia()
+    public function testEliminarCategoria()
     {
         $this->Tdependencia->set_id("GUARDPAR2025201014043321");
         $resultado = $this->Tdependencia->Transaccion(['peticion' => 'eliminar']);
@@ -86,7 +85,7 @@ final class DependenciaTest extends TestCase
             $this->assertEquals('eliminar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
         } else if ($resultado['estado'] == -1) {
-            $this->fail('Fallo en Eliminar Dependencia');
+            $this->fail('Fallo en Eliminar Categoria');
         }
     }
 }

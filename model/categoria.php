@@ -22,16 +22,25 @@ class Categoria extends Conexion
 
     public function set_id($id)
     {
+        if ($id == NULL || preg_match("/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/", $id) == 0) {
+            throw new ValueError("Id no válido");
+        }
         $this->id = $id;
     }
 
     public function set_id_servicio($tipo_servicio)
     {
+        if (preg_match('/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/', $tipo_servicio) == 0) {
+            throw new ValueError("Nombre no válido");
+        }
         $this->id_tipo_servicio = $tipo_servicio;
     }
 
     public function set_nombre($nombre)
     {
+        if ($nombre == NULL || preg_match('/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,90}$/', $nombre) == 0) {
+            throw new ValueError("Nombre no válido");
+        }
         $this->nombre = $nombre;
     }
 

@@ -147,7 +147,6 @@ class Dependencia extends Conexion
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
@@ -186,7 +185,6 @@ class Dependencia extends Conexion
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = "No existe el Ente seleccionado";
-
             }
 
         } catch (PDOException $e) {
