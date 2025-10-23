@@ -17,27 +17,47 @@ class Oficina extends Conexion
         $this->nombre = "";
         $this->estatus = 0;
         $this->piso = NULL;
-        $this->conexionion = NULL;
-
+        $this->conexion = NULL; // Corregido: estaba mal escrito como $this->conexionion
     }
 
     public function set_id($id)
     {
+        if ($id == NULL || !preg_match("/^[A-Z0-9]{3,50}$/", $id)) { // Cambiado de 24 a 50
+            throw new ValueError("ID de Oficina no válido. Debe ser alfanumérico entre 3 y 50 caracteres");
+        }
         $this->id = $id;
     }
 
     public function set_id_piso($id_piso)
     {
+        if ($id_piso == NULL || !preg_match("/^[A-Z0-9]{3,50}$/", $id_piso)) { // Cambiado de 24 a 50
+            throw new ValueError("ID de Piso no válido. Debe ser alfanumérico entre 3 y 50 caracteres");
+        }
         $this->id_piso = $id_piso;
     }
 
     public function set_nombre($nombre)
     {
+        if ($nombre == NULL || empty(trim($nombre))) {
+            throw new ValueError("El nombre de la oficina no puede estar vacío");
+        }
+
+        if (strlen($nombre) > 45) {
+            throw new ValueError("El nombre de la oficina no puede exceder 45 caracteres");
+        }
+
+        if (!preg_match("/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-\.]+$/", $nombre)) {
+            throw new ValueError("El nombre de la oficina contiene caracteres no válidos");
+        }
+
         $this->nombre = $nombre;
     }
 
     public function set_estatus($estatus)
     {
+        if (!in_array($estatus, [0, 1])) {
+            throw new ValueError("El estatus debe ser 0 (inactivo) o 1 (activo)");
+        }
         $this->estatus = $estatus;
     }
 
@@ -60,12 +80,11 @@ class Oficina extends Conexion
     {
         return $this->estatus;
     }
+
     private function LlamarPiso()
     {
         if ($this->piso == NULL) {
-
             $this->piso = new Piso();
-
         }
         return $this->piso;
     }
@@ -74,6 +93,7 @@ class Oficina extends Conexion
     {
         $this->piso = NULL;
     }
+
     private function Validar()
     {
         $dato = [];
@@ -89,19 +109,21 @@ class Oficina extends Conexion
             $stm->bindParam(":id", $this->id);
             $stm->execute();
             $this->conexion->commit();
+
             if ($stm->rowCount() > 0) {
                 $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
                 $dato['bool'] = 1;
             } else {
                 $dato['bool'] = 0;
             }
-
         } catch (PDOException $e) {
-            $this->conexion->rollBack();
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             $dato['bool'] = -1;
             $dato['error'] = $e->getMessage();
         }
-        $this->Cerrar_Conexion($none, $stm);
+        $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
 
@@ -110,25 +132,26 @@ class Oficina extends Conexion
         $dato = [];
         $bool = $this->Validar();
         $validarPiso = NULL;
+
         if ($bool['bool'] == 0) {
             try {
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
-
                 $this->conexion->beginTransaction();
+
                 $this->LlamarPiso()->set_id($this->get_id_piso());
                 $validarPiso = $this->LlamarPiso()->Transaccion(['peticion' => 'validar']);
+
                 if ($validarPiso['bool'] == 1 && $validarPiso['arreglo']['estatus'] == 1) {
-
-
                     $query = "INSERT INTO oficina(id_oficina, id_piso, nombre_oficina, estatus) VALUES 
-                    (:id, :id_piso, :nombre, 1)";
+                            (:id, :id_piso, :nombre, 1)";
 
                     $stm = $this->conexion->prepare($query);
                     $stm->bindParam(":id", $this->id);
                     $stm->bindParam(":id_piso", $this->id_piso);
                     $stm->bindParam(":nombre", $this->nombre);
                     $stm->execute();
+
                     $this->conexion->commit();
                     $dato['resultado'] = "registrar";
                     $dato['estado'] = 1;
@@ -140,7 +163,9 @@ class Oficina extends Conexion
                     $dato['mensaje'] = "Error, piso no existe";
                 }
             } catch (PDOException $e) {
-                $this->conexion->rollBack();
+                if ($this->conexion->inTransaction()) {
+                    $this->conexion->rollBack();
+                }
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
@@ -150,6 +175,7 @@ class Oficina extends Conexion
             $dato['estado'] = -1;
             $dato['mensaje'] = "Registro duplicado";
         }
+
         $this->DestruirPiso();
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
@@ -163,6 +189,7 @@ class Oficina extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
+
             $this->LlamarPiso()->set_id($this->get_id_piso());
             $validarPiso = $this->LlamarPiso()->Transaccion(['peticion' => 'validar']);
 
@@ -174,6 +201,7 @@ class Oficina extends Conexion
                 $stm->bindParam(":id_piso", $this->id_piso);
                 $stm->bindParam(":nombre", $this->nombre);
                 $stm->execute();
+
                 $this->conexion->commit();
                 $dato['resultado'] = "modificar";
                 $dato['estado'] = 1;
@@ -185,11 +213,14 @@ class Oficina extends Conexion
                 $dato['mensaje'] = "Error, piso no existe";
             }
         } catch (PDOException $e) {
-            $this->conexion->rollBack();
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             $dato['estado'] = -1;
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
+
         $this->DestruirPiso();
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
@@ -205,27 +236,30 @@ class Oficina extends Conexion
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
                 $this->conexion->beginTransaction();
-                $query = "UPDATE oficina SET estatus = 0 WHERE id_oficina = :id";
 
+                $query = "UPDATE oficina SET estatus = 0 WHERE id_oficina = :id";
                 $stm = $this->conexion->prepare($query);
                 $stm->bindParam(":id", $this->id);
                 $stm->execute();
+
                 $this->conexion->commit();
                 $dato['resultado'] = "eliminar";
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se eliminó la oficina exitosamente";
             } catch (PDOException $e) {
-                $this->conexion->rollBack();
+                if ($this->conexion->inTransaction()) {
+                    $this->conexion->rollBack();
+                }
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = $e->getMessage();
             }
         } else {
-            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
-            $dato['mensaje'] = "Error al eliminar el registro";
+            $dato['mensaje'] = "Error al eliminar el registro - Oficina no encontrada";
         }
+
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
@@ -238,21 +272,27 @@ class Oficina extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
+
             $query = "SELECT o.id_oficina, nombre_oficina, p.tipo_piso, p.nro_piso
                     FROM oficina o 
                     JOIN piso p ON o.id_piso = p.id_piso 
-                    WHERE o.estatus = 1";
+                    WHERE o.estatus = 1
+                    ORDER BY p.nro_piso ASC, o.nombre_oficina ASC";
 
             $stm = $this->conexion->prepare($query);
             $stm->execute();
+
             $this->conexion->commit();
             $dato['resultado'] = "consultar";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            $this->conexion->rollBack();
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
+
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
@@ -265,20 +305,27 @@ class Oficina extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
+
             $query = "SELECT o.*, p.nro_piso
-                FROM oficina o 
-                JOIN piso p ON o.id_piso = p.id_piso 
-                WHERE o.estatus = 0";
+                    FROM oficina o 
+                    JOIN piso p ON o.id_piso = p.id_piso 
+                    WHERE o.estatus = 0
+                    ORDER BY p.nro_piso ASC, o.nombre_oficina ASC";
 
             $stm = $this->conexion->prepare($query);
             $stm->execute();
+
             $this->conexion->commit();
             $dato['resultado'] = "consultar_eliminadas";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
+
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
@@ -290,23 +337,25 @@ class Oficina extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
-            $query = "UPDATE oficina SET estatus = 1 WHERE id_oficina = :id";
 
+            $query = "UPDATE oficina SET estatus = 1 WHERE id_oficina = :id";
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
+
             $this->conexion->commit();
             $dato['resultado'] = "restaurar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Oficina restaurada exitosamente";
-
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró la oficina ID: " . $this->id;
-            Bitacora($msg, "Oficina");
         } catch (PDOException $e) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = $e->getMessage();
         }
+
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
     }
@@ -328,7 +377,7 @@ class Oficina extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
-                
+
             case 'reactivar':
                 return $this->Reactivar();
 
@@ -337,4 +386,3 @@ class Oficina extends Conexion
         }
     }
 }
-?>

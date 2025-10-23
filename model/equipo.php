@@ -24,8 +24,12 @@ class Equipo extends Conexion
 
     public function set_id_dependencia($id_dependencia)
     {
+        if ($id_dependencia == NULL || !preg_match("/^[A-Z0-9]{3,24}$/", $id_dependencia)) {
+            throw new ValueError("ID de Dependencia no válido");
+        }
         $this->id_dependencia = $id_dependencia;
     }
+
     public function get_id_dependencia()
     {
         return $this->id_dependencia;
@@ -33,27 +37,41 @@ class Equipo extends Conexion
 
     public function set_id_equipo($id_equipo)
     {
+        if ($id_equipo == NULL || !preg_match("/^[A-Z0-9]{3,24}$/", $id_equipo)) {
+            throw new ValueError("ID de Equipo no válido");
+        }
         $this->id_equipo = $id_equipo;
     }
 
     public function set_tipo_equipo($tipo_equipo)
     {
+        if ($tipo_equipo == NULL || empty(trim($tipo_equipo)) || strlen($tipo_equipo) > 45) {
+            throw new ValueError("Tipo de Equipo no válido");
+        }
         $this->tipo_equipo = $tipo_equipo;
     }
 
     public function set_serial($serial)
     {
+        if ($serial == NULL || empty(trim($serial)) || strlen($serial) > 45) {
+            throw new ValueError("Serial no válido");
+        }
         $this->serial = $serial;
     }
 
     public function set_codigo_bien($codigo_bien)
     {
+        if ($codigo_bien == NULL || !preg_match("/^[0-9]{8}$/", $codigo_bien)) {
+            throw new ValueError("Código de Bien no válido");
+        }
         $this->codigo_bien = $codigo_bien;
     }
 
-
     public function set_id_unidad($id_unidad)
     {
+        if ($id_unidad == NULL || !preg_match("/^[A-Z0-9]{3,24}$/", $id_unidad)) {
+            throw new ValueError("ID de Unidad no válido");
+        }
         $this->id_unidad = $id_unidad;
     }
 

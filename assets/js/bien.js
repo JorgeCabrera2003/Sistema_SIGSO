@@ -1,5 +1,3 @@
-// bien.js - Versión Mejorada y Corregida
-
 // Elementos del formulario para Bien
 const elementosBien = {
     codigo_bien: $('#codigo_bien'),
@@ -60,6 +58,11 @@ $(document).ready(function () {
 
         // Deshabilitar botón inicialmente
         $('#enviar').prop('disabled', true);
+        
+        // Limpiar validación visual al abrir el modal
+        setTimeout(() => {
+            limpiarValidacionVisual();
+        }, 100);
     });
 
     // Ocultar checkbox/carrusel en Modificar/Eliminar
@@ -78,6 +81,11 @@ $(document).ready(function () {
         if ($("#enviar").text() !== "Registrar") {
             ocultarEquipoOpcional();
         }
+        
+        // Limpiar validación visual cada vez que se abre el modal
+        setTimeout(() => {
+            limpiarValidacionVisual();
+        }, 100);
     });
 
     // Mostrar/ocultar carrusel según el checkbox
@@ -167,17 +175,81 @@ $(document).ready(function () {
             SistemaValidacion.limpiarValidacion(elementosBien);
         }
         ocultarEquipoOpcional();
+        limpiarValidacionVisual();
     });
 
-    // Forzar validación inicial cuando se abre el modal
+    // Forzar validación inicial cuando se abre el modal (sin mostrar errores)
     $('#modal1').on('shown.bs.modal', function () {
         setTimeout(() => {
+            // Solo validar internamente sin mostrar errores visuales
             if (typeof SistemaValidacion !== 'undefined') {
-                SistemaValidacion.validarFormulario(elementosBien);
+                // Validar sin aplicar estilos visuales
+                validarSinEstilos();
             }
         }, 100);
     });
 });
+
+// Función para limpiar la validación visual
+function limpiarValidacionVisual() {
+    $.each(elementosBien, function (key, elemento) {
+        if (elemento && elemento.length) {
+            elemento.removeClass("is-valid is-invalid");
+            const id = elemento.attr('id');
+            const $feedback = $(`#s${id}`);
+            if ($feedback.length) {
+                $feedback.removeClass("invalid-feedback valid-feedback").text("");
+            }
+        }
+    });
+}
+
+// Función para validar sin aplicar estilos visuales
+function validarSinEstilos() {
+    let formularioValido = true;
+    
+    $.each(elementosBien, function (key, elemento) {
+        if (elemento && elemento.length && elemento.is(':visible') && !elemento.prop('disabled')) {
+            const valor = elemento.val() ? elemento.val().trim() : '';
+            const id = elemento.attr('id');
+            let esValido = true;
+            
+            // Validación interna sin mostrar errores
+            switch (id) {
+                case 'codigo_bien':
+                    esValido = patrones.codigoBien.test(valor);
+                    break;
+                case 'descripcion':
+                    esValido = patrones.descripcion.test(valor);
+                    break;
+                case 'serial_equipo':
+                    esValido = patrones.serial.test(valor);
+                    break;
+                case 'tipo_equipo':
+                    esValido = patrones.tipoEquipo.test(valor);
+                    break;
+                case 'id_categoria':
+                case 'id_marca':
+                case 'id_oficina':
+                case 'cedula_empleado':
+                case 'id_unidad_equipo':
+                case 'estado':
+                    esValido = valor !== "default" && valor !== "" && valor !== null;
+                    break;
+                default:
+                    if (elemento.attr('type') === 'text' || elemento.is('input')) {
+                        esValido = valor.length >= 1;
+                    }
+            }
+            
+            if (!esValido) {
+                formularioValido = false;
+            }
+        }
+    });
+    
+    return formularioValido;
+}
 
 function inicializarSelect2() {
     const select2Config = {
@@ -335,6 +407,25 @@ function enviaAjax(datos) {
         timeout: 10000,
         success: function (respuesta) {
             try {
+                // Verificar si la respuesta es HTML antes de intentar parsear como JSON
+                if (respuesta.trim().startsWith('<!DOCTYPE') || respuesta.trim().startsWith('<html') || respuesta.includes('<!DOCTYPE html>')) {
+                    console.error("El servidor devolvió HTML en lugar de JSON. Verificando la petición...");
+                    console.error("Datos enviados:", Array.from(datos.entries()));
+                    console.error("Respuesta recibida (primeros 500 caracteres):", respuesta.substring(0, 500));
+                    
+                    // Intentar obtener más información del error
+                    const errorMatch = respuesta.match(/<title>(.*?)<\/title>/);
+                    const errorTitle = errorMatch ? errorMatch[1] : 'Error desconocido';
+                    
+                    mensajes("error", null, "Error del Servidor", 
+                        "El servidor devolvió una página HTML. Esto puede deberse a:\n" +
+                        "1. Error de sintaxis en PHP\n" + 
+                        "2. Sesión expirada\n" +
+                        "3. Permisos insuficientes\n\n" +
+                        "Error: " + errorTitle);
+                    return;
+                }
+
                 var lee = JSON.parse(respuesta);
                 console.log(lee);
 
@@ -414,19 +505,13 @@ function enviaAjax(datos) {
                         break;
                 }
             } catch (e) {
-                // Si la respuesta es HTML en lugar de JSON, mostrar error
-                if (respuesta.includes('<!DOCTYPE html>') || respuesta.includes('<html') || respuesta.trim().startsWith('<!')) {
-                    mensajes("error", null, "Error del Servidor", "El servidor devolvió una página HTML en lugar de datos JSON. Verifique la configuración del controlador.");
-                    console.error("Respuesta HTML recibida:", respuesta.substring(0, 500));
-
-                    // Debug: mostrar qué se envió
-                    console.error("Datos enviados:", Array.from(datos.entries()));
-                } else {
-                    mensajes("error", null, "Error procesando respuesta",
-                        "Tipo: " + e.name + "\n" +
-                        "Mensaje: " + e.message + "\n" +
-                        "Respuesta: " + respuesta.substring(0, 200));
-                }
+                console.error("Error procesando respuesta:", e);
+                console.error("Respuesta recibida:", respuesta.substring(0, 200));
+                
+                mensajes("error", null, "Error procesando respuesta",
+                    "Tipo: " + e.name + "\n" +
+                    "Mensaje: " + e.message + "\n" +
+                    "Verifique la consola para más detalles.");
             }
         },
         error: function (request, status, err) {
@@ -665,6 +750,9 @@ function limpia() {
     if (typeof SistemaValidacion !== 'undefined') {
         SistemaValidacion.limpiarValidacion(elementosBien);
     }
+    
+    // Limpiar validación visual
+    limpiarValidacionVisual();
 
     // Ocultar sección de equipo
     $("#row-registro-equipo").hide();
@@ -688,7 +776,9 @@ function crearDataTable(arreglo) {
             },
             {
                 data: 'codigo_bien',
-                
+                render: function(data) {
+                    return data || 'N/A';
+                }
             },
             {data: 'nombre_categoria'},
             {data: 'nombre_marca'},
@@ -723,7 +813,7 @@ function crearDataTable(arreglo) {
         language: {
             url: idiomaTabla,
         },
-        order: [[2, 'asc']], // Ordenar por nombre_categoria (columna 2 ahora)
+        order: [[1, 'asc']], // Ordenar por código de bien
         responsive: true
     });
 
@@ -738,7 +828,7 @@ function rellenar(pos, accion) {
     const datosFila = tabla.row(linea).data();
 
     // Usar los nombres de campo correctos
-    $("#codigo_bien").val(datosFila.codigo_bien); // El código está oculto pero disponible en los datos
+    $("#codigo_bien").val(datosFila.codigo_bien);
     buscarSelect("#id_categoria", datosFila.nombre_categoria, "text");
     buscarSelect("#id_marca", datosFila.nombre_marca, "text");
     $("#descripcion").val(capitalizarTexto(datosFila.descripcion));
@@ -762,67 +852,10 @@ function rellenar(pos, accion) {
 
     $('#enviar').prop('disabled', false);
     $("#modal1").modal("show");
-}
-
-function modificar(datos) {
-    limpia();
-    $("#modalTitleId").text("Modificar Bien");
-    $("#enviar").text("Modificar");
-    $("#codigo_bien").parent().parent().show();
-
-    // Llenar campos con los datos
-    $("#codigo_bien").val(datos.codigo_bien);
-    $("#descripcion").val(datos.descripcion);
-
-    // Seleccionar valores en los selects
-    buscarSelect("#id_categoria", datos.id_categoria, 'value');
-    buscarSelect("#id_marca", datos.id_marca, 'value');
-    buscarSelect("#estado", datos.estado, 'value');
-    buscarSelect("#id_oficina", datos.id_oficina, 'value');
-
-    if (datos.cedula_empleado) {
-        buscarSelect("#cedula_empleado", datos.cedula_empleado, 'value');
-    } else {
-        $("#cedula_empleado").val('').trigger('change');
-    }
-
-    // Ocultar sección de equipo para modificar
-    $("#row-registro-equipo").hide();
-    $("#carruselEquipo").hide();
-
-    $("#modal1").modal("show");
-
-    // Forzar validación inicial
+    
+    // Limpiar validación visual al abrir
     setTimeout(() => {
-        if (typeof SistemaValidacion !== 'undefined') {
-            SistemaValidacion.validarFormulario(elementosBien);
-        }
-    }, 100);
-}
-
-function eliminar(datos) {
-    limpia();
-    $("#modalTitleId").text("Eliminar Bien");
-    $("#enviar").text("Eliminar");
-    $("#codigo_bien").parent().parent().show();
-
-    // Solo mostrar código del bien para eliminar
-    $("#codigo_bien").val(datos.codigo_bien);
-
-    // Deshabilitar todos los campos excepto el código
-    $("#id_categoria, #id_marca, #descripcion, #estado, #id_oficina, #cedula_empleado").prop('disabled', true);
-
-    // Ocultar sección de equipo
-    $("#row-registro-equipo").hide();
-    $("#carruselEquipo").hide();
-
-    $("#modal1").modal("show");
-
-    // Forzar validación inicial
-    setTimeout(() => {
-        if (typeof SistemaValidacion !== 'undefined') {
-            SistemaValidacion.validarFormulario(elementosBien);
-        }
+        limpiarValidacionVisual();
     }, 100);
 }
 
@@ -841,7 +874,9 @@ function TablaEliminados(arreglo) {
             },
             { 
                 data: 'codigo_bien',
-                visible: false // Ocultar código del bien
+                render: function(data) {
+                    return data || 'N/A';
+                }
             },
             { data: 'nombre_categoria' },
             { data: 'nombre_marca' },
@@ -871,7 +906,7 @@ function TablaEliminados(arreglo) {
         },
         pageLength: 10,
         responsive: true,
-        order: [[2, 'asc']], // Ordenar por nombre_categoria (columna 2 ahora)
+        order: [[1, 'asc']], // Ordenar por código de bien
         createdRow: function (row, data, dataIndex) {
             $(row).find('button').tooltip({
                 trigger: 'hover',
@@ -887,11 +922,61 @@ function TablaEliminados(arreglo) {
         });
     }).draw();
 
-    // Evento para botón Reactivar
-    $('#tablaEliminados tbody').on('click', 'button.btn-success', function () {
-        const data = tabla.row($(this).parents('tr')).data();
-        if (data) {
-            reactivarBien(this);
+    // Asignar evento de reactivación
+    $('#tablaEliminados tbody').on('click', 'button', function () {
+        reactivarBien(this);
+    });
+}
+
+function buscarSelect(id, valor, tipo) {
+    const select = $(id);
+    if (!select.length) return;
+
+    let encontrado = false;
+
+    select.find('option').each(function () {
+        const option = $(this);
+        const optionValue = tipo === 'text' ? option.text().trim() : option.val();
+        const valorBuscado = tipo === 'text' ? valor.toString().trim() : valor;
+
+        if (optionValue === valorBuscado) {
+            select.val(option.val()).trigger('change');
+            encontrado = true;
+            return false; // Salir del bucle
         }
     });
+
+    if (!encontrado) {
+        select.val('default').trigger('change');
+    }
+}
+
+function capitalizarTexto(texto) {
+    if (!texto) return '';
+    return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+}
+
+function validarKeyPress(patron, e) {
+    const char = String.fromCharCode(e.which);
+    if (!patron.test(char)) {
+        e.preventDefault();
+    }
+}
+
+function ConsultarPermisos() {
+    var datos = new FormData();
+    datos.append('permisos_modulo', 'permisos_modulo');
+    enviaAjax(datos);
+}
+
+function registrarEntrada() {
+    var datos = new FormData();
+    datos.append('entrada', 'entrada');
+    enviaAjax(datos);
+}
+
+function consultar() {
+    var datos = new FormData();
+    datos.append('consultar', 'consultar');
+    enviaAjax(datos);
 }

@@ -21,7 +21,7 @@ const patrones = {
   tipoEquipo: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/
 };
 
-// Sistema de Validación Reutilizable
+// Sistema de Validación Reutilizable - MEJORADO
 const SistemaValidacion = {
   // Inicializar validación para un formulario
   inicializar: function (elements, callbackCambioEstado = null) {
@@ -30,6 +30,11 @@ const SistemaValidacion = {
 
     $.each(elements, function (key, element) {
       if (element && element.length) {
+        // Solo aplicar eventos de validación después de la primera interacción
+        element.on('focus', function() {
+          $(this).data('touched', true);
+        });
+
         element.on('blur', SistemaValidacion.validarCampo);
         element.on('input', SistemaValidacion.validarCampo);
 
@@ -41,15 +46,26 @@ const SistemaValidacion = {
         }
       }
     });
+
+    // Validación inicial sin mostrar errores
+    setTimeout(() => {
+      const formularioValido = SistemaValidacion.verificarEstadoFormulario();
+      if (callbackCambioEstado) {
+        callbackCambioEstado(formularioValido);
+      }
+    }, 100);
   },
 
-  // Validar campo individual
+  // Validar campo individual - MEJORADO para no mostrar errores iniciales
   validarCampo: function () {
     const $campo = $(this);
     const valor = $campo.val() ? $campo.val().trim() : '';
     const id = this.id;
     let esValido = true;
     let mensajeError = '';
+
+    // Solo mostrar errores si el campo ya fue interactuado
+    const fueInteractuado = $campo.data('touched') || $campo.is(':focus');
 
     // Asignar patrones y mensajes según el campo
     switch (id) {
@@ -91,8 +107,13 @@ const SistemaValidacion = {
         }
     }
 
-    // Aplicar estilos de validación
-    SistemaValidacion.aplicarEstilos($campo, esValido, mensajeError);
+    // Aplicar estilos de validación SOLO si el campo fue interactuado
+    if (fueInteractuado) {
+      SistemaValidacion.aplicarEstilos($campo, esValido, mensajeError);
+    } else {
+      // Limpiar estilos visuales si no ha sido interactuado
+      SistemaValidacion.limpiarEstilosCampo($campo);
+    }
 
     // Verificar estado general del formulario después de cada validación
     if (SistemaValidacion.callbackCambioEstado) {
@@ -103,7 +124,7 @@ const SistemaValidacion = {
     return esValido;
   },
 
-  // Verificar estado general del formulario
+  // Verificar estado general del formulario - MEJORADO
   verificarEstadoFormulario: function () {
     let esValido = true;
 
@@ -111,7 +132,38 @@ const SistemaValidacion = {
       if (elemento && elemento.length) {
         // Solo validar campos visibles y habilitados
         if (elemento.is(':visible') && !elemento.prop('disabled')) {
-          if (elemento.hasClass('is-invalid') || (!elemento.hasClass('is-valid') && elemento.val() && elemento.val() !== "default")) {
+          const valor = elemento.val() ? elemento.val().trim() : '';
+          let campoValido = true;
+
+          // Validación según tipo de campo
+          switch (elemento.attr('id')) {
+            case 'codigo_bien':
+              campoValido = patrones.codigoBien.test(valor);
+              break;
+            case 'descripcion':
+              campoValido = patrones.descripcion.test(valor);
+              break;
+            case 'serial_equipo':
+              campoValido = patrones.serial.test(valor);
+              break;
+            case 'tipo_equipo':
+              campoValido = patrones.tipoEquipo.test(valor);
+              break;
+            case 'id_categoria':
+            case 'id_marca':
+            case 'id_oficina':
+            case 'cedula_empleado':
+            case 'id_unidad_equipo':
+            case 'estado':
+              campoValido = valor !== "default" && valor !== "" && valor !== null;
+              break;
+            default:
+              if (elemento.attr('type') === 'text' || elemento.is('input')) {
+                campoValido = valor.length >= 1;
+              }
+          }
+
+          if (!campoValido) {
             esValido = false;
           }
         }
@@ -143,7 +195,7 @@ const SistemaValidacion = {
     if (esValido) {
       $elemento.removeClass("is-invalid").addClass("is-valid");
       if ($feedback.length) {
-        $feedback.removeClass("invalid-feedback").addClass("valid-feedback").text("");
+        $feedback.removeClass("invalid-feedback").addClass("valid-feedback").text("✓ Correcto");
       }
     } else {
       $elemento.removeClass("is-valid").addClass("is-invalid");
@@ -153,12 +205,29 @@ const SistemaValidacion = {
     }
   },
 
-  // Validar formulario completo
+  // Limpiar estilos de un campo individual
+  limpiarEstilosCampo: function ($elemento) {
+    const id = $elemento.attr('id');
+    const $feedback = $(`#s${id}`);
+
+    $elemento.removeClass("is-valid is-invalid");
+    if ($feedback.length) {
+      $feedback.removeClass("invalid-feedback valid-feedback").text("");
+    }
+  },
+
+  // Validar formulario completo - MEJORADO para validación silenciosa
   validarFormulario: function (elementos) {
     let esValido = true;
+    let alMenosUnoInteractuado = false;
 
     $.each(elementos, function (key, elemento) {
       if (elemento && elemento.length && elemento.is(':visible') && !elemento.prop('disabled')) {
+        // Verificar si el campo fue interactuado
+        if (elemento.data('touched') || elemento.is(':focus')) {
+          alMenosUnoInteractuado = true;
+        }
+        
         // Forzar validación de cada campo
         elemento.trigger('blur');
         if (elemento.hasClass('is-invalid') || !SistemaValidacion.validarCampo.call(elemento[0])) {
@@ -167,11 +236,31 @@ const SistemaValidacion = {
       }
     });
 
+    // Si ningún campo ha sido interactuado, limpiar estilos visuales
+    if (!alMenosUnoInteractuado) {
+      SistemaValidacion.limpiarValidacionVisual(elementos);
+    }
+
     return esValido;
   },
 
   // Limpiar validación de formulario
   limpiarValidacion: function (elementos) {
+    $.each(elementos, function (key, elemento) {
+      if (elemento && elemento.length) {
+        elemento.removeClass("is-valid is-invalid");
+        elemento.removeData('touched'); // Remover marca de interacción
+        const id = elemento.attr('id');
+        const $feedback = $(`#s${id}`);
+        if ($feedback.length) {
+          $feedback.removeClass("invalid-feedback valid-feedback").text("");
+        }
+      }
+    });
+  },
+
+  // Limpiar solo la validación visual (sin remover datos de interacción)
+  limpiarValidacionVisual: function (elementos) {
     $.each(elementos, function (key, elemento) {
       if (elemento && elemento.length) {
         elemento.removeClass("is-valid is-invalid");
@@ -182,8 +271,60 @@ const SistemaValidacion = {
         }
       }
     });
+  },
+
+  // Validar formulario sin mostrar errores visuales (para validación interna)
+  validarFormularioSilencioso: function (elementos) {
+    let esValido = true;
+
+    $.each(elementos, function (key, elemento) {
+      if (elemento && elemento.length && elemento.is(':visible') && !elemento.prop('disabled')) {
+        const valor = elemento.val() ? elemento.val().trim() : '';
+        let campoValido = true;
+
+        // Validación según tipo de campo
+        switch (elemento.attr('id')) {
+          case 'codigo_bien':
+            campoValido = patrones.codigoBien.test(valor);
+            break;
+          case 'descripcion':
+            campoValido = patrones.descripcion.test(valor);
+            break;
+          case 'serial_equipo':
+            campoValido = patrones.serial.test(valor);
+            break;
+          case 'tipo_equipo':
+            campoValido = patrones.tipoEquipo.test(valor);
+            break;
+          case 'id_categoria':
+          case 'id_marca':
+          case 'id_oficina':
+          case 'cedula_empleado':
+          case 'id_unidad_equipo':
+          case 'estado':
+            campoValido = valor !== "default" && valor !== "" && valor !== null;
+            break;
+          default:
+            if (elemento.attr('type') === 'text' || elemento.is('input')) {
+              campoValido = valor.length >= 1;
+            }
+        }
+
+        if (!campoValido) {
+          esValido = false;
+        }
+      }
+    });
+
+    return esValido;
   }
 };
+
+// Función para limpiar validación visual global
+function limpiarValidacionVisualGlobal() {
+  $('.is-valid, .is-invalid').removeClass('is-valid is-invalid');
+  $('.invalid-feedback, .valid-feedback').removeClass('invalid-feedback valid-feedback').text('');
+}
 
 // Funciones de utilidad existentes
 function validarKeyPress(er, e) {
@@ -400,4 +541,159 @@ function capitalizarTexto(texto) {
     .join('');
 }
 
-console.log("Terminado de cargar Expresiones Regulares");
+// Función para inicializar tooltips en toda la página
+function inicializarTooltips() {
+  $('[data-bs-toggle="tooltip"]').tooltip({
+    trigger: 'hover',
+    placement: 'top'
+  });
+}
+
+// Función para mostrar/ocultar loading
+function mostrarLoading(mostrar = true) {
+  if (mostrar) {
+    $('body').append(`
+      <div id="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    `);
+  } else {
+    $('#loading-overlay').remove();
+  }
+}
+
+// Función para formatear fechas
+function formatearFecha(fecha, formato = 'dd/mm/yyyy') {
+  if (!fecha) return '';
+  
+  const date = new Date(fecha);
+  if (isNaN(date.getTime())) return fecha;
+
+  const dia = date.getDate().toString().padStart(2, '0');
+  const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+  const anio = date.getFullYear();
+
+  switch (formato) {
+    case 'dd/mm/yyyy':
+      return `${dia}/${mes}/${anio}`;
+    case 'yyyy-mm-dd':
+      return `${anio}-${mes}-${dia}`;
+    case 'mm/dd/yyyy':
+      return `${mes}/${dia}/${anio}`;
+    default:
+      return `${dia}/${mes}/${anio}`;
+  }
+}
+
+// Función para validar email
+function validarEmail(email) {
+  return patrones.email.test(email);
+}
+
+// Función para generar código aleatorio
+function generarCodigoAleatorio(longitud = 8) {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let resultado = '';
+  for (let i = 0; i < longitud; i++) {
+    resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+  }
+  return resultado;
+}
+
+// Función para copiar al portapapeles
+function copiarAlPortapapeles(texto) {
+  navigator.clipboard.writeText(texto).then(() => {
+    mensajes('success', 2000, 'Copiado', 'Texto copiado al portapapeles');
+  }).catch(err => {
+    console.error('Error al copiar: ', err);
+    mensajes('error', 3000, 'Error', 'No se pudo copiar al portapapeles');
+  });
+}
+
+// Función para descargar archivo
+function descargarArchivo(contenido, nombreArchivo, tipo = 'text/plain') {
+  const blob = new Blob([contenido], { type: tipo });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreArchivo;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Función para obtener parámetros de URL
+function obtenerParametrosURL() {
+  const params = new URLSearchParams(window.location.search);
+  const resultado = {};
+  for (const [key, value] of params) {
+    resultado[key] = value;
+  }
+  return resultado;
+}
+
+// Función para establecer parámetros de URL
+function establecerParametrosURL(parametros) {
+  const url = new URL(window.location);
+  Object.keys(parametros).forEach(key => {
+    url.searchParams.set(key, parametros[key]);
+  });
+  window.history.replaceState({}, '', url);
+}
+
+// Función para debounce (evitar múltiples llamadas)
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null;
+      if (!immediate) func(...args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func(...args);
+  };
+}
+
+// Función para throttle (limitar frecuencia de llamadas)
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  }
+}
+
+// Inicializar componentes cuando el documento esté listo
+$(document).ready(function() {
+  // Inicializar tooltips
+  inicializarTooltips();
+  
+  // Prevenir envío doble de formularios
+  $('form').on('submit', function() {
+    const $submitBtn = $(this).find('button[type="submit"], input[type="submit"]');
+    $submitBtn.prop('disabled', true);
+    
+    // Rehabilitar después de 5 segundos por si hay error
+    setTimeout(() => {
+      $submitBtn.prop('disabled', false);
+    }, 5000);
+  });
+  
+  // Auto-capitalizar campos de texto al perder foco
+  $('input[type="text"]').on('blur', function() {
+    const $this = $(this);
+    if ($this.val()) {
+      $this.val(capitalizarTexto($this.val()));
+    }
+  });
+});
+
+console.log("Utils cargado completamente");

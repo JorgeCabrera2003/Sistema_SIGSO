@@ -9,6 +9,7 @@ class Material extends Conexion
     private $stock;
     private $estatus;
     private $detalles_material;
+    private $conex;
 
 
     public function __construct()
@@ -19,6 +20,7 @@ class Material extends Conexion
         $this->stock = 0;
         $this->estatus = 0;
         $this->detalles_material = NULL;
+        $this->conex = NULL;
     }
 
     public function set_id($id)
