@@ -1,16 +1,59 @@
 let usuarioGlobal = null;
 let timeoutCodigo = null;
 
+// nueva función para validar y activar/desactivar el botón Guardar
+function validarClaves() {
+    let clave = $("#nueva_clave").val();
+    let confirmar = $("#confirmar_clave").val();
+    // regex solicitada (requiere al menos 1 carácter)
+    let regex = /^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]+$/;
+
+    if (clave && confirmar && regex.test(clave) && clave === confirmar) {
+        // activar con estilo primary
+        $("#btn-guardar-clave").prop("disabled", false).removeClass("btn-light").addClass("btn-primary");
+    } else {
+        // desactivar con estilo light
+        $("#btn-guardar-clave").prop("disabled", true).removeClass("btn-primary").addClass("btn-light");
+    }
+}
+
 $(document).on('input', 'input[name="CI"]', function () {
     this.value = this.value.replace(/\D/g, '').slice(0, 8);
 });
 
 $(document).on('input', '#nueva_clave, #confirmar_clave', function () {
-    // Solo permite letras, números y los símbolos .-_*!@#$%=
-    this.value = this.value.replace(/[^a-zA-Z0-9.\-_*!@#$%=]/g, '');
+    // permitir solo los caracteres del conjunto (remueve lo demás)
+    this.value = this.value.replace(/[^0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]/g, '');
+    validarClaves(); // evaluar en cada input
 });
 
 $(document).ready(function () {
+
+    // Toggle para nueva contraseña
+    $(document).on('click', '#toggleNuevaClave', function () {
+        const input = $('#nueva_clave');
+        const icon = $(this).find('i');
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
+    // Toggle para confirmar contraseña
+    $(document).on('click', '#toggleConfirmarClave', function () {
+        const input = $('#confirmar_clave');
+        const icon = $(this).find('i');
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
 
     $("#recuperar-form").on("submit", function (e) {
         e.preventDefault();
@@ -73,9 +116,12 @@ $(document).ready(function () {
 
         $("#btn-continuar").prop("disabled", true).removeClass("btn-primary").addClass("btn-light");
 
+        // reset botón guardar también
+        $("#btn-guardar-clave").prop("disabled", true).removeClass("btn-primary").addClass("btn-light");
+
         if (timeoutCodigo) {
-        clearTimeout(timeoutCodigo);
-        timeoutCodigo = null;
+            clearTimeout(timeoutCodigo);
+            timeoutCodigo = null;
         }
         $("#btn-enviar-codigo").prop("disabled", false);
 
@@ -83,6 +129,10 @@ $(document).ready(function () {
 
     $("#btn-enviar-codigo").on("click", function () {
         let $btn = $(this);
+        if (!usuarioGlobal) {
+            Swal.fire("Error", "No se ha seleccionado usuario.", "error");
+            return;
+        }
         let correo = usuarioGlobal.correo;
         let nombre = usuarioGlobal.nombres + " " + usuarioGlobal.apellidos;
 
@@ -91,7 +141,7 @@ $(document).ready(function () {
             .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...');
 
         $.ajax({
-            url: '', // El mismo controlador
+            url: '', 
             type: 'POST',
             data: {
                 enviar_codigo: true,
@@ -102,14 +152,13 @@ $(document).ready(function () {
                 let res = JSON.parse(respuesta);
                 Swal.fire({
                     icon: res.estado === 1 ? "success" : "error",
-                    title: res.estado === 1 ? "¡Listo!" : "Espera 1min antes de solicitar otro",
+                    title: res.estado === 1 ? "¡Listo!" : "Error",
                     text: res.mensaje
-                });
-                // Espera 1 minuto antes de habilitar el botón
-                setTimeout(function () {
+                }).then(function () {
+                    // Reactiva el botón cuando el alert se cierre
                     $btn.prop("disabled", false)
                         .html('Solicitar código <i class="fa-solid fa-paper-plane"></i>');
-                }, 1 * 60 * 1000); // 1 minuto en ms
+                });
 
                 if (res.estado === 1) {
                     $("#btn-continuar").prop("disabled", false).removeClass("btn-light").addClass("btn-primary");
@@ -122,8 +171,6 @@ $(document).ready(function () {
                     .html('Solicitar código <i class="fa-solid fa-paper-plane"></i>');
             }
         });
-        
-
     });
 
     $("#btn-continuar").on("click", function () {
@@ -154,6 +201,9 @@ $(document).ready(function () {
                     $("#form-codigo-recuperacion").slideUp();
                     $("#form-nueva-clave").slideDown();
 
+                    // asegurar estado inicial del botón Guardar (desactivado y gris)
+                    $("#btn-guardar-clave").prop("disabled", true).removeClass("btn-primary").addClass("btn-light");
+
                     let html3 = `
                         <div class="text-center" style="text-align: justify;">
                             <span class="fw-bold" style="font-size:1.1rem;">
@@ -181,14 +231,14 @@ $(document).ready(function () {
     $("#btn-guardar-clave").on("click", function () {
         let clave = $("#nueva_clave").val();
         let confirmar = $("#confirmar_clave").val();
-        let regex = /^[a-zA-Z0-9.\-_*!@#$%=]+$/;
+        let regex = /^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]+$/;
 
         if (!clave || !confirmar) {
             Swal.fire("Error", "Debes completar ambos campos.", "error");
             return;
         }
         if (!regex.test(clave)) {
-            Swal.fire("Error", "La clave solo puede contener letras, números y los símbolos .-_*!@#$%=", "error");
+            Swal.fire("Error", "La clave contiene caracteres no permitidos.", "error");
             return;
         }
         if (clave !== confirmar) {
@@ -265,17 +315,29 @@ function enviaAjax(datos) {
 
 }
 
-// Función para mostrar los datos del usuario
+// Función para mostrar los datos del usuario 
 function mostrarPerfil(usuario) {
 
     usuarioGlobal = usuario;
+
+    // Helper para enmascarar el correo: muestra al menos 3 letras del local-part y luego '***'
+    function maskEmail(email) {
+        if (!email) return "";
+        var parts = email.split("@");
+        if (parts.length !== 2) return email.replace(/.(?=.{3})/g, "*"); // fallback
+        var local = parts[0];
+        var domain = parts[1];
+        var visible = local.length <= 3 ? local : local.substring(0, 3);
+        return visible + "***@" + domain;
+    }
+
+    var correoEnmascarado = maskEmail(usuario.correo);
 
     // Construye el HTML con los datos del usuario
     let html = `
         <div class="alert alert-info mb-2">
             <strong>${usuario.nombres} ${usuario.apellidos}</strong><br>
             Usuario: ${usuario.nombre_usuario}<br>
-            
         </div>
     `;
 
@@ -290,7 +352,7 @@ function mostrarPerfil(usuario) {
             <span style="font-size:1.1rem;">
                 Se enviará a su correo 
                 <u>
-                    <i title="su correo">${usuario.correo}</i>
+                    <i title="su correo">${correoEnmascarado}</i>
                 </u> 
                 un código de confirmación para cambiar su contraseña.<br>
                 Por favor de click en "Solicitar Código" e introduzcalo a continuación:
