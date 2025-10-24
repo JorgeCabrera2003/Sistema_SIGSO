@@ -17,17 +17,18 @@
 
                 <div class="card">
                     <div class="card-body">
-                         <div class="d-flex justify-content-between">
-                            <?php if(isset($permisos['bien']['registrar']['estado']) && $permisos['bien']['registrar']['estado'] == '1') {?>
-                            <button type="button" class="btn btn-primary my-4" id="btn-registrar">
-                                Registrar Bien
-                            </button>
+                       
+                        <div class="d-flex justify-content-between">
+                            <?php if (isset($permisos['bien']['registrar']['estado']) && $permisos['bien']['registrar']['estado'] == '1') { ?>
+                                <button type="button" class="btn btn-primary my-4" id="btn-registrar">
+                                    Registrar Bien
+                                </button>
                             <?php } ?>
-                            <?php if(isset($permisos['bien']['reactivar']['estado']) && $permisos['bien']['reactivar']['estado'] == '1') {?>
-                            <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
-                                Bienes Eliminados <i class="fa-solid fa-recycle"></i>
-                            </button>
-                            <?php }?>
+                            <?php if (isset($permisos['bien']['reactivar']['estado']) && $permisos['bien']['reactivar']['estado'] == '1') { ?>
+                                <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
+                                    Bienes Eliminados <i class="fa-solid fa-recycle"></i>
+                                </button>
+                            <?php } ?>
                         </div>
                         <div class="table-responsive">
                             <table class="table" id="tabla1">
@@ -62,15 +63,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
-                        <table class="table" id="tablaEliminadas">
+                        <table class="table table-striped table-bordered" id="tablaEliminados">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>Código</th>
                                     <th>Tipo</th>
                                     <th>Marca</th>
                                     <th>Descripción</th>
                                     <th>Estado</th>
+                                    <th>Oficina</th>
+                                    <th>Empleado</th>
                                     <th>Reactivar</th>
                                 </tr>
                             </thead>
@@ -88,7 +90,7 @@
     </div>
     <? require_once("Componentes/modal_bien.php"); ?>
     <?php require_once "Componentes/footer.php"; ?>
-   
+
     <script defer src="assets/js/bien.js"></script>
     </div>
 </body>

@@ -12,16 +12,31 @@ class Marca extends Conexion
 
         $this->id = 0;
         $this->nombre = "";
-        $this->conexionion = NULL;
+        $this->conexion = NULL;
     }
 
     public function set_id($id)
     {
+        if($id == NULL || !preg_match("/^[A-Z0-9]{3,24}$/", $id)){
+            throw new ValueError("ID de Marca no válido. Debe ser alfanumérico entre 3 y 24 caracteres");
+        }
         $this->id = $id;
     }
 
     public function set_nombre($nombre)
     {
+        if($nombre == NULL || empty(trim($nombre))){
+            throw new ValueError("El nombre de la marca no puede estar vacío");
+        }
+        
+        if(strlen($nombre) > 45){
+            throw new ValueError("El nombre de la marca no puede exceder 45 caracteres");
+        }
+        
+        if(!preg_match("/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-\.]+$/", $nombre)){
+            throw new ValueError("El nombre de la marca contiene caracteres no válidos");
+        }
+        
         $this->nombre = $nombre;
     }
 

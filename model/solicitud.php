@@ -32,49 +32,112 @@ class Solicitud extends Conexion
     // Setters
     public function set_nro_solicitud($nro_solicitud)
     {
-        $this->nro_solicitud = $nro_solicitud;
+        if ($nro_solicitud === NULL || $nro_solicitud === "") {
+            throw new ValueError("Número de solicitud no puede estar vacío");
+        }
+
+        // Permitir números positivos (para compatibilidad)
+        if (is_numeric($nro_solicitud) && $nro_solicitud > 0) {
+            $this->nro_solicitud = $nro_solicitud;
+            return;
+        }
+
+        // Permitir strings con formato específico
+        if (is_string($nro_solicitud)) {
+            // Formato 1: PRNO2025101420102551 (4 letras + 14 números)
+            if (preg_match("/^[A-Z]{4}[0-9]{14}$/", $nro_solicitud) === 1) {
+                $this->nro_solicitud = $nro_solicitud;
+                return;
+            }
+
+            // Formato 2: Debe contener al menos un número y tener mínimo 5 caracteres
+            if (
+                preg_match("/^[A-Z0-9]{5,}$/", $nro_solicitud) === 1 &&
+                preg_match("/[0-9]/", $nro_solicitud) === 1
+            ) {
+                $this->nro_solicitud = $nro_solicitud;
+                return;
+            }
+        }
+
+        throw new ValueError("Número de solicitud no válido. Debe ser un número positivo o un código alfanumérico que contenga números");
     }
 
     public function set_cedula_solicitante($cedula_solicitante)
     {
+        if ($cedula_solicitante === NULL || preg_match("/^[VvEe]-[0-9]{5,8}$/", $cedula_solicitante) == 0) {
+            throw new ValueError("Cédula de solicitante no válida. Formato: V-12345678");
+        }
         $this->cedula_solicitante = $cedula_solicitante;
     }
 
     public function set_id_equipo($id_equipo)
     {
+        // Permitir null y strings (los IDs en la BD son varchar)
+        if ($id_equipo !== NULL && $id_equipo !== "" && !is_string($id_equipo)) {
+            throw new ValueError("ID de equipo no válido. Debe ser string o null");
+        }
         $this->id_equipo = $id_equipo;
     }
 
     public function set_motivo($motivo)
     {
+        if ($motivo === NULL || empty(trim($motivo))) {
+            throw new ValueError("Motivo no puede estar vacío");
+        }
+        if (strlen($motivo) > 200) {
+            throw new ValueError("Motivo demasiado largo (máx. 200 caracteres)");
+        }
         $this->motivo = $motivo;
     }
 
     public function set_resultado($resultado)
     {
+        if ($resultado !== NULL && strlen($resultado) > 20) {
+            throw new ValueError("Resultado demasiado largo (máx. 20 caracteres)");
+        }
         $this->resultado = $resultado;
     }
 
     public function set_estado($estado)
     {
+        $estados_validos = ['Pendiente', 'En proceso', 'Finalizado', 'Eliminado'];
+        if ($estado === NULL || !in_array($estado, $estados_validos)) {
+            throw new ValueError("Estado de solicitud no válido. Válidos: " . implode(', ', $estados_validos));
+        }
         $this->estado = $estado;
     }
 
     public function set_fecha_inicio($fecha_inicio)
     {
+        if ($fecha_inicio !== NULL && $fecha_inicio !== "") {
+            // Permitir diferentes formatos de fecha
+            $timestamp = strtotime($fecha_inicio);
+            if ($timestamp === false) {
+                throw new ValueError("Fecha de inicio no válida");
+            }
+        }
         $this->fecha_inicio = $fecha_inicio;
     }
 
     public function set_fecha_final($fecha_final)
     {
+        if ($fecha_final !== NULL && $fecha_final !== "") {
+            $timestamp = strtotime($fecha_final);
+            if ($timestamp === false) {
+                throw new ValueError("Fecha final no válida");
+            }
+        }
         $this->fecha_final = $fecha_final;
     }
 
     public function set_id_dependencia($id_dependencia)
     {
+        if ($id_dependencia !== NULL && $id_dependencia !== "" && !is_string($id_dependencia)) {
+            throw new ValueError("ID de dependencia no válido. Debe ser string o null");
+        }
         $this->id_dependencia = $id_dependencia;
     }
-
     // Getters
     public function get_id_equipo()
     {
@@ -95,30 +158,56 @@ class Solicitud extends Conexion
             $this->conexion = $this->conexion->Conex();
             $this->conexion->beginTransaction();
 
-            // Asegurarse de que el ID no se establece manualmente
-            $sql = "INSERT INTO solicitud(nro_solicitud, cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
+            // Si el nro_solicitud ya está establecido (no es 0), usarlo directamente
+            if ($this->nro_solicitud != 0) {
+                $sql = "INSERT INTO solicitud(nro_solicitud, cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
                 VALUES (:nro_solicitud, :solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', 1)";
 
-            $stmt = $this->conexion->prepare($sql);
-            $stmt->bindParam(':nro_solicitud', $this->nro_solicitud);
-            $stmt->bindParam(':solicitante', $this->cedula_solicitante);
-            $stmt->bindParam(':motivo', $this->motivo);
+                $stmt = $this->conexion->prepare($sql);
+                $stmt->bindParam(':nro_solicitud', $this->nro_solicitud);
+                $stmt->bindParam(':solicitante', $this->cedula_solicitante);
+                $stmt->bindParam(':motivo', $this->motivo);
 
-            // Manejar el caso cuando no se selecciona un equipo
-            $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
-            $stmt->bindParam(':equipo', $idEquipo);
+                // Manejar el caso cuando no se selecciona un equipo
+                $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
+                $stmt->bindParam(':equipo', $idEquipo);
 
-            if ($stmt->execute()) {
-                $nro = $this->conexion->lastInsertId();
+                if ($stmt->execute()) {
+                    $nro = $this->nro_solicitud; // Usar el ID que se estableció
 
-                $datos['resultado'] = 'registrar';
-                $datos['datos'] = $nro;
-                $datos['bool'] = 1;
-                $this->conexion->commit();
+                    $datos['resultado'] = 'registrar';
+                    $datos['datos'] = $nro;
+                    $datos['bool'] = 1;
+                    $this->conexion->commit();
+                } else {
+                    $errorInfo = $stmt->errorInfo();
+                    $datos['mensaje'] = 'Error al ejecutar la consulta: ' . $errorInfo[2];
+                    $this->conexion->rollBack();
+                }
             } else {
-                $errorInfo = $stmt->errorInfo();
-                $datos['mensaje'] = 'Error al ejecutar la consulta: ' . $errorInfo[2];
-                $this->conexion->rollBack();
+                // Código original para auto-increment
+                $sql = "INSERT INTO solicitud(cedula_solicitante, motivo, id_equipo, fecha_solicitud, estado_solicitud, estatus)
+                VALUES (:solicitante, :motivo, :equipo, CURRENT_TIMESTAMP(), 'Pendiente', 1)";
+
+                $stmt = $this->conexion->prepare($sql);
+                $stmt->bindParam(':solicitante', $this->cedula_solicitante);
+                $stmt->bindParam(':motivo', $this->motivo);
+
+                $idEquipo = !empty($this->id_equipo) ? $this->id_equipo : null;
+                $stmt->bindParam(':equipo', $idEquipo);
+
+                if ($stmt->execute()) {
+                    $nro = $this->conexion->lastInsertId();
+
+                    $datos['resultado'] = 'registrar';
+                    $datos['datos'] = $nro;
+                    $datos['bool'] = 1;
+                    $this->conexion->commit();
+                } else {
+                    $errorInfo = $stmt->errorInfo();
+                    $datos['mensaje'] = 'Error al ejecutar la consulta: ' . $errorInfo[2];
+                    $this->conexion->rollBack();
+                }
             }
         } catch (PDOException $e) {
             $datos['mensaje'] = 'Error en la base de datos: ' . $e->getMessage();

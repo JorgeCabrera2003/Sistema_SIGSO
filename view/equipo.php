@@ -24,7 +24,7 @@
                                 Registrar Equipo
                             </button>
                             <?php }?>
-                             <?php if(isset($permisos['equipo']['restaurar']['estado']) && $permisos['equipo']['restaurar']['estado'] == '1') {?>
+                             <?php if(isset($permisos['equipo']['reactivar']['estado']) && $permisos['equipo']['reactivar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Equipos Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
@@ -71,7 +71,7 @@
                                     <th>Serial</th>
                                     <th>Código Bien</th>
                                     <th>Unidad</th>
-                                    <th>Restaurar</th>
+                                    <th>Reactivar</th>
                                 </tr>
                             </thead>
                             <tbody>

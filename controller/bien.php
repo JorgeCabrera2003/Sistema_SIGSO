@@ -12,7 +12,7 @@ if (is_file("view/" . $page . ".php")) {
     require_once "model/empleado.php"; // Necesario para notificaciones
 
     $titulo = "Gestionar Bienes";
-    $cabecera = array('#', "Categoria", "Marca", "Descripción", "Estado", "Oficina", "Empleado", "Modificar/Eliminar");
+    $cabecera = array("Código Bien", "Categoria", "Marca", "Descripción", "Estado", "Oficina", "Empleado", "Modificar/Eliminar");
 
     $bien = new Bien();
     $equipo = new Equipo();
@@ -33,7 +33,7 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if (isset($_POST['permisos'])) {
+    if (isset($_POST['permisos_modulo'])) {
         $json['resultado'] = 'permisos_modulo';
         $json['permisos'] = $permisos;
         echo json_encode($json);
@@ -167,7 +167,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Resto del código del controlador (consultar, modificar, eliminar, etc.) se mantiene igual
     if (isset($_POST['consultar'])) {
         $peticion["peticion"] = "consultar";
         $json = $bien->Transaccion($peticion);
@@ -176,9 +175,16 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST["consultar_eliminadas"])) {
-        $peticion["peticion"] = "consultar_eliminadas";
-        $json = $bien->Transaccion($peticion);
-        echo json_encode($json);
+        // Verificar permisos antes de consultar
+        if (isset($permisos['bien']['reactivar']['estado']) && $permisos['bien']['reactivar']['estado'] == '1') {
+            $peticion["peticion"] = "consultar_eliminadas";
+            $json = $bien->Transaccion($peticion);
+            echo json_encode($json);
+        } else {
+            $json['resultado'] = "error";
+            $json['mensaje'] = "No tiene permisos para ver bienes eliminados";
+            echo json_encode($json);
+        }
         exit;
     }
 
@@ -364,7 +370,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Después de esta sección en bien.php:
     if (isset($_POST['consultar_unidades'])) {
         require_once "model/unidad.php";
         $unidad = new Unidad();
@@ -374,7 +379,6 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // AGREGAR ESTO:
     if (isset($_POST['consultar_unidad_equipo'])) {
         require_once "model/unidad.php";
         $unidad = new Unidad();
@@ -384,7 +388,10 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    require_once "view/" . $page . ".php";
+    // Si no es una petición AJAX, cargar la vista
+    if (empty($_POST)) {
+        require_once "view/" . $page . ".php";
+    }
 } else {
     require_once "view/404.php";
 }

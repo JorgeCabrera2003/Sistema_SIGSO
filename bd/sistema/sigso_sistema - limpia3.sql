@@ -25,7 +25,7 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `obtener_tecnicos_por_servicio` (IN `tipo_servicio_param` INT)   BEGIN
+CREATE  PROCEDURE `obtener_tecnicos_por_servicio` (IN `tipo_servicio_param` INT)   BEGIN
     SELECT 
         e.cedula_empleado, 
         CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre,
@@ -45,14 +45,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `obtener_tecnicos_por_servicio` (IN 
     ORDER BY hojas_mes ASC, nombre ASC;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `obtener_tecnico_porArea` (IN `area_param` INT)   BEGIN
+CREATE  PROCEDURE `obtener_tecnico_porArea` (IN `area_param` INT)   BEGIN
     SELECT cedula_empleado, nombre_empleado, id_servicio 
     FROM empleado
     WHERE id_servicio = area_param
     ORDER BY nombre_empleado;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_crear_hoja_servicio` (IN `p_nro_solicitud` INT, IN `p_id_tipo_servicio` INT, IN `p_cedula_tecnico` VARCHAR(12), OUT `p_codigo_hoja` INT, OUT `p_resultado` VARCHAR(50), OUT `p_mensaje` VARCHAR(200))   BEGIN
+CREATE  PROCEDURE `sp_crear_hoja_servicio` (IN `p_nro_solicitud` INT, IN `p_id_tipo_servicio` INT, IN `p_cedula_tecnico` VARCHAR(12), OUT `p_codigo_hoja` INT, OUT `p_resultado` VARCHAR(50), OUT `p_mensaje` VARCHAR(200))   BEGIN
     DECLARE v_existe_solicitud INT;
     DECLARE v_hoja_existente INT;
     
@@ -89,7 +89,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_crear_hoja_servicio` (IN `p_nro_
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_bienes` (IN `p_id_tipo_bien` INT, IN `p_estado` VARCHAR(45), IN `p_id_oficina` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
+CREATE  PROCEDURE `sp_reporte_bienes` (IN `p_id_tipo_bien` INT, IN `p_estado` VARCHAR(45), IN `p_id_oficina` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
     SELECT 
         tb.nombre_tipo_bien AS 'Tipo de Bien',
         b.estado AS 'Estado',
@@ -115,7 +115,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_bienes` (IN `p_id_tipo_b
         tb.nombre_tipo_bien, b.estado;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_materiales_utilizados` (IN `p_id_material` INT, IN `p_id_oficina` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
+CREATE  PROCEDURE `sp_reporte_materiales_utilizados` (IN `p_id_material` INT, IN `p_id_oficina` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
     SELECT 
         m.nombre_material AS 'Material',
         o.nombre_oficina AS 'Ubicación',
@@ -146,7 +146,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_materiales_utilizados` (
         SUM(mm.cantidad) DESC;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_movimientos_materiales` (IN `p_id_material` INT, IN `p_accion` VARCHAR(45), IN `p_id_oficina` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
+CREATE  PROCEDURE `sp_reporte_movimientos_materiales` (IN `p_id_material` INT, IN `p_accion` VARCHAR(45), IN `p_id_oficina` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
     SELECT 
         m.nombre_material AS 'Material',
         mm.accion AS 'Tipo de Movimiento',
@@ -172,7 +172,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_movimientos_materiales` 
         MAX(mm.fecha_registro) DESC;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_patch_panel` (IN `p_nro_piso` INT)   BEGIN
+CREATE  PROCEDURE `sp_reporte_patch_panel` (IN `p_nro_piso` INT)   BEGIN
     SELECT 
         total.total_puertos AS 'Cantidad Total',
         ocupado.puertos_ocupados AS 'Cantidad Ocupado',
@@ -197,7 +197,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_patch_panel` (IN `p_nro_
          WHERE b.estatus = 1 AND pi.nro_piso = p_nro_piso) AS ocupado;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_patch_panel_por_nro` (IN `p_nro_piso` VARCHAR(10))   BEGIN
+CREATE  PROCEDURE `sp_reporte_patch_panel_por_nro` (IN `p_nro_piso` VARCHAR(10))   BEGIN
     SELECT 
         total.total_puertos AS 'Cantidad Total',
         ocupado.puertos_ocupados AS 'Cantidad Ocupado',
@@ -222,7 +222,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_patch_panel_por_nro` (IN
          WHERE b.estatus = 1 AND pi.nro_piso = p_nro_piso) AS ocupado;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_rendimiento_tecnicos` (IN `p_cedula_tecnico` VARCHAR(12), IN `p_id_tipo_servicio` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
+CREATE  PROCEDURE `sp_reporte_rendimiento_tecnicos` (IN `p_cedula_tecnico` VARCHAR(12), IN `p_id_tipo_servicio` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
     SELECT 
         CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS 'Técnico',
         ts.nombre_tipo_servicio AS 'Área',
@@ -251,7 +251,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_rendimiento_tecnicos` (I
         AVG(TIMESTAMPDIFF(HOUR, s.fecha_solicitud, hs.fecha_resultado));
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_solicitudes_atendidas` (IN `p_cedula_tecnico` VARCHAR(12), IN `p_id_tipo_servicio` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE, IN `p_estatus` VARCHAR(1))   BEGIN
+CREATE  PROCEDURE `sp_reporte_solicitudes_atendidas` (IN `p_cedula_tecnico` VARCHAR(12), IN `p_id_tipo_servicio` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE, IN `p_estatus` VARCHAR(1))   BEGIN
     SELECT 
         CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS 'Técnico',
         ts.nombre_tipo_servicio AS 'Área',
@@ -279,7 +279,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_solicitudes_atendidas` (
         COUNT(hs.codigo_hoja_servicio) DESC;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_solicitudes_equipo` (IN `p_tipo_equipo` VARCHAR(45), IN `p_id_marca` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
+CREATE  PROCEDURE `sp_reporte_solicitudes_equipo` (IN `p_tipo_equipo` VARCHAR(45), IN `p_id_marca` INT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)   BEGIN
     SELECT 
         e.tipo_equipo AS 'Tipo de Equipo',
         m.nombre_marca AS 'Marca',
@@ -306,7 +306,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_solicitudes_equipo` (IN 
         COUNT(s.nro_solicitud) DESC;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_reporte_switches` (IN `p_id_piso` INT)   BEGIN
+CREATE  PROCEDURE `sp_reporte_switches` (IN `p_id_piso` INT)   BEGIN
     SELECT 
         total.total_puertos AS 'Cantidad Total',
         ocupado.puertos_ocupados AS 'Cantidad Ocupado',
@@ -1073,7 +1073,7 @@ CREATE TABLE `vista_reporte_hojas_servicio` (
 --
 DROP TABLE IF EXISTS `filtrado_empleado`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `filtrado_empleado`  AS SELECT (select count(0) from `sigso_usuario`.`usuario` `u` where `u`.`estatus` = 1) AS `Total usuario`, (select count(0) from `oficina` `o` where `o`.`estatus` = 1) AS `Total oficina`, (select count(0) from ((`empleado` `e` join `unidad` `u` on(`u`.`id_unidad` = `e`.`id_unidad`)) join `dependencia` `d` on(`d`.`id` = `u`.`id_dependencia`)) where `e`.`estatus` = 1 and `d`.`id` = 1) AS `Total empleados OFITIC`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1) AS `Total empleados general` FROM `empleado` AS `e` WHERE `e`.`estatus` = 1 LIMIT 0, 1 ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `filtrado_empleado`  AS SELECT (select count(0) from `sigso_usuario`.`usuario` `u` where `u`.`estatus` = 1) AS `Total usuario`, (select count(0) from `oficina` `o` where `o`.`estatus` = 1) AS `Total oficina`, (select count(0) from ((`empleado` `e` join `unidad` `u` on(`u`.`id_unidad` = `e`.`id_unidad`)) join `dependencia` `d` on(`d`.`id` = `u`.`id_dependencia`)) where `e`.`estatus` = 1 and `d`.`id` = 1) AS `Total empleados OFITIC`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1) AS `Total empleados general` FROM `empleado` AS `e` WHERE `e`.`estatus` = 1 LIMIT 0, 1 ;
 
 -- --------------------------------------------------------
 
@@ -1082,7 +1082,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `filtrado_hoja`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `filtrado_hoja`  AS SELECT `ts`.`nombre_tipo_servicio` AS `Área con más hojas`, count(`hs`.`codigo_hoja_servicio`) AS `Cantidad de hojas`, (select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'E' and `s`.`estatus` = 1) AS `Hojas eliminadas`, (select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'A' and `s`.`estatus` = 1) AS `Hojas activas`, (select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'I' and `s`.`estatus` = 1) AS `Hojas finalizadas` FROM ((`hoja_servicio` `hs` join `solicitud` `s` on(`s`.`nro_solicitud` = `hs`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) WHERE `s`.`estatus` = 1 GROUP BY `hs`.`id_tipo_servicio`, `ts`.`nombre_tipo_servicio` ORDER BY count(`hs`.`codigo_hoja_servicio`) DESC LIMIT 0, 1 ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `filtrado_hoja`  AS SELECT `ts`.`nombre_tipo_servicio` AS `Área con más hojas`, count(`hs`.`codigo_hoja_servicio`) AS `Cantidad de hojas`, (select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'E' and `s`.`estatus` = 1) AS `Hojas eliminadas`, (select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'A' and `s`.`estatus` = 1) AS `Hojas activas`, (select count(0) from (`hoja_servicio` `sh` join `solicitud` `s` on(`s`.`nro_solicitud` = `sh`.`nro_solicitud`)) where `sh`.`estatus` = 'I' and `s`.`estatus` = 1) AS `Hojas finalizadas` FROM ((`hoja_servicio` `hs` join `solicitud` `s` on(`s`.`nro_solicitud` = `hs`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) WHERE `s`.`estatus` = 1 GROUP BY `hs`.`id_tipo_servicio`, `ts`.`nombre_tipo_servicio` ORDER BY count(`hs`.`codigo_hoja_servicio`) DESC LIMIT 0, 1 ;
 
 -- --------------------------------------------------------
 
@@ -1091,7 +1091,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `filtrado_tecnico`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `filtrado_tecnico`  AS SELECT (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1) AS `Total tecnicos`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 1) AS `Total soporte`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 2) AS `Total redes`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 3) AS `Total telefono`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 4) AS `Total electronica`, (select concat('CI: ',`e`.`cedula_empleado`,' - Nombre: ',`e`.`nombre_empleado`) from `empleado` `e` where `e`.`cedula_empleado` = (select `hs`.`cedula_tecnico` from `hoja_servicio` `hs` where `hs`.`estatus` = 'I' group by `hs`.`cedula_tecnico` order by count(0) desc limit 1)) AS `Tecnico eficiente` FROM `empleado` AS `e` WHERE `e`.`estatus` = 1 LIMIT 0, 1 ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `filtrado_tecnico`  AS SELECT (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1) AS `Total tecnicos`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 1) AS `Total soporte`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 2) AS `Total redes`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 3) AS `Total telefono`, (select count(0) from `empleado` `e` where `e`.`estatus` = 1 and `e`.`id_cargo` = 1 and `e`.`id_servicio` = 4) AS `Total electronica`, (select concat('CI: ',`e`.`cedula_empleado`,' - Nombre: ',`e`.`nombre_empleado`) from `empleado` `e` where `e`.`cedula_empleado` = (select `hs`.`cedula_tecnico` from `hoja_servicio` `hs` where `hs`.`estatus` = 'I' group by `hs`.`cedula_tecnico` order by count(0) desc limit 1)) AS `Tecnico eficiente` FROM `empleado` AS `e` WHERE `e`.`estatus` = 1 LIMIT 0, 1 ;
 
 -- --------------------------------------------------------
 
@@ -1100,7 +1100,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vista_detalles_hoja`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_detalles_hoja`  AS SELECT `dh`.`id_detalle_` AS `id_detalle_`, `dh`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `dh`.`componente` AS `componente`, `dh`.`detalle` AS `detalle`, `dh`.`id_movimiento_material` AS `id_movimiento_material`, `mm`.`id_material` AS `id_material`, `mm`.`cantidad` AS `cantidad`, `mat`.`nombre_material` AS `nombre_material` FROM ((`detalle_hoja` `dh` left join `movimiento_materiales` `mm` on(`dh`.`id_movimiento_material` = `mm`.`id_movimiento_material`)) left join `material` `mat` on(`mm`.`id_material` = `mat`.`id_material`)) ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `vista_detalles_hoja`  AS SELECT `dh`.`id_detalle_` AS `id_detalle_`, `dh`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `dh`.`componente` AS `componente`, `dh`.`detalle` AS `detalle`, `dh`.`id_movimiento_material` AS `id_movimiento_material`, `mm`.`id_material` AS `id_material`, `mm`.`cantidad` AS `cantidad`, `mat`.`nombre_material` AS `nombre_material` FROM ((`detalle_hoja` `dh` left join `movimiento_materiales` `mm` on(`dh`.`id_movimiento_material` = `mm`.`id_movimiento_material`)) left join `material` `mat` on(`mm`.`id_material` = `mat`.`id_material`)) ;
 
 -- --------------------------------------------------------
 
@@ -1109,7 +1109,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vista_hojas_servicio_completa`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_hojas_servicio_completa`  AS SELECT `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `hs`.`nro_solicitud` AS `nro_solicitud`, `hs`.`id_tipo_servicio` AS `id_tipo_servicio`, `ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`, `hs`.`redireccion` AS `redireccion`, `hs`.`cedula_tecnico` AS `cedula_tecnico`, concat(coalesce(`tec`.`nombre_empleado`,''),' ',coalesce(`tec`.`apellido_empleado`,'')) AS `nombre_tecnico`, `hs`.`fecha_resultado` AS `fecha_resultado`, `hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`, `hs`.`observacion` AS `observacion`, `hs`.`estatus` AS `estatus`, `s`.`motivo` AS `motivo`, `s`.`fecha_solicitud` AS `fecha_solicitud`, `s`.`estado_solicitud` AS `estado_solicitud`, concat(coalesce(`sol`.`nombre_empleado`,''),' ',coalesce(`sol`.`apellido_empleado`,'')) AS `nombre_solicitante`, coalesce(`sol`.`telefono_empleado`,'N/A') AS `telefono_empleado`, coalesce(`sol`.`correo_empleado`,'N/A') AS `correo_empleado`, coalesce(`u`.`nombre_unidad`,'N/A') AS `nombre_unidad`, coalesce(`d`.`nombre`,'N/A') AS `nombre_dependencia`, coalesce(`e`.`tipo_equipo`,'N/A') AS `tipo_equipo`, coalesce(`e`.`serial`,'N/A') AS `serial`, coalesce(`b`.`codigo_bien`,'N/A') AS `codigo_bien`, coalesce(`m`.`nombre_marca`,'N/A') AS `nombre_marca`, coalesce(`b`.`descripcion`,'N/A') AS `descripcion` FROM (((((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `empleado` `tec` on(`hs`.`cedula_tecnico` = `tec`.`cedula_empleado`)) left join `unidad` `u` on(`sol`.`id_unidad` = `u`.`id_unidad`)) left join `dependencia` `d` on(`u`.`id_dependencia` = `d`.`id`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `vista_hojas_servicio_completa`  AS SELECT `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `hs`.`nro_solicitud` AS `nro_solicitud`, `hs`.`id_tipo_servicio` AS `id_tipo_servicio`, `ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`, `hs`.`redireccion` AS `redireccion`, `hs`.`cedula_tecnico` AS `cedula_tecnico`, concat(coalesce(`tec`.`nombre_empleado`,''),' ',coalesce(`tec`.`apellido_empleado`,'')) AS `nombre_tecnico`, `hs`.`fecha_resultado` AS `fecha_resultado`, `hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`, `hs`.`observacion` AS `observacion`, `hs`.`estatus` AS `estatus`, `s`.`motivo` AS `motivo`, `s`.`fecha_solicitud` AS `fecha_solicitud`, `s`.`estado_solicitud` AS `estado_solicitud`, concat(coalesce(`sol`.`nombre_empleado`,''),' ',coalesce(`sol`.`apellido_empleado`,'')) AS `nombre_solicitante`, coalesce(`sol`.`telefono_empleado`,'N/A') AS `telefono_empleado`, coalesce(`sol`.`correo_empleado`,'N/A') AS `correo_empleado`, coalesce(`u`.`nombre_unidad`,'N/A') AS `nombre_unidad`, coalesce(`d`.`nombre`,'N/A') AS `nombre_dependencia`, coalesce(`e`.`tipo_equipo`,'N/A') AS `tipo_equipo`, coalesce(`e`.`serial`,'N/A') AS `serial`, coalesce(`b`.`codigo_bien`,'N/A') AS `codigo_bien`, coalesce(`m`.`nombre_marca`,'N/A') AS `nombre_marca`, coalesce(`b`.`descripcion`,'N/A') AS `descripcion` FROM (((((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `empleado` `tec` on(`hs`.`cedula_tecnico` = `tec`.`cedula_empleado`)) left join `unidad` `u` on(`sol`.`id_unidad` = `u`.`id_unidad`)) left join `dependencia` `d` on(`u`.`id_dependencia` = `d`.`id`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) ;
 
 -- --------------------------------------------------------
 
@@ -1118,7 +1118,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vista_hoja_servicio_completa`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_hoja_servicio_completa`  AS SELECT `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `hs`.`nro_solicitud` AS `nro_solicitud`, `hs`.`id_tipo_servicio` AS `id_tipo_servicio`, `ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`, `hs`.`redireccion` AS `redireccion`, `hs`.`cedula_tecnico` AS `cedula_tecnico`, concat(coalesce(`tec`.`nombre_empleado`,''),' ',coalesce(`tec`.`apellido_empleado`,'')) AS `nombre_tecnico`, `hs`.`fecha_resultado` AS `fecha_resultado`, `hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`, `hs`.`observacion` AS `observacion`, `hs`.`estatus` AS `estatus`, `s`.`motivo` AS `motivo`, `s`.`fecha_solicitud` AS `fecha_solicitud`, `s`.`estado_solicitud` AS `estado_solicitud`, concat(coalesce(`sol`.`nombre_empleado`,''),' ',coalesce(`sol`.`apellido_empleado`,'')) AS `nombre_solicitante`, coalesce(`sol`.`telefono_empleado`,'N/A') AS `telefono_empleado`, coalesce(`sol`.`correo_empleado`,'N/A') AS `correo_empleado`, coalesce(`u`.`nombre_unidad`,'N/A') AS `nombre_unidad`, coalesce(`d`.`nombre`,'N/A') AS `nombre_dependencia`, coalesce(`e`.`tipo_equipo`,'N/A') AS `tipo_equipo`, coalesce(`e`.`serial`,'N/A') AS `serial`, coalesce(`b`.`codigo_bien`,'N/A') AS `codigo_bien`, coalesce(`m`.`nombre_marca`,'N/A') AS `nombre_marca`, coalesce(`b`.`descripcion`,'N/A') AS `descripcion` FROM (((((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `empleado` `tec` on(`hs`.`cedula_tecnico` = `tec`.`cedula_empleado`)) left join `unidad` `u` on(`sol`.`id_unidad` = `u`.`id_unidad`)) left join `dependencia` `d` on(`u`.`id_dependencia` = `d`.`id`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `vista_hoja_servicio_completa`  AS SELECT `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `hs`.`nro_solicitud` AS `nro_solicitud`, `hs`.`id_tipo_servicio` AS `id_tipo_servicio`, `ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`, `hs`.`redireccion` AS `redireccion`, `hs`.`cedula_tecnico` AS `cedula_tecnico`, concat(coalesce(`tec`.`nombre_empleado`,''),' ',coalesce(`tec`.`apellido_empleado`,'')) AS `nombre_tecnico`, `hs`.`fecha_resultado` AS `fecha_resultado`, `hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`, `hs`.`observacion` AS `observacion`, `hs`.`estatus` AS `estatus`, `s`.`motivo` AS `motivo`, `s`.`fecha_solicitud` AS `fecha_solicitud`, `s`.`estado_solicitud` AS `estado_solicitud`, concat(coalesce(`sol`.`nombre_empleado`,''),' ',coalesce(`sol`.`apellido_empleado`,'')) AS `nombre_solicitante`, coalesce(`sol`.`telefono_empleado`,'N/A') AS `telefono_empleado`, coalesce(`sol`.`correo_empleado`,'N/A') AS `correo_empleado`, coalesce(`u`.`nombre_unidad`,'N/A') AS `nombre_unidad`, coalesce(`d`.`nombre`,'N/A') AS `nombre_dependencia`, coalesce(`e`.`tipo_equipo`,'N/A') AS `tipo_equipo`, coalesce(`e`.`serial`,'N/A') AS `serial`, coalesce(`b`.`codigo_bien`,'N/A') AS `codigo_bien`, coalesce(`m`.`nombre_marca`,'N/A') AS `nombre_marca`, coalesce(`b`.`descripcion`,'N/A') AS `descripcion` FROM (((((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `empleado` `tec` on(`hs`.`cedula_tecnico` = `tec`.`cedula_empleado`)) left join `unidad` `u` on(`sol`.`id_unidad` = `u`.`id_unidad`)) left join `dependencia` `d` on(`u`.`id_dependencia` = `d`.`id`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) ;
 
 -- --------------------------------------------------------
 
@@ -1127,7 +1127,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vista_reporte_hojas_servicio`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_reporte_hojas_servicio`  AS SELECT `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `hs`.`nro_solicitud` AS `nro_solicitud`, `ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`, concat(`sol`.`nombre_empleado`,' ',`sol`.`apellido_empleado`) AS `solicitante`, `e`.`tipo_equipo` AS `tipo_equipo`, `m`.`nombre_marca` AS `nombre_marca`, `e`.`serial` AS `serial`, `b`.`codigo_bien` AS `codigo_bien`, `s`.`motivo` AS `motivo`, `s`.`fecha_solicitud` AS `fecha_solicitud`, `hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`, `hs`.`observacion` AS `observacion`, `hs`.`estatus` AS `estatus` FROM ((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) ;
+CREATE ALGORITHM=UNDEFINED  SQL SECURITY DEFINER VIEW `vista_reporte_hojas_servicio`  AS SELECT `hs`.`codigo_hoja_servicio` AS `codigo_hoja_servicio`, `hs`.`nro_solicitud` AS `nro_solicitud`, `ts`.`nombre_tipo_servicio` AS `nombre_tipo_servicio`, concat(`sol`.`nombre_empleado`,' ',`sol`.`apellido_empleado`) AS `solicitante`, `e`.`tipo_equipo` AS `tipo_equipo`, `m`.`nombre_marca` AS `nombre_marca`, `e`.`serial` AS `serial`, `b`.`codigo_bien` AS `codigo_bien`, `s`.`motivo` AS `motivo`, `s`.`fecha_solicitud` AS `fecha_solicitud`, `hs`.`resultado_hoja_servicio` AS `resultado_hoja_servicio`, `hs`.`observacion` AS `observacion`, `hs`.`estatus` AS `estatus` FROM ((((((`hoja_servicio` `hs` join `solicitud` `s` on(`hs`.`nro_solicitud` = `s`.`nro_solicitud`)) join `tipo_servicio` `ts` on(`hs`.`id_tipo_servicio` = `ts`.`id_tipo_servicio`)) join `empleado` `sol` on(`s`.`cedula_solicitante` = `sol`.`cedula_empleado`)) left join `equipo` `e` on(`s`.`id_equipo` = `e`.`id_equipo`)) left join `bien` `b` on(`e`.`codigo_bien` = `b`.`codigo_bien`)) left join `marca` `m` on(`b`.`id_marca` = `m`.`id_marca`)) ;
 
 --
 -- Índices para tablas volcadas
