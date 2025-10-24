@@ -16,11 +16,7 @@
     <div class="pagetitle">
         <h1>Gestionar Interconexión</h1>
         <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
-                <li class="breadcrumb-item active"><a href="">Gestionar Interconexión</a>
-                </li>
-            </ol>
+           
         </nav>
     </div> <!-- End Page Title -->
 
@@ -30,8 +26,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Gestionar Interconexión</h5>
-
+ 
                         <div class="d-flex justify-content-between">
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Asignar una nueva Interconexión">
                                 Asignar Interconexión

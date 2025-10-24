@@ -6,9 +6,7 @@
   <div class="pagetitle">
     <h1><?php echo $titulo ?></h1>
     <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item active"><a href="">Dashboard</a></li>
-      </ol>
+      
     </nav>
   </div><!-- End Page Title -->
 

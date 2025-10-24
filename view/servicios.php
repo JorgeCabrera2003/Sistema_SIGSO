@@ -11,10 +11,7 @@
     <div class="pagetitle">
         <h1>Gestión de Hojas de Servicio</h1>
         <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="?page=inicio">Home</a></li>
-                <li class="breadcrumb-item active">Gestión de Hojas de Servicio</li>
-            </ol>
+            
         </nav>
     </div> <!-- End Page Title -->
 
@@ -23,8 +20,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Hojas de Servicio</h5>
-
+ 
                         <!-- Filtros para búsqueda avanzada -->
                         <div class="row mb-3">
                             <div class="col-md-3">

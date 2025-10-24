@@ -7,7 +7,7 @@
         <h1>Gestión de Backups</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
+                 
                 <li class="breadcrumb-item active"><a href="">Gestión de Backups</a></li>
             </ol>
         </nav>
@@ -19,8 +19,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Gestión de Backups</h5>
-                        <form method="POST" action="?page=backup">
+                         <form method="POST" action="?page=backup">
                             <select class="form-select" name="base_datos" id="" required title="Seleccione la base de datos">
                                 <option value="" hidden>Seleccione la base de datos</option>
                                 <option value="sistema"><i class="fa fa-sign-in" aria-hidden="true"></i> Sistema</option>

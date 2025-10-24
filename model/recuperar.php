@@ -144,7 +144,6 @@ class recuperar extends Conexion {
         require_once __DIR__ . "/../vendor/autoload.php";
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
-        
         $mail->addEmbeddedImage(__DIR__ . '/../assets/img/OFITIC.png', 'logo_ofitic');
 
 
@@ -181,6 +180,9 @@ class recuperar extends Conexion {
         ';
 
         try {
+
+            $mail->SMTPOptions = ['socket' => ['bindto' => '0.0.0.0:0']];
+            $mail->Timeout = 30;
 
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';

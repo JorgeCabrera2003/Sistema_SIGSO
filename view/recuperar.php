@@ -2,6 +2,21 @@
 require_once("Componentes/head.php") ?>
 
 <body>
+  <style>
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('assets/img/gobernacion.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: blur(5px);
+      z-index: -1;
+    }
+  </style>
   <div class="container col-md-4 mb-4 d-flex justify-content-center align-items-center vh-100">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -57,19 +72,31 @@ require_once("Componentes/head.php") ?>
 
               <!-- Formulario de Nueva Clave -->
               <div class="col-12" id="form-nueva-clave" style="display:none;">
-                <label for="nueva_clave" class="form-label">Nueva clave</label>
-                <div class="input-group mb-2">
-                  <input type="password" class="form-control" name="nueva_clave" id="nueva_clave" maxlength="20" placeholder="Ingrese su nueva clave">
+                <div class="mb-3">
+                  <label for="nueva_clave" class="form-label">Nueva contraseña</label>
+                  <div class="input-group">
+                    <input type="password" id="nueva_clave" name="nueva_clave" class="form-control" maxlength="20">
+                    <button class="btn btn-outline-secondary" type="button" id="toggleNuevaClave">
+                      <i class="fa fa-eye"></i>
+                    </button>
+                  </div>
                 </div>
-                <label for="confirmar_clave" class="form-label">Confirmar clave</label>
-                <div class="input-group mb-2">
-                  <input type="password" class="form-control" name="confirmar_clave" id="confirmar_clave" maxlength="20" placeholder="Confirme su nueva clave">
+
+                <div class="mb-3">
+                  <label for="confirmar_clave" class="form-label">Confirmar contraseña</label>
+                  <div class="input-group">
+                    <input type="password" id="confirmar_clave" name="confirmar_clave" class="form-control" maxlength="20">
+                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmarClave">
+                      <i class="fa fa-eye"></i>
+                    </button>
+                  </div>
                 </div>
+
                 <div class="text-start col-12 d-flex justify-content-between align-items-center mt-2">
                   <button class="btn btn-secondary mt-2" type="button" id="btn-volver-cedula2" style="width:auto;">
                     <i class="fa-solid fa-arrow-left"></i>
                   </button>
-                  <button class="btn btn-success mt-2" type="button" id="btn-guardar-clave">
+                  <button class="btn btn-light mt-2" type="button" id="btn-guardar-clave" disabled>
                     Guardar <i class="fa-solid fa-floppy-disk"></i>
                   </button>
                 </div>

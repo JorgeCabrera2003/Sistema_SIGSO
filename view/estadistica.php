@@ -6,10 +6,7 @@
     <div class="pagetitle mb-4">
         <h1>Reportes</h1>
         <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="?page=home">Home</a></li>
-                <li class="breadcrumb-item active">Infraestructura</li>
-            </ol>
+            
         </nav>
     </div><!-- End Page Title -->
 
@@ -234,8 +231,7 @@
         <div class="col-md-12 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Filtros</h5>
-                </div>
+                 </div>
                 <div class="card-body">
                     <form id="filtrosInfraestructura">
                         <div class="row">

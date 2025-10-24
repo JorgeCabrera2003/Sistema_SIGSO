@@ -8,10 +8,7 @@
     <div class="pagetitle">
       <h1>Bitácora</h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="">Home</a></li>
-          <li class="breadcrumb-item active"><a href="">Bitácora</a></li>
-        </ol>
+       
       </nav>
     </div><!-- End Page Title -->
 
@@ -21,8 +18,7 @@
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Bitácora</h5>     
-              <div class="table-responsive">
+               <div class="table-responsive">
                   <table class="table" id="tabla1">
                       <thead>
                           <tr>

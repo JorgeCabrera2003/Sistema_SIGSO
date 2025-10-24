@@ -28,18 +28,6 @@
             $recuperar->set_cedula($cedula);
             $peticion["peticion"] = "consultar";
             $datos = $recuperar->Transaccion($peticion);
-            
-            /*
-            $msg = "(" .$cedula. "), Ingresó a la Recuperación de Contraseña y Consulto una Cédula.";
-            
-            $bitacora->set_usuario($cedula);
-            $bitacora->set_modulo("Recuperación");
-            $bitacora->set_accion($msg);
-            $bitacora->set_fecha(date('Y-m-d'));
-            $bitacora->set_hora(date('H:i:s'));
-            $peticion["peticion"] = "registrar";
-            $bitacora->Transaccion($peticion);
-            */
 
             echo json_encode($datos);
             exit;
@@ -48,7 +36,8 @@
         if (isset($_POST["modificar"])) {
 
             $clave = $_POST['clave'];
-            if (!preg_match('/^[a-zA-Z0-9.\-_*!@#$%=]+$/', $clave)) {
+            // validar con la expresión solicitada (u para unicode/acento)
+            if (!preg_match('/^[0-9 a-zA-ZáéíóúüñÑçÇ_*+.,]+$/u', $clave)) {
                 echo json_encode(['estado' => 0, 'mensaje' => 'La clave contiene caracteres no permitidos.']);
                 exit;
             }
@@ -87,11 +76,10 @@
             // Verifica si ya se envió un código recientemente
             if (isset($_SESSION['ultimo_envio_codigo']) && ($ahora - $_SESSION['ultimo_envio_codigo']) < $espera) {
                 $faltan = $espera - ($ahora - $_SESSION['ultimo_envio_codigo']);
-                $min = floor($faltan / 60);
                 $seg = $faltan % 60;
                 echo json_encode([
                     'estado' => 0,
-                    'mensaje' => "Debes esperar $min minutos y $seg segundos para solicitar un nuevo código."
+                    'mensaje' => "Debes esperar $seg segundos para solicitar un Nuevo Código."
                 ]);
                 exit;
             }

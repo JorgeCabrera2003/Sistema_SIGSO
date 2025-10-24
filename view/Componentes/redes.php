@@ -5,8 +5,7 @@
 
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Servicio</h5>
-
+ 
           <!-- cargo,condicion laboral, Departamento/Dependencia(unidad o area),  -->
 
           <form method="post" class="row g-3 needs-validation">

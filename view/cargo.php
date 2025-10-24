@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Gestionar Cargos</h5>
+                         
                         <div class="d-flex justify-content-between">
                             <?php if (isset($permisos['cargo']['registrar']['estado']) && $permisos['cargo']['registrar']['estado'] == '1') { ?>
                                 <button type="button" class="btn btn-primary my-4" id="btn-registrar-cargo">

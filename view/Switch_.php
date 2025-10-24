@@ -15,10 +15,7 @@
     <div class="pagetitle">
         <h1>Gestionar Switch</h1>
         <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
-                <li class="breadcrumb-item active"><a href="">Gestionar Switch</a></li>
-            </ol>
+            
         </nav>
     </div> <!-- End Page Title -->
 
@@ -28,8 +25,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Gestionar Switch</h5>
-
+ 
                         <div class="d-flex justify-content-between">
 
                         <?php if (isset($permisos['switch']['registrar']['estado']) && $permisos['switch']['registrar']['estado'] == "1") { ?>

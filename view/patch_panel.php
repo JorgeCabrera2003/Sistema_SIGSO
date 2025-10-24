@@ -10,11 +10,7 @@
     <div class="pagetitle">
         <h1>Gestionar Patch Panel</h1>
         <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
-                <li class="breadcrumb-item active"><a href="">Gestionar Patch Panel</a>
-                </li>
-            </ol>
+            
         </nav>
     </div> <!-- End Page Title -->
 
@@ -24,8 +20,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Gestionar Patch Panel</h5>
-
+ 
                         <div class="d-flex justify-content-between">
 
                         <?php if (isset($permisos['patch_panel']['registrar']['estado']) && $permisos['patch_panel']['registrar']['estado'] == "1") { ?>

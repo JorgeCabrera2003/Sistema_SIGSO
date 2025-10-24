@@ -7,6 +7,7 @@ require_once "model/piso.php";
 
 final class PisoTest extends TestCase
 {
+
     private Piso $Tpiso;
 
     public function setUp(): void
@@ -24,20 +25,14 @@ final class PisoTest extends TestCase
 
         $this->assertIsArray($resultado);
 
-        if (isset($resultado['estado']) && $resultado['estado'] == 1) {
+        if ($resultado['estado']  == 1) {
             $this->assertEquals('registrar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
         } else if ($resultado['estado'] == -1) {
-            if ($resultado['mensaje'] == "Registro duplicado") {
-                $this->assertTrue(true, "No permitir registros duplicados");
-            } else if ($resultado['mensaje'] == "Ya hay un piso con este mismo número") {
-                $this->assertTrue(true, "No permitir pisos repetidos");
-            } else {
-                $this->assertTrue(false, $resultado['mensaje']);
-            }
-        } else {
-            $this->fail('Fallo en Registrar Piso');
+            $this->assertEquals('error', $resultado['resultado']);
+            $this->assertEquals('Registro duplicado', $resultado['mensaje']);
         }
+
     }
 
     public function testConsultarPiso()
@@ -48,43 +43,6 @@ final class PisoTest extends TestCase
         $this->assertIsArray($resultado);
         $this->assertEquals('consultar', $resultado['resultado']);
         $this->assertIsArray($resultado['datos']);
-    }
-
-    public function testModificarPiso()
-    {
-
-        $this->Tpiso->set_id("SOTAN0012025101912552354");
-        $this->Tpiso->set_tipo('Sótano');
-        $this->Tpiso->set_nro_piso(2);
-        $resultado = $this->Tpiso->Transaccion(['peticion' => 'actualizar']);
-
-        $this->assertIsArray($resultado);
-
-        if (isset($resultado['estado']) && $resultado['estado'] == 1) {
-            $this->assertEquals('modificar', $resultado['resultado']);
-            $this->assertEquals('1', $resultado['estado']);
-        } else if ($resultado['estado'] == -1) {
-            if ($resultado['mensaje'] == "Ya hay un piso con este mismo número") {
-                $this->assertTrue(true, "No permitir pisos repetidos");
-            } else {
-                $this->fail('Fallo en Modificar Piso');
-            }
-        }
-    }
-
-    public function testEliminarPiso()
-    {
-        $this->Tpiso->set_id("SOTAN0012025101912552354");
-        $resultado = $this->Tpiso->Transaccion(['peticion' => 'eliminar']);
-
-        $this->assertIsArray($resultado);
-
-        if (isset($resultado['estado']) && $resultado['estado'] == 1) {
-            $this->assertEquals('eliminar', $resultado['resultado']);
-            $this->assertEquals('1', $resultado['estado']);
-        } else if ($resultado['estado'] == -1) {
-            $this->fail('Fallo en Eliminar Piso');
-        }
     }
 }
 

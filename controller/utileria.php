@@ -20,6 +20,52 @@ $usuario = new Usuario();
 $bitacora = new Bitacora();
 $notificacion = new Notificacion();
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Si no hay usuario en sesión -> limpiar sesión y cookies, luego responder según tipo de petición.
+// Evitar bucle de redirecciones permitiendo que la página de login (y otras públicas) se carguen.
+if (!isset($_SESSION['user'])) {
+
+    // Determinar si la petición viene por AJAX
+    $isAjax = (
+        (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        || !empty($_POST)
+    );
+
+    // Limpiar datos de sesión en servidor
+    if (session_status() !== PHP_SESSION_NONE) {
+        $_SESSION = [];
+        // borrar la cookie de sesión del navegador
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        session_unset();
+        session_destroy();
+    }
+
+    // Responder para AJAX
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode(['resultado' => 'error', 'mensaje' => 'Sesión finalizada']);
+        exit;
+    }
+
+    // Evitar redirect si ya estamos en la página de login (o páginas públicas)
+    $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+    $pags_publicas = ['login', 'recuperar', 'register_user']; // agregar más si hace falta
+
+    if (in_array($current_page, $pags_publicas, true)) {
+        // permitir que el controlador de login/recuperar se ejecute sin redirecciones
+        return;
+    }
+
+    // Redirigir a login con sesión y cookie ya limpias
+    header('Location: ?page=login');
+    exit;
+}
 // Manejo del cambio de tema
 if (isset($_POST['cambiarTema'])) {
     $tema = $_POST['cambiTema'];
