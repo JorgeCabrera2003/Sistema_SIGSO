@@ -6,4 +6,8 @@ $hash = password_hash($clave, PASSWORD_DEFAULT);
 
 echo $hash;
 
+
+
+
+
 ?>
