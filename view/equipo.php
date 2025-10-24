@@ -7,13 +7,6 @@
 
     <div class="pagetitle">
         <h1>Gestionar Equipos</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="">Home</a></li>
-                <li class="breadcrumb-item active"><a href="">Gestionar Equipos</a>
-                </li>
-            </ol>
-        </nav>
     </div> <!-- End Page Title -->
 
     <section class="section">
@@ -29,7 +22,7 @@
                                 Registrar Equipo
                             </button>
                             <?php }?>
-                             <?php if(isset($permisos['equipo']['restaurar']['estado']) && $permisos['equipo']['restaurar']['estado'] == '1') {?>
+                             <?php if(isset($permisos['equipo']['reactivar']['estado']) && $permisos['equipo']['reactivar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados">
                                 Equipos Eliminados <i class="fa-solid fa-recycle"></i>
                             </button>
@@ -76,7 +69,7 @@
                                     <th>Serial</th>
                                     <th>Código Bien</th>
                                     <th>Unidad</th>
-                                    <th>Restaurar</th>
+                                    <th>Reactivar</th>
                                 </tr>
                             </thead>
                             <tbody>

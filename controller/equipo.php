@@ -27,6 +27,13 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
+    // CONSTANTES DE VALIDACIÓN CORREGIDAS - MÁS FLEXIBLES
+    define('REGEX_ID_EQUIPO', '/^[a-zA-Z0-9]{1,30}$/'); // CORREGIDO: 1-30 caracteres
+    define('REGEX_CODIGO_BIEN', '/^[0-9a-zA-Z\-]{1,20}$/'); // CORREGIDO: 1-20 caracteres
+    define('REGEX_SERIAL', '/^[0-9a-zA-ZáéíóúüñÑçÇ.\-\s]{1,45}$/'); // CORREGIDO: 1-45 caracteres
+    define('REGEX_TIPO_EQUIPO', '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.]{1,45}$/'); // CORREGIDO: 1-45 caracteres
+    define('REGEX_ID_UNIDAD', '/^[A-Z0-9]{1,30}$/'); // CORREGIDO: 1-30 caracteres
+
     if (isset($_POST["entrada"])) {
         $json['resultado'] = "entrada";
         echo json_encode($json);
@@ -37,25 +44,26 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         if (isset($permisos['equipo']['registrar']['estado']) && $permisos['equipo']['registrar']['estado'] == '1') {
-            if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
+            // Validaciones más flexibles para el frontend
+            if (empty($_POST["codigo_bien"]) || $_POST["codigo_bien"] == "default") {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Código de Bien no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Debe seleccionar un código de bien válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), no seleccionó código de bien";
 
-            } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial"]) == 0) {
+            } else if (empty($_POST["serial"]) || !preg_match(REGEX_SERIAL, $_POST["serial"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Tipo de Bien no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Serial no válido. Debe contener caracteres alfanuméricos (máximo 45 caracteres)";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió serial no válido";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+            } else if (empty($_POST["id_unidad"]) || $_POST["id_unidad"] == "default" || !preg_match(REGEX_ID_UNIDAD, $_POST["id_unidad"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Unidad no válida";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió unidad no válida";
 
-            } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
+            } else if (empty($_POST["tipo_equipo"]) || !preg_match(REGEX_TIPO_EQUIPO, $_POST["tipo_equipo"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Marca no válida";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Tipo de Equipo no válido. Debe contener caracteres alfanuméricos (máximo 45 caracteres)";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió tipo de equipo no válido";
 
             } else {
                 $equipo->set_id_equipo(generarID($_POST["tipo_equipo"]));
@@ -80,7 +88,7 @@ if (is_file("view/" . $page . ".php")) {
         } else {
             $json['resultado'] = "error";
             $json['estado'] = 0;
-            $json['mensaje'] = "Error, No tienes permiso para registrar Equipo";
+            $json['mensaje'] = "Error: No tienes permiso para registrar Equipo";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
         }
         echo json_encode($json);
@@ -97,31 +105,31 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['equipo']['modificar']['estado']) && $permisos['equipo']['modificar']['estado'] == '1') {
-            // Cambia la expresión regular para aceptar varchar(16) alfanumérico
-            if (preg_match("/^[0-9a-zA-Z]{1,16}$/", $_POST["id_equipo"]) == 0) {
+            // Validaciones corregidas - más flexibles
+            if (empty($_POST["id_equipo"]) || !preg_match(REGEX_ID_EQUIPO, $_POST["id_equipo"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Id de Equipo no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: ID de Equipo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió ID de equipo no válido: " . $_POST["id_equipo"];
 
-            } else if (preg_match("/^[0-9a-zA-Z\-]{3,20}$/", $_POST["codigo_bien"]) == 0) {
+            } else if (empty($_POST["codigo_bien"]) || $_POST["codigo_bien"] == "default") {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Código de Bien no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Debe seleccionar un código de bien válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), no seleccionó código de bien";
 
-            } else if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/", $_POST["serial"]) == 0) {
+            } else if (empty($_POST["serial"]) || !preg_match(REGEX_SERIAL, $_POST["serial"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Serial no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Serial no válido. Debe contener caracteres alfanuméricos (máximo 45 caracteres)";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió serial no válido";
 
-            } else if (preg_match("/^[0-9]{1,11}$/", $_POST["id_unidad"]) == 0) {
+            } else if (empty($_POST["id_unidad"]) || $_POST["id_unidad"] == "default" || !preg_match(REGEX_ID_UNIDAD, $_POST["id_unidad"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Unidad no válida";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Unidad no válida";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió unidad no válida";
 
-            } else if (preg_match("/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/", $_POST["tipo_equipo"]) == 0) {
+            } else if (empty($_POST["tipo_equipo"]) || !preg_match(REGEX_TIPO_EQUIPO, $_POST["tipo_equipo"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Tipo de Equipo no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: Tipo de Equipo no válido. Debe contener caracteres alfanuméricos (máximo 45 caracteres)";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió tipo de equipo no válido";
 
             } else {
                 $equipo->set_id_equipo($_POST["id_equipo"]);
@@ -140,15 +148,15 @@ if (is_file("view/" . $page . ".php")) {
                     $json['resultado'] = "modificar";
                 }
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del equipo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del equipo " . $_POST["id_equipo"];
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar equipo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar equipo " . $_POST["id_equipo"];
                 }
             }
         } else {
             $json['resultado'] = "error";
             $json['estado'] = 0;
-            $json['mensaje'] = "Error, No tienes permiso para modificar Equipo";
+            $json['mensaje'] = "Error: No tienes permiso para modificar Equipo";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
         }
 
@@ -159,12 +167,11 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         if (isset($permisos['equipo']['eliminar']['estado']) && $permisos['equipo']['eliminar']['estado'] == '1') {
-            // Cambia la expresión regular para aceptar varchar(16) alfanumérico
-            if (preg_match("/^[0-9a-zA-Z]{1,16}$/", $_POST["id_equipo"]) == 0) {
+            if (empty($_POST["id_equipo"]) || !preg_match(REGEX_ID_EQUIPO, $_POST["id_equipo"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Id de Equipo no válido";
+                $json['mensaje'] = "Error: ID de Equipo no válido";
                 $json['estado'] = 0;
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió ID de equipo no válido: " . $_POST["id_equipo"];
             } else {
                 $equipo->set_id_equipo($_POST["id_equipo"]);
                 $peticion["peticion"] = "eliminar";
@@ -175,15 +182,15 @@ if (is_file("view/" . $page . ".php")) {
                     $json['estado'] = isset($json['bool']) ? $json['bool'] : 0;
                 }
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un equipo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó el equipo " . $_POST["id_equipo"];
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un equipo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar equipo " . $_POST["id_equipo"];
                 }
             }
         } else {
             $json['resultado'] = "error";
             $json['estado'] = 0;
-            $json['mensaje'] = "Error, No tienes permiso para eliminar Equipo";
+            $json['mensaje'] = "Error: No tienes permiso para eliminar Equipo";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
         }
         Bitacora($msg, "Equipo");
@@ -191,21 +198,21 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-	if (isset($_POST['detalle'])) {
-		if (preg_match("/^[0-9]{1,11}$/", $_POST["id_equipo"]) == 0) {
-			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, Id no válido";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-		} else {
-			$peticion["peticion"] = "detalle";
-			$equipo->set_id_equipo($_POST['id_equipo']);
-			$json = $equipo->Transaccion($peticion);
-			$json['resultado'] = "detalle";
-		}
-		
-		echo json_encode($json);
-		exit;
-	}
+    if (isset($_POST['detalle'])) {
+        if (empty($_POST["id_equipo"]) || !preg_match(REGEX_ID_EQUIPO, $_POST["id_equipo"])) {
+            $json['resultado'] = "error";
+            $json['mensaje'] = "Error: ID de Equipo no válido";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió ID de equipo no válido: " . $_POST["id_equipo"];
+        } else {
+            $peticion["peticion"] = "detalle";
+            $equipo->set_id_equipo($_POST['id_equipo']);
+            $json = $equipo->Transaccion($peticion);
+            $json['resultado'] = "detalle";
+        }
+        
+        echo json_encode($json);
+        exit;
+    }
 
     if (isset($_POST['filtrar_bien'])) {
         $peticion["peticion"] = "filtrar";
@@ -246,11 +253,10 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["restaurar"])) {
         if (isset($permisos['equipo']['restaurar']['estado']) && $permisos['equipo']['restaurar']['estado'] == '1') {
-            // Cambia la expresión regular para aceptar varchar(16) alfanumérico
-            if (preg_match("/^[0-9a-zA-Z]{1,16}$/", $_POST["id_equipo"]) == 0) {
+            if (empty($_POST["id_equipo"]) || !preg_match(REGEX_ID_EQUIPO, $_POST["id_equipo"])) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Id de Equipo no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error: ID de Equipo no válido";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió ID de equipo no válido: " . $_POST["id_equipo"];
 
             } else {
                 $equipo->set_id_equipo($_POST["id_equipo"]);
@@ -262,15 +268,15 @@ if (is_file("view/" . $page . ".php")) {
                     $json['estado'] = isset($json['bool']) ? $json['bool'] : 0;
                 }
                 if ($json['estado'] == 1) {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del equipo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el equipo " . $_POST["id_equipo"];
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar equipo";
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar equipo " . $_POST["id_equipo"];
                 }
             }
         } else {
             $json['resultado'] = "error";
             $json['estado'] = 0;
-            $json['mensaje'] = "Error, No tienes permiso para restaurar Equipo";
+            $json['mensaje'] = "Error: No tienes permiso para restaurar Equipo";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
         }
         echo json_encode($json);

@@ -58,7 +58,7 @@ $(document).ready(function () {
 
         // Deshabilitar botón inicialmente
         $('#enviar').prop('disabled', true);
-        
+
         // Limpiar validación visual al abrir el modal
         setTimeout(() => {
             limpiarValidacionVisual();
@@ -81,7 +81,7 @@ $(document).ready(function () {
         if ($("#enviar").text() !== "Registrar") {
             ocultarEquipoOpcional();
         }
-        
+
         // Limpiar validación visual cada vez que se abre el modal
         setTimeout(() => {
             limpiarValidacionVisual();
@@ -181,10 +181,21 @@ $(document).ready(function () {
     // Forzar validación inicial cuando se abre el modal (sin mostrar errores)
     $('#modal1').on('shown.bs.modal', function () {
         setTimeout(() => {
-            // Solo validar internamente sin mostrar errores visuales
-            if (typeof SistemaValidacion !== 'undefined') {
-                // Validar sin aplicar estilos visuales
-                validarSinEstilos();
+            const accion = $("#enviar").text();
+
+            // Para Modificar y Eliminar, validar inmediatamente sin mostrar errores
+            if (accion === "Modificar" || accion === "Eliminar") {
+                // Marcar todos los campos como interactuados para que muestren validación
+                $.each(elementosBien, function (key, elemento) {
+                    if (elemento && elemento.length) {
+                        elemento.data('touched', true);
+                    }
+                });
+
+                // Validar formulario completo (mostrará errores visuales)
+                if (typeof SistemaValidacion !== 'undefined') {
+                    SistemaValidacion.validarFormulario(elementosBien);
+                }
             }
         }, 100);
     });
@@ -207,13 +218,13 @@ function limpiarValidacionVisual() {
 // Función para validar sin aplicar estilos visuales
 function validarSinEstilos() {
     let formularioValido = true;
-    
+
     $.each(elementosBien, function (key, elemento) {
         if (elemento && elemento.length && elemento.is(':visible') && !elemento.prop('disabled')) {
             const valor = elemento.val() ? elemento.val().trim() : '';
             const id = elemento.attr('id');
             let esValido = true;
-            
+
             // Validación interna sin mostrar errores
             switch (id) {
                 case 'codigo_bien':
@@ -241,13 +252,13 @@ function validarSinEstilos() {
                         esValido = valor.length >= 1;
                     }
             }
-            
+
             if (!esValido) {
                 formularioValido = false;
             }
         }
     });
-    
+
     return formularioValido;
 }
 
@@ -297,10 +308,46 @@ function consultarMarca() {
     enviaAjax(datos);
 }
 
-function consultarEliminadas() {
+async function consultarEliminadas() {
+    console.log("Consultando bienes eliminados...");
+
     var datos = new FormData();
     datos.append('consultar_eliminadas', 'consultar_eliminadas');
-    enviaAjax(datos);
+
+    try {
+        const respuesta = await enviaAjax(datos, true);
+        console.log("Datos recibidos de bienes eliminados:", respuesta);
+
+        if (respuesta.resultado === "consultar_eliminadas") {
+            console.log("Número de registros:", respuesta.datos.length);
+            
+            // Crear la tabla primero
+            TablaEliminados(respuesta.datos);
+            
+            // Esperar un momento para que se renderice la tabla
+            setTimeout(() => {
+                // Mostrar el modal
+                console.log("Mostrando modal de eliminados");
+                $('#modalEliminadas').modal('show');
+                
+                // Forzar redibujado de la tabla
+                if ($.fn.DataTable.isDataTable('#tablaEliminados')) {
+                    $('#tablaEliminados').DataTable().draw();
+                }
+            }, 100);
+            
+        } else if (respuesta.resultado === "error") {
+            mensajes("error", null, "Error", respuesta.mensaje);
+        } else {
+            console.error("Resultado inesperado:", respuesta.resultado);
+            mensajes("error", null, "Error", "Respuesta inesperada del servidor");
+        }
+    } catch (error) {
+        console.error("Error en consultarEliminadas:", error);
+        if (error.mensaje) {
+            mensajes("error", null, "Error", error.mensaje);
+        }
+    }
 }
 
 async function reactivarBien(boton) {
@@ -310,12 +357,28 @@ async function reactivarBien(boton) {
         const linea = $(boton).closest('tr');
         const tabla = $('#tablaEliminados').DataTable();
         const datosFila = tabla.row(linea).data();
-        const codigo = datosFila.codigo_bien; // Obtener desde los datos
-        
+        const codigo = datosFila.codigo_bien;
+
         var datos = new FormData();
         datos.append('reactivar', 'reactivar');
         datos.append('codigo_bien', codigo);
-        enviaAjax(datos);
+
+        // Usar la versión con promesa para reactivar
+        try {
+            const respuesta = await enviaAjax(datos, true);
+            if (respuesta.resultado === "reactivar") {
+                mensajes("success", null, "Bien restaurado", respuesta.mensaje);
+                consultarEliminadas(); // Recargar la tabla de eliminados
+                consultar(); // Recargar la tabla principal
+            } else if (respuesta.resultado === "error") {
+                mensajes("error", null, "Error", respuesta.mensaje);
+            }
+        } catch (error) {
+            console.error("Error reactivando bien:", error);
+            if (error.mensaje) {
+                mensajes("error", null, "Error", error.mensaje);
+            }
+        }
     }
 }
 
@@ -394,140 +457,193 @@ function enviarFormulario(accion) {
     });
 }
 
-function enviaAjax(datos) {
-    $.ajax({
-        async: true,
-        url: "",
-        type: "POST",
-        contentType: false,
-        data: datos,
-        processData: false,
-        cache: false,
-        beforeSend: function () {},
-        timeout: 10000,
-        success: function (respuesta) {
-            try {
-                // Verificar si la respuesta es HTML antes de intentar parsear como JSON
-                if (respuesta.trim().startsWith('<!DOCTYPE') || respuesta.trim().startsWith('<html') || respuesta.includes('<!DOCTYPE html>')) {
-                    console.error("El servidor devolvió HTML en lugar de JSON. Verificando la petición...");
-                    console.error("Datos enviados:", Array.from(datos.entries()));
-                    console.error("Respuesta recibida (primeros 500 caracteres):", respuesta.substring(0, 500));
-                    
-                    // Intentar obtener más información del error
-                    const errorMatch = respuesta.match(/<title>(.*?)<\/title>/);
-                    const errorTitle = errorMatch ? errorMatch[1] : 'Error desconocido';
-                    
-                    mensajes("error", null, "Error del Servidor", 
-                        "El servidor devolvió una página HTML. Esto puede deberse a:\n" +
-                        "1. Error de sintaxis en PHP\n" + 
-                        "2. Sesión expirada\n" +
-                        "3. Permisos insuficientes\n\n" +
-                        "Error: " + errorTitle);
-                    return;
+function enviaAjax(datos, usarPromesa = false) {
+    if (usarPromesa) {
+        // Versión con promesa para consultarEliminadas
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                async: true,
+                url: "",
+                type: "POST",
+                contentType: false,
+                data: datos,
+                processData: false,
+                cache: false,
+                timeout: 10000,
+                success: function (respuesta) {
+                    try {
+                        // Verificar si la respuesta es HTML antes de intentar parsear como JSON
+                        if (respuesta.trim().startsWith('<!DOCTYPE') || respuesta.trim().startsWith('<html') || respuesta.includes('<!DOCTYPE html>')) {
+                            console.error("El servidor devolvió HTML en lugar de JSON");
+
+                            const errorObj = {
+                                resultado: "error",
+                                mensaje: "Error del servidor: Se recibió HTML en lugar de JSON"
+                            };
+
+                            reject(errorObj);
+                            return;
+                        }
+
+                        var lee = JSON.parse(respuesta);
+                        console.log("Respuesta AJAX (Promesa):", lee);
+                        resolve(lee);
+
+                    } catch (e) {
+                        console.error("Error procesando respuesta:", e);
+                        const errorObj = {
+                            resultado: "error",
+                            mensaje: "Error procesando respuesta: " + e.message
+                        };
+                        reject(errorObj);
+                    }
+                },
+                error: function (request, status, err) {
+                    console.error("Error AJAX:", status, err);
+                    const errorObj = {
+                        resultado: "error",
+                        mensaje: "Error de conexión: " + status
+                    };
+                    reject(errorObj);
                 }
+            });
+        });
+    } else {
+        // Versión original para mantener compatibilidad
+        $.ajax({
+            async: true,
+            url: "",
+            type: "POST",
+            contentType: false,
+            data: datos,
+            processData: false,
+            cache: false,
+            beforeSend: function () {},
+            timeout: 10000,
+            success: function (respuesta) {
+                try {
+                    // Verificar si la respuesta es HTML antes de intentar parsear como JSON
+                    if (respuesta.trim().startsWith('<!DOCTYPE') || respuesta.trim().startsWith('<html') || respuesta.includes('<!DOCTYPE html>')) {
+                        console.error("El servidor devolvió HTML en lugar de JSON. Verificando la petición...");
+                        console.error("Datos enviados:", Array.from(datos.entries()));
+                        console.error("Respuesta recibida (primeros 500 caracteres):", respuesta.substring(0, 500));
 
-                var lee = JSON.parse(respuesta);
-                console.log(lee);
+                        // Intentar obtener más información del error
+                        const errorMatch = respuesta.match(/<title>(.*?)<\/title>/);
+                        const errorTitle = errorMatch ? errorMatch[1] : 'Error desconocido';
 
-                switch (lee.resultado) {
-                    case "registrar":
-                    case "modificar":
-                    case "eliminar":
-                        $("#modal1").modal("hide");
-                        mensajes("success", 10000, lee.mensaje, null);
-                        consultar();
-                        break;
+                        mensajes("error", null, "Error del Servidor",
+                            "El servidor devolvió una página HTML. Esto puede deberse a:\n" +
+                            "1. Error de sintaxis en PHP\n" +
+                            "2. Sesión expirada\n" +
+                            "3. Permisos insuficientes\n\n" +
+                            "Error: " + errorTitle);
+                        return;
+                    }
 
-                    case "consultar":
-                        crearDataTable(lee.datos);
-                        break;
+                    var lee = JSON.parse(respuesta);
+                    console.log(lee);
 
-                    case "consultar_eliminadas":
-                        TablaEliminados(lee.datos);
-                        break;
+                    // Procesar respuesta como antes
+                    switch (lee.resultado) {
+                        case "registrar":
+                        case "modificar":
+                        case "eliminar":
+                            $("#modal1").modal("hide");
+                            mensajes("success", 10000, lee.mensaje, null);
+                            consultar();
+                            break;
 
-                    case "consultar_tipos_bien":
-                        selectTipoBien(lee.datos);
-                        break;
+                        case "consultar":
+                            crearDataTable(lee.datos);
+                            break;
 
-                    case "consultar_marcas":
-                        selectMarca(lee.datos);
-                        break;
+                        case "consultar_eliminadas":
+                            TablaEliminados(lee.datos);
+                            break;
 
-                    case "consultar_oficinas":
-                        selectOficina(lee.datos);
-                        break;
+                        case "consultar_tipos_bien":
+                            selectTipoBien(lee.datos);
+                            break;
 
-                    case "consultar_empleados":
-                        selectEmpleado(lee.datos);
-                        break;
+                        case "consultar_marcas":
+                            selectMarca(lee.datos);
+                            break;
 
-                    case "consultar_unidades":
-                    case "consultar_unidad_equipo":
-                        selectUnidadEquipo(lee.datos);
-                        break;
+                        case "consultar_oficinas":
+                            selectOficina(lee.datos);
+                            break;
 
-                    case "reactivar":
-                        mensajes("success", null, "Bien restaurado", lee.mensaje);
-                        consultarEliminadas();
-                        consultar();
-                        break;
+                        case "consultar_empleados":
+                            selectEmpleado(lee.datos);
+                            break;
 
-                    case "permisos_modulo":
-                        vistaPermiso(lee.permisos);
-                        break;
+                        case "consultar_unidades":
+                        case "consultar_unidad_equipo":
+                            selectUnidadEquipo(lee.datos);
+                            break;
 
-                    case "entrada":
-                        // No action needed
-                        break;
+                        case "reactivar":
+                            mensajes("success", null, "Bien restaurado", lee.mensaje);
+                            consultarEliminadas();
+                            consultar();
+                            break;
 
-                    case "consultar_bienes_empleado":
-                        // Manejar bienes por empleado si es necesario
-                        console.log("Bienes del empleado:", lee.datos);
-                        break;
+                        case "permisos_modulo":
+                            console.log("PERMISOS COMPLETOS:", lee.permisos);
+                            console.log("PERMISOS BIEN:", lee.permisos.bien);
+                            vistaPermiso(lee.permisos);
+                            break;
 
-                    case "filtrar_bien":
-                        // Manejar filtrado de bienes
-                        console.log("Bienes filtrados:", lee.datos);
-                        break;
+                        case "entrada":
+                            // No action needed
+                            break;
 
-                    case "obtener_tipo_servicio":
-                        // Manejar tipo de servicio
-                        console.log("Tipo de servicio:", lee.id_tipo_servicio);
-                        break;
+                        case "consultar_bienes_empleado":
+                            console.log("Bienes del empleado:", lee.datos);
+                            break;
 
-                    case "error":
-                        mensajes("error", null, lee.mensaje, null);
-                        break;
+                        case "filtrar_bien":
+                            console.log("Bienes filtrados:", lee.datos);
+                            break;
 
-                    default:
-                        console.warn("Caso no manejado en enviaAjax:", lee.resultado);
-                        break;
+                        case "obtener_tipo_servicio":
+                            console.log("Tipo de servicio:", lee.id_tipo_servicio);
+                            break;
+
+                        case "error":
+                            mensajes("error", null, lee.mensaje, null);
+                            break;
+
+                        default:
+                            console.warn("Caso no manejado en enviaAjax:", lee.resultado);
+                            break;
+                    }
+                } catch (e) {
+                    console.error("Error procesando respuesta:", e);
+                    console.error("Respuesta recibida:", respuesta.substring(0, 200));
+
+                    mensajes("error", null, "Error procesando respuesta",
+                        "Tipo: " + e.name + "\n" +
+                        "Mensaje: " + e.message + "\n" +
+                        "Verifique la consola para más detalles.");
                 }
-            } catch (e) {
-                console.error("Error procesando respuesta:", e);
-                console.error("Respuesta recibida:", respuesta.substring(0, 200));
-                
-                mensajes("error", null, "Error procesando respuesta",
-                    "Tipo: " + e.name + "\n" +
-                    "Mensaje: " + e.message + "\n" +
-                    "Verifique la consola para más detalles.");
-            }
-        },
-        error: function (request, status, err) {
-            if (status == "timeout") {
-                mensajes("error", null, "Servidor ocupado", "Intente de nuevo");
-            } else {
-                mensajes("error", null, "Error de conexión",
-                    "Estado: " + status + "\n" +
-                    "Error: " + err + "\n" +
-                    "Detalles: " + request.status + " - " + request.statusText);
-            }
-        },
-        complete: function () {
-            // Cualquier limpieza que necesites hacer después de la petición
-        },
-    });
+            },
+            error: function (request, status, err) {
+                if (status == "timeout") {
+                    mensajes("error", null, "Servidor ocupado", "Intente de nuevo");
+                } else {
+                    mensajes("error", null, "Error de conexión",
+                        "Estado: " + status + "\n" +
+                        "Error: " + err + "\n" +
+                        "Detalles: " + request.status + " - " + request.statusText);
+                }
+            },
+            complete: function () {
+                // Cualquier limpieza que necesites hacer después de la petición
+            },
+        });
+    }
 }
 
 function capaValidar() {
@@ -574,7 +690,20 @@ function capaValidar() {
     // Sincronizar validación de Select2 con el sistema de validación
     $('select').on('change', function () {
         if (typeof SistemaValidacion !== 'undefined') {
+            // Marcar como interactuado para mostrar validación
+            $(this).data('touched', true);
             SistemaValidacion.validarCampo.call(this);
+        }
+    });
+
+    // Validación para Select2 cuando se abre/cierra
+    $(document).on('select2:open select2:close', function (e) {
+        const select = $(e.target);
+        if (select.length && typeof SistemaValidacion !== 'undefined') {
+            select.data('touched', true);
+            setTimeout(() => {
+                SistemaValidacion.validarCampo.call(select[0]);
+            }, 100);
         }
     });
 }
@@ -630,8 +759,10 @@ function selectOficina(arreglo) {
             new Option('Seleccione una Oficina', 'default')
         );
         arreglo.forEach(item => {
+            // Formato: "Oficina 4 - Piso 1"
+            const displayText = `${item.nombre_oficina} - Piso ${item.nro_piso}`;
             $("#id_oficina").append(
-                new Option(item.nombre_oficina, item.id_oficina)
+                new Option(displayText, item.id_oficina)
             );
         });
     } else {
@@ -697,34 +828,32 @@ function vistaPermiso(permisos) {
     try {
         console.log("Permisos recibidos:", permisos);
 
-        // Verificar que permisos existe y tiene la propiedad estado
-        if (!permisos || typeof permisos.estado === 'undefined') {
-            console.error("Permisos no definidos o sin propiedad estado:", permisos);
+        // Verificar que permisos existe y tiene la propiedad bien
+        if (!permisos || !permisos.bien) {
+            console.error("Permisos no definidos o sin propiedad bien:", permisos);
             return;
         }
 
-        const estado = permisos.estado;
-        console.log("Estado de permisos:", estado);
+        const permisosBien = permisos.bien;
+        console.log("Permisos de bien:", permisosBien);
 
         // Mostrar/ocultar botones según permisos
-        if (estado === 1) {
-            $("#btn-registrar").show();
-            $("#btn-consultar-eliminados").show();
-        } else {
-            $("#btn-registrar").hide();
-            $("#btn-consultar-eliminados").hide();
-        }
+        if (permisosBien.ver && permisosBien.ver.estado == "1") {
+            // Mostrar módulo completo
+            if (permisosBien.registrar && permisosBien.registrar.estado == "1") {
+                $("#btn-registrar").show();
+            } else {
+                $("#btn-registrar").hide();
+            }
 
-        // Manejar permisos específicos
-        if (permisos.registrar === 1) {
-            $("#btn-registrar").show();
+            if (permisosBien.reactivar && permisosBien.reactivar.estado == "1") {
+                $("#btn-consultar-eliminados").show();
+            } else {
+                $("#btn-consultar-eliminados").hide();
+            }
         } else {
+            // Ocultar todo si no tiene permiso de ver
             $("#btn-registrar").hide();
-        }
-
-        if (permisos.eliminados === 1) {
-            $("#btn-consultar-eliminados").show();
-        } else {
             $("#btn-consultar-eliminados").hide();
         }
 
@@ -750,7 +879,7 @@ function limpia() {
     if (typeof SistemaValidacion !== 'undefined') {
         SistemaValidacion.limpiarValidacion(elementosBien);
     }
-    
+
     // Limpiar validación visual
     limpiarValidacionVisual();
 
@@ -769,14 +898,8 @@ function crearDataTable(arreglo) {
         data: arreglo,
         columns: [
             {
-                data: null,
-                render: function (data, type, row, meta) {
-                    return meta.row + 1;
-                }
-            },
-            {
                 data: 'codigo_bien',
-                render: function(data) {
+                render: function (data) {
                     return data || 'N/A';
                 }
             },
@@ -833,11 +956,13 @@ function rellenar(pos, accion) {
     buscarSelect("#id_marca", datosFila.nombre_marca, "text");
     $("#descripcion").val(capitalizarTexto(datosFila.descripcion));
     buscarSelect("#estado", datosFila.estado, "text");
+
+    // Para oficina, buscar solo por el nombre (sin el piso)
     buscarSelect("#id_oficina", datosFila.nombre_oficina, "text");
 
-    // Usar 'empleado' en lugar de 'nombre_empleado'
-    if (datosFila.empleado && datosFila.empleado !== 'No asignado') {
-        buscarSelect("#cedula_empleado", datosFila.empleado, "text");
+    // CORREGIDO: Buscar empleado por cédula en lugar de nombre
+    if (datosFila.cedula_empleado && datosFila.cedula_empleado !== '') {
+        buscarSelect("#cedula_empleado", datosFila.cedula_empleado, "value");
     } else {
         $("#cedula_empleado").val('').trigger('change');
     }
@@ -852,80 +977,123 @@ function rellenar(pos, accion) {
 
     $('#enviar').prop('disabled', false);
     $("#modal1").modal("show");
-    
-    // Limpiar validación visual al abrir
+
+    // Marcar todos los campos como interactuados para mostrar validación inmediata
     setTimeout(() => {
-        limpiarValidacionVisual();
+        $.each(elementosBien, function (key, elemento) {
+            if (elemento && elemento.length) {
+                elemento.data('touched', true);
+            }
+        });
+
+        // Validar formulario completo para mostrar estados visuales
+        if (typeof SistemaValidacion !== 'undefined') {
+            SistemaValidacion.validarFormulario(elementosBien);
+        }
     }, 100);
 }
 
 function TablaEliminados(arreglo) {
-    if ($.fn.DataTable.isDataTable('#tablaEliminados')) {
-        $('#tablaEliminados').DataTable().destroy();
+    console.log("Creando tabla eliminados con datos:", arreglo);
+    
+    if (!arreglo || !Array.isArray(arreglo)) {
+        console.error("Datos inválidos para TablaEliminados:", arreglo);
+        return;
     }
 
-    const tabla = $('#tablaEliminados').DataTable({
-        data: arreglo,
-        columns: [
-            { 
-                data: null,
-                defaultContent: '',
-                className: 'text-center'
-            },
-            { 
-                data: 'codigo_bien',
-                render: function(data) {
+    // Verificar estructura de datos
+    console.log("Estructura del primer registro:", arreglo[0]);
+    
+    if ($.fn.DataTable.isDataTable('#tablaEliminados')) {
+        console.log("Destruyendo DataTable existente");
+        $('#tablaEliminados').DataTable().destroy();
+        $('#tablaEliminados').empty(); // Limpiar el contenido
+    }
+
+    try {
+        const tabla = $('#tablaEliminados').DataTable({
+            data: arreglo,
+            columns: [
+                { 
+                    data: 'codigo_bien',
+                render: function (data) {
                     return data || 'N/A';
                 }
-            },
-            { data: 'nombre_categoria' },
-            { data: 'nombre_marca' },
-            { 
-                data: 'descripcion',
-                render: function(data) {
-                    return capitalizarTexto(data || '');
+                },
+                { 
+                    data: 'nombre_categoria',
+                    render: function(data) {
+                        return data || 'N/A';
+                    }
+                },
+                { 
+                    data: 'nombre_marca',
+                    render: function(data) {
+                        return data || 'N/A';
+                    }
+                },
+                { 
+                    data: 'descripcion',
+                    render: function(data) {
+                        return capitalizarTexto(data || '');
+                    }
+                },
+                { 
+                    data: 'estado',
+                    render: function(data) {
+                        return data || 'N/A';
+                    }
+                },
+                { 
+                    data: 'nombre_oficina',
+                    render: function(data) {
+                        return data || 'N/A';
+                    }
+                },
+                { 
+                    data: 'nombre_empleado',
+                    render: function(data) {
+                        return data || 'No asignado';
+                    }
+                },
+                { 
+                    data: null,
+                    defaultContent: '<button class="btn btn-success btn-sm" title="Reactivar"><i class="fa-solid fa-recycle"></i></button>',
+                    className: 'text-center',
+                    orderable: false
                 }
+            ],
+            language: {
+                url: idiomaTabla
             },
-            { data: 'estado' },
-            { data: 'nombre_oficina' },
-            { 
-                data: 'nombre_empleado',
-                render: function(data) {
-                    return data || 'No asignado';
-                }
+            pageLength: 10,
+            responsive: true,
+            order: [[1, 'asc']], // Ordenar por código de bien
+            createdRow: function (row, data, dataIndex) {
+                $(row).find('button').tooltip({
+                    trigger: 'hover',
+                    placement: 'top'
+                });
             },
-            { 
-                data: null,
-                defaultContent: '<button class="btn btn-success btn-sm" title="Reactivar"><i class="bi bi-arrow-counterclockwise"></i></button>',
-                className: 'text-center',
-                orderable: false
+            initComplete: function() {
+                console.log("DataTable de eliminados inicializada correctamente");
+            },
+            drawCallback: function() {
+                console.log("DataTable de eliminados dibujada");
             }
-        ],
-        language: {
-            url: idiomaTabla
-        },
-        pageLength: 10,
-        responsive: true,
-        order: [[1, 'asc']], // Ordenar por código de bien
-        createdRow: function (row, data, dataIndex) {
-            $(row).find('button').tooltip({
-                trigger: 'hover',
-                placement: 'top'
-            });
-        }
-    });
-
-    // Agregar números de fila
-    tabla.on('order.dt search.dt', function () {
-        tabla.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
-            cell.innerHTML = i + 1;
         });
-    }).draw();
 
-    // Asignar evento de reactivación
-    $('#tablaEliminados tbody').on('click', 'button', function () {
-        reactivarBien(this);
-    });
+        console.log("DataTable creada exitosamente");
+
+        // Asignar evento de reactivación
+        $('#tablaEliminados tbody').on('click', 'button', function () {
+            reactivarBien(this);
+        });
+
+    } catch (error) {
+        console.error("Error creando DataTable:", error);
+        return;
+    }
 }
 
 function buscarSelect(id, valor, tipo) {
@@ -937,12 +1105,27 @@ function buscarSelect(id, valor, tipo) {
     select.find('option').each(function () {
         const option = $(this);
         const optionValue = tipo === 'text' ? option.text().trim() : option.val();
-        const valorBuscado = tipo === 'text' ? valor.toString().trim() : valor;
 
-        if (optionValue === valorBuscado) {
-            select.val(option.val()).trigger('change');
-            encontrado = true;
-            return false; // Salir del bucle
+        // Para buscar por texto, extraer solo el nombre de la oficina (antes del " - Piso")
+        let valorBuscado = tipo === 'text' ? valor.toString().trim() : valor;
+
+        if (tipo === 'text') {
+            // Extraer solo el nombre de la oficina del texto completo
+            const textoCompleto = optionValue;
+            const nombreOficina = textoCompleto.split(' - Piso')[0]?.trim();
+            valorBuscado = valorBuscado.split(' - Piso')[0]?.trim() || valorBuscado;
+
+            if (nombreOficina === valorBuscado) {
+                select.val(option.val()).trigger('change');
+                encontrado = true;
+                return false; // Salir del bucle
+            }
+        } else {
+            if (optionValue === valorBuscado) {
+                select.val(option.val()).trigger('change');
+                encontrado = true;
+                return false; // Salir del bucle
+            }
         }
     });
 
@@ -966,6 +1149,8 @@ function validarKeyPress(patron, e) {
 function ConsultarPermisos() {
     var datos = new FormData();
     datos.append('permisos_modulo', 'permisos_modulo');
+
+    console.log("Solicitando permisos...");
     enviaAjax(datos);
 }
 

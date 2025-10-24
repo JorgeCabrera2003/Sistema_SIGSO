@@ -127,7 +127,6 @@ class Bien extends Conexion
         if ($this->empleado == NULL) {
 
             $this->empleado = new Empleado();
-
         }
 
         return $this->empleado;
@@ -143,7 +142,6 @@ class Bien extends Conexion
         if ($this->marca == NULL) {
 
             $this->marca = new Marca();
-
         }
 
         return $this->marca;
@@ -159,7 +157,6 @@ class Bien extends Conexion
         if ($this->oficina == NULL) {
 
             $this->oficina = new Oficina();
-
         }
 
         return $this->oficina;
@@ -175,7 +172,6 @@ class Bien extends Conexion
         if ($this->categoria == NULL) {
 
             $this->categoria = new Categoria();
-
         }
 
         return $this->categoria;
@@ -207,7 +203,6 @@ class Bien extends Conexion
             } else {
                 $dato['bool'] = 0;
             }
-
         } catch (PDOException $e) {
             $this->conex->rollBack();
             $dato['bool'] = -1;
@@ -420,17 +415,22 @@ class Bien extends Conexion
     private function ConsultarEliminadas()
     {
         $dato = [];
-
         try {
             $this->conex = new Conexion("sistema");
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
-            $query = "SELECT b.*, tb.nombre_categoria, m.nombre_marca
-                     FROM bien b 
-                     LEFT JOIN categoria tb ON b.id_categoria = tb.id_categoria
-                     LEFT JOIN marca m ON b.id_marca = m.id_marca
-                     WHERE b.estatus = 0";
+            $query = "SELECT b.*, 
+                         tb.nombre_categoria, 
+                         m.nombre_marca, 
+                         o.nombre_oficina,
+                         CONCAT(e.nombre_empleado, ' ', e.apellido_empleado) AS nombre_empleado
+                 FROM bien b 
+                 LEFT JOIN categoria tb ON b.id_categoria = tb.id_categoria
+                 LEFT JOIN marca m ON b.id_marca = m.id_marca
+                 LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                 LEFT JOIN empleado e ON b.cedula_empleado = e.cedula_empleado
+                 WHERE b.estatus = 0";
 
             $stm = $this->conex->prepare($query);
             $stm->execute();
@@ -513,14 +513,14 @@ class Bien extends Conexion
             $this->conex->beginTransaction();
 
             $query = "SELECT id_tipo_servicio FROM equipo WHERE id_equipo = :id_equipo AND estatus = 1";
-            
+
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id_equipo", $idEquipo);
             $stm->execute();
             $this->conex->commit();
-            
+
             $resultado = $stm->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($resultado) {
                 $dato['id_tipo_servicio'] = $resultado['id_tipo_servicio'] ?? 1; // Default a Soporte Técnico
                 $dato['resultado'] = 'success';
@@ -535,7 +535,7 @@ class Bien extends Conexion
             $dato['resultado'] = 'error';
             $dato['mensaje'] = $e->getMessage();
         }
-        
+
         $this->Cerrar_Conexion($this->conex, $stm);
         return $dato;
     }
@@ -585,6 +585,4 @@ class Bien extends Conexion
                 return "Operacion: " . $peticion['peticion'] . " no valida";
         }
     }
-
 }
-?>
