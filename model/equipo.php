@@ -445,28 +445,34 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-
+            
             $query = "SELECT 
                         e.id_equipo,
                         e.tipo_equipo,
                         e.serial,
                         e.codigo_bien,
-                        u.nombre_unidad,
+                        u.nombre_unidad, 
+                        CONCAT(et.nombre,' - ', d.nombre) AS dependencia,
                         b.descripcion as descripcion_bien,
-                        m.nombre_marca
+                        m.nombre_marca,
+                        o.nombre_oficina,
+                        e.fecha_eliminacion
                     FROM equipo e 
                     JOIN unidad u ON e.id_unidad = u.id_unidad
+                    JOIN dependencia d ON u.id_dependencia = d.id
+                    JOIN ente et ON d.id_ente = et.id
                     JOIN bien b ON e.codigo_bien = b.codigo_bien
                     LEFT JOIN marca m ON b.id_marca = m.id_marca
+                    LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
                     WHERE e.estatus = 0
-                    ORDER BY e.tipo_equipo, e.serial";
-
+                    ORDER BY e.fecha_eliminacion DESC";
+                  
             $stm = $con->prepare($query);
             $stm->execute();
             $con->commit();
             
             return [
-                'resultado' => 'consultar_eliminadas',
+                'resultado' => "consultar_eliminadas",
                 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
             ];
             
@@ -475,7 +481,7 @@ class Equipo extends Conexion
                 $con->rollBack();
             }
             return [
-                'resultado' => 'error',
+                'resultado' => "error",
                 'mensaje' => "Error al consultar equipos eliminados: " . $e->getMessage(),
                 'datos' => []
             ];
@@ -484,7 +490,7 @@ class Equipo extends Conexion
         }
     }
 
-    // RESTAURAR EQUIPO
+    // RESTAURAR EQUIPO ELIMINADO
     private function Restaurar()
     {
         $con = null;
@@ -495,33 +501,42 @@ class Equipo extends Conexion
             $con = $con->Conex();
             $con->beginTransaction();
 
-            // Verificar si el serial ya está en uso por otro equipo activo
-            $query_check_serial = "SELECT id_equipo FROM equipo WHERE serial = (
-                SELECT serial FROM equipo WHERE id_equipo = :id_equipo
-            ) AND estatus = 1 AND id_equipo != :id_equipo";
-            
-            $stm_check = $con->prepare($query_check_serial);
+            // Verificar que el equipo existe y está eliminado
+            $query_check = "SELECT id_equipo FROM equipo WHERE id_equipo = :id_equipo AND estatus = 0";
+            $stm_check = $con->prepare($query_check);
             $stm_check->bindParam(':id_equipo', $this->id_equipo);
             $stm_check->execute();
             
-            if ($stm_check->rowCount() > 0) {
-                throw new PDOException("No se puede restaurar el equipo porque el serial ya está en uso por otro equipo activo");
+            if ($stm_check->rowCount() == 0) {
+                throw new PDOException("No se encontró el equipo eliminado");
             }
 
-            $query = "UPDATE equipo SET estatus = 1 WHERE id_equipo = :id_equipo";
+            // Verificar que no exista otro equipo activo con el mismo serial
+            $query_serial = "SELECT e.id_equipo FROM equipo e 
+                            WHERE e.serial = (SELECT serial FROM equipo WHERE id_equipo = :id_equipo) 
+                            AND e.estatus = 1";
+            $stm_serial = $con->prepare($query_serial);
+            $stm_serial->bindParam(':id_equipo', $this->id_equipo);
+            $stm_serial->execute();
+            
+            if ($stm_serial->rowCount() > 0) {
+                throw new PDOException("Ya existe un equipo activo con el mismo serial");
+            }
+
+            $query = "UPDATE equipo SET estatus = 1, fecha_eliminacion = NULL WHERE id_equipo = :id_equipo";
             $stm = $con->prepare($query);
             $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->execute();
             
             if ($stm->rowCount() == 0) {
-                throw new PDOException("No se encontró el equipo eliminado");
+                throw new PDOException("No se pudo restaurar el equipo");
             }
             
             $con->commit();
             
             return [
                 'estado' => 1,
-                'resultado' => "restaurar",
+                'resultado' => "reactivar",
                 'mensaje' => "Equipo restaurado exitosamente."
             ];
             
@@ -539,8 +554,8 @@ class Equipo extends Conexion
         }
     }
 
-    // HISTORIAL DEL EQUIPO
-    public function HistorialEquipo()
+    // DETALLE DE EQUIPO
+    private function Detalle()
     {
         $con = null;
         $stm = null;
@@ -551,35 +566,108 @@ class Equipo extends Conexion
             $con->beginTransaction();
             
             $query = "SELECT 
-                        e.id_equipo, 
-                        e.serial, 
-                        e.tipo_equipo, 
-                        hs.id_tipo_servicio, 
-                        s.nro_solicitud,
-                        s.motivo, 
-                        hs.observacion, 
-                        hs.resultado_hoja_servicio, 
-                        ts.nombre_tipo_servicio,
-                        hs.codigo_hoja_servicio, 
-                        CONCAT(emp.nombre_empleado, ' ', emp.apellido_empleado) AS empleado,
-                        s.fecha_solicitud,
-                        hs.fecha_resultado
-                    FROM equipo e
-                    INNER JOIN solicitud s ON e.id_equipo = s.id_equipo
-                    INNER JOIN hoja_servicio hs ON s.nro_solicitud = hs.nro_solicitud
-                    INNER JOIN tipo_servicio ts ON ts.id_tipo_servicio = hs.id_tipo_servicio
-                    INNER JOIN empleado emp ON emp.cedula_empleado = s.cedula_solicitante
-                    WHERE e.id_equipo = :id_equipo
-                    AND e.estatus = 1
-                    ORDER BY s.fecha_solicitud DESC, hs.fecha_resultado DESC";
+                        e.id_equipo,
+                        e.tipo_equipo,
+                        e.serial,
+                        e.codigo_bien,
+                        e.id_unidad,
+                        u.nombre_unidad,
+                        u.id_dependencia,
+                        d.nombre as nombre_dependencia,
+                        et.nombre as nombre_ente,
+                        b.descripcion,
+                        m.nombre_marca,
+                        o.nombre_oficina,
+                        CASE WHEN pc.id_equipo IS NOT NULL THEN 1 ELSE 0 END AS ocupado
+                    FROM equipo e 
+                    JOIN unidad u ON e.id_unidad = u.id_unidad
+                    JOIN dependencia d ON u.id_dependencia = d.id
+                    JOIN ente et ON d.id_ente = et.id
+                    JOIN bien b ON e.codigo_bien = b.codigo_bien
+                    LEFT JOIN marca m ON b.id_marca = m.id_marca
+                    LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
+                    LEFT JOIN punto_conexion pc ON pc.id_equipo = e.id_equipo
+                    WHERE e.id_equipo = :id_equipo AND e.estatus = 1";
+                  
+            $stm = $con->prepare($query);
+            $stm->bindParam(':id_equipo', $this->id_equipo);
+            $stm->execute();
+            $con->commit();
+            
+            $resultado = $stm->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$resultado) {
+                return [
+                    'resultado' => "error",
+                    'mensaje' => "Equipo no encontrado"
+                ];
+            }
+            
+            return [
+                'resultado' => "detalle",
+                'datos' => $resultado
+            ];
+            
+        } catch (PDOException $e) {
+            if ($con && $con->inTransaction()) {
+                $con->rollBack();
+            }
+            return [
+                'resultado' => "error",
+                'mensaje' => "Error al obtener detalle: " . $e->getMessage()
+            ];
+        } finally {
+            $this->Cerrar_Conexion($con, $stm);
+        }
+    }
 
+    // HISTORIAL DE EQUIPO
+    private function Historial()
+    {
+        $con = null;
+        $stm = null;
+
+        try {
+            $con = new Conexion("sistema");
+            $con = $con->Conex();
+            $con->beginTransaction();
+            
+            // Consulta para obtener el historial completo del equipo
+            $query = "SELECT 
+                        'Solicitud' as tipo,
+                        s.id_solicitud as id,
+                        s.fecha_solicitud as fecha,
+                        s.descripcion_falla as descripcion,
+                        s.estado_solicitud as estado,
+                        CONCAT(us.nombre, ' ', us.apellido) as usuario,
+                        NULL as tecnico
+                    FROM solicitud s
+                    JOIN usuario us ON s.id_usuario = us.id_usuario
+                    WHERE s.id_equipo = :id_equipo
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        'Mantenimiento' as tipo,
+                        m.id_mantenimiento as id,
+                        m.fecha_mantenimiento as fecha,
+                        m.descripcion_trabajo as descripcion,
+                        m.estado_mantenimiento as estado,
+                        CONCAT(ut.nombre, ' ', ut.apellido) as usuario,
+                        CONCAT(ut.nombre, ' ', ut.apellido) as tecnico
+                    FROM mantenimiento m
+                    JOIN usuario ut ON m.id_tecnico = ut.id_usuario
+                    WHERE m.id_equipo = :id_equipo
+                    
+                    ORDER BY fecha DESC";
+                  
             $stm = $con->prepare($query);
             $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->execute();
             $con->commit();
             
             return [
-                'resultado' => 'detalle',
+                'resultado' => "historial",
                 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
             ];
             
@@ -588,8 +676,8 @@ class Equipo extends Conexion
                 $con->rollBack();
             }
             return [
-                'resultado' => 'error',
-                'mensaje' => "Error al obtener historial del equipo: " . $e->getMessage(),
+                'resultado' => "error",
+                'mensaje' => "Error al obtener historial: " . $e->getMessage(),
                 'datos' => []
             ];
         } finally {
@@ -597,238 +685,58 @@ class Equipo extends Conexion
         }
     }
 
-    // EQUIPOS POR DEPENDENCIA
-    private function equiposPorDependencia($idDependencia)
-    {
-        $con = null;
-        $stm = null;
-
-        try {
-            $con = new Conexion("sistema");
-            $con = $con->Conex();
-            $con->beginTransaction();
-
-            $query = "SELECT 
-                        e.id_equipo, 
-                        e.tipo_equipo, 
-                        e.serial, 
-                        e.codigo_bien, 
-                        b.descripcion,
-                        u.nombre_unidad
-                    FROM equipo e
-                    INNER JOIN bien b ON e.codigo_bien = b.codigo_bien
-                    INNER JOIN unidad u ON e.id_unidad = u.id_unidad
-                    WHERE u.id_dependencia = :id_dependencia 
-                    AND e.estatus = 1 
-                    AND b.estatus = 1
-                    ORDER BY e.tipo_equipo, e.serial";
-
-            $stm = $con->prepare($query);
-            $stm->bindParam(':id_dependencia', $idDependencia);
-            $stm->execute();
-            $con->commit();
-            
-            return [
-                'resultado' => 'success',
-                'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
-            ];
-            
-        } catch (PDOException $e) {
-            if ($con && $con->inTransaction()) {
-                $con->rollBack();
-            }
-            return [
-                'resultado' => 'error',
-                'mensaje' => "Error al obtener equipos por dependencia: " . $e->getMessage(),
-                'datos' => []
-            ];
-        } finally {
-            $this->Cerrar_Conexion($con, $stm);
-        }
-    }
-
-    // EQUIPOS POR EMPLEADO
-    private function equiposPorEmpleado($cedula_empleado, $nro_solicitud = null)
-    {
-        $con = null;
-        $stm = null;
-
-        try {
-            $con = new Conexion("sistema");
-            $con = $con->Conex();
-            $con->beginTransaction();
-
-            $sql = "SELECT 
-                        e.id_equipo, 
-                        e.tipo_equipo, 
-                        e.serial, 
-                        e.codigo_bien, 
-                        b.descripcion,
-                        u.nombre_unidad
-                    FROM equipo e
-                    INNER JOIN bien b ON e.codigo_bien = b.codigo_bien
-                    INNER JOIN unidad u ON e.id_unidad = u.id_unidad
-                    WHERE b.cedula_empleado = :cedula_empleado
-                    AND e.estatus = 1
-                    AND b.estatus = 1";
-
-            // Excluir equipos con solicitudes activas, excepto la actual si se proporciona
-            if ($nro_solicitud !== null) {
-                $sql .= " AND (e.id_equipo NOT IN (
-                    SELECT id_equipo FROM solicitud 
-                    WHERE estado_solicitud IN ('Pendiente', 'En proceso') 
-                    AND id_equipo IS NOT NULL
-                    AND nro_solicitud != :nro_solicitud
-                ) OR e.id_equipo IN (
-                    SELECT id_equipo FROM solicitud 
-                    WHERE nro_solicitud = :nro_solicitud2
-                ))";
-            } else {
-                $sql .= " AND e.id_equipo NOT IN (
-                    SELECT id_equipo FROM solicitud 
-                    WHERE estado_solicitud IN ('Pendiente', 'En proceso') 
-                    AND id_equipo IS NOT NULL
-                )";
-            }
-
-            $sql .= " ORDER BY e.tipo_equipo, e.serial";
-
-            $stm = $con->prepare($sql);
-            $stm->bindParam(':cedula_empleado', $cedula_empleado);
-            
-            if ($nro_solicitud !== null) {
-                $stm->bindParam(':nro_solicitud', $nro_solicitud);
-                $stm->bindParam(':nro_solicitud2', $nro_solicitud);
-            }
-
-            $stm->execute();
-            $con->commit();
-            
-            return [
-                'resultado' => 'success',
-                'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
-            ];
-            
-        } catch (PDOException $e) {
-            if ($con && $con->inTransaction()) {
-                $con->rollBack();
-            }
-            return [
-                'resultado' => 'error',
-                'mensaje' => "Error al obtener equipos por empleado: " . $e->getMessage(),
-                'datos' => []
-            ];
-        } finally {
-            $this->Cerrar_Conexion($con, $stm);
-        }
-    }
-
-    // OBTENER TIPO DE SERVICIO POR EQUIPO
-    private function obtenerTipoServicio($id_equipo)
-    {
-        $con = null;
-        $stm = null;
-
-        try {
-            $con = new Conexion("sistema");
-            $con = $con->Conex();
-            $con->beginTransaction();
-
-            $sql = "SELECT 
-                        COALESCE(
-                            ts.id_tipo_servicio, 
-                            c.id_tipo_servicio, 
-                            'SOPOR6432025101300104143'
-                        ) as id_tipo_servicio 
-                    FROM equipo e
-                    JOIN bien b ON e.codigo_bien = b.codigo_bien
-                    LEFT JOIN categoria c ON b.id_categoria = c.id_categoria
-                    LEFT JOIN tipo_servicio ts ON c.id_tipo_servicio = ts.id_tipo_servicio
-                    WHERE e.id_equipo = :id_equipo
-                    AND e.estatus = 1
-                    LIMIT 1";
-
-            $stmt = $con->prepare($sql);
-            $stmt->bindParam(':id_equipo', $id_equipo);
-            $stmt->execute();
-            $con->commit();
-
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($resultado && isset($resultado['id_tipo_servicio'])) {
-                return [
-                    'resultado' => 'success',
-                    'id_tipo_servicio' => $resultado['id_tipo_servicio']
-                ];
-            } else {
-                return [
-                    'resultado' => 'success',
-                    'id_tipo_servicio' => 'SOPOR6432025101300104143' // Soporte Técnico por defecto
-                ];
-            }
-            
-        } catch (PDOException $e) {
-            if ($con && $con->inTransaction()) {
-                $con->rollBack();
-            }
-            return [
-                'resultado' => 'success', // Cambiado a 'success' para no bloquear el proceso
-                'id_tipo_servicio' => 'SOPOR6432025101300104143', // Soporte Técnico por defecto
-                'mensaje' => "Error al obtener tipo de servicio: " . $e->getMessage()
-            ];
-        } finally {
-            $this->Cerrar_Conexion($con, $stm);
-        }
-    }
-
-    // MÉTODO PRINCIPAL DE TRANSACCIÓN
+    // MÉTODO PÚBLICO PRINCIPAL - ACCEDE A TODOS LOS MÉTODOS PRIVADOS
     public function Transaccion($peticion)
     {
+        $resultado = ['estado' => 0, 'mensaje' => 'Petición no válida'];
+        
         try {
-            switch ($peticion['peticion']) {
-                case 'registrar':
-                    return $this->Registrar();
-
-                case 'consultar':
-                    return $this->Consultar();
-
-                case 'consultar_eliminadas':
-                    return $this->ConsultarEliminadas();
-
-                case 'actualizar':
-                    return $this->Actualizar();
-
-                case 'eliminar':
-                    return $this->Eliminar();
-
-                case 'restaurar':
-                    return $this->Restaurar();
-
-                case 'detalle':
-                    return $this->HistorialEquipo();
-
-                case 'equipos_por_dependencia':
-                    return $this->equiposPorDependencia($peticion['id_dependencia']);
-
-                case 'equipos_por_empleado':
-                    $nro_solicitud = isset($peticion['nro_solicitud']) ? $peticion['nro_solicitud'] : null;
-                    return $this->equiposPorEmpleado($peticion['cedula_empleado'], $nro_solicitud);
+            switch ($peticion["peticion"]) {
+                case "registrar":
+                    $resultado = $this->Registrar();
+                    break;
                     
-                case 'obtener_tipo_servicio':
-                    return $this->obtenerTipoServicio($peticion['id_equipo']);
-
+                case "actualizar":
+                    $resultado = $this->Actualizar();
+                    break;
+                    
+                case "eliminar":
+                    $resultado = $this->Eliminar();
+                    break;
+                    
+                case "consultar":
+                    $resultado = $this->Consultar();
+                    break;
+                    
+                case "consultar_eliminadas":
+                    $resultado = $this->ConsultarEliminadas();
+                    break;
+                    
+                case "restaurar":
+                    $resultado = $this->Restaurar();
+                    break;
+                    
+                case "detalle":
+                    $resultado = $this->Detalle();
+                    break;
+                    
+                case "historial":
+                    $resultado = $this->Historial();
+                    break;
+                    
                 default:
-                    return [
-                        'resultado' => 'error',
-                        'mensaje' => "Operación no válida: " . $peticion['peticion']
-                    ];
+                    $resultado = ['estado' => 0, 'mensaje' => 'Petición no reconocida'];
+                    break;
             }
+            
         } catch (Exception $e) {
-            return [
-                'resultado' => 'error',
-                'mensaje' => "Error en transacción: " . $e->getMessage()
+            $resultado = [
+                'estado' => 0,
+                'mensaje' => 'Error en transacción: ' . $e->getMessage()
             ];
         }
+        
+        return $resultado;
     }
 
 }

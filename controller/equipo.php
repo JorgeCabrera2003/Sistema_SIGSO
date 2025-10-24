@@ -251,8 +251,8 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    if (isset($_POST["restaurar"])) {
-        if (isset($permisos['equipo']['restaurar']['estado']) && $permisos['equipo']['restaurar']['estado'] == '1') {
+    if (isset($_POST["reactivar"])) {
+        if (isset($permisos['equipo']['reactivar']['estado']) && $permisos['equipo']['reactivar']['estado'] == '1') {
             if (empty($_POST["id_equipo"]) || !preg_match(REGEX_ID_EQUIPO, $_POST["id_equipo"])) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error: ID de Equipo no válido";
@@ -263,23 +263,24 @@ if (is_file("view/" . $page . ".php")) {
                 $peticion["peticion"] = "restaurar";
                 $json = $equipo->Transaccion($peticion);
                 // Normaliza la respuesta
-                $json['resultado'] = "restaurar";
+                $json['resultado'] = "reactivar";
                 if (!isset($json['estado'])) {
                     $json['estado'] = isset($json['bool']) ? $json['bool'] : 0;
                 }
                 if ($json['estado'] == 1) {
                     $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró el equipo " . $_POST["id_equipo"];
                 } else {
-                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al restaurar equipo " . $_POST["id_equipo"];
+                    $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar equipo " . $_POST["id_equipo"];
                 }
             }
         } else {
             $json['resultado'] = "error";
             $json['estado'] = 0;
-            $json['mensaje'] = "Error: No tienes permiso para restaurar Equipo";
-            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'restaurar' denegado";
+            $json['mensaje'] = "Error: No tienes permiso para reactivar Equipo";
+            $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'reactivar' denegado";
         }
         echo json_encode($json);
+        Bitacora($msg, "Equipo");
         exit;
     }
 

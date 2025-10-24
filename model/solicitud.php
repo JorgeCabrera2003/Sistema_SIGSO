@@ -783,6 +783,11 @@ class Solicitud extends Conexion
      */
     public function Transaccion($peticion)
     {
+        // Validar que la petición tenga el formato esperado
+        if (!is_array($peticion) || !isset($peticion["peticion"])) {
+            return ['resultado' => 'error', 'mensaje' => 'Petición no válida: formato incorrecto'];
+        }
+
         switch ($peticion["peticion"]) {
             case "registrar":
                 return $this->registrarSolicitud();
@@ -821,7 +826,7 @@ class Solicitud extends Conexion
                 return $this->restaurarSolicitud();
 
             default:
-                return ['resultado' => 'error', 'mensaje' => 'Petición no válida'];
+                return ['resultado' => 'error', 'mensaje' => 'Petición no válida: ' . $peticion["peticion"]];
         }
     }
 }

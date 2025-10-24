@@ -1,4 +1,4 @@
-// equipo.js - Versión Mejorada
+// equipo.js - Versión Mejorada con Reactivar y Historial
 $(document).ready(function () {
     // Elementos del formulario para Equipo
     const elementosEquipo = {
@@ -24,6 +24,7 @@ $(document).ready(function () {
         }
     }
 
+    // Inicializar funciones
     consultar();
     filtrarBien();
     cargarDependencia();
@@ -38,6 +39,7 @@ $(document).ready(function () {
     // Validar estado inicial del formulario
     manejarCambioEstadoEquipo(false);
 
+    // Evento para el botón enviar
     $("#enviar").on("click", async function () {
         var confirmacion = false;
         var envio = false;
@@ -93,6 +95,7 @@ $(document).ready(function () {
         }
     });
 
+    // Botón registrar
     $("#btn-registrar").on("click", function () {
         limpia();
         // Ocultar campo ID al registrar
@@ -110,6 +113,7 @@ $(document).ready(function () {
         }, 100);
     });
 
+    // Botón consultar eliminados
     $("#btn-consultar-eliminados").on("click", function () {
         consultarEliminadas();
         $("#modalEliminadas").modal("show");
@@ -146,27 +150,20 @@ $(document).ready(function () {
     });
 });
 
-// Función para limpiar la validación visual
-function limpiarValidacionVisual() {
-    const elementos = {
-        id_equipo: $('#id_equipo'),
-        tipo_equipo: $('#tipo_equipo'),
-        serial: $('#serial'),
-        codigo_bien: $('#codigo_bien'),
-        id_dependencia: $('#id_dependencia'),
-        id_unidad: $('#id_unidad')
-    };
+// =============================================
+// FUNCIONES PRINCIPALES
+// =============================================
 
-    $.each(elementos, function (key, elemento) {
-        if (elemento && elemento.length) {
-            elemento.removeClass("is-valid is-invalid");
-            const id = elemento.attr('id');
-            const $feedback = $(`#s${id}`);
-            if ($feedback.length) {
-                $feedback.removeClass("invalid-feedback valid-feedback").text("");
-            }
-        }
-    });
+function consultar() {
+    var datos = new FormData();
+    datos.append('consultar', 'consultar');
+    enviaAjax(datos);
+}
+
+function registrarEntrada() {
+    var datos = new FormData();
+    datos.append('entrada', 'entrada');
+    enviaAjax(datos);
 }
 
 function cargarDependencia() {
@@ -352,6 +349,14 @@ async function enviaAjax(datos) {
                 } else if (lee.resultado == "permisos_modulo") {
                     vistaPermiso(lee.permisos);
 
+                } else if (lee.resultado == "consultar_eliminadas") {
+                    crearTablaEliminadas(lee.datos);
+
+                } else if (lee.resultado == "reactivar") {
+                    mensajes("success", 10000, lee.mensaje, null);
+                    consultarEliminadas();
+                    consultar();
+
                 } else if (lee.resultado == "error") {
                     mensajes("error", null, lee.mensaje, null);
                 }
@@ -359,7 +364,7 @@ async function enviaAjax(datos) {
                 console.log("error", null, "Error en JSON Tipo: " + e.name + "\n" +
                     "Mensaje: " + e.message + "\n" +
                     "Posición: " + e.lineNumber);
-            } console.log(lee);
+            }
 
         },
         error: function (request, status, err) {
@@ -374,6 +379,10 @@ async function enviaAjax(datos) {
         },
     });
 }
+
+// =============================================
+// FUNCIONES DE SELECTS
+// =============================================
 
 function selectBien(arreglo) {
     $("#codigo_bien").empty();
@@ -444,23 +453,9 @@ async function selectUnidad(arreglo) {
     return true;
 }
 
-function vistaPermiso(permisos = null) {
-    if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
-        $('.modificar').remove();
-        $('.eliminar').remove();
-        $('.restaurar').remove();
-    } else {
-        if (permisos['equipo']['modificar']['estado'] == '0') {
-            $('.modificar').remove();
-        }
-        if (permisos['equipo']['eliminar']['estado'] == '0') {
-            $('.eliminar').remove();
-        }
-        if (permisos['equipo']['restaurar']['estado'] == '0') {
-            $('.restaurar').remove();
-        }
-    }
-}
+// =============================================
+// FUNCIONES DE TABLAS
+// =============================================
 
 function crearDataTable(arreglo) {
     if ($.fn.DataTable.isDataTable('#tabla1')) {
@@ -505,6 +500,76 @@ function crearDataTable(arreglo) {
         ]
     });
 }
+
+function crearTablaEliminadas(arreglo) {
+    if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
+        $('#tablaEliminadas').DataTable().destroy();
+    }
+
+    $('#tablaEliminadas').DataTable({
+        data: Array.isArray(arreglo) ? arreglo : [],
+        columns: [
+            { data: 'id_equipo', visible: false },
+            { data: 'tipo_equipo' },
+            { data: 'serial' },
+            { data: 'codigo_bien' },
+            { data: 'nombre_unidad' },
+            {
+                data: null,
+                render: function () {
+                    return `<button onclick="reactivarEquipo(this)" class="btn btn-success reactivar">
+                          <i class="fa-solid fa-recycle"></i> Reactivar
+                          </button>`;
+                }
+            }
+        ],
+        language: {
+            url: idiomaTabla,
+        },
+        responsive: true
+    });
+}
+
+function TablaHistorial(arreglo = null) {
+    if ($.fn.DataTable.isDataTable('#tablaDetalles')) {
+        $('#tablaDetalles').DataTable().destroy();
+    }
+
+    if (Object.keys(arreglo).length == 0 || arreglo == null) {
+        $('#id_equipoH').val("");
+        $('#tipo_equipoH').val("");
+        $('#serialH').val("");
+    } else {
+        // Llenar datos del equipo en el modal de historial
+        if (arreglo.length > 0) {
+            $('#id_equipoH').val(arreglo[0]['id_equipo'] || '');
+            $('#tipo_equipoH').val(arreglo[0]['tipo_equipo'] || '');
+            $('#serialH').val(arreglo[0]['serial'] || '');
+        }
+    }
+
+    $('#tablaDetalles').DataTable({
+        data: arreglo,
+        columns: [
+            { data: 'nro_solicitud' },
+            { data: 'empleado' },
+            { data: 'motivo' },
+            { data: 'codigo_hoja_servicio' },
+            { data: 'nombre_tipo_servicio' },
+            { data: 'observacion'},
+            { data: 'resultado_hoja_servicio'}
+        ],
+        language: {
+            url: idiomaTabla,
+        },
+        responsive: true
+    });
+    $("#modal1_HistorialEquipo").modal("show");
+}
+
+// =============================================
+// FUNCIONES DE UTILIDAD
+// =============================================
 
 function limpia() {
     filtrarBien();
@@ -585,6 +650,7 @@ function rellenar(pos, accion) {
         $("#modalTitleId").text("Modificar Equipo");
         $("#enviar").text("Modificar");
     } else if (accion == 1) {
+        // Historial - obtener datos del historial
         var datos = new FormData();
         datos.append('detalle', 'detalle');
         datos.append('id_equipo', datosFila.id_equipo);
@@ -650,7 +716,6 @@ function buscarSelect(id, valor, tipo) {
             if (optionValue.toLowerCase() === valorBuscado.toLowerCase()) {
                 select.val(option.val()).trigger('change');
                 encontrado = true;
-                console.log("Encontrado por texto:", optionValue, "=", valorBuscado);
                 return false; // Salir del bucle
             }
         } else {
@@ -658,7 +723,6 @@ function buscarSelect(id, valor, tipo) {
             if (optionValue === valorBuscado) {
                 select.val(option.val()).trigger('change');
                 encontrado = true;
-                console.log("Encontrado por valor:", optionValue, "=", valorBuscado);
                 return false; // Salir del bucle
             }
         }
@@ -673,145 +737,92 @@ function buscarSelect(id, valor, tipo) {
         
         if (firstValidOption.length) {
             select.val(firstValidOption.val()).trigger('change');
-            console.log("Seleccionado primer option válido:", firstValidOption.val());
         }
     }
 
     return encontrado;
 }
 
-// Resto de funciones existentes (consultarEliminadas, TablaHistorial, restaurarEquipo) se mantienen igual...
+// =============================================
+// FUNCIONES DE REACTIVACIÓN
+// =============================================
+
 function consultarEliminadas() {
     var datos = new FormData();
     datos.append('consultar_eliminadas', 'consultar_eliminadas');
-
-    $.ajax({
-        async: true,
-        url: "",
-        type: "POST",
-        contentType: false,
-        data: datos,
-        processData: false,
-        cache: false,
-        beforeSend: function () { },
-        timeout: 10000,
-        success: function (respuesta) {
-            try {
-                var lee = JSON.parse(respuesta);
-                if (lee.resultado == "consultar_eliminadas") {
-                    if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
-                        $('#tablaEliminadas').DataTable().destroy();
-                    }
-
-                    $('#tablaEliminadas').DataTable({
-                        data: Array.isArray(lee.datos) ? lee.datos : [],
-                        columns: [
-                            { data: 'id_equipo' },
-                            { data: 'tipo_equipo' },
-                            { data: 'serial' },
-                            { data: 'codigo_bien' },
-                            { data: 'nombre_unidad' },
-                            {
-                                data: null,
-                                render: function () {
-                                    return `<button onclick="restaurarEquipo(this)" class="btn btn-success restaurar">
-                                          <i class="fa-solid fa-recycle"></i>
-                                          </button>`;
-                                }
-                            }
-                        ],
-                        language: {
-                            url: idiomaTabla,
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error("Error procesando datos:", e);
-            }
-        },
-        error: function (request, status, err) {
-            mensajes("error", null, "Error al cargar equipos eliminados", "Intente nuevamente");
-        }
-    });
+    enviaAjax(datos);
 }
 
-function TablaHistorial(arreglo = null) {
-    if ($.fn.DataTable.isDataTable('#tablaDetalles')) {
-        $('#tablaDetalles').DataTable().destroy();
-    }
-
-    if (Object.keys(arreglo).length == 0 || arreglo == null) {
-        $('#id_equipoH').val("");
-        $('#tipo_equipoH').val("");
-        $('#serialH').val("");
-        console.log(arreglo);
-    } else {
-        $('#id_equipoH').val(arreglo[0]['id_equipo']);
-        $('#tipo_equipoH').val(arreglo[0]['tipo_equipo']);
-        $('#serialH').val(arreglo[0]['serial']);
-    }
-
-    $('#tablaDetalles').DataTable({
-        data: arreglo,
-        columns: [
-            { data: 'nro_solicitud' },
-            { data: 'empleado' },
-            { data: 'motivo' },
-            { data: 'codigo_hoja_servicio' },
-            { data: 'nombre_tipo_servicio' },
-            { data: 'observacion'},
-            { data: 'resultado_hoja_servicio'}
-        ],
-        language: {
-            url: idiomaTabla,
-        }
-    });
-    $("#modal1_HistorialEquipo").modal("show");
-}
-
-function restaurarEquipo(boton) {
+function reactivarEquipo(boton) {
     var linea = $(boton).closest('tr');
-    var id = $(linea).find('td:eq(0)').text();
+    var tabla = $('#tablaEliminadas').DataTable();
+    var datosFila = tabla.row(linea).data();
 
     Swal.fire({
-        title: '¿Restaurar Equipo?',
-        text: "¿Está seguro que desea restaurar este equipo?",
+        title: '¿Reactivar Equipo?',
+        text: "¿Está seguro que desea reactivar este equipo?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, restaurar',
+        confirmButtonText: 'Sí, reactivar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             var datos = new FormData();
-            datos.append('restaurar', 'restaurar');
-            datos.append('id_equipo', id);
-
-            $.ajax({
-                url: "",
-                type: "POST",
-                data: datos,
-                processData: false,
-                contentType: false,
-                success: function (respuesta) {
-                    try {
-                        var lee = JSON.parse(respuesta);
-                        if (lee.estado == 1) {
-                            mensajes("success", null, "Equipo restaurado", lee.mensaje);
-                            consultarEliminadas();
-                            consultar();
-                        } else {
-                            mensajes("error", null, "Error", lee.mensaje);
-                        }
-                    } catch (e) {
-                        mensajes("error", null, "Error", "Error procesando la respuesta");
-                    }
-                },
-                error: function () {
-                    mensajes("error", null, "Error", "No se pudo restaurar el equipo");
-                }
-            });
+            datos.append('reactivar', 'reactivar');
+            datos.append('id_equipo', datosFila.id_equipo);
+            enviaAjax(datos);
         }
     });
+}
+
+// =============================================
+// FUNCIONES AUXILIARES
+// =============================================
+
+function vistaPermiso(permisos = null) {
+    if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
+        $('.modificar').remove();
+        $('.eliminar').remove();
+        $('.reactivar').remove();
+    } else {
+        if (permisos['equipo']['modificar']['estado'] == '0') {
+            $('.modificar').remove();
+        }
+        if (permisos['equipo']['eliminar']['estado'] == '0') {
+            $('.eliminar').remove();
+        }
+        if (permisos['equipo']['reactivar']['estado'] == '0') {
+            $('.reactivar').remove();
+        }
+    }
+}
+
+function limpiarValidacionVisual() {
+    const elementos = {
+        id_equipo: $('#id_equipo'),
+        tipo_equipo: $('#tipo_equipo'),
+        serial: $('#serial'),
+        codigo_bien: $('#codigo_bien'),
+        id_dependencia: $('#id_dependencia'),
+        id_unidad: $('#id_unidad')
+    };
+
+    $.each(elementos, function (key, elemento) {
+        if (elemento && elemento.length) {
+            elemento.removeClass("is-valid is-invalid");
+            const id = elemento.attr('id');
+            const $feedback = $(`#s${id}`);
+            if ($feedback.length) {
+                $feedback.removeClass("invalid-feedback valid-feedback").text("");
+            }
+        }
+    });
+}
+
+// Función auxiliar para capitalizar texto
+function capitalizarTexto(texto) {
+    if (!texto) return '';
+    return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
 }
