@@ -5,7 +5,9 @@
     require_once("Componentes/modal_bien.php"); ?>
 
     <div class="pagetitle">
-        <h1>Gestionar Bienes</h1>
+        <nav>
+            
+        </nav>
     </div> <!-- End Page Title -->
 
     <section class="section">

@@ -7,11 +7,7 @@
   <div class="pagetitle">
     <h1>Gestionar Técnicos</h1>
     <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="">Home</a></li>
-        <li class="breadcrumb-item active"><a href="">Gestionar Técnicos</a>
-        </li>
-      </ol>
+      
     </nav>
   </div> <!-- End Page Title -->
 
@@ -21,8 +17,7 @@
 
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Gestionar Técnicos</h5>
-            <?php if(isset($permisos['tecnico']['registrar']['estado']) && $permisos['tecnico']['registrar']['estado'] == '1'){ ?>
+             <?php if(isset($permisos['tecnico']['registrar']['estado']) && $permisos['tecnico']['registrar']['estado'] == '1'){ ?>
             <button type="button" class="btn btn-primary mx-auto my-4" id="btn-registrar">
               Registrar Técnico
             </button>

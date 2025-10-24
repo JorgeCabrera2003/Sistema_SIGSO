@@ -8,10 +8,7 @@
     <div class="pagetitle">
       <h1>Perfil</h1>
       <nav>
-        <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="">Home</a></li>
-	      <li class="breadcrumb-item active">Perfil</li>
-        </ol>
+        
       </nav>
     </div><!-- End Page Title -->
 
@@ -54,8 +51,7 @@
 
                 <div class="tab-pane fade <?php echo $active2; ?> profile-overview" id="profile-overview">
 
-                  <h5 class="card-title">Detalles</h5>
-
+ 
                   <div class="row">
                     <div class="col-lg-3 col-md-4 label ">Nombre Completo</div>
                     <div class="col-lg-9 col-md-8"><?php  echo $datos["nombre"]." ".$datos["apellido"]; ?></div>

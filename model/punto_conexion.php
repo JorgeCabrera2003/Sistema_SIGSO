@@ -226,7 +226,7 @@ class punto_conexion extends Conexion
         if ($bool['bool'] == 0 && $this->id_punto_conexion != "") {
 
             try {
-
+var_dump($this->id_punto_conexion, $this->codigo_patch_panel, $this->id_equipo, $this->puerto_patch_panel);4
                 $this->conex->beginTransaction();
 
                 $query = "INSERT INTO punto_conexion(id_punto_conexion, codigo_patch_panel, id_equipo,  puerto_patch_panel) VALUES 

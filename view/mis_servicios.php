@@ -10,10 +10,7 @@ require_once("Componentes/modal_solicitar.php");?>
     <div class="pagetitle">
       <h1>Mis Solicitudes</h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="">Home</a></li>
-          <li class="breadcrumb-item active"><a href="">Mis Solicitudes</a></li>
-        </ol>
+       
       </nav>
     </div><!-- End Page Title -->
 
@@ -23,8 +20,7 @@ require_once("Componentes/modal_solicitar.php");?>
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Mis Solicitudes</h5>     
-              <button type="button" class="btn btn-primary mx-auto my-4" id="btn-solicitud">
+               <button type="button" class="btn btn-primary mx-auto my-4" id="btn-solicitud">
       Hacer Solicitud
     </button>    
               <div class="table-responsive">

@@ -15,8 +15,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Gestionar Equipos</h5>
-                        <div class="d-flex justify-content-between">
+                         <div class="d-flex justify-content-between">
                             <?php if(isset($permisos['equipo']['registrar']['estado']) && $permisos['equipo']['registrar']['estado'] == '1') {?>
                             <button type="button" class="btn btn-primary my-4" id="btn-registrar">
                                 Registrar Equipo

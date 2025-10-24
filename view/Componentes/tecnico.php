@@ -4,8 +4,7 @@
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Servicio</h5>
-              <form method="post" class="row g-3 needs-validation">
+               <form method="post" class="row g-3 needs-validation">
             <div class="col col-sm-2">
               <label for="nro_solicitud" class="form-label ">Nro Solicitud</label>
               <input readonly value="<?php echo $datos_hoja["nro"] ?>" class="form-control-plaintext" type="text" id="nro_solicitud">

@@ -10,10 +10,7 @@
     <div class="pagetitle">
       <h1>Roles y Permisos</h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="">Home</a></li>
-          <li class="breadcrumb-item active">Roles y Permisos</li>
-        </ol>
+        
       </nav>
     </div><!-- End Page Title -->
     <?php 

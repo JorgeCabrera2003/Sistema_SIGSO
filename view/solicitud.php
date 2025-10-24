@@ -7,10 +7,7 @@
     <div class="pagetitle">
       <h1><?php echo $titulo ?></h1>
       <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="?page=home">Inicio</a></li>
-          <li class="breadcrumb-item active"><?php echo $titulo ?></li>
-        </ol>
+        
       </nav>
     </div>
 
@@ -19,8 +16,7 @@
         <div class="col-lg-12">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Listado de Solicitudes</h5>
-              
+               
               <!-- Modal para crear/editar solicitudes -->
               <?php require_once "Componentes/modal_solicitud.php"; ?>
               

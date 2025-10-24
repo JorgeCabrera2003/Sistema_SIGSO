@@ -39,7 +39,7 @@
         $permiso_hoja_servicio = isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1";
         $permiso_solicitud = isset($permisos['solicitud']['ver_solicitud']['estado']) && $permisos['solicitud']['ver_solicitud']['estado'] == "1";
         if ($permiso_solicitud || $permiso_hoja_servicio) { ?>
-          <span>Servicios</span>
+          <br/>
         <?php } ?>
         <?php if (isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1") { ?>
           <li class="menu-item <?php echo ($page == "servicios") ? "active" : "" ?>" title="Servicios">
@@ -68,7 +68,7 @@
         if ($permiso_equipo || $permiso_bien || $permiso_material) { ?>
           <!-- CATEGORÍA: EQUIPOS -->
           <li class="menu-title">
-            <span>Equipos</span>
+            <br/>
           </li>
 
           <li class="menu-item <?php echo in_array($page, ["bien", "equipo", "material"]) ? "active" : "" ?>"
@@ -117,7 +117,7 @@
         if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion || $permiso_piso || $permiso_oficina) { ?>
           <!-- CATEGORÍA: INFRAESTRUCTURA -->
           <li class="menu-title">
-            <span>Infraestructura</span>
+           <br/>
           </li>
           <?php if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion) { ?>
             <li
@@ -204,7 +204,7 @@
         if ($permiso_empleado || $permiso_tecnico) { ?>
           <!-- CATEGORÍA: PERSONAL -->
           <li class="menu-title">
-            <span>Personal</span>
+          <br/>
           </li>
 
           <li class="menu-item <?php echo in_array($page, ["empleado", "tecnico"]) ? "active" : "" ?>"
@@ -247,7 +247,7 @@
         if ($permiso_unidad || $permiso_dependencia || $permiso_ente || $permiso_marca || $permiso_tipo_servicio || $permiso_cargo || $permiso_tipo_bien) { ?>
           <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
           <li class="menu-title">
-            <span>Configuración</span>
+           <br/>
           </li>
 
           <li
@@ -330,7 +330,7 @@
         if ($permiso_usuario || $permiso_rol || $permiso_modulo || $permiso_bitacora || $permiso_mantenimiento || $datos['nombre_usuario'] == "root") { ?>
           <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
           <li class="menu-title">
-            <span>Seguridad</span>
+            <br/>
           </li>
 
           <li
@@ -419,8 +419,8 @@
         </div>
 
         <div class="col d-none d-md-block">
-          <nav class="breadcrumb-nav">
-            <a href="?page=home" class="breadcrumb-item">Home</a>
+          <nav>
+            
           </nav>
         </div>
 

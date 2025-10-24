@@ -7,10 +7,7 @@
   <div class="pagetitle">
     <h1>Materiales</h1>
     <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="">Home</a></li>
-        <li class="breadcrumb-item active"><a href="">Materiales</a></li>
-      </ol>
+      
     </nav>
   </div>
 
@@ -19,8 +16,7 @@
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Materiales</h5>
-            <div class="d-flex justify-content-between">
+             <div class="d-flex justify-content-between">
               <?php if (isset($permisos['material']['registrar']['estado']) && $permisos['material']['registrar']['estado'] == '1') { ?>
                 <button type="button" class="btn btn-primary my-4" id="btn-registrar" title="Registrar Material">
                   Registrar Material
