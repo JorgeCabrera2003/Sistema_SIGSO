@@ -289,7 +289,7 @@ class Material extends Conexion
         return $dato;
     }
 
-    private function Restaurar()
+    private function reactivar()
     {
         $dato = [];
         try {
@@ -300,7 +300,7 @@ class Material extends Conexion
             $stm = $this->conex->prepare($query);
             $stm->bindParam(":id_material", $this->id);
             $stm->execute();
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Material restaurado exitosamente";
 
@@ -374,8 +374,8 @@ class Material extends Conexion
             case 'consultar_eliminadas':
                 return $this->ConsultarEliminadas();
 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->reactivar();
 
             case 'detalle':
                 return $this->VerDetalles();

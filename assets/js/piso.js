@@ -228,7 +228,7 @@ function enviarFormulario(accion) {
             }
         },
         complete: function () {
-            // Restaurar el texto del botón según la acción
+            // reactivar el texto del botón según la acción
             let buttonText = 'Registrar';
             if (accion === 'modificar') {
                 buttonText = 'Modificar';
@@ -321,7 +321,7 @@ function vistaPermiso(permisos = null) {
     if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
         $('.modificar').remove();
         $('.eliminar').remove();
-        $('.restaurar').remove();
+        $('.reactivar').remove();
     } else {
         if (permisos['piso']['modificar']['estado'] == '0') {
             $('.modificar').remove();
@@ -331,8 +331,8 @@ function vistaPermiso(permisos = null) {
             $('.eliminar').remove();
         }
 
-        if (permisos['piso']['restaurar'] && permisos['piso']['restaurar']['estado'] == '0') {
-            $('.restaurar').remove();
+        if (permisos['piso']['reactivar'] && permisos['piso']['reactivar']['estado'] == '0') {
+            $('.reactivar').remove();
         }
     }
 }

@@ -83,7 +83,7 @@ if (isset($_POST['cambiarTema'])) {
         // Iniciar una nueva sesión
         session_start();
 
-        // Restaurar los datos importantes de la sesión
+        // reactivar los datos importantes de la sesión
         $_SESSION = $old_session_data;
 
         // Actualizar el tema en la nueva sesión

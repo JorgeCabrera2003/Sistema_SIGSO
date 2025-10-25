@@ -148,7 +148,7 @@ final class MaterialTest extends TestCase
         }
     }
 
-    public function testRestaurarMaterial()
+    public function testreactivarMaterial()
     {
 
         $materialesEliminados = $this->Tmaterial->Transaccion(['peticion' => 'consultar_eliminadas']);
@@ -157,12 +157,12 @@ final class MaterialTest extends TestCase
             $primerMaterialEliminado = $materialesEliminados['datos'][0];
             $this->Tmaterial->set_id($primerMaterialEliminado['id_material']);
             
-            $resultado = $this->Tmaterial->Transaccion(['peticion' => 'restaurar']);
+            $resultado = $this->Tmaterial->Transaccion(['peticion' => 'reactivar']);
 
             $this->assertIsArray($resultado);
             
             if (isset($resultado['estado']) && $resultado['estado'] == 1) {
-                $this->assertEquals('restaurar', $resultado['resultado']);
+                $this->assertEquals('reactivar', $resultado['resultado']);
                 $this->assertEquals(1, $resultado['estado']);
                 $this->assertEquals('Material restaurado exitosamente', $resultado['mensaje']);
             }

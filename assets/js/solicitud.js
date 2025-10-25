@@ -395,7 +395,7 @@ function consultarEliminadas() {
     });
 }
 
-// Renderizar tabla de eliminados y botón de restaurar
+// Renderizar tabla de eliminados y botón de reactivar
 function TablaEliminados(arreglo) {
     if ($.fn.DataTable.isDataTable('#tablaEliminadas')) {
         $('#tablaEliminadas').DataTable().destroy();
@@ -412,7 +412,7 @@ function TablaEliminados(arreglo) {
             {
                 data: null,
                 render: function (data, type, row) {
-                    return `<button class="btn btn-success btn-restaurar-solicitud" data-nrosol="${row.nro_solicitud}">
+                    return `<button class="btn btn-success btn-reactivar-solicitud" data-nrosol="${row.nro_solicitud}">
                         <i class="fa-solid fa-recycle"></i>
                     </button>`;
                 }
@@ -471,28 +471,28 @@ function cargarAreas(areaActual = null) {
     });
 }
 
-// Evento para restaurar solicitud
-$(document).on('click', '.btn-restaurar-solicitud', function () {
+// Evento para reactivar solicitud
+$(document).on('click', '.btn-reactivar-solicitud', function () {
     var nro_solicitud = $(this).data('nrosol');
     Swal.fire({
-        title: '¿Restaurar Solicitud?',
-        text: "¿Está seguro que desea restaurar esta solicitud?",
+        title: '¿reactivar Solicitud?',
+        text: "¿Está seguro que desea reactivar esta solicitud?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, restaurar',
+        confirmButtonText: 'Sí, reactivar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            restaurarSolicitud(nro_solicitud);
+            reactivarSolicitud(nro_solicitud);
         }
     });
 });
 
-function restaurarSolicitud(nro_solicitud) {
+function reactivarSolicitud(nro_solicitud) {
     var datos = new FormData();
-    datos.append('restaurar', 'restaurar');
+    datos.append('reactivar', 'reactivar');
     datos.append('nrosol', nro_solicitud);
     $.ajax({
         url: "",
@@ -503,19 +503,19 @@ function restaurarSolicitud(nro_solicitud) {
         success: function (respuesta) {
             try {
                 var lee = typeof respuesta === "string" ? JSON.parse(respuesta) : respuesta;
-                if (lee.resultado === "restaurar" && lee.bool) {
+                if (lee.resultado === "reactivar" && lee.bool) {
                     Swal.fire('¡Restaurado!', 'La solicitud ha sido restaurada.', 'success');
                     consultarEliminadas();
                     if (typeof recargarTabla === "function") recargarTabla();
                 } else {
-                    Swal.fire('Error', lee.mensaje || "No se pudo restaurar la solicitud", 'error');
+                    Swal.fire('Error', lee.mensaje || "No se pudo reactivar la solicitud", 'error');
                 }
             } catch (e) {
                 Swal.fire('Error', "Error procesando la respuesta", 'error');
             }
         },
         error: function () {
-            Swal.fire('Error', "No se pudo restaurar la solicitud", 'error');
+            Swal.fire('Error', "No se pudo reactivar la solicitud", 'error');
         }
     });
 }
@@ -779,7 +779,7 @@ function enviarFormulario() {
             }
         },
         complete: function () {
-            // Restaurar el texto del botón según la acción
+            // reactivar el texto del botón según la acción
             let buttonText = 'Guardar';
             if (accion === 'modificar') {
                 buttonText = 'Actualizar';

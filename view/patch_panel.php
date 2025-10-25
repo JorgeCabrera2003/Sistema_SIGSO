@@ -31,7 +31,7 @@
 
                         <?php } ?>
 
-                        <?php if (isset($permisos['patch_panel']['restaurar']['estado']) && $permisos['patch_panel']['restaurar']['estado'] == "1") { ?>
+                        <?php if (isset($permisos['patch_panel']['reactivar']['estado']) && $permisos['patch_panel']['reactivar']['estado'] == "1") { ?>
 
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados" title="Consulta los Patch Panel Eliminados">
                                 Patch Panel Eliminados <i class="fa-solid fa-recycle"></i>
@@ -83,7 +83,7 @@
                                     <th>Tipo de Patch Panel</th>
                                     <th>Cantidad de Puertos</th>
                                     <th>Serial</th>
-                                    <th>Restaurar</th>
+                                    <th>reactivar</th>
                                 </tr>
                             </thead>
 

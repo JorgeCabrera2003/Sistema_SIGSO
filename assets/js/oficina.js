@@ -253,7 +253,7 @@ function enviarFormulario(accion) {
                 reject(err);
             },
             complete: function () {
-                // Restaurar el texto del botón según la acción
+                // reactivar el texto del botón según la acción
                 let buttonText = 'Registrar';
                 if (accion === 'modificar') {
                     buttonText = 'Modificar';
@@ -376,7 +376,7 @@ function vistaPermiso(permisos = null) {
     if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
         $('.modificar').remove();
         $('.eliminar').remove();
-        $('.restaurar').remove();
+        $('.reactivar').remove();
     } else {
         if (permisos['oficina']['modificar']['estado'] == '0') {
             $('.modificar').remove();
@@ -387,7 +387,7 @@ function vistaPermiso(permisos = null) {
         }
 
         if (permisos['oficina']['reactivar'] && permisos['oficina']['reactivar']['estado'] == '0') {
-            $('.restaurar').remove();
+            $('.reactivar').remove();
         }
     }
 }

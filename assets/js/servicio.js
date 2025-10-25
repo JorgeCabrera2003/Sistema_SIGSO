@@ -613,7 +613,7 @@ function editarHoja(codigo) {
         },
         success: function (response) {
             if (response.resultado === 'success') {
-                // Restaurar el contenido original del modal con TODOS los campos
+                // reactivar el contenido original del modal con TODOS los campos
 
                 cargarTiposServicio().then(function () {
 
@@ -655,7 +655,7 @@ function SelectServicio() {
         },
         success: function (response) {
             if (response.resultado === 'consultar') {
-                // Restaurar el contenido original del modal con TODOS los campos
+                // reactivar el contenido original del modal con TODOS los campos
 
                 $("#reporte_tipo_servicio").empty();
                 if (Array.isArray(response.datos) && response.datos.length > 0) {

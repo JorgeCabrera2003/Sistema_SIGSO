@@ -339,7 +339,7 @@ class patch_panel extends Conexion {
         return $dato;
     }
 
-    private function Restaurar() {
+    private function reactivar() {
 
         $this->conex = new Conexion("sistema");
         $this->conex = $this->conex->Conex();
@@ -362,7 +362,7 @@ class patch_panel extends Conexion {
 
             $this->conex->commit();
 
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se Restauro el Patch Panel exitosamente";
             
@@ -426,8 +426,8 @@ class patch_panel extends Conexion {
             case 'eliminar':
                 return $this->Eliminar();
                 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->reactivar();
 
             case 'validar':
                 return $this->Validar();

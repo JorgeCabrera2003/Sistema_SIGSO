@@ -260,7 +260,7 @@ if (is_file("view/" . $page . ".php")) {
 
             } else {
                 $equipo->set_id_equipo($_POST["id_equipo"]);
-                $peticion["peticion"] = "restaurar";
+                $peticion["peticion"] = "reactivar";
                 $json = $equipo->Transaccion($peticion);
                 // Normaliza la respuesta
                 $json['resultado'] = "reactivar";

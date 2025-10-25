@@ -184,7 +184,7 @@ function enviarFormulario(accion) {
                                                       accion === 'modificar' ? 'Modificar' : 'Eliminar');
         },
         complete: function () {
-            // Solo restaurar si no hubo éxito (ya que en éxito se cierra el modal)
+            // Solo reactivar si no hubo éxito (ya que en éxito se cierra el modal)
             if (!$("#modal1").is(':visible')) {
                 let buttonText = 'Registrar';
                 if (accion === 'modificar') {

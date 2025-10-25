@@ -189,7 +189,7 @@ function enviaAjax(datos) {
 
                     TablaEliminados(lee.datos);
 
-                } else if (lee.resultado == "restaurar") {
+                } else if (lee.resultado == "reactivar") {
 
                     mensajes("success", 10000, lee.mensaje, null);
                     consultarEliminadas();
@@ -414,7 +414,7 @@ function TablaEliminados(arreglo) {
             {
                 data: null,
                 render: function () {
-                    return `<button onclick="restaurarSwitch(this)" class="btn btn-success" title="Restaurar Switch Eliminado">
+                    return `<button onclick="reactivarSwitch(this)" class="btn btn-success" title="reactivar Switch Eliminado">
                                 <i class="fa-solid fa-recycle"></i>
                             </button>`;
                 }
@@ -426,18 +426,18 @@ function TablaEliminados(arreglo) {
     });
 }
 
-async function restaurarSwitch(boton) {
+async function reactivarSwitch(boton) {
 
     var confirmacion = false;
     var linea = $(boton).closest('tr');
     var codigo_bien = $(linea).find('td:eq(1)').text();
 
-    confirmacion = await confirmarAccion("¿Restaurar Switch?", "¿Está seguro que desea restaurar este Switch?", "question");
+    confirmacion = await confirmarAccion("¿reactivar Switch?", "¿Está seguro que desea reactivar este Switch?", "question");
 
     if (confirmacion) {
 
         var datos = new FormData();
-        datos.append('restaurar', 'restaurar');
+        datos.append('reactivar', 'reactivar');
         datos.append('codigo_bien', codigo_bien);
         enviaAjax(datos);
 

@@ -69,7 +69,7 @@
                   <th>#</th>
                   <th>Nombre</th>
                   <th>Ente</th>
-                  <th>Restaurar</th>
+                  <th>reactivar</th>
                 </tr>
               </thead>
               <tbody>

@@ -308,7 +308,7 @@ class Switch_ extends Conexion
     }
 
 
-    private function Restaurar()
+    private function reactivar()
     {
 
         $this->conex = new Conexion("sistema");
@@ -331,7 +331,7 @@ class Switch_ extends Conexion
 
             $this->conex->commit();
 
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Se Restauro el Patch Panel exitosamente";
         } catch (PDOException $e) {
@@ -393,8 +393,8 @@ class Switch_ extends Conexion
             case 'eliminar':
                 return $this->Eliminar();
 
-            case 'restaurar':
-                return $this->Restaurar();
+            case 'reactivar':
+                return $this->reactivar();
 
             case 'validar':
                 return $this->Validar();

@@ -198,7 +198,7 @@ function enviaAjax(datos) {
 
                     TablaEliminados(lee.datos);
 
-                } else if (lee.resultado == "restaurar") {
+                } else if (lee.resultado == "reactivar") {
 
                     mensajes("success", 10000, lee.mensaje, null);
                     consultarEliminadas();
@@ -452,7 +452,7 @@ function TablaEliminados(arreglo) {
             {
                 data: null,
                 render: function () {
-                    return `<button onclick="restaurarPatchPanel(this)" class="btn btn-success" title="Restaurar Patch Panel Eliminado">
+                    return `<button onclick="reactivarPatchPanel(this)" class="btn btn-success" title="reactivar Patch Panel Eliminado">
                                             <i class="fa-solid fa-recycle"></i>
                                             </button>`;
                 }
@@ -464,18 +464,18 @@ function TablaEliminados(arreglo) {
     });
 }
 
-async function restaurarPatchPanel(boton) {
+async function reactivarPatchPanel(boton) {
 
 	var confirmacion = false;
 	var linea = $(boton).closest('tr');
 	var codigo_bien = $(linea).find('td:eq(1)').text();
 
-	confirmacion = await confirmarAccion("¿Restaurar Patch Panel?", "¿Está seguro que desea restaurar este Patch Panel?", "question");
+	confirmacion = await confirmarAccion("¿reactivar Patch Panel?", "¿Está seguro que desea reactivar este Patch Panel?", "question");
 
     if (confirmacion) {
 
         var datos = new FormData();
-        datos.append('restaurar', 'restaurar');
+        datos.append('reactivar', 'reactivar');
         datos.append('codigo_bien', codigo_bien);
         enviaAjax(datos);
 

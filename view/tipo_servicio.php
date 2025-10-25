@@ -66,7 +66,7 @@
                   <th>#</th>
                   <th>Nombre</th>
                   <th>Encargado</th>
-                  <th>Restaurar</th>
+                  <th>reactivar</th>
                 </tr>
               </thead>
               <tbody>

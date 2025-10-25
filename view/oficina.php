@@ -69,7 +69,7 @@
                                     <th>#</th>
                                     <th>Nombre</th>
                                     <th>Piso</th>
-                                    <th>Restaurar</th>
+                                    <th>reactivar</th>
                                 </tr>
                             </thead>
                             <tbody>

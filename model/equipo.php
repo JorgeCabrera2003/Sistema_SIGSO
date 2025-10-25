@@ -132,22 +132,22 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-            
+
             // Validar que no exista otro equipo con el mismo serial activo
             $query_serial = "SELECT id_equipo FROM equipo WHERE serial = :serial AND estatus = 1";
             $params_serial = [":serial" => $this->serial];
-            
+
             if ($esActualizacion) {
                 $query_serial .= " AND id_equipo != :id_equipo";
                 $params_serial[":id_equipo"] = $this->id_equipo;
             }
-            
+
             $stm_serial = $con->prepare($query_serial);
             foreach ($params_serial as $key => $value) {
                 $stm_serial->bindValue($key, $value);
             }
             $stm_serial->execute();
-            
+
             if ($stm_serial->rowCount() > 0) {
                 $con->rollBack();
                 $dato['bool'] = 1;
@@ -160,7 +160,7 @@ class Equipo extends Conexion
             $stm_bien = $con->prepare($query_bien);
             $stm_bien->bindParam(":codigo_bien", $this->codigo_bien);
             $stm_bien->execute();
-            
+
             if ($stm_bien->rowCount() == 0) {
                 $con->rollBack();
                 $dato['bool'] = 1;
@@ -173,7 +173,7 @@ class Equipo extends Conexion
             $stm_unidad = $con->prepare($query_unidad);
             $stm_unidad->bindParam(":id_unidad", $this->id_unidad);
             $stm_unidad->execute();
-            
+
             if ($stm_unidad->rowCount() == 0) {
                 $con->rollBack();
                 $dato['bool'] = 1;
@@ -183,7 +183,6 @@ class Equipo extends Conexion
 
             $con->commit();
             $dato['bool'] = 0;
-            
         } catch (PDOException $e) {
             if (isset($con) && $con->inTransaction()) {
                 $con->rollBack();
@@ -196,7 +195,7 @@ class Equipo extends Conexion
             if (isset($stm_unidad)) $stm_unidad = null;
             if (isset($con)) $con = null;
         }
-        
+
         return $dato;
     }
 
@@ -232,13 +231,12 @@ class Equipo extends Conexion
 
             $stm->execute();
             $con->commit();
-            
+
             return [
                 'estado' => 1,
                 'resultado' => "registrar",
                 'mensaje' => "Equipo registrado exitosamente."
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -272,7 +270,7 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-            
+
             $query = "UPDATE equipo SET tipo_equipo = :tipo_equipo, serial = :serial, 
                      codigo_bien = :codigo_bien, id_unidad = :id_unidad 
                      WHERE id_equipo = :id_equipo AND estatus = 1";
@@ -283,21 +281,20 @@ class Equipo extends Conexion
             $stm->bindParam(":serial", $this->serial);
             $stm->bindParam(":codigo_bien", $this->codigo_bien);
             $stm->bindParam(":id_unidad", $this->id_unidad);
-            
+
             $stm->execute();
-            
+
             if ($stm->rowCount() == 0) {
                 throw new PDOException("No se encontró el equipo o ya fue eliminado");
             }
-            
+
             $con->commit();
-            
+
             return [
                 'resultado' => "modificar",
                 'estado' => 1,
                 'mensaje' => "Equipo modificado exitosamente"
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -333,7 +330,12 @@ class Equipo extends Conexion
             $result = $stm_check->fetch(PDO::FETCH_ASSOC);
 
             if ($result['count'] > 0) {
-                throw new PDOException("No se puede eliminar el equipo porque tiene solicitudes activas");
+                // Cambiar el código de resultado para indicar que es un warning
+                return [
+                    'estado' => 2, // Código especial para warning
+                    'resultado' => "warning",
+                    'mensaje' => "No se puede eliminar el equipo porque tiene solicitudes activas"
+                ];
             }
 
             // Verificar si el equipo está en uso en punto_conexion
@@ -344,26 +346,29 @@ class Equipo extends Conexion
             $result_punto = $stm_punto->fetch(PDO::FETCH_ASSOC);
 
             if ($result_punto['count'] > 0) {
-                throw new PDOException("No se puede eliminar el equipo porque está en uso en la red");
+                return [
+                    'estado' => 2, // Código especial para warning
+                    'resultado' => "warning",
+                    'mensaje' => "No se puede eliminar el equipo porque está en uso en la red"
+                ];
             }
 
             $query = "UPDATE equipo SET estatus = 0 WHERE id_equipo = :id_equipo";
             $stm = $con->prepare($query);
             $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->execute();
-            
+
             if ($stm->rowCount() == 0) {
                 throw new PDOException("No se encontró el equipo");
             }
-            
+
             $con->commit();
-            
+
             return [
                 'estado' => 1,
                 'resultado' => "eliminar",
                 'mensaje' => "Equipo eliminado exitosamente."
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -389,7 +394,7 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-            
+
             $query = "SELECT 
                         e.id_equipo,
                         e.tipo_equipo,
@@ -411,16 +416,15 @@ class Equipo extends Conexion
                     LEFT JOIN punto_conexion pc ON pc.id_equipo = e.id_equipo
                     WHERE u.estatus = 1 AND e.estatus = 1
                     ORDER BY e.tipo_equipo, e.serial";
-                  
+
             $stm = $con->prepare($query);
             $stm->execute();
             $con->commit();
-            
+
             return [
                 'resultado' => "consultar",
                 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -445,7 +449,7 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-            
+
             $query = "SELECT 
                         e.id_equipo,
                         e.tipo_equipo,
@@ -455,8 +459,7 @@ class Equipo extends Conexion
                         CONCAT(et.nombre,' - ', d.nombre) AS dependencia,
                         b.descripcion as descripcion_bien,
                         m.nombre_marca,
-                        o.nombre_oficina,
-                        e.fecha_eliminacion
+                        o.nombre_oficina
                     FROM equipo e 
                     JOIN unidad u ON e.id_unidad = u.id_unidad
                     JOIN dependencia d ON u.id_dependencia = d.id
@@ -465,17 +468,16 @@ class Equipo extends Conexion
                     LEFT JOIN marca m ON b.id_marca = m.id_marca
                     LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
                     WHERE e.estatus = 0
-                    ORDER BY e.fecha_eliminacion DESC";
-                  
+                    ORDER BY e.serial DESC";
+
             $stm = $con->prepare($query);
             $stm->execute();
             $con->commit();
-            
+
             return [
                 'resultado' => "consultar_eliminadas",
                 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -490,8 +492,8 @@ class Equipo extends Conexion
         }
     }
 
-    // RESTAURAR EQUIPO ELIMINADO
-    private function Restaurar()
+    // reactivar EQUIPO ELIMINADO
+    private function reactivar()
     {
         $con = null;
         $stm = null;
@@ -506,7 +508,7 @@ class Equipo extends Conexion
             $stm_check = $con->prepare($query_check);
             $stm_check->bindParam(':id_equipo', $this->id_equipo);
             $stm_check->execute();
-            
+
             if ($stm_check->rowCount() == 0) {
                 throw new PDOException("No se encontró el equipo eliminado");
             }
@@ -518,28 +520,27 @@ class Equipo extends Conexion
             $stm_serial = $con->prepare($query_serial);
             $stm_serial->bindParam(':id_equipo', $this->id_equipo);
             $stm_serial->execute();
-            
+
             if ($stm_serial->rowCount() > 0) {
                 throw new PDOException("Ya existe un equipo activo con el mismo serial");
             }
 
-            $query = "UPDATE equipo SET estatus = 1, fecha_eliminacion = NULL WHERE id_equipo = :id_equipo";
+            $query = "UPDATE equipo SET estatus = 1 WHERE id_equipo = :id_equipo";
             $stm = $con->prepare($query);
             $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->execute();
-            
+
             if ($stm->rowCount() == 0) {
-                throw new PDOException("No se pudo restaurar el equipo");
+                throw new PDOException("No se pudo reactivar el equipo");
             }
-            
+
             $con->commit();
-            
+
             return [
                 'estado' => 1,
                 'resultado' => "reactivar",
                 'mensaje' => "Equipo restaurado exitosamente."
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -547,7 +548,7 @@ class Equipo extends Conexion
             return [
                 'estado' => 0,
                 'resultado' => "error",
-                'mensaje' => "Error al restaurar equipo: " . $e->getMessage()
+                'mensaje' => "Error al reactivar equipo: " . $e->getMessage()
             ];
         } finally {
             $this->Cerrar_Conexion($con, $stm);
@@ -564,7 +565,7 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-            
+
             $query = "SELECT 
                         e.id_equipo,
                         e.tipo_equipo,
@@ -588,26 +589,25 @@ class Equipo extends Conexion
                     LEFT JOIN oficina o ON b.id_oficina = o.id_oficina
                     LEFT JOIN punto_conexion pc ON pc.id_equipo = e.id_equipo
                     WHERE e.id_equipo = :id_equipo AND e.estatus = 1";
-                  
+
             $stm = $con->prepare($query);
             $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->execute();
             $con->commit();
-            
+
             $resultado = $stm->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$resultado) {
                 return [
                     'resultado' => "error",
                     'mensaje' => "Equipo no encontrado"
                 ];
             }
-            
+
             return [
                 'resultado' => "detalle",
                 'datos' => $resultado
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -631,7 +631,7 @@ class Equipo extends Conexion
             $con = new Conexion("sistema");
             $con = $con->Conex();
             $con->beginTransaction();
-            
+
             // Consulta para obtener el historial completo del equipo
             $query = "SELECT 
                         'Solicitud' as tipo,
@@ -660,17 +660,16 @@ class Equipo extends Conexion
                     WHERE m.id_equipo = :id_equipo
                     
                     ORDER BY fecha DESC";
-                  
+
             $stm = $con->prepare($query);
             $stm->bindParam(':id_equipo', $this->id_equipo);
             $stm->execute();
             $con->commit();
-            
+
             return [
                 'resultado' => "historial",
                 'datos' => $stm->fetchAll(PDO::FETCH_ASSOC)
             ];
-            
         } catch (PDOException $e) {
             if ($con && $con->inTransaction()) {
                 $con->rollBack();
@@ -689,55 +688,52 @@ class Equipo extends Conexion
     public function Transaccion($peticion)
     {
         $resultado = ['estado' => 0, 'mensaje' => 'Petición no válida'];
-        
+
         try {
             switch ($peticion["peticion"]) {
                 case "registrar":
                     $resultado = $this->Registrar();
                     break;
-                    
+
                 case "actualizar":
                     $resultado = $this->Actualizar();
                     break;
-                    
+
                 case "eliminar":
                     $resultado = $this->Eliminar();
                     break;
-                    
+
                 case "consultar":
                     $resultado = $this->Consultar();
                     break;
-                    
+
                 case "consultar_eliminadas":
                     $resultado = $this->ConsultarEliminadas();
                     break;
-                    
-                case "restaurar":
-                    $resultado = $this->Restaurar();
+
+                case "reactivar":
+                    $resultado = $this->reactivar();
                     break;
-                    
+
                 case "detalle":
                     $resultado = $this->Detalle();
                     break;
-                    
+
                 case "historial":
                     $resultado = $this->Historial();
                     break;
-                    
+
                 default:
                     $resultado = ['estado' => 0, 'mensaje' => 'Petición no reconocida'];
                     break;
             }
-            
         } catch (Exception $e) {
             $resultado = [
                 'estado' => 0,
                 'mensaje' => 'Error en transacción: ' . $e->getMessage()
             ];
         }
-        
+
         return $resultado;
     }
-
 }
-?>

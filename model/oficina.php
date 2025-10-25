@@ -344,7 +344,7 @@ class Oficina extends Conexion
             $stm->execute();
 
             $this->conexion->commit();
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Oficina restaurada exitosamente";
         } catch (PDOException $e) {

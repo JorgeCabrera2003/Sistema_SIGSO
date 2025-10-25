@@ -43,7 +43,7 @@ $(document).ready(function () {
     $("#enviar").on("click", async function () {
         var confirmacion = false;
         var envio = false;
-        
+
         switch ($(this).text()) {
             case "Registrar":
                 if (typeof SistemaValidacion !== 'undefined' && SistemaValidacion.validarFormulario(elementosEquipo)) {
@@ -267,11 +267,24 @@ function enviarFormulario(accion) {
         success: function (respuesta) {
             try {
                 var lee = JSON.parse(respuesta);
+
+                // Manejar diferentes tipos de respuesta
                 if (lee.resultado === accion || lee.estado === 1) {
+                    // Éxito
                     $("#modal1").modal("hide");
                     mensajes("success", 10000, lee.mensaje, null);
                     consultar();
+                } else if (lee.resultado === "warning" || lee.estado === 2) {
+                    // Advertencia con ícono de exclamación
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Advertencia',
+                        text: lee.mensaje,
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Entendido'
+                    });
                 } else if (lee.resultado === "error") {
+                    // Error
                     mensajes("error", null, lee.mensaje, null);
                 }
             } catch (e) {
@@ -309,7 +322,7 @@ async function enviaAjax(datos) {
         data: datos,
         processData: false,
         cache: false,
-        beforeSend: function () { },
+        beforeSend: function () {},
         timeout: 10000,
         success: function (respuesta) {
             try {
@@ -403,7 +416,7 @@ function selectBien(arreglo) {
             new Option('No Hay Bienes Disponibles', 'default')
         );
     }
-    
+
     // Aplicar validación visual
     if ($("#codigo_bien").val() === "default") {
         $("#codigo_bien").removeClass("is-valid").addClass("is-invalid");
@@ -465,15 +478,15 @@ function crearDataTable(arreglo) {
     $('#tabla1').DataTable({
         data: arreglo,
         columns: [
-            { 
-                data: 'id_equipo', 
+            {
+                data: 'id_equipo',
                 visible: false // OCULTAR ID PERO MANTENERLO DISPONIBLE
             },
-            { data: 'tipo_equipo' },
-            { data: 'serial' },
-            { data: 'codigo_bien' },
-            { data: 'dependencia' },
-            { data: 'nombre_unidad' },
+            {data: 'tipo_equipo'},
+            {data: 'serial'},
+            {data: 'codigo_bien'},
+            {data: 'dependencia'},
+            {data: 'nombre_unidad'},
             {
                 data: null,
                 render: function (data, type, row) {
@@ -509,11 +522,11 @@ function crearTablaEliminadas(arreglo) {
     $('#tablaEliminadas').DataTable({
         data: Array.isArray(arreglo) ? arreglo : [],
         columns: [
-            { data: 'id_equipo', visible: false },
-            { data: 'tipo_equipo' },
-            { data: 'serial' },
-            { data: 'codigo_bien' },
-            { data: 'nombre_unidad' },
+            {data: 'id_equipo', visible: false},
+            {data: 'tipo_equipo'},
+            {data: 'serial'},
+            {data: 'codigo_bien'},
+            {data: 'nombre_unidad'},
             {
                 data: null,
                 render: function () {
@@ -551,13 +564,13 @@ function TablaHistorial(arreglo = null) {
     $('#tablaDetalles').DataTable({
         data: arreglo,
         columns: [
-            { data: 'nro_solicitud' },
-            { data: 'empleado' },
-            { data: 'motivo' },
-            { data: 'codigo_hoja_servicio' },
-            { data: 'nombre_tipo_servicio' },
-            { data: 'observacion'},
-            { data: 'resultado_hoja_servicio'}
+            {data: 'nro_solicitud'},
+            {data: 'empleado'},
+            {data: 'motivo'},
+            {data: 'codigo_hoja_servicio'},
+            {data: 'nombre_tipo_servicio'},
+            {data: 'observacion'},
+            {data: 'resultado_hoja_servicio'}
         ],
         language: {
             url: idiomaTabla,
@@ -573,10 +586,10 @@ function TablaHistorial(arreglo = null) {
 
 function limpia() {
     filtrarBien();
-    
+
     // Mostrar campo ID al limpiar
     $("#id_equipo").parent().parent().show();
-    
+
     $("#id_equipo").removeClass("is-valid is-invalid");
     $("#id_equipo").val("");
 
@@ -610,16 +623,16 @@ function rellenar(pos, accion) {
 
     // Mostrar campo ID para Modificar/Eliminar
     $("#id_equipo").parent().parent().show();
-    
+
     // Usar los datos directamente de DataTable (más confiable)
     $("#id_equipo").val(datosFila.id_equipo);
     $("#tipo_equipo").val(capitalizarTexto(datosFila.tipo_equipo));
     $("#serial").val(datosFila.serial);
-    
+
     // CORRECCIÓN: Cargar el código de bien actual del equipo
     // Primero cargar todos los bienes disponibles
     filtrarBien();
-    
+
     // Esperar a que se carguen los bienes y luego seleccionar el correcto
     setTimeout(() => {
         if (datosFila.codigo_bien && datosFila.codigo_bien !== 'N/A') {
@@ -630,13 +643,13 @@ function rellenar(pos, accion) {
 
     // Cargar dependencia y unidad
     cargarDependencia();
-    
+
     setTimeout(async () => {
         // Buscar la dependencia por texto
         if (datosFila.dependencia) {
             buscarSelect("#id_dependencia", datosFila.dependencia, "text");
         }
-        
+
         // Esperar a que cargue las unidades y luego buscar la unidad
         setTimeout(async () => {
             await cargarUnidad($("#id_dependencia").val());
@@ -731,10 +744,10 @@ function buscarSelect(id, valor, tipo) {
     if (!encontrado) {
         console.warn("Valor no encontrado en select:", valor, "tipo:", tipo);
         // Si no se encuentra, seleccionar el primer option que no sea "default"
-        const firstValidOption = options.filter(function() {
+        const firstValidOption = options.filter(function () {
             return $(this).val() !== "default" && $(this).val() !== "";
         }).first();
-        
+
         if (firstValidOption.length) {
             select.val(firstValidOption.val()).trigger('change');
         }
@@ -772,7 +785,55 @@ function reactivarEquipo(boton) {
             var datos = new FormData();
             datos.append('reactivar', 'reactivar');
             datos.append('id_equipo', datosFila.id_equipo);
-            enviaAjax(datos);
+            
+            $.ajax({
+                async: true,
+                url: "",
+                type: "POST",
+                contentType: false,
+                data: datos,
+                processData: false,
+                cache: false,
+                success: function (respuesta) {
+                    try {
+                        var lee = JSON.parse(respuesta);
+                        if (lee.estado == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Éxito',
+                                text: lee.mensaje,
+                                confirmButtonColor: '#3085d6'
+                            });
+                            consultarEliminadas();
+                            consultar();
+                        } else if (lee.mensaje && (lee.mensaje.includes('serial ya está en uso'))) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Advertencia',
+                                text: lee.mensaje,
+                                confirmButtonColor: '#3085d6'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: lee.mensaje,
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error al procesar respuesta:", e);
+                    }
+                },
+                error: function (request, status, err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error de conexión: ' + status,
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            });
         }
     });
 }

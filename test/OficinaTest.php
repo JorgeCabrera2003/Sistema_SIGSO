@@ -117,7 +117,7 @@ final class OficinaTest extends TestCase
         $this->assertIsArray($resultado);
 
         if (isset($resultado['estado']) && $resultado['estado'] == 1) {
-            $this->assertEquals('restaurar', $resultado['resultado']);
+            $this->assertEquals('reactivar', $resultado['resultado']);
             $this->assertEquals(1, $resultado['estado']);
             $this->assertEquals('Oficina restaurada exitosamente', $resultado['mensaje']);
         } else if (isset($resultado['estado']) && $resultado['estado'] == -1) {

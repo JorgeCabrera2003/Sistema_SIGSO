@@ -298,7 +298,7 @@ class Piso extends Conexion
             $stm = $this->conexion->prepare($query);
             $stm->bindParam(":id", $this->id);
             $stm->execute();
-            $dato['resultado'] = "restaurar";
+            $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Piso restaurado exitosamente";
             $this->conexion->commit();

@@ -515,7 +515,7 @@ function mostrarAyuda(card) {
             <li>Registro en bitácora de la acción</li>
           </ul>
         </li>
-        <li><strong>Restaurar solicitudes:</strong>
+        <li><strong>reactivar solicitudes:</strong>
           <ul>
             <li>Recuperar solicitudes eliminadas</li>
             <li>Vista especial de "Solicitudes Eliminadas"</li>
@@ -686,7 +686,7 @@ function mostrarAyuda(card) {
         <li><strong>Registrar:</strong> Crear nuevos registros</li>
         <li><strong>Modificar:</strong> Editar registros existentes</li>
         <li><strong>Eliminar:</strong> Eliminar registros (soft delete)</li>
-        <li><strong>Restaurar:</strong> Recuperar registros eliminados</li>
+        <li><strong>reactivar:</strong> Recuperar registros eliminados</li>
         <li><strong>Exportar:</strong> Generar reportes y respaldos</li>
         <li><strong>Importar:</strong> Cargar datos desde archivos externos</li>
       </ul>
@@ -837,13 +837,13 @@ function mostrarAyuda(card) {
           </ul>
         </li>
       </ol>
-      <p><strong>3. Restaurar desde respaldo:</strong></p>
+      <p><strong>3. reactivar desde respaldo:</strong></p>
       <ol>
         <li><strong>Preparación:</strong>
           <ul>
             <li>Tener el archivo de respaldo disponible</li>
             <li>Verificar que sea compatible con la versión actual</li>
-            <li>Realizar respaldo actual antes de restaurar</li>
+            <li>Realizar respaldo actual antes de reactivar</li>
           </ul>
         </li>
         <li><strong>Proceso de restauración:</strong>
@@ -856,7 +856,7 @@ function mostrarAyuda(card) {
         </li>
         <li><strong>Verificación:</strong>
           <ul>
-            <li>Comprobar que los datos se restauraron correctamente</li>
+            <li>Comprobar que los datos se reactivaron correctamente</li>
             <li>Verificar funcionalidad del sistema</li>
             <li>Revisar logs de errores si los hay</li>
           </ul>
@@ -947,7 +947,7 @@ function mostrarAyuda(card) {
       <ul>
         <li><strong>Modificar bienes:</strong> Actualizar información, cambiar asignaciones</li>
         <li><strong>Eliminar bienes:</strong> Eliminación lógica manteniendo historial</li>
-        <li><strong>Restaurar bienes:</strong> Recuperar bienes eliminados</li>
+        <li><strong>reactivar bienes:</strong> Recuperar bienes eliminados</li>
         <li><strong>Consultar eliminados:</strong> Vista especial de bienes inactivos</li>
       </ul>
 
@@ -978,7 +978,7 @@ function mostrarAyuda(card) {
           <ul>
             <li>Modificar nombres existentes</li>
             <li>Eliminar tipos no utilizados</li>
-            <li>Restaurar tipos eliminados</li>
+            <li>reactivar tipos eliminados</li>
           </ul>
         </li>
       </ol>
@@ -1429,7 +1429,7 @@ function mostrarAyuda(card) {
       <ul>
         <li><strong>Modificar configuración:</strong> Actualizar tipo, puertos o serial</li>
         <li><strong>Eliminar patch panel:</strong> Eliminación lógica manteniendo historial</li>
-        <li><strong>Restaurar eliminados:</strong> Recuperar patch panels dados de baja</li>
+        <li><strong>reactivar eliminados:</strong> Recuperar patch panels dados de baja</li>
         <li><strong>Consultar disponibilidad:</strong> Ver puertos libres y ocupados</li>
       </ul>
 

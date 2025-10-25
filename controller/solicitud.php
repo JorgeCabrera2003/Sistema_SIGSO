@@ -207,10 +207,10 @@ if (is_file("view/" . $page . ".php")) {
         exit;
     }
 
-    // Restaurar solicitud eliminada
-    if (isset($_POST["restaurar"])) {
+    // reactivar solicitud eliminada
+    if (isset($_POST["reactivar"])) {
         $solicitud->set_nro_solicitud($_POST['nrosol']);
-        $resultado = $solicitud->Transaccion(['peticion' => "restaurar"]);
+        $resultado = $solicitud->Transaccion(['peticion' => "reactivar"]);
         header('Content-Type: application/json');
         echo json_encode($resultado);
         exit;

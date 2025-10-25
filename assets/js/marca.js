@@ -161,7 +161,7 @@ function enviarFormulario(accion) {
 			}
 		},
 		complete: function () {
-			// Restaurar el texto del botón según la acción
+			// reactivar el texto del botón según la acción
 			let buttonText = 'Registrar';
 			if (accion === 'modificar') {
 				buttonText = 'Modificar';
@@ -259,7 +259,7 @@ function vistaPermiso(permisos = null) {
 	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 		$('.modificar').remove();
 		$('.eliminar').remove();
-		$('.restaurar').remove();
+		$('.reactivar').remove();
 	} else {
 		if (permisos['marca']['modificar']['estado'] == '0') {
 			$('.modificar').remove();
@@ -269,8 +269,8 @@ function vistaPermiso(permisos = null) {
 			$('.eliminar').remove();
 		}
 
-		if (permisos['marca']['restaurar'] && permisos['marca']['restaurar']['estado'] == '0') {
-			$('.restaurar').remove();
+		if (permisos['marca']['reactivar'] && permisos['marca']['reactivar']['estado'] == '0') {
+			$('.reactivar').remove();
 		}
 	}
 }
@@ -366,7 +366,7 @@ async function reactivarMarca(boton) {
 		const id = datosFila.id_marca;
 
 		var datos = new FormData();
-		datos.append('reactivar', 'reactivar'); // Cambiar de 'restaurar' a 'reactivar'
+		datos.append('reactivar', 'reactivar'); // Cambiar de 'reactivar' a 'reactivar'
 		datos.append('id_marca', id);
 
 		$.ajax({

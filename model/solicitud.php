@@ -750,9 +750,9 @@ class Solicitud extends Conexion
     }
 
     /**
-     * Restaurar una solicitud eliminada
+     * reactivar una solicitud eliminada
      */
-    private function restaurarSolicitud()
+    private function reactivarSolicitud()
     {
         $datos = ['resultado' => 'error', 'mensaje' => '', 'bool' => false];
         try {
@@ -763,7 +763,7 @@ class Solicitud extends Conexion
             $stmt = $this->conexion->prepare($sql);
             $stmt->bindParam(':nro', $this->nro_solicitud);
             if ($stmt->execute()) {
-                $datos['resultado'] = 'restaurar';
+                $datos['resultado'] = 'reactivar';
                 $datos['mensaje'] = 'Solicitud restaurada exitosamente';
                 $datos['bool'] = $stmt->rowCount() > 0;
                 $this->conexion->commit();
@@ -822,8 +822,8 @@ class Solicitud extends Conexion
             case "consultar_eliminadas":
                 return $this->consultarEliminadas();
 
-            case "restaurar":
-                return $this->restaurarSolicitud();
+            case "reactivar":
+                return $this->reactivarSolicitud();
 
             default:
                 return ['resultado' => 'error', 'mensaje' => 'Petición no válida: ' . $peticion["peticion"]];

@@ -90,7 +90,7 @@
                   <th>Cédula</th>
                   <th>Dependencia</th>
                   <th>Motivo</th>
-                  <th>Restaurar</th>
+                  <th>reactivar</th>
                 </tr>
               </thead>
               <tbody>

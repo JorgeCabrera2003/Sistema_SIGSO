@@ -442,7 +442,7 @@ function vistaPermiso(permisos = null) {
 	if (Array.isArray(permisos) || Object.keys(permisos).length == 0 || permisos == null) {
 		$('.modificar').remove();
 		$('.eliminar').remove();
-		$('.restaurar').remove();
+		$('.reactivar').remove();
 	} else {
 		if (permisos['tecnico']['modificar']['estado'] == '0') {
 			$('.modificar').remove();
@@ -450,8 +450,8 @@ function vistaPermiso(permisos = null) {
 		if (permisos['tecnico']['eliminar']['estado'] == '0') {
 			$('.eliminar').remove();
 		}
-		if (permisos['tecnico']['restaurar']['estado'] == '0') {
-			$('.restaurar').remove();
+		if (permisos['tecnico']['reactivar']['estado'] == '0') {
+			$('.reactivar').remove();
 		}
 	}
 };

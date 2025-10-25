@@ -37,7 +37,7 @@
                         <?php } ?>
 
 
-                        <?php if (isset($permisos['switch']['restaurar']['estado']) && $permisos['switch']['restaurar']['estado'] == "1") { ?>
+                        <?php if (isset($permisos['switch']['reactivar']['estado']) && $permisos['switch']['reactivar']['estado'] == "1") { ?>
 
                             <button type="button" class="btn btn-primary my-4" id="btn-consultar-eliminados" title="Consulta los Switch Eliminados">
                                 Switch Eliminados <i class="fa-solid fa-recycle"></i>
@@ -86,7 +86,7 @@
                                     <th>Código Bien</th>
                                     <th>Cantidad de Puertos</th>
                                     <th>Serial</th>
-                                    <th>Restaurar</th>
+                                    <th>reactivar</th>
                                 </tr>
                             </thead>
                             <tbody>

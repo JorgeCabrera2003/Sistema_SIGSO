@@ -125,12 +125,12 @@
             exit;
         }
         
-        if (isset($_POST["restaurar"])) {
+        if (isset($_POST["reactivar"])) {
 
-            if (isset($permisos['patch_panel']['restaurar']['estado']) && $permisos['patch_panel']['restaurar']['estado'] == 1) {
+            if (isset($permisos['patch_panel']['reactivar']['estado']) && $permisos['patch_panel']['reactivar']['estado'] == 1) {
 
                 $patch_panel->set_codigo_bien($_POST["codigo_bien"]);
-                $peticion["peticion"] = "restaurar";
+                $peticion["peticion"] = "reactivar";
                 $datos = $patch_panel->Transaccion($peticion);
 
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Restauró el Patch Panel. Código de Bien: " . $patch_panel->get_codigo_bien();
@@ -138,8 +138,8 @@
             } else {
 
                 $datos['resultado'] = "error";
-                $datos['mensaje'] = "Error, No tienes permiso para restaurar un Patch Panel";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'Restaurar' Denegado";
+                $datos['mensaje'] = "Error, No tienes permiso para reactivar un Patch Panel";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'reactivar' Denegado";
 
             }
             

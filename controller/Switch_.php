@@ -121,20 +121,20 @@
             exit;
         }
 
-        if (isset($_POST["restaurar"])) {
+        if (isset($_POST["reactivar"])) {
 
-            if (isset($permisos['switch']['restaurar']['estado']) && $permisos['switch']['restaurar']['estado'] == 1) {
+            if (isset($permisos['switch']['reactivar']['estado']) && $permisos['switch']['reactivar']['estado'] == 1) {
 
                 $switch->set_codigo_bien($_POST["codigo_bien"]);
-                $peticion["peticion"] = "restaurar";
+                $peticion["peticion"] = "reactivar";
                 $datos = $switch->Transaccion($peticion);
 
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Restauró el Switch. Código de Bien: " . $switch->get_codigo_bien();
             } else {
 
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, No tienes permiso para restaurar un Switch";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'Restaurar' Denegado";
+                $json['mensaje'] = "Error, No tienes permiso para reactivar un Switch";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Permiso 'reactivar' Denegado";
 
             }
 

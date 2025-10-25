@@ -358,7 +358,7 @@ function iniciarTablaEliminadas(arreglo) {
             {
                 data: null,
                 render: function () {
-                    return `<button onclick="restaurarDependencia(this)" class="btn btn-success restaurar">
+                    return `<button onclick="reactivarDependencia(this)" class="btn btn-success reactivar">
                             <i class="fa-solid fa-recycle"></i>
                             </button>`;
                 }
@@ -490,7 +490,7 @@ function buscarSelect(select, valor, tipo) {
     $(select).trigger('change');
 }
 
-function restaurarDependencia(boton) {
+function reactivarDependencia(boton) {
     var linea = $(boton).closest('tr');
     var id = $(linea).find('td:eq(0)').text();
 
@@ -530,7 +530,7 @@ function restaurarDependencia(boton) {
                     }
                 },
                 error: function () {
-                    mensajes("error", null, "Error", "No se pudo restaurar la dependencia");
+                    mensajes("error", null, "Error", "No se pudo reactivar la dependencia");
                 }
             });
         }

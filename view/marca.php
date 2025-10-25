@@ -68,7 +68,7 @@
                 <tr>
                   <th>#</th>
                   <th>Nombre</th>
-                  <th>Restaurar</th>
+                  <th>reactivar</th>
                 </tr>
               </thead>
               <tbody>

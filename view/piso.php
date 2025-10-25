@@ -70,7 +70,7 @@
                                     <th>#</th>
                                     <th>Piso</th>
                                     <th>Nro de Piso</th>
-                                    <th>Restaurar</th>
+                                    <th>reactivar</th>
                                 </tr>
                             </thead>
                             <tbody>
