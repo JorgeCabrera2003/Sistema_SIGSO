@@ -1,8 +1,9 @@
 const idiomaTabla = 'assets/js/datatable-plugin-es.js';
 
-// Expresiones Regulares
-console.log("Cargando Expresiones Regulares");
+// EXPREGIONES REGULARES UNIFICADAS - ACTUALIZADAS
+console.log("Cargando Expresiones Regulares Unificadas");
 const patrones = {
+  // Patrones básicos
   letras: /^[a-zA-ZÀ-ÿ\s]{1,40}$/,
   letrasConNumeros: /^[0-9 a-zA-ZÀ-ÿ\s]{1,100}$/,
   numeros: /^\d{1,20}$/,
@@ -15,13 +16,41 @@ const patrones = {
   direccion: /^[0-9 a-zA-ZÀ-ÿ\s-./#]{10,100}$/,
   nombreEnte: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{4,90}$/,
   responsable: /^[a-zA-ZÀ-ÿ\s-.]{4,65}$/,
+  
+  // Patrones para Bienes/Equipos
   codigoBien: /^[0-9a-zA-Z\-]{3,20}$/,
   descripcion: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.,]{3,100}$/,
   serial: /^[0-9a-zA-ZáéíóúüñÑçÇ.-]{3,45}$/,
-  tipoEquipo: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/
+  tipoEquipo: /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,45}$/,
+  
+  // PATRONES PARA MATERIAL - UNIFICADOS CON PHP
+  id_material: /^[A-Z0-9\-_]{1,50}$/,
+  nombre_material: /^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/,
+  id_oficina: /^[A-Z0-9]{1,30}$/,
+  stock_material: /^[0-9]{1,6}$/,
+  
+  // Patrones para IDs generados
+  id_generado: /^[A-Z0-9]{1,30}$/,
+  
+  // Patrones para nombres
+  nombre_natural_largo: /^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/,
+  nombre_natural: /^[a-zA-ZáéíóúüñÑçÇ\s\-.]{1,65}$/,
+  
+  // Patrones para textos largos
+  texto_largo: /^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()!?]{1,200}$/,
+  
+  // Patrones para cédulas
+  cedula: /^[VEJPGvejpg]\-\d{4,10}$/,
+  
+  // Patrones para estados
+  estado_simple: /^[A-Za-z\s]{1,20}$/,
+  
+  // Patrones para fechas
+  fecha: /^\d{4}-\d{2}-\d{2}$/,
+  fecha_hora: /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
 };
 
-// Sistema de Validación Reutilizable - MEJORADO
+// SISTEMA DE VALIDACIÓN REUTILIZABLE - MEJORADO Y UNIFICADO
 const SistemaValidacion = {
   // Inicializar validación para un formulario
   inicializar: function (elements, callbackCambioEstado = null) {
@@ -39,7 +68,7 @@ const SistemaValidacion = {
         element.on('input', SistemaValidacion.validarCampo);
 
         // Aplicar autocapitalización a campos de texto
-        if (key === 'descripcion' || key === 'tipo_equipo') {
+        if (key === 'descripcion' || key === 'tipo_equipo' || key === 'nombre' || key === 'nombre_material') {
           element.on('blur', function () {
             SistemaValidacion.autoCapitalizar($(this));
           });
@@ -67,7 +96,7 @@ const SistemaValidacion = {
     // Solo mostrar errores si el campo ya fue interactuado
     const fueInteractuado = $campo.data('touched') || $campo.is(':focus');
 
-    // Asignar patrones y mensajes según el campo
+    // Asignar patrones y mensajes según el campo - ACTUALIZADO CON PATRONES UNIFICADOS
     switch (id) {
       case 'codigo_bien':
         esValido = patrones.codigoBien.test(valor);
@@ -89,14 +118,55 @@ const SistemaValidacion = {
         mensajeError = 'El tipo de equipo debe tener de 3 a 45 caracteres';
         break;
 
+      // VALIDACIONES PARA MATERIAL - UNIFICADAS CON PHP
+      case 'nombre':
+      case 'nombre_material':
+        esValido = patrones.nombre_material.test(valor);
+        mensajeError = 'El nombre debe tener 1-100 caracteres alfanuméricos';
+        break;
+
+      case 'stock':
+        esValido = patrones.stock_material.test(valor);
+        mensajeError = 'El stock debe ser un número entre 0 y 999999';
+        break;
+
+      case 'id_material':
+        esValido = patrones.id_material.test(valor);
+        mensajeError = 'ID no válido. Debe ser alfanumérico de 1-50 caracteres';
+        break;
+
+      // Validación para selects
       case 'id_categoria':
       case 'id_marca':
       case 'id_oficina':
+      case 'ubicacion':
       case 'cedula_empleado':
       case 'id_unidad_equipo':
       case 'estado':
         esValido = valor !== "default" && valor !== "" && valor !== null;
         mensajeError = 'Debe seleccionar una opción válida';
+        break;
+
+      // Validación para cédulas
+      case 'cedula_solicitante':
+      case 'cedula_empleado':
+      case 'cedula_tecnico':
+        esValido = patrones.cedula.test(valor);
+        mensajeError = 'La cédula debe tener formato V-12345678';
+        break;
+
+      // Validación para emails
+      case 'correo_empleado':
+      case 'email':
+        esValido = patrones.email.test(valor);
+        mensajeError = 'El formato del email no es válido';
+        break;
+
+      // Validación para teléfonos
+      case 'telefono_empleado':
+      case 'telefono':
+        esValido = patrones.telefonoSimple.test(valor);
+        mensajeError = 'El teléfono debe tener formato 0412-1234567';
         break;
 
       default:
@@ -135,7 +205,7 @@ const SistemaValidacion = {
           const valor = elemento.val() ? elemento.val().trim() : '';
           let campoValido = true;
 
-          // Validación según tipo de campo
+          // Validación según tipo de campo - ACTUALIZADO CON PATRONES UNIFICADOS
           switch (elemento.attr('id')) {
             case 'codigo_bien':
               campoValido = patrones.codigoBien.test(valor);
@@ -149,14 +219,45 @@ const SistemaValidacion = {
             case 'tipo_equipo':
               campoValido = patrones.tipoEquipo.test(valor);
               break;
+            
+            // VALIDACIONES PARA MATERIAL - UNIFICADAS
+            case 'nombre':
+            case 'nombre_material':
+              campoValido = patrones.nombre_material.test(valor);
+              break;
+            case 'stock':
+              campoValido = patrones.stock_material.test(valor);
+              break;
+            case 'id_material':
+              campoValido = patrones.id_material.test(valor);
+              break;
+
             case 'id_categoria':
             case 'id_marca':
             case 'id_oficina':
+            case 'ubicacion':
             case 'cedula_empleado':
             case 'id_unidad_equipo':
             case 'estado':
               campoValido = valor !== "default" && valor !== "" && valor !== null;
               break;
+            
+            case 'cedula_solicitante':
+            case 'cedula_empleado':
+            case 'cedula_tecnico':
+              campoValido = patrones.cedula.test(valor);
+              break;
+            
+            case 'correo_empleado':
+            case 'email':
+              campoValido = patrones.email.test(valor);
+              break;
+            
+            case 'telefono_empleado':
+            case 'telefono':
+              campoValido = patrones.telefonoSimple.test(valor);
+              break;
+
             default:
               if (elemento.attr('type') === 'text' || elemento.is('input')) {
                 campoValido = valor.length >= 1;
@@ -282,7 +383,7 @@ const SistemaValidacion = {
         const valor = elemento.val() ? elemento.val().trim() : '';
         let campoValido = true;
 
-        // Validación según tipo de campo
+        // Validación según tipo de campo - ACTUALIZADO CON PATRONES UNIFICADOS
         switch (elemento.attr('id')) {
           case 'codigo_bien':
             campoValido = patrones.codigoBien.test(valor);
@@ -296,14 +397,45 @@ const SistemaValidacion = {
           case 'tipo_equipo':
             campoValido = patrones.tipoEquipo.test(valor);
             break;
+          
+          // VALIDACIONES PARA MATERIAL - UNIFICADAS
+          case 'nombre':
+          case 'nombre_material':
+            campoValido = patrones.nombre_material.test(valor);
+            break;
+          case 'stock':
+            campoValido = patrones.stock_material.test(valor);
+            break;
+          case 'id_material':
+            campoValido = patrones.id_material.test(valor);
+            break;
+
           case 'id_categoria':
           case 'id_marca':
           case 'id_oficina':
+          case 'ubicacion':
           case 'cedula_empleado':
           case 'id_unidad_equipo':
           case 'estado':
             campoValido = valor !== "default" && valor !== "" && valor !== null;
             break;
+          
+          case 'cedula_solicitante':
+          case 'cedula_empleado':
+          case 'cedula_tecnico':
+            campoValido = patrones.cedula.test(valor);
+            break;
+          
+          case 'correo_empleado':
+          case 'email':
+            campoValido = patrones.email.test(valor);
+            break;
+          
+          case 'telefono_empleado':
+          case 'telefono':
+            campoValido = patrones.telefonoSimple.test(valor);
+            break;
+
           default:
             if (elemento.attr('type') === 'text' || elemento.is('input')) {
               campoValido = valor.length >= 1;
@@ -326,7 +458,7 @@ function limpiarValidacionVisualGlobal() {
   $('.invalid-feedback, .valid-feedback').removeClass('invalid-feedback valid-feedback').text('');
 }
 
-// Funciones de utilidad existentes
+// FUNCIONES DE UTILIDAD EXISTENTES - MANTENIDAS
 function validarKeyPress(er, e) {
   const key = e.keyCode;
   const tecla = String.fromCharCode(key);
@@ -492,7 +624,7 @@ function selectEdificio(arreglo) {
   }
 }
 
-// Funciones de formato
+// FUNCIONES DE FORMATO
 function formatearTelefono($input) {
   if (!$input.length) return;
   
@@ -520,7 +652,7 @@ function formatearTelefonoSimple($input) {
   }
 }
 
-// Funcion para capitalizar texto - VERSIÓN ROBUSTA
+// FUNCION PARA CAPITALIZAR TEXTO - VERSIÓN ROBUSTA
 function capitalizarTexto(texto) {
   if (!texto || typeof texto !== 'string') return texto;
 
@@ -541,7 +673,7 @@ function capitalizarTexto(texto) {
     .join('');
 }
 
-// Función para inicializar tooltips en toda la página
+// FUNCIÓN PARA INICIALIZAR TOOLTIPS EN TODA LA PÁGINA
 function inicializarTooltips() {
   $('[data-bs-toggle="tooltip"]').tooltip({
     trigger: 'hover',
@@ -549,7 +681,7 @@ function inicializarTooltips() {
   });
 }
 
-// Función para mostrar/ocultar loading
+// FUNCIÓN PARA MOSTRAR/OCULTAR LOADING
 function mostrarLoading(mostrar = true) {
   if (mostrar) {
     $('body').append(`
@@ -564,7 +696,7 @@ function mostrarLoading(mostrar = true) {
   }
 }
 
-// Función para formatear fechas
+// FUNCIÓN PARA FORMATEAR FECHAS
 function formatearFecha(fecha, formato = 'dd/mm/yyyy') {
   if (!fecha) return '';
   
@@ -587,12 +719,12 @@ function formatearFecha(fecha, formato = 'dd/mm/yyyy') {
   }
 }
 
-// Función para validar email
+// FUNCIÓN PARA VALIDAR EMAIL
 function validarEmail(email) {
   return patrones.email.test(email);
 }
 
-// Función para generar código aleatorio
+// FUNCIÓN PARA GENERAR CÓDIGO ALEATORIO
 function generarCodigoAleatorio(longitud = 8) {
   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let resultado = '';
@@ -602,7 +734,7 @@ function generarCodigoAleatorio(longitud = 8) {
   return resultado;
 }
 
-// Función para copiar al portapapeles
+// FUNCIÓN PARA COPIAR AL PORTAPAPELES
 function copiarAlPortapapeles(texto) {
   navigator.clipboard.writeText(texto).then(() => {
     mensajes('success', 2000, 'Copiado', 'Texto copiado al portapapeles');
@@ -612,7 +744,7 @@ function copiarAlPortapapeles(texto) {
   });
 }
 
-// Función para descargar archivo
+// FUNCIÓN PARA DESCARGAR ARCHIVO
 function descargarArchivo(contenido, nombreArchivo, tipo = 'text/plain') {
   const blob = new Blob([contenido], { type: tipo });
   const url = URL.createObjectURL(blob);
@@ -625,7 +757,7 @@ function descargarArchivo(contenido, nombreArchivo, tipo = 'text/plain') {
   URL.revokeObjectURL(url);
 }
 
-// Función para obtener parámetros de URL
+// FUNCIÓN PARA OBTENER PARÁMETROS DE URL
 function obtenerParametrosURL() {
   const params = new URLSearchParams(window.location.search);
   const resultado = {};
@@ -635,7 +767,7 @@ function obtenerParametrosURL() {
   return resultado;
 }
 
-// Función para establecer parámetros de URL
+// FUNCIÓN PARA ESTABLECER PARÁMETROS DE URL
 function establecerParametrosURL(parametros) {
   const url = new URL(window.location);
   Object.keys(parametros).forEach(key => {
@@ -644,7 +776,7 @@ function establecerParametrosURL(parametros) {
   window.history.replaceState({}, '', url);
 }
 
-// Función para debounce (evitar múltiples llamadas)
+// FUNCIÓN PARA DEBOUNCE (EVITAR MÚLTIPLES LLAMADAS)
 function debounce(func, wait, immediate) {
   let timeout;
   return function executedFunction(...args) {
@@ -659,7 +791,7 @@ function debounce(func, wait, immediate) {
   };
 }
 
-// Función para throttle (limitar frecuencia de llamadas)
+// FUNCIÓN PARA THROTTLE (LIMITAR FRECUENCIA DE LLAMADAS)
 function throttle(func, limit) {
   let inThrottle;
   return function(...args) {
@@ -671,7 +803,30 @@ function throttle(func, limit) {
   }
 }
 
-// Inicializar componentes cuando el documento esté listo
+// FUNCIONES ESPECÍFICAS PARA VALIDACIÓN DE MATERIAL
+function validarMaterialCompleto() {
+  const elementos = {
+    nombre: $('#nombre'),
+    ubicacion: $('#ubicacion'),
+    stock: $('#stock'),
+    id_material: $('#id_material')
+  };
+  
+  return SistemaValidacion.validarFormularioSilencioso(elementos);
+}
+
+function limpiarValidacionMaterial() {
+  const elementos = {
+    nombre: $('#nombre'),
+    ubicacion: $('#ubicacion'),
+    stock: $('#stock'),
+    id_material: $('#id_material')
+  };
+  
+  SistemaValidacion.limpiarValidacion(elementos);
+}
+
+// INICIALIZAR COMPONENTES CUANDO EL DOCUMENTO ESTÉ LISTO
 $(document).ready(function() {
   // Inicializar tooltips
   inicializarTooltips();
@@ -694,6 +849,52 @@ $(document).ready(function() {
       $this.val(capitalizarTexto($this.val()));
     }
   });
+
+  // Validación en tiempo real para campos de material
+  $('body').on('input', '#nombre, #nombre_material', function() {
+    const $this = $(this);
+    const valor = $this.val();
+    if (valor && patrones.nombre_material.test(valor)) {
+      $this.removeClass('is-invalid').addClass('is-valid');
+    } else if (valor) {
+      $this.removeClass('is-valid').addClass('is-invalid');
+    }
+  });
+
+  $('body').on('input', '#stock', function() {
+    const $this = $(this);
+    const valor = $this.val();
+    if (valor && patrones.stock_material.test(valor)) {
+      $this.removeClass('is-invalid').addClass('is-valid');
+    } else if (valor) {
+      $this.removeClass('is-valid').addClass('is-invalid');
+    }
+  });
+
+  $('body').on('input', '#id_material', function() {
+    const $this = $(this);
+    const valor = $this.val();
+    if (valor && patrones.id_material.test(valor)) {
+      $this.removeClass('is-invalid').addClass('is-valid');
+    } else if (valor) {
+      $this.removeClass('is-valid').addClass('is-invalid');
+    }
+  });
+
+  // Mensaje de carga completada
+  console.log("Utils cargado completamente - Validaciones unificadas activas");
 });
 
-console.log("Utils cargado completamente");
+// EXPORTAR FUNCIONES PARA USO GLOBAL (si es necesario en módulos)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    patrones,
+    SistemaValidacion,
+    capitalizarTexto,
+    validarEmail,
+    formatearFecha,
+    generarCodigoAleatorio,
+    debounce,
+    throttle
+  };
+}

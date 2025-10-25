@@ -29,30 +29,26 @@ final class MaterialTest extends TestCase
     }
 
     /**
-     * PRUEBAS PARA SETTERS
+     * PRUEBAS PARA SETTERS - ACTUALIZADAS
      */
-    public function testSettersAceptanCualquierValor()
+    public function testSettersConValidaciones()
     {
-        $this->Tmaterial->set_id("ID12345678901234567890");
-        $this->Tmaterial->set_id("");
-        $this->Tmaterial->set_id(null);
-        
-        $this->Tmaterial->set_nombre("Nombre normal");
-        $this->Tmaterial->set_nombre("");
-        $this->Tmaterial->set_nombre(null);
-        
+        // Probar setters con valores válidos
+        $this->Tmaterial->set_id("MAT123456789");
+        $this->Tmaterial->set_nombre("Material de prueba válido " . uniqid());
         $this->Tmaterial->set_ubicacion("OFICIPIS2025101419103834");
-        $this->Tmaterial->set_ubicacion("");
-        $this->Tmaterial->set_ubicacion(null);
-        
-        $this->Tmaterial->set_stock(10);
-        $this->Tmaterial->set_stock(0);
-        $this->Tmaterial->set_stock(-5);
-        
+        $this->Tmaterial->set_stock(50);
         $this->Tmaterial->set_estatus(1);
-        $this->Tmaterial->set_estatus(0);
+        
+        $this->assertEquals("MAT123456789", $this->Tmaterial->get_id());
+        $this->assertStringContainsString("Material de prueba válido", $this->Tmaterial->get_nombre());
+        $this->assertEquals("OFICIPIS2025101419103834", $this->Tmaterial->get_ubicacion());
+        $this->assertEquals(50, $this->Tmaterial->get_stock());
+        $this->assertEquals(1, $this->Tmaterial->get_estatus());
 
-        $this->assertTrue(true, "Todos los setters aceptan valores");
+        // Probar que la ubicación es obligatoria
+        $this->expectException(ValueError::class);
+        $this->Tmaterial->set_ubicacion("");
     }
 
     /**
@@ -61,9 +57,10 @@ final class MaterialTest extends TestCase
     public function testRegistrarMaterialConDatosValidos()
     {
         $idUnico = "REG" . date('YmdHis') . rand(1000, 9999);
+        $nombreUnico = 'Material de prueba para testing - REGISTRO ' . uniqid();
         
         $this->Tmaterial->set_id($idUnico);
-        $this->Tmaterial->set_nombre('Material de prueba para testing - REGISTRO');
+        $this->Tmaterial->set_nombre($nombreUnico);
         $this->Tmaterial->set_ubicacion('OFICIPIS2025101419103834');
         $this->Tmaterial->set_stock(50);
 
@@ -172,7 +169,8 @@ final class MaterialTest extends TestCase
         $material = new Material();
         
         $material->set_id("TEST123");
-        $material->set_nombre("Material de prueba");
+        $material->set_nombre("Material de prueba " . uniqid());
+        $material->set_ubicacion("OFICIPIS2025101419103834");
         $material->set_stock(100);
         
         $this->assertTrue(true, "Comportamiento básico funciona correctamente");
@@ -184,30 +182,33 @@ final class MaterialTest extends TestCase
             $idUnico = "NULLUBIC" . date('YmdHis') . rand(1000, 9999);
             
             $this->Tmaterial->set_id($idUnico);
-            $this->Tmaterial->set_nombre('Material sin ubicación asignada');
-            $this->Tmaterial->set_ubicacion(null);
+            $this->Tmaterial->set_nombre('Material sin ubicación asignada ' . uniqid());
+            $this->Tmaterial->set_ubicacion(null); // Esto debería fallar
             $this->Tmaterial->set_stock(25);
             
             $resultado = $this->Tmaterial->Transaccion(['peticion' => 'registrar']);
             
-            $this->assertIsArray($resultado);
-            $this->assertTrue(true, "Registro con ubicación null procesado");
+            // Si llegamos aquí, la ubicación null fue aceptada (no debería)
+            $this->assertEquals(-1, $resultado['estado']);
+            $this->assertStringContainsString('obligatoria', $resultado['mensaje']);
             
-        } catch (Exception $e) {
-            $this->fail("Error inesperado: " . $e->getMessage());
+        } catch (ValueError $e) {
+            // Esto es lo esperado - la ubicación es obligatoria
+            $this->assertStringContainsString('obligatoria', $e->getMessage());
         }
     }
 
     /**
-     * PRUEBAS DE ELIMINACIÓN Y REACTIVACIÓN - CORREGIDAS
+     * PRUEBAS DE ELIMINACIÓN Y REACTIVACIÓN - ACTUALIZADAS CON NOMBRES ÚNICOS
      */
     public function testEliminarMaterialExistente()
     {
         // Primero registrar un material para eliminarlo
         $idEliminar = "ELIM" . date('YmdHis') . rand(1000, 9999);
+        $nombreUnico = 'Material para eliminar ' . uniqid();
         
         $this->Tmaterial->set_id($idEliminar);
-        $this->Tmaterial->set_nombre('Material para eliminar');
+        $this->Tmaterial->set_nombre($nombreUnico);
         $this->Tmaterial->set_ubicacion('OFICIPIS2025101419103834');
         $this->Tmaterial->set_stock(30);
 
@@ -228,13 +229,15 @@ final class MaterialTest extends TestCase
                 $this->assertTrue(true, "Eliminación falló pero fue manejada: " . ($resultado['mensaje'] ?? 'Sin mensaje'));
             }
         } else {
-            $this->markTestSkipped("No se pudo registrar el material para eliminación");
+            $this->markTestSkipped("No se pudo registrar el material para eliminación: " . ($registro['mensaje'] ?? 'Error desconocido'));
         }
     }
 
     public function testEliminarMaterialInexistente()
     {
-        $this->Tmaterial->set_id('MATERIAL_INEXISTENTE_' . date('YmdHis'));
+        // Usar un ID más corto que pase la validación
+        $idInexistente = "MAT-INEX-" . date('YmdHis');
+        $this->Tmaterial->set_id($idInexistente);
         $resultado = $this->Tmaterial->Transaccion(['peticion' => 'eliminar']);
         
         $this->assertIsArray($resultado);
@@ -246,10 +249,11 @@ final class MaterialTest extends TestCase
     {
         // Primero registrar y eliminar un material para luego reactivarlo
         $idReactivar = "REACT" . date('YmdHis') . rand(1000, 9999);
+        $nombreUnico = 'Material para reactivar ' . uniqid();
         
         // Registrar el material
         $this->Tmaterial->set_id($idReactivar);
-        $this->Tmaterial->set_nombre('Material para reactivar');
+        $this->Tmaterial->set_nombre($nombreUnico);
         $this->Tmaterial->set_ubicacion('OFICIPIS2025101419103834');
         $this->Tmaterial->set_stock(40);
 
@@ -261,7 +265,7 @@ final class MaterialTest extends TestCase
             $eliminacion = $this->Tmaterial->Transaccion(['peticion' => 'eliminar']);
             
             if (isset($eliminacion['estado']) && $eliminacion['estado'] == 1) {
-                // Reactivar el material - ahora no fallará por Bitacora
+                // Reactivar el material
                 $this->Tmaterial->set_id($idReactivar);
                 $resultado = $this->Tmaterial->Transaccion(['peticion' => 'reactivar']);
                 
@@ -275,10 +279,10 @@ final class MaterialTest extends TestCase
                     $this->assertTrue(true, "Reactivación falló pero fue manejada: " . ($resultado['mensaje'] ?? 'Sin mensaje'));
                 }
             } else {
-                $this->markTestSkipped("No se pudo eliminar el material para reactivación");
+                $this->markTestSkipped("No se pudo eliminar el material para reactivación: " . ($eliminacion['mensaje'] ?? 'Error desconocido'));
             }
         } else {
-            $this->markTestSkipped("No se pudo registrar el material para reactivación");
+            $this->markTestSkipped("No se pudo registrar el material para reactivación: " . ($registro['mensaje'] ?? 'Error desconocido'));
         }
     }
 
@@ -286,10 +290,11 @@ final class MaterialTest extends TestCase
     {
         // Intentar reactivar un material que no está eliminado
         $idNoEliminado = "NOELIM" . date('YmdHis') . rand(1000, 9999);
+        $nombreUnico = 'Material activo para reactivar ' . uniqid();
         
         // Registrar el material (queda activo)
         $this->Tmaterial->set_id($idNoEliminado);
-        $this->Tmaterial->set_nombre('Material activo para reactivar');
+        $this->Tmaterial->set_nombre($nombreUnico);
         $this->Tmaterial->set_ubicacion('OFICIPIS2025101419103834');
         $this->Tmaterial->set_stock(60);
 
@@ -302,8 +307,11 @@ final class MaterialTest extends TestCase
             
             $this->assertIsArray($resultado);
             $this->assertTrue(isset($resultado['estado']), "La reactivación debería retornar un estado");
+            
+            // Puede retornar warning (estado 2) o error (-1)
+            $this->assertContains($resultado['estado'], [-1, 1, 2]);
         } else {
-            $this->markTestSkipped("No se pudo registrar el material para prueba de reactivación");
+            $this->markTestSkipped("No se pudo registrar el material para prueba de reactivación: " . ($registro['mensaje'] ?? 'Error desconocido'));
         }
     }
 
@@ -348,7 +356,8 @@ final class MaterialTest extends TestCase
 
     public function testValidarMaterialInexistente()
     {
-        $this->Tmaterial->set_id("MAT-INEXISTENTE-" . date('YmdHis'));
+        $idInexistente = "MAT-INEX-" . date('YmdHis');
+        $this->Tmaterial->set_id($idInexistente);
         
         $resultado = $this->Tmaterial->Transaccion(['peticion' => 'validar']);
 
@@ -363,7 +372,7 @@ final class MaterialTest extends TestCase
     public function testGettersYSetters()
     {
         $id = "MAT-TEST-123";
-        $nombre = "Material de Test";
+        $nombre = "Material de Test " . uniqid();
         $ubicacion = "OFICIPIS2025101419103834";
         $stock = 50;
         $estatus = 1;

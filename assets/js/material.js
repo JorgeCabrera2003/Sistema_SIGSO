@@ -6,6 +6,14 @@ const elementosMaterial = {
     id_material: $('#id_material')
 };
 
+// PATRONES DE VALIDACIÓN UNIFICADOS CON PHP
+const patronesMaterial = {
+    id_material: /^[A-Z0-9\-_]{1,50}$/,
+    nombre_material: /^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/,
+    id_oficina: /^[A-Z0-9]{1,30}$/,
+    stock: /^[0-9]{1,6}$/ // 0-999999
+};
+
 // Función para manejar el cambio de estado del formulario
 function manejarCambioEstadoMaterial(formularioValido) {
     const accion = $("#enviar").text();
@@ -400,7 +408,7 @@ function enviaAjax(datos) {
 function capaValidar() {
     // Validación con formato en tiempo real para nombre
     $("#nombre").on("keypress", function (e) {
-        validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+        validarKeyPress(patronesMaterial.nombre_material, e);
     });
 
     // Aplicar capitalización en tiempo real para nombre
@@ -420,7 +428,7 @@ function capaValidar() {
 
     // Validación con formato en tiempo real para stock
     $("#stock").on("keypress", function (e) {
-        validarKeyPress(/^[0-9\b]*$/, e);
+        validarKeyPress(patronesMaterial.stock, e);
     });
 
     // Sincronizar validación de Select con el sistema de validación

@@ -16,6 +16,12 @@ if (is_file("view/" . $page . ".php")) {
     $material = new Material();
     $oficina = new Oficina();
 
+    // CONSTANTES DE VALIDACIÓN UNIFICADAS CON EL MODELO
+    define('REGEX_ID_MATERIAL', '/^[A-Z0-9\-_]{1,50}$/');
+    define('REGEX_NOMBRE_MATERIAL', '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/');
+    define('REGEX_ID_OFICINA', '/^[A-Z0-9]{1,30}$/');
+    define('REGEX_STOCK', '/^[0-9]{1,6}$/'); // 0-999999
+
     // Verificar permisos primero
     if (!isset($permisos['material']['ver']['estado']) || $permisos['material']['ver']['estado'] == "0") {
         $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Material";
@@ -42,18 +48,18 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["registrar"])) {
         if (isset($permisos['material']['registrar']['estado']) && $permisos['material']['registrar']['estado'] == '1') {
-            if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalLargo'], $_POST["nombre"]) == 0) {
+            if (!isset($_POST["nombre"]) || preg_match(REGEX_NOMBRE_MATERIAL, $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Nombre del Material no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-            } else if (!isset($_POST["ubicacion"]) || preg_match(c_regex['ID_Generado'], $_POST["ubicacion"]) == 0) {
+                $json['mensaje'] = "Error, Nombre del Material no válido. Debe tener 1-100 caracteres alfanuméricos";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió nombre de material no válido";
+            } else if (!isset($_POST["ubicacion"]) || preg_match(REGEX_ID_OFICINA, $_POST["ubicacion"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Ubicación no válida";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-            } else if (!isset($_POST["stock"]) || preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió ubicación no válida";
+            } else if (!isset($_POST["stock"]) || preg_match(REGEX_STOCK, $_POST["stock"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Stock no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error, Stock no válido. Debe ser un número entre 0 y 999999";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió stock no válido";
             } else {
                 $material->set_id(generarID($_POST["nombre"]));
                 $material->set_nombre($_POST["nombre"]);
@@ -88,7 +94,7 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST['detalle'])) {
-        if (preg_match("/^[0-9a-zA-ZáéíóúüñÑçÇ.-]{2,45}$/", $_POST["id_material"]) == 0) {
+        if (preg_match(REGEX_ID_MATERIAL, $_POST["id_material"]) == 0) {
             $json['resultado'] = "error";
             $json['mensaje'] = "Error, Id no válido";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -105,22 +111,22 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["modificar"])) {
         if (isset($permisos['material']['modificar']['estado']) && $permisos['material']['modificar']['estado'] == '1') {
-            if (!isset($_POST["id_material"]) || preg_match(c_regex['ID_Generado'], $_POST["id_material"]) == 0) {
+            if (!isset($_POST["id_material"]) || preg_match(REGEX_ID_MATERIAL, $_POST["id_material"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-            } else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalLargo'], $_POST["nombre"]) == 0) {
+            } else if (!isset($_POST["nombre"]) || preg_match(REGEX_NOMBRE_MATERIAL, $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Nombre del Material no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-            } else if (!isset($_POST["ubicacion"]) || preg_match(c_regex['ID_Generado'], $_POST["ubicacion"]) == 0) {
+                $json['mensaje'] = "Error, Nombre del Material no válido. Debe tener 1-100 caracteres alfanuméricos";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió nombre de material no válido";
+            } else if (!isset($_POST["ubicacion"]) || preg_match(REGEX_ID_OFICINA, $_POST["ubicacion"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Ubicación no válida";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
-            } else if (!isset($_POST["stock"]) || preg_match("/^[0-9]{1,11}$/", $_POST["stock"]) == 0) {
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió ubicación no válida";
+            } else if (!isset($_POST["stock"]) || preg_match(REGEX_STOCK, $_POST["stock"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Stock no válido";
-                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
+                $json['mensaje'] = "Error, Stock no válido. Debe ser un número entre 0 y 999999";
+                $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió stock no válido";
             } else {
                 $material->set_id($_POST["id_material"]);
                 $material->set_nombre($_POST["nombre"]);
@@ -156,7 +162,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["reactivar"])) {
         if (isset($permisos['material']['reactivar']['estado']) && $permisos['material']['reactivar']['estado'] == '1') {
-            if (!isset($_POST["id_material"]) || preg_match(c_regex['ID_Generado'], $_POST["id_material"]) == 0) {
+            if (!isset($_POST["id_material"]) || preg_match(REGEX_ID_MATERIAL, $_POST["id_material"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
@@ -185,7 +191,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         if (isset($permisos['material']['eliminar']['estado']) && $permisos['material']['eliminar']['estado'] == '1') {
-            if (!isset($_POST["id_material"]) || preg_match(c_regex['ID_Generado'], $_POST["id_material"]) == 0) {
+            if (!isset($_POST["id_material"]) || preg_match(REGEX_ID_MATERIAL, $_POST["id_material"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
