@@ -20,7 +20,7 @@ $(document).ready(async function () {
 	// Función para manejar el cambio de estado del formulario
 	function manejarCambioEstadoUsuario(formularioValido) {
 		const accion = $("#enviar").text();
-		
+
 		if (accion === "Eliminar") {
 			$('#enviar').prop('disabled', false);
 		} else {
@@ -187,11 +187,11 @@ $(document).ready(async function () {
 							datos.append('particle', $("#particle").val());
 							datos.append('cargo', $("#cargo").val());
 							datos.append('unidad', $("#unidad").val());
-							
+
 							// CORRECCIÓN: Aplicar capitalización completa a nombre y apellido
 							const nombre = capitalizarTextoCompleto($("#nombre").val());
 							const apellido = capitalizarTextoCompleto($("#apellido").val());
-							
+
 							datos.append('cedula', $("#particle").val() + $("#cedula").val());
 							datos.append('nombre', nombre);
 							datos.append('apellido', apellido);
@@ -227,7 +227,7 @@ $(document).ready(async function () {
 							// CORRECCIÓN: Aplicar capitalización completa a nombre y apellido
 							const nombre = capitalizarTextoCompleto($("#nombre").val());
 							const apellido = capitalizarTextoCompleto($("#apellido").val());
-							
+
 							datos.append('modificar', 'modificar');
 							datos.append('nombre_usuario', $("#nombre_usuario").val());
 							datos.append('cedula', $("#particle").val() + $("#cedula").val());
@@ -816,37 +816,52 @@ function consultar() {
 	enviaAjax(datos);
 }
 
-function crearDataTable(datos) {
-	$("#tabla").DataTable({
-		destroy: true,
-		responsive: true,
-		language: {
-			url: "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json",
-		},
+async function crearDataTable(datos) {
+
+	json = await ConsultarPermisos();
+	arrayPermiso = JSON.parse(json);
+
+	if ($.fn.DataTable.isDataTable('#tabla1')) {
+		$('#tabla1').DataTable().destroy();
+	}
+
+	$('#tabla1').DataTable({
 		data: datos,
 		columns: [
-			{ data: "cedula" },
-			{ data: "nombre" },
-			{ data: "apellido" },
-			{ data: "telefono" },
-			{ data: "correo" },
-			{ data: "cargo" },
-			{ data: "unidad" },
-			{ data: "nombre_usuario" },
-			{ data: "rol" },
+			{ data: 'nombre_usuario' },
+			{ data: 'rol' },
+			{ data: 'cedula' },
+			{ data: 'nombres' },
+			{ data: 'apellidos' },
+			{ data: 'telefono' },
+			{ data: 'correo' },
 			{
-				data: null,
-				render: function (data, type, row) {
-					return `<button type="button" class="btn btn-warning" onclick="modificar('${row.cedula}')">
-								<i class="fa-solid fa-pen-to-square"></i>
-							</button>
-							<button type="button" class="btn btn-danger" onclick="eliminar('${row.cedula}')">
-								<i class="fa-solid fa-trash"></i>
-							</button>`;
-				},
-			},
+				data: null, render: function (row) {
+					const html = [];
+
+					if (Array.isArray(arrayPermiso) || Object.keys(arrayPermiso).length == 0 || arrayPermiso == null) {
+					} else {
+						if (arrayPermiso.permisos.usuario.modificar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 0, '${row.cedula}')" title="Modificar" class="btn btn-update">
+                    					<i class="fa-solid fa-pen-to-square"></i>
+                						</button>`);
+						}
+
+						if (arrayPermiso.permisos.usuario.eliminar.estado == '1') {
+							html.push(`<button onclick="rellenar(this, 1, '${row.cedula}')" title="Eliminar" class="btn btn-danger">
+											<i class="fa-solid fa-trash"></i>
+										</button>`);
+						}
+					}
+					return html.join();
+				}
+			}
 		],
+		language: {
+			url: idiomaTabla,
+		}
 	});
+
 }
 
 function modificar(cedula) {
@@ -910,18 +925,93 @@ function selectUnidad(datos) {
 }
 
 function limpia() {
-	$("#particle").val("V-");
-	$("#cedula").val("");
-	$("#nombre").val("");
-	$("#apellido").val("");
-	$("#telefono").val("");
-	$("#correo").val("");
-	$("#cargo").val("default");
-	$("#ente").val("default");
-	$("#dependencia").val("default");
-	$("#unidad").val("default");
-	$("#nombre_usuario").val("");
-	$("#rol").val("default");
-	$("#clave").val("");
-	$("#rclave").val("");
+	$("#nombre_usuario").removeClass("is-valid is-invalid").val("");
+	$("#nombre_usuario");
+	$("#snombre_usuario").text("");
+
+	$("#cedula").removeClass("is-valid is-invalid").val("");
+	$("#cedula");
+	$("#scedula").text("");
+
+	$("#nombre").removeClass("is-valid is-invalid").val("");
+	$("#nombre");
+	$("#snombre").text("");
+
+	$("#apellido").removeClass("is-valid is-invalid").val("");
+	$("#sapellido").text("");
+
+	$("#correo").removeClass("is-valid is-invalid").val("");
+	$("#scorreo").text("");
+
+	$("#telefono").removeClass("is-valid is-invalid").val("");
+	$("#stelefono").text("");
+
+	$("#clave").removeClass("is-valid is-invalid").val("");
+	$("#sclave").text("");
+
+	$("#rclave").removeClass("is-valid is-invalid").val("");
+	$("#srclave").text("");
+
+	$("#rol").val("default").prop("disabled", false);
+	$("#ente").val("default").prop("disabled", false);
+	$("#cargo").val("default").prop("disabled", false);
+	$("#dependencia").attr('disabled', true).empty();
+	$("#unidad").attr('disabled', true).empty();
+}
+async function rellenar(pos, accion, ci = null) {
+	limpia();
+
+	datos_sesion = new FormData();
+	datos_sesion.append('traer_sesion', 'traer_sesion');
+	arraySesion = await enviaAjax(datos_sesion);
+	arraySesion = JSON.parse(arraySesion);
+	console.log(arraySesion);
+	if (arraySesion.rol == "SUPERUSUARIO") {
+		$("#Fila5").removeClass("d-none")
+	} else {
+		$("#Fila5").addClass("d-none")
+	}
+
+	linea = $(pos).closest('tr');
+	var info_empleado = null;
+	var cedula_completa = $(linea).find("td:eq(2)").text()
+	var cedula = cedula_completa.substring(2);
+	var letra_ci = cedula_completa.substring(0, 2);
+	if (ci != null) {
+		datos = new FormData();
+		datos.append("buscar_usuario", null);
+		datos.append("cedula", ci);
+		json = await enviaAjax(datos);
+		info_empleado = JSON.parse(json);
+	}
+	if (info_empleado != null) {
+		if (info_empleado.unidad != null && info_empleado.dependencia && info_empleado.ente) {
+			buscarSelect('#ente', info_empleado.ente.arreglo.id, 'value');
+			await cargarDependencia(info_empleado.ente.arreglo.id);
+			buscarSelect('#dependencia', info_empleado.dependencia.arreglo.id, 'value');
+			await cargarUnidad(info_empleado.dependencia.arreglo.id);
+			buscarSelect('#unidad', info_empleado.unidad.arreglo.id_unidad, 'value');
+		}
+		buscarSelect('#cargo', info_empleado.empleado.arreglo.id_cargo, 'value');
+	}
+
+	$("#nombre_usuario").val($(linea).find("td:eq(0)").text());
+	buscarSelect('#rol', $(linea).find("td:eq(1)").text(), 'text');
+	buscarSelect('#particle', letra_ci, 'value');
+	$("#cedula").val(cedula);
+	$("#nombre").val($(linea).find("td:eq(3)").text());
+	$("#apellido").val($(linea).find("td:eq(4)").text());
+	$("#telefono").val($(linea).find("td:eq(5)").text());
+	$("#correo").val($(linea).find("td:eq(6)").text());
+
+	if (accion == 0) {
+		$("#modalTitleId").text("Modificar Usuario")
+		$("#enviar").text("Modificar");
+	}
+	else {
+		$("#modalTitleId").text("Eliminar Usuario")
+		$("#enviar").text("Eliminar");
+	}
+	$('#enviar').prop('disabled', false);
+	$("#modal1").modal("show");
 }

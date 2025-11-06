@@ -47,7 +47,7 @@ $(document).ready(function () {
 				}
 				break;
 			case "Eliminar":
-				if (validarKeyUp(/^[0-9]{1,11}$/, $("#id_servicio"), $("#sid_servicio"), "") == 1) {
+				if (validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_servicio"), $("#sid_servicio"), "") == 1) {
 					confirmacion = await confirmarAccion("Se eliminará un Tipo de Servicio", "¿Está seguro de realizar la acción?", "question");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -219,7 +219,7 @@ async function enviaAjax(datos, spinner = null) {
 					}
 					mensajes("success", 10000, lee.mensaje, null);
 
-				} else if(lee.resultado == "eliminar_item"){
+				} else if (lee.resultado == "eliminar_item") {
 					if (lee.item == "servicio") {
 						listarServicio($("#id_servicio").val(), "tabla")
 						listarServicio($("#id_servicio").val(), "input")
@@ -677,7 +677,7 @@ async function itemServicio(datos, item) {
 	let clase = "";
 
 	if (item == "servicio") {
-		$("#titulo-configurar").text("Configurar Servicios de "+ $("#nombre").val());
+		$("#titulo-configurar").text("Configurar Servicios de " + $("#nombre").val());
 		grupo = "servicio";
 		clase = "btn-agregarS";
 
@@ -699,32 +699,32 @@ async function itemServicio(datos, item) {
 
 	}
 
-		$('#tabla_configurar').DataTable({
-			data: datos,
-			columns: [
-				{
-					data: null, render: function (row) {
-						var funcionstring = ""
-						var idValue = null
-						var check = ""
-						var readonly = "readOnly"
-						var prefijoval = ""
-						const idRegex = /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
-						if (idRegex.test(row.id) || null) {
-							funcionstring = ""
-							idValue = row.id
-						} else {
-							funcionstring = "(ID Generado)"
-							idValue = ""
-						}
+	$('#tabla_configurar').DataTable({
+		data: datos,
+		columns: [
+			{
+				data: null, render: function (row) {
+					var funcionstring = ""
+					var idValue = null
+					var check = ""
+					var readonly = "readOnly"
+					var prefijoval = ""
+					const idRegex = /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
+					if (idRegex.test(row.id) || null) {
+						funcionstring = ""
+						idValue = row.id
+					} else {
+						funcionstring = "(ID Generado)"
+						idValue = ""
+					}
 
-						if (row.bool_texto == 1) {
-							check = 'checked'
-							readonly = ""
-							prefijoval = row.prefijo
-						}
+					if (row.bool_texto == 1) {
+						check = 'checked'
+						readonly = ""
+						prefijoval = row.prefijo
+					}
 
-						const html = `<div id="${row.id}" class="row text-center d-flex align-items-center row-${clase}">
+					const html = `<div id="${row.id}" class="row text-center d-flex align-items-center row-${clase}">
                 <div class="col-xl-1">
                       <input placeholder="${funcionstring}" value="${idValue}" readOnly class="form-control input-grupo input-id" name="id"  type="text" id="id-${row.id}"
                         maxlength="24">
@@ -747,36 +747,36 @@ async function itemServicio(datos, item) {
                       <span id="sprefijo-${row.id}"></span>
                 	</div>
 				</div>`;
-						return html;
+					return html;
+				}
+			},
+			{
+				data: null, render: function (row) {
+
+					var funcionstring = ""
+					const idRegex = /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
+					if (idRegex.test(row.id) || null) {
+						funcionstring = `eliminarRegistro('${row.id}')`
+					} else {
+						funcionstring = `eliminarItemConfiguracion(this, 'boton-${row.id}')`
 					}
-				},
-				{
-					data: null, render: function (row) {
 
-						var funcionstring = ""
-						const idRegex = /^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/
-						if (idRegex.test(row.id) || null) {
-							funcionstring = `eliminarRegistro('${row.id}')`
-						} else {
-							funcionstring = `eliminarItemConfiguracion(this, 'boton-${row.id}')`
-						}
-
-						const botones = `<div class="col-xl-2 align-self-center">
+					const botones = `<div class="col-xl-2 align-self-center">
                     <button type="button" id="boton-quitar" onclick= "${funcionstring}" class="btn btn-primary btn-sm mx-auto my-4 ">
                       <i class="fa-solid fa-minus"></i>
                     </button>
                   </div>`;
-						return botones;
-					}
-				}],
-			language: {
-				url: idiomaTabla
-			},
+					return botones;
+				}
+			}],
+		language: {
+			url: idiomaTabla
+		},
 
-			drawCallback: function (settings) {
-				capaValidar();
-			}
-		})
+		drawCallback: function (settings) {
+			capaValidar();
+		}
+	})
 	console.log(item);
 	console.log(datos);
 	$("#spinner-configuracion").addClass("d-none");
@@ -885,8 +885,8 @@ async function TablaComponente(arreglo) {
 }
 
 function limpia() {
-	$("#nombre").removeClass("is-valid is-invalid");
-	$("#nombre").val("");
+	$("#nombre").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
+	$("#encargado").removeClass("is-valid is-invalid").val("").prop('readOnly', false);
 
 	$("#container-servicio").empty();
 	$("#container-componente").empty();
@@ -927,6 +927,8 @@ function rellenar(pos, accion) {
 		$("#btn-configuarC").prop("disabled", false).removeClass("d-none");
 	}
 	else {
+		$("#nombre").removeClass("is-valid is-invalid").prop('readOnly', true);
+		$("#encargado").removeClass("is-valid is-invalid").prop('disabled', true);
 		$("#modalTitleId").text("Eliminar Tipo de Servicio")
 		$("#senviar").text("Eliminar");
 		$("#btn-configuarS").prop("disabled", true).addClass("d-none");

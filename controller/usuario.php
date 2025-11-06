@@ -46,8 +46,8 @@ if (is_file("view/" . $page . ".php")) {
 	$datos = $_SESSION['user'];
 	$datos = $datos + $usuario->Transaccion(['peticion' => 'perfil']);
 
-	if (isset($_POST['entrada'])) {
-		$json['resultado'] = "entrada";
+	if (isset($_POST['registrar_entrada'])) {
+		$json['resultado'] = "registrar_entrada";
 		echo json_encode($json);
 		exit;
 	}

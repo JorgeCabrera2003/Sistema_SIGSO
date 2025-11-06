@@ -167,9 +167,9 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['tipo_servicio']['eliminar']['estado']) && $permisos['tipo_servicio']['eliminar']['estado'] == 1) {
-			if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_servicio"]) == 0) {
+			if (preg_match(c_regex['ID_Generado'], $_POST["id_servicio"]) == 0) {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Nombre del Tipo de Servicio no válido";
+				$json['mensaje'] = "Error, ID del Tipo de Servicio no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
 
 			} else {
