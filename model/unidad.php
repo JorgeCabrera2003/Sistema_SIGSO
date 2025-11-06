@@ -301,10 +301,8 @@ class Unidad extends Conexion
             $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
-
-        } catch (PDOException $e) {
-
             $this->conexion->commit();
+
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";

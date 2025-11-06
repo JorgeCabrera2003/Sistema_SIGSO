@@ -5,22 +5,23 @@ require_once "model/categoria.php";
 
 final class CategoriaTest extends TestCase
 {
-    private Categoria $Tdependencia;
+    private Categoria $Tcategoria;
 
 
     #[ExpectException(ValueError::class)]
 
     public function setUp(): void
     {
-        $this->Tdependencia = new Categoria();
+        $this->Tcategoria = new Categoria();
     }
 
     public function testRegistrarCategoria(): void
     {
-        $this->Tdependencia->set_id('GUARDPAR2025201014043321');
-        $this->Tdependencia->set_nombre('Seguridad');
-    
-        $resultado = $this->Tdependencia->Transaccion(['peticion' => 'registrar']);
+        $this->Tcategoria->set_id('ELECT9912025201014043321');
+        $this->Tcategoria->set_nombre('Electrodomesticos');
+        $this->Tcategoria->set_id_servicio(NULL);
+
+        $resultado = $this->Tcategoria->Transaccion(['peticion' => 'registrar']);
 
         $this->assertIsArray($resultado);
 
@@ -32,9 +33,6 @@ final class CategoriaTest extends TestCase
             if ($resultado['mensaje'] == "Registro duplicado") {
                 $this->assertTrue(true, "No permitir registros duplicados");
                 echo "Registro duplicado";
-            } else if ($resultado['mensaje'] == "No existe el Ente seleccionado") {
-                $this->assertTrue(true, "No existe el Ente seleccionado");
-                echo "No existe el Ente seleccionado";
             } else {
                 $this->assertTrue(false, $resultado['mensaje']);
             }
@@ -46,7 +44,7 @@ final class CategoriaTest extends TestCase
     public function testConsultarCategoria()
     {
 
-        $resultado = $this->Tdependencia->Transaccion(['peticion' => 'consultar']);
+        $resultado = $this->Tcategoria->Transaccion(['peticion' => 'consultar']);
 
         $this->assertIsArray($resultado);
         $this->assertEquals('consultar', $resultado['resultado']);
@@ -56,9 +54,10 @@ final class CategoriaTest extends TestCase
     public function testModificarCategoria()
     {
 
-        $this->Tdependencia->set_id("GUARDPAR2025201014043321");
-        $this->Tdependencia->set_nombre('Seguridad del Parque');
-        $resultado = $this->Tdependencia->Transaccion(['peticion' => 'actualizar']);
+        $this->Tcategoria->set_id('ELECT9912025201014043321');
+        $this->Tcategoria->set_nombre('Electrodomestico');
+        $this->Tcategoria->set_id_servicio(NULL);
+        $resultado = $this->Tcategoria->Transaccion(['peticion' => 'actualizar']);
 
         $this->assertIsArray($resultado);
 
@@ -66,9 +65,9 @@ final class CategoriaTest extends TestCase
             $this->assertEquals('modificar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
         } else if ($resultado['estado'] == -1) {
-            if($resultado['mensaje'] == 'No existe el Ente seleccionado'){
+            if ($resultado['mensaje'] == 'No existe el Ente seleccionado') {
                 $this->assertTrue(true, "No existe el Ente seleccionado");
-            } else{
+            } else {
                 $this->fail('Fallo en Modificar Categoria');
             }
         }
@@ -76,8 +75,8 @@ final class CategoriaTest extends TestCase
 
     public function testEliminarCategoria()
     {
-        $this->Tdependencia->set_id("GUARDPAR2025201014043321");
-        $resultado = $this->Tdependencia->Transaccion(['peticion' => 'eliminar']);
+        $this->Tcategoria->set_id('ELECT9912025201014043321');
+        $resultado = $this->Tcategoria->Transaccion(['peticion' => 'eliminar']);
 
         $this->assertIsArray($resultado);
 

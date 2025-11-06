@@ -19,15 +19,24 @@ class TipoServicio extends Conexion
 
     public function set_codigo($codigo)
     {
+        if ($codigo == NULL || preg_match("/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/", $codigo) == 0) {
+            throw new ValueError("Id no válido");
+        }
         $this->id_tipo_servicio = $codigo;
     }
 
     public function set_nombre($nombre)
     {
+        if ($nombre == NULL || preg_match('/^[0-9 a-zA-ZáéíóúüñÑçÇ]{4,90}$/', $nombre) == 0) {
+            throw new ValueError("Nombre no válido");
+        }
         $this->nombre_tipo_servicio = $nombre;
     }
     public function set_encargado($encargado)
     {
+        if (preg_match('/^[VE]{1}[-]{1}[0-9]{7,10}$/', $encargado) == 0) {
+            $encargado = NULL;
+        }
         $this->encargado = $encargado;
     }
 

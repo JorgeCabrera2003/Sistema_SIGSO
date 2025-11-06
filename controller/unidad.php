@@ -141,7 +141,7 @@ if (is_file("view/" . $page . ".php")) {
 				$json = $unidad->Transaccion($peticion);
 				if ($json['estado'] == 1) {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se restauró una Unidad con el id: " . $_POST["id_unidad"];
-					$msgN = "Se restauró una Unidad con el id" . $_POST["id_unidad"];
+					$msgN = "Se restauró una Unidad con el id: " . $_POST["id_unidad"];
 					NotificarUsuarios($msgN, "Unidad", ['modulo' => 'UNIDA01120251001', 'accion' => 'ver']);
 				} else {
 					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al reactivar una Unidad";

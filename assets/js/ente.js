@@ -11,10 +11,10 @@ const elementosEnte = {
 // Función para manejar el cambio de estado del formulario
 function manejarCambioEstado(formularioValido) {
   const accion = $("#enviar").text();
-  
+
   if (accion === "Eliminar") {
     // Para eliminar solo validamos el ID
-    const idValido = validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_ente"), null, '');
+    const idValido = validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_ente"), ("#sid_ente"), '');
     $('#enviar').prop('disabled', !idValido);
   } else {
     // Para registrar y modificar validamos todos los campos
@@ -27,10 +27,10 @@ $(document).ready(function () {
   registrarEntrada();
   capaValidar();
   ConsultarPermisos();
-  
+
   // Inicializar sistema de validación con callback
   SistemaValidacion.inicializar(elementosEnte, manejarCambioEstado);
-  
+
   // Validar estado inicial del formulario
   manejarCambioEstado(false);
 
@@ -93,7 +93,7 @@ $(document).ready(function () {
             datos.append('id_ente', $("#id_ente").val());
             enviaAjax(datos);
             envio = true;
-            
+
           }
         } else {
           envio = false;
@@ -229,7 +229,7 @@ function capaValidar() {
   });
 
   // Aplicar capitalización en tiempo real para nombre y responsable
-  $("#nombre").on("input", function() {
+  $("#nombre").on("input", function () {
     // Capitalizar mientras escribe (opcional)
     const valor = $(this).val();
     if (valor.length === 1) {
@@ -237,7 +237,7 @@ function capaValidar() {
     }
   });
 
-  $("#responsable").on("input", function() {
+  $("#responsable").on("input", function () {
     // Capitalizar mientras escribe (opcional)
     const valor = $(this).val();
     if (valor.length === 1) {
@@ -272,11 +272,11 @@ function crearDataTable(arreglo) {
   if ($.fn.DataTable.isDataTable('#tabla1')) {
     $('#tabla1').DataTable().destroy();
   }
-  
+
   $('#tabla1').DataTable({
     data: arreglo,
     columns: [
-      { 
+      {
         data: 'id',
         visible: false
       },
@@ -286,7 +286,7 @@ function crearDataTable(arreglo) {
       { data: 'direccion' },
       { data: 'tipo_ente' },
       {
-        data: null, 
+        data: null,
         render: function () {
           const botones = `<button onclick="rellenar(this, 0)" class="btn btn-update modificar"><i class="fa-solid fa-pen-to-square"></i></button>
           <button onclick="rellenar(this, 1)" class="btn btn-danger eliminar"><i class="fa-solid fa-trash"></i></button>`;
@@ -308,7 +308,7 @@ function iniciarTablaEliminadas(arreglo) {
   $('#tablaEliminadas').DataTable({
     data: arreglo,
     columns: [
-      { 
+      {
         data: 'id',
         visible: false
       },
@@ -334,7 +334,7 @@ function iniciarTablaEliminadas(arreglo) {
 
 function limpia() {
   SistemaValidacion.limpiarValidacion(elementosEnte);
-  
+
   $("#nombre").val("");
   $("#responsable").val("");
   $("#telefono").val("");
@@ -389,7 +389,7 @@ function rellenar(pos, accion) {
     $("#modalTitleId").text("Eliminar Ente")
     $("#enviar").text("Eliminar");
   }
-  
+
   // Habilitar el botón inmediatamente para Modificar/Eliminar ya que los datos vienen pre-validados
   $('#enviar').prop('disabled', false);
   $("#modal1").modal("show");
