@@ -18,7 +18,7 @@ if (is_file("view/" . $page . ".php")) {
 
     // CONSTANTES DE VALIDACIÓN UNIFICADAS CON EL MODELO
     define('REGEX_ID_MATERIAL', '/^[A-Z0-9\-_]{1,50}$/');
-    define('REGEX_NOMBRE_MATERIAL', '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/');
+    define('REGEX_NOMBRE_MATERIAL', '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{3,100}$/');
     define('REGEX_ID_OFICINA', '/^[A-Z0-9]{1,30}$/');
     define('REGEX_STOCK', '/^[0-9]{1,6}$/'); // 0-999999
 
@@ -50,7 +50,7 @@ if (is_file("view/" . $page . ".php")) {
         if (isset($permisos['material']['registrar']['estado']) && $permisos['material']['registrar']['estado'] == '1') {
             if (!isset($_POST["nombre"]) || preg_match(REGEX_NOMBRE_MATERIAL, $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Nombre del Material no válido. Debe tener 1-100 caracteres alfanuméricos";
+                $json['mensaje'] = "Error, Nombre del Material no válido. Debe tener 3-100 caracteres alfanuméricos";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió nombre de material no válido";
             } else if (!isset($_POST["ubicacion"]) || preg_match(REGEX_ID_OFICINA, $_POST["ubicacion"]) == 0) {
                 $json['resultado'] = "error";
@@ -117,7 +117,7 @@ if (is_file("view/" . $page . ".php")) {
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
             } else if (!isset($_POST["nombre"]) || preg_match(REGEX_NOMBRE_MATERIAL, $_POST["nombre"]) == 0) {
                 $json['resultado'] = "error";
-                $json['mensaje'] = "Error, Nombre del Material no válido. Debe tener 1-100 caracteres alfanuméricos";
+                $json['mensaje'] = "Error, Nombre del Material no válido. Debe tener 3-100 caracteres alfanuméricos";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió nombre de material no válido";
             } else if (!isset($_POST["ubicacion"]) || preg_match(REGEX_ID_OFICINA, $_POST["ubicacion"]) == 0) {
                 $json['resultado'] = "error";

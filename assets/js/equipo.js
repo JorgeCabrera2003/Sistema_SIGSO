@@ -36,6 +36,12 @@ $(document).ready(function () {
         SistemaValidacion.inicializar(elementosEquipo, manejarCambioEstadoEquipo);
     }
 
+    // Inicializar Select2 para selects (dropdownParent para modal)
+    const select2ConfigEquipo = { dropdownParent: $('#modal1'), width: '100%' };
+    if ($('#codigo_bien').length) $('#codigo_bien').select2(select2ConfigEquipo);
+    if ($('#id_dependencia').length) $('#id_dependencia').select2(select2ConfigEquipo);
+    if ($('#id_unidad').length) $('#id_unidad').select2(select2ConfigEquipo);
+
     // Validar estado inicial del formulario
     manejarCambioEstadoEquipo(false);
 
@@ -210,6 +216,21 @@ function capaValidar() {
     // Validación con formato en tiempo real para serial
     $("#serial").on("keypress", function (e) {
         validarKeyPress(/^[0-9a-zA-ZáéíóúüñÑçÇ.-]*$/, e);
+    });
+
+    // Asegurar maxlength en tiempo real para serial y tipo_equipo (compatibilidad con Bien)
+    $("#serial").on("input", function () {
+        const max = 45;
+        if ($(this).val() && $(this).val().length > max) {
+            $(this).val($(this).val().slice(0, max));
+        }
+    });
+
+    $("#tipo_equipo").on("input", function () {
+        const max = 45;
+        if ($(this).val() && $(this).val().length > max) {
+            $(this).val($(this).val().slice(0, max));
+        }
     });
 
     $("#codigo_bien").on("change", function () {
@@ -416,18 +437,19 @@ function selectBien(arreglo) {
             new Option('No Hay Bienes Disponibles', 'default')
         );
     }
-
-    // Aplicar validación visual
-    if ($("#codigo_bien").val() === "default") {
-        $("#codigo_bien").removeClass("is-valid").addClass("is-invalid");
-        $("#scodigo_bien").removeClass("valid-feedback").addClass("invalid-feedback").text("Debe seleccionar un código de bien");
+    // Marcar placeholder como no seleccionable y evitar marcar touched al inicializar
+    $("#codigo_bien option[value='default']").prop('disabled', true);
+    $("#codigo_bien").val('default').trigger('change');
+    $("#codigo_bien").data('touched', false);
+    // Asegurar que Select2 esté aplicado/actualizado para permitir búsqueda
+    if ($.fn.select2) {
+        $("#codigo_bien").select2({ dropdownParent: $('#modal1'), width: '100%' });
     }
 }
 
 function selectDependencia(arreglo) {
     $("#id_dependencia").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-
         $("#id_dependencia").append(
             new Option('Seleccione una Dependencia', 'default')
         );
@@ -441,6 +463,14 @@ function selectDependencia(arreglo) {
             new Option('No Hay Dependencia', 'default')
         );
     }
+    // Marcar placeholder como no seleccionable y evitar marcar touched al inicializar
+    $("#id_dependencia option[value='default']").prop('disabled', true);
+    $("#id_dependencia").val('default').trigger('change');
+    $("#id_dependencia").data('touched', false);
+    // Asegurar que Select2 esté aplicado/actualizado
+    if ($.fn.select2) {
+        $("#id_dependencia").select2({ dropdownParent: $('#modal1'), width: '100%' });
+    }
 }
 
 async function selectUnidad(arreglo) {
@@ -448,7 +478,6 @@ async function selectUnidad(arreglo) {
     $("#id_unidad").val("");
     $("#id_unidad").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-
         $("#id_unidad").append(
             new Option('Seleccione una Unidad', 'default')
         );
@@ -462,6 +491,14 @@ async function selectUnidad(arreglo) {
             new Option('No Hay unidad', 'default')
         );
         estadoSelect("#id_unidad", "#sid_unidad", "", 0);
+    }
+    // Marcar placeholder como no seleccionable y evitar marcar touched al inicializar
+    $("#id_unidad option[value='default']").prop('disabled', true);
+    $("#id_unidad").val('default').trigger('change');
+    $("#id_unidad").data('touched', false);
+    // Asegurar que Select2 esté aplicado/actualizado
+    if ($.fn.select2) {
+        $("#id_unidad").select2({ dropdownParent: $('#modal1'), width: '100%' });
     }
     return true;
 }

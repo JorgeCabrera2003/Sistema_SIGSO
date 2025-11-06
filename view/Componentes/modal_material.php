@@ -10,7 +10,7 @@
         <div class="row justify-content-center" id="Fila1">
           <div class="col-8">
             <div class="form-floating mb-3 mt-4">
-              <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="90">
+              <input placeholder="" class="form-control" name="nombre" type="text" id="nombre" maxlength="100">
               <span id="snombre"></span>
               <label for="nombre" class="form-label">Nombre del Material</label>
             </div>
@@ -20,7 +20,7 @@
           <div class="col-6">
             <div class="form-floating mb-3 mt-4">
               <select class="form-select" name="ubicacion" id="ubicacion">
-                <option value="">Seleccione una ubicación</option>
+                <option value="default" selected disabled>Seleccione una ubicación</option>
                 <?php foreach($oficinas as $oficina): ?>
                   <option value="<?= $oficina['id_oficina'] ?>"><?= $oficina['nombre_oficina'] ?></option>
                 <?php endforeach; ?>
@@ -31,7 +31,7 @@
           </div>
           <div class="col-6">
             <div class="form-floating mb-3 mt-4">
-              <input placeholder="" class="form-control" name="stock" type="number" id="stock" min="0">
+              <input placeholder="" class="form-control" name="stock" type="number" id="stock" min="0" max="999999" inputmode="numeric" pattern="\d{1,6}" maxlength="6">
               <span id="sstock"></span>
               <label for="stock" class="form-label">Stock</label>
             </div>

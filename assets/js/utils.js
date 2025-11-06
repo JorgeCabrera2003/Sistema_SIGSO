@@ -25,7 +25,7 @@ const patrones = {
   
   // PATRONES PARA MATERIAL - UNIFICADOS CON PHP
   id_material: /^[A-Z0-9\-_]{1,50}$/,
-  nombre_material: /^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/,
+  nombre_material: /^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{3,100}$/, 
   id_oficina: /^[A-Z0-9]{1,30}$/,
   stock_material: /^[0-9]{1,6}$/,
   
@@ -113,6 +113,12 @@ const SistemaValidacion = {
         mensajeError = 'El serial debe tener de 3 a 45 caracteres';
         break;
 
+      case 'serial':
+        // Alias para módulos que usan el id 'serial' en lugar de 'serial_equipo'
+        esValido = patrones.serial.test(valor);
+        mensajeError = 'El serial debe tener de 3 a 45 caracteres';
+        break;
+
       case 'tipo_equipo':
         esValido = patrones.tipoEquipo.test(valor);
         mensajeError = 'El tipo de equipo debe tener de 3 a 45 caracteres';
@@ -122,7 +128,7 @@ const SistemaValidacion = {
       case 'nombre':
       case 'nombre_material':
         esValido = patrones.nombre_material.test(valor);
-        mensajeError = 'El nombre debe tener 1-100 caracteres alfanuméricos';
+  mensajeError = 'El nombre debe tener 3-100 caracteres alfanuméricos';
         break;
 
       case 'stock':
@@ -214,6 +220,9 @@ const SistemaValidacion = {
               campoValido = patrones.descripcion.test(valor);
               break;
             case 'serial_equipo':
+              campoValido = patrones.serial.test(valor);
+              break;
+            case 'serial':
               campoValido = patrones.serial.test(valor);
               break;
             case 'tipo_equipo':
@@ -392,6 +401,9 @@ const SistemaValidacion = {
             campoValido = patrones.descripcion.test(valor);
             break;
           case 'serial_equipo':
+            campoValido = patrones.serial.test(valor);
+            break;
+          case 'serial':
             campoValido = patrones.serial.test(valor);
             break;
           case 'tipo_equipo':

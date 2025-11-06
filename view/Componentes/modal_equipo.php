@@ -37,6 +37,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="codigo_bien" id="codigo_bien">
+                                <option value="default" selected disabled>Seleccione un Bien</option>
                             </select>
                             <span id="scodigo_bien"></span>
                             <label for="codigo_bien" class="form-label">Código de Bien</label>
@@ -47,6 +48,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_dependencia" id="id_dependencia">
+                                <option value="default" selected disabled>Seleccione una Dependencia</option>
                             </select>
                             <span id="sid_dependencia"></span>
                             <label for="id_dependencia" class="form-label">Dependencia</label>
@@ -55,6 +57,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_unidad" id="id_unidad">
+                                <option value="default" selected disabled>Seleccione una Unidad</option>
                             </select>
                             <span id="sid_unidad"></span>
                             <label for="id_unidad" class="form-label">Unidad</label>

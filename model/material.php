@@ -14,7 +14,7 @@ class Material extends Conexion
 
     // CONSTANTES DE VALIDACIÓN UNIFICADAS
     const REGEX_ID_MATERIAL = '/^[A-Z0-9\-_]{1,50}$/';
-    const REGEX_NOMBRE_MATERIAL = '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{1,100}$/';
+    const REGEX_NOMBRE_MATERIAL = '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.,()]{3,100}$/';
     const REGEX_ID_OFICINA = '/^[A-Z0-9]{1,30}$/';
     const MIN_STOCK = 0;
     const MAX_STOCK = 999999;
@@ -62,7 +62,7 @@ class Material extends Conexion
         }
         
         if (!preg_match(self::REGEX_NOMBRE_MATERIAL, $nombre)) {
-            throw new ValueError("Nombre de Material no válido. Debe tener 1-100 caracteres alfanuméricos. Recibido: " . $nombre);
+            throw new ValueError("Nombre de Material no válido. Debe tener 3-100 caracteres alfanuméricos. Recibido: " . $nombre);
         }
         $this->nombre = $nombre;
     }

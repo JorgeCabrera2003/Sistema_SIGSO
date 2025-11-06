@@ -58,6 +58,16 @@ $(document).ready(function () {
         SistemaValidacion.inicializar(elementosMaterial, manejarCambioEstadoMaterial);
     }
 
+    // Inicializar Select2 en ubicacion (si está disponible) y marcar placeholder como no seleccionable
+    const select2ConfigMaterial = { dropdownParent: $('#modal1'), width: '100%' };
+    if ($('#ubicacion').length && $.fn.select2) {
+        $('#ubicacion').select2(select2ConfigMaterial);
+        // Asegurar placeholder no seleccionable y estado inicial sin touched
+        $("#ubicacion option[value='default']").prop('disabled', true);
+        $("#ubicacion").val('default').trigger('change');
+        $("#ubicacion").data('touched', false);
+    }
+
     // Validar estado inicial del formulario
     manejarCambioEstadoMaterial(false);
 
@@ -428,7 +438,36 @@ function capaValidar() {
 
     // Validación con formato en tiempo real para stock
     $("#stock").on("keypress", function (e) {
-        validarKeyPress(patronesMaterial.stock, e);
+        // Permitir teclas de control (Backspace, Delete, flechas)
+        const key = e.which || e.keyCode;
+        if (key === 8 || key === 46 || key === 37 || key === 39) return;
+
+        // Si ya hay 6 dígitos, bloquear más entradas
+        const current = $(this).val() ? $(this).val().toString().replace(/\D/g, '') : '';
+        if (current.length >= 6) {
+            e.preventDefault();
+            return;
+        }
+
+        // Permitir solo un dígito en cada pulsación
+        validarKeyPress(/^[0-9]$/, e);
+    });
+
+    // Evitar pegar más de 6 dígitos y limpiar caracteres no numéricos
+    $("#stock").on('input paste', function (e) {
+        const $this = $(this);
+        // Tomar solo dígitos y limitar a 6
+        let valor = $this.val() ? $this.val().toString().replace(/\D/g, '') : '';
+        if (valor.length > 6) valor = valor.slice(0, 6);
+        if ($this.val() !== valor) {
+            $this.val(valor);
+        }
+
+        // Marcar como interactuado y validar visualmente
+        if (typeof SistemaValidacion !== 'undefined') {
+            $this.data('touched', true);
+            SistemaValidacion.validarCampo.call(this);
+        }
     });
 
     // Sincronizar validación de Select con el sistema de validación
