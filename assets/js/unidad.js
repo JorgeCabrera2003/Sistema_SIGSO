@@ -11,7 +11,7 @@ function manejarCambioEstadoUnidad(formularioValido) {
   
   if (accion === "Eliminar") {
     // Para eliminar solo validamos el ID
-    const idValido = $("#id_unidad").length && $("#id_unidad").hasClass("is-valid");
+    const idValido = validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_unidad"), $("#sid_unidad"), '');
     $('#enviar').prop('disabled', !idValido);
   } else {
     // Para registrar y modificar validamos todos los campos
@@ -73,7 +73,7 @@ $(document).ready(function () {
 
 			case "Eliminar":
 				// Validar solo el ID para eliminar
-				if ($("#id_unidad").length && SistemaValidacion.validarCampo.call(document.getElementById('id_unidad'))) {
+				if (validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_unidad"), $("#sid_unidad"), '')) {
 					confirmacion = await confirmarAccion("Se eliminará una Unidad", "¿Está seguro de realizar la acción?", "warning");
 					if (confirmacion) {
 						var datos = new FormData();
@@ -399,7 +399,7 @@ function reactivarUnidad(boton) {
 					try {
 						var lee = JSON.parse(respuesta);
 						if (lee.estado == 1) {
-							mensajes("success", null, "Unidad restaurada", lee.mensaje);
+							mensajes("success", null, "Unidad restaurada", "Unidad restaurada exitosamente");
 							consultarEliminadas();
 							consultar();
 						} else {

@@ -52,6 +52,7 @@ class Usuario extends Conexion
         $this->apellidos = $apellidos;
     }
 
+
     public function set_tipo($tipo)
     {
         $this->tipo = $tipo;
@@ -197,7 +198,6 @@ class Usuario extends Conexion
             $this->conexion->commit();
             $dato['mensaje'] = "Se modificó el usuario exitosamente";
             $dato['bool'] = 1;
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";

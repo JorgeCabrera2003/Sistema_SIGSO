@@ -27,14 +27,14 @@ final class DependenciaTest extends TestCase
         if (isset($resultado['estado']) && $resultado['estado'] == 1) {
             $this->assertEquals('registrar', $resultado['resultado']);
             $this->assertEquals('1', $resultado['estado']);
-            echo "Se Registró correctamente";
+            echo "Se Registró correctamente \n";
         } else if ($resultado['estado'] == -1) {
             if ($resultado['mensaje'] == "Registro duplicado") {
                 $this->assertTrue(true, "No permitir registros duplicados");
-                echo "Registro duplicado";
+                echo "Registro duplicado \n";
             } else if ($resultado['mensaje'] == "No existe el Ente seleccionado") {
                 $this->assertTrue(true, "No existe el Ente seleccionado");
-                echo "No existe el Ente seleccionado";
+                echo "No existe el Ente seleccionado \n";
             } else {
                 $this->assertTrue(false, $resultado['mensaje']);
             }
@@ -51,6 +51,7 @@ final class DependenciaTest extends TestCase
         $this->assertIsArray($resultado);
         $this->assertEquals('consultar', $resultado['resultado']);
         $this->assertIsArray($resultado['datos']);
+        echo var_dump($resultado['datos']) ."\n";
     }
 
     public function testModificarDependencia()
