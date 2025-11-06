@@ -164,6 +164,7 @@ if (is_file("view/" . $page . ".php")) {
             $json['mensaje'] = "Error, No tienes permiso para modificar un Categoria";
             $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
         }
+        
         echo json_encode($json);
         Bitacora($msg, "Categoria");
         exit;
