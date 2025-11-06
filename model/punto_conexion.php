@@ -94,6 +94,7 @@ class punto_conexion extends Conexion
 
         return $dato;
     }
+
     private function Validar()
     {
 
@@ -209,27 +210,44 @@ class punto_conexion extends Conexion
         $dato = [];
         $bool = $this->Validar();
 
-        // Verificar si el equipo ya está conectado a otro puerto
-        $queryEquipo = "SELECT * FROM punto_conexion WHERE id_equipo = :id_equipo";
-        $stmEquipo = $this->conex->prepare($queryEquipo);
-        $stmEquipo->bindParam(":id_equipo", $this->id_equipo);
-        $stmEquipo->execute();
-        if ($stmEquipo->rowCount() > 0) {
-            $this->conex->rollBack();
-            $dato['resultado'] = "error";
-            $dato['estado'] = -1;
-            $dato['mensaje'] = "El equipo ya está conectado a otro puerto. Debe desconectarlo primero.";
-            $this->Cerrar_Conexion($this->conex, $stmEquipo);
-            return $dato;
+        // Verificar si el equipo existe y está activo (si se proporciona un equipo)
+        if ($this->id_equipo && $this->id_equipo !== "") {
+            $queryCheckEquipo = "SELECT id_equipo FROM equipo WHERE id_equipo = :id_equipo AND estatus = 1";
+            $stmCheckEquipo = $this->conex->prepare($queryCheckEquipo);
+            $stmCheckEquipo->bindParam(":id_equipo", $this->id_equipo);
+            $stmCheckEquipo->execute();
+            
+            if ($stmCheckEquipo->rowCount() == 0) {
+                $dato['resultado'] = "error";
+                $dato['estado'] = -1;
+                $dato['mensaje'] = "El equipo seleccionado no existe o está inactivo";
+                $this->Cerrar_Conexion($this->conex, $stmCheckEquipo);
+                return $dato;
+            }
+        }
+
+        // Verificar si el equipo ya está conectado a otro puerto (solo si se proporciona equipo)
+        if ($this->id_equipo && $this->id_equipo !== "") {
+            $queryEquipo = "SELECT * FROM punto_conexion WHERE id_equipo = :id_equipo";
+            $stmEquipo = $this->conex->prepare($queryEquipo);
+            $stmEquipo->bindParam(":id_equipo", $this->id_equipo);
+            $stmEquipo->execute();
+            
+            if ($stmEquipo->rowCount() > 0) {
+                $dato['resultado'] = "error";
+                $dato['estado'] = -1;
+                $dato['mensaje'] = "El equipo ya está conectado a otro puerto. Debe desconectarlo primero.";
+                $this->Cerrar_Conexion($this->conex, $stmEquipo);
+                return $dato;
+            }
         }
 
         if ($bool['bool'] == 0 && $this->id_punto_conexion != "") {
 
             try {
-                // debug removed: no var_dump in production
                 $this->conex->beginTransaction();
 
-                $query = "INSERT INTO punto_conexion(id_punto_conexion, codigo_patch_panel, id_equipo,  puerto_patch_panel) VALUES 
+                $query = "INSERT INTO punto_conexion(id_punto_conexion, codigo_patch_panel, id_equipo, puerto_patch_panel) VALUES 
                 (:id_punto_conexion, :codigo_patch_panel, :id_equipo, :puerto_patch_panel)";
 
                 $stm = $this->conex->prepare($query);
@@ -241,7 +259,7 @@ class punto_conexion extends Conexion
                 if ($this->id_equipo === "" || $this->id_equipo === null) {
                     $stm->bindValue(":id_equipo", null, PDO::PARAM_NULL);
                 } else {
-                    $stm->bindValue(":id_equipo", $this->id_equipo, PDO::PARAM_INT);
+                    $stm->bindValue(":id_equipo", $this->id_equipo, PDO::PARAM_STR);
                 }
 
                 $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
@@ -261,7 +279,6 @@ class punto_conexion extends Conexion
             }
         } else {
 
-            $this->conex->rollBack();
             $dato['resultado'] = "error";
             $dato['estado'] = -1;
             $dato['mensaje'] = "Punto de Conexión Ocupado";
@@ -299,7 +316,7 @@ class punto_conexion extends Conexion
                 if ($this->id_equipo === "" || $this->id_equipo === null) {
                     $stm->bindValue(":id_equipo", null, PDO::PARAM_NULL);
                 } else {
-                    $stm->bindValue(":id_equipo", $this->id_equipo, PDO::PARAM_INT);
+                    $stm->bindValue(":id_equipo", $this->id_equipo, PDO::PARAM_STR);
                 }
 
                 $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
