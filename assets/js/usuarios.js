@@ -348,6 +348,25 @@ $(document).ready(async function () {
 	});
 });
 
+function habilitarCampoProgresivo(campoActual, siguienteCampo = null) {
+		const $campoActual = $(campoActual);
+		const esValido = $campoActual.hasClass('is-valid');
+
+		if (siguienteCampo) {
+			const $siguienteCampo = $(siguienteCampo);
+			if (esValido) {
+				$siguienteCampo.prop('disabled', false);
+				$siguienteCampo.prop('readOnly', false);
+			} else {
+				$siguienteCampo.prop('disabled', true);
+				$siguienteCampo.prop('readOnly', true);
+				$siguienteCampo.val('');
+
+				deshabilitarCamposSiguientes(siguienteCampo);
+			}
+		}
+	}
+
 function cargarRol() {
 	var datos = new FormData();
 	datos.append('cargar_rol', 'cargar_rol');
@@ -689,6 +708,38 @@ function capaValidar() {
 			SistemaValidacion.validarCampo.call(this);
 		}
 	});
+
+		$("#ente").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sdependencia", "Debe seleccionar un Ente", 0);
+			$("#dependencia").empty();
+			$("#unidad").empty();
+			$("#dependencia").attr("disabled", true);
+			$("#unidad").attr("disabled", true);
+		} else {
+			estadoSelect(this, "sid_dependencia", "", 1);
+			cargarDependencia($(this).val());
+		}
+	})
+
+	$("#dependencia").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sdependencia", "Debe seleccionar una Dependencia", 0);
+			$("#unidad").empty();
+			$("#unidad").attr("disabled", true);
+		} else {
+			estadoSelect(this, "sid_dependencia", "", 1);
+			cargarUnidad($(this).val()); // <-- Esto carga el modal de unidad según la dependencia seleccionada
+		}
+	})
+	$("#unidad").on("change", function () {
+		if ($(this).val() == "default") {
+			estadoSelect(this, "#sunidad", "Debe seleccionar una Unidad", 0);
+
+		} else {
+			estadoSelect(this, "#sunidad", "", 1);
+		}
+	})
 }
 
 // Función para validar entrada de teclado
@@ -900,28 +951,66 @@ function selectCargo(datos) {
 	});
 }
 
-function selectEnte(datos) {
+function selectEnte(arreglo) {
 	$("#ente").empty();
-	$("#ente").append(`<option value="default" selected>Seleccione un ente</option>`);
-	datos.forEach(element => {
-		$("#ente").append(`<option value="${element.id}">${element.nombre}</option>`);
-	});
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#ente").attr('disabled', false);
+
+		$("#ente").append(
+			new Option('Seleccione un Ente', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#ente").append(
+				new Option(item.nombre_ente, item.id_ente)
+			);
+		});
+	} else {
+		$("#ente").append(
+			new Option('No Hay Entes', 'default')
+		);
+		$("#ente").attr('disabled', false);
+	}
 }
 
-function selectDependencia(datos) {
+function selectDependencia(arreglo) {
 	$("#dependencia").empty();
-	$("#dependencia").append(`<option value="default" selected>Seleccione una dependencia</option>`);
-	datos.forEach(element => {
-		$("#dependencia").append(`<option value="${element.id}">${element.nombre}</option>`);
-	});
+
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#dependencia").attr('disabled', false);
+		$("#dependencia").append(
+			new Option('Seleccione una Dependencia', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#dependencia").append(
+				new Option(item.nombre_dependencia, item.id_dependencia)
+			);
+		});
+	} else {
+		$("#dependencia").append(
+			new Option('No Hay Dependencias', 'default')
+		);
+		$("#dependencia").attr('disabled', true);
+	}
 }
 
-function selectUnidad(datos) {
+function selectUnidad(arreglo) {
 	$("#unidad").empty();
-	$("#unidad").append(`<option value="default" selected>Seleccione una unidad</option>`);
-	datos.forEach(element => {
-		$("#unidad").append(`<option value="${element.id_unidad}">${element.nombre_unidad}</option>`);
-	});
+	if (Array.isArray(arreglo) && arreglo.length > 0) {
+		$("#unidad").attr('disabled', false);
+		$("#unidad").append(
+			new Option('Seleccione una Unidad', 'default')
+		);
+		arreglo.forEach(item => {
+			$("#unidad").append(
+				new Option(item.nombre_unidad, item.id_unidad)
+			);
+		});
+	} else {
+		$("#unidad").append(
+			new Option('No Hay Unidades', 'default')
+		);
+		$("#unidad").attr('disabled', true);
+	}
 }
 
 function limpia() {
