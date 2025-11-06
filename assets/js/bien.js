@@ -652,11 +652,45 @@ function capaValidar() {
         validarKeyPress(/^[0-9a-zA-Z\-\b]*$/, e);
     });
 
+    // Asegurar maxlength en tiempo real para codigo_bien
+    $("#codigo_bien").on("input", function () {
+        const max = 20;
+        if ($(this).val() && $(this).val().length > max) {
+            $(this).val($(this).val().slice(0, max));
+        }
+    });
+
+    // Validación en tiempo real para serial_equipo y tipo_equipo (maxlength y patron)
+    $("#serial_equipo").on("keypress", function (e) {
+        validarKeyPress(/^[0-9a-zA-ZáéíóúüñÑçÇ.\-]*$/, e);
+    });
+    $("#serial_equipo").on("input", function () {
+        const max = 45;
+        if ($(this).val() && $(this).val().length > max) {
+            $(this).val($(this).val().slice(0, max));
+        }
+    });
+
+    $("#tipo_equipo").on("input", function () {
+        const max = 45;
+        if ($(this).val() && $(this).val().length > max) {
+            $(this).val($(this).val().slice(0, max));
+        }
+    });
+
     // Aplicar capitalización en tiempo real para descripción
     $("#descripcion").on("input", function () {
         const valor = $(this).val();
         if (valor && valor.length === 1) {
             $(this).val(valor.toUpperCase());
+        }
+    });
+
+    // Asegurar maxlength en tiempo real para descripcion (máx 100)
+    $("#descripcion").on("input", function () {
+        const max = 100;
+        if ($(this).val() && $(this).val().length > max) {
+            $(this).val($(this).val().slice(0, max));
         }
     });
 
@@ -726,7 +760,11 @@ function selectTipoBien(arreglo) {
             new Option('No Hay Tipos de Bien', 'default')
         );
     }
+    // Marcar la opción placeholder como no seleccionable
+    $("#id_categoria option[value='default']").prop('disabled', true);
     $("#id_categoria").val('default').trigger('change');
+    // Evitar marcar como interactuado al inicializar
+    $("#id_categoria").data('touched', false);
 }
 
 function selectMarca(arreglo) {
@@ -747,7 +785,11 @@ function selectMarca(arreglo) {
             new Option('No Hay Marcas', 'default')
         );
     }
+    // Marcar la opción placeholder como no seleccionable
+    $("#id_marca option[value='default']").prop('disabled', true);
     $("#id_marca").val('default').trigger('change');
+    // Evitar marcar como interactuado al inicializar
+    $("#id_marca").data('touched', false);
 }
 
 function selectOficina(arreglo) {
@@ -770,7 +812,11 @@ function selectOficina(arreglo) {
             new Option('No Hay Oficinas', 'default')
         );
     }
+    // Marcar la opción placeholder como no seleccionable
+    $("#id_oficina option[value='default']").prop('disabled', true);
     $("#id_oficina").val('default').trigger('change');
+    // Evitar marcar como interactuado al inicializar
+    $("#id_oficina").data('touched', false);
 }
 
 function selectEmpleado(arreglo) {
@@ -791,7 +837,11 @@ function selectEmpleado(arreglo) {
             new Option('No Hay Empleados', 'default')
         );
     }
+    // Marcar la opción placeholder como no seleccionable
+    $("#cedula_empleado option[value='default']").prop('disabled', true);
     $("#cedula_empleado").val('default').trigger('change');
+    // Evitar marcar como interactuado al inicializar
+    $("#cedula_empleado").data('touched', false);
 }
 
 function consultarUnidadEquipo() {
@@ -818,7 +868,11 @@ function selectUnidadEquipo(arreglo) {
             new Option('No Hay Unidades', 'default')
         );
     }
+    // Marcar la opción placeholder como no seleccionable
+    $("#id_unidad_equipo option[value='default']").prop('disabled', true);
     $("#id_unidad_equipo").val('default').trigger('change');
+    // Evitar marcar como interactuado al inicializar
+    $("#id_unidad_equipo").data('touched', false);
 }
 
 function vistaPermiso(permisos) {

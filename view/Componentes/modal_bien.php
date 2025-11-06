@@ -18,41 +18,38 @@
                         </div>
                     </div>
                 </div>
-                <!-- Carrusel para registrar equipo -->
-                <div id="carruselEquipo" class="carousel slide mb-4" data-bs-ride="carousel" style="display:none;">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="row">
-                                <div class="col-4">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="serial_equipo" placeholder="Serial del equipo">
-                                        <label for="serial_equipo">Serial del equipo</label>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="tipo_equipo" placeholder="Tipo de equipo">
-                                        <label for="tipo_equipo">Tipo de equipo</label>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="form-floating mb-3">
-                                        <select class="form-select" id="id_unidad_equipo">
-                                            <option value="default">Seleccione una unidad</option>
-                                        </select>
-                                        <span id="sid_unidad_equipo"></span>
-                                        <label for="id_unidad_equipo">Unidad</label>
-                                    </div>
-                                </div>
+                <!-- Inputs para registrar equipo (ocultos por defecto). Reemplazado carousel por fila compacta para evitar espacios innecesarios -->
+                <div id="carruselEquipo" class="mb-3" style="display:none;">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-4">
+                            <div class="form-floating mb-2">
+                                <input type="text" class="form-control" id="serial_equipo" placeholder="Serial del equipo" maxlength="45">
+                                <span id="sserial_equipo"></span>
+                                <label for="serial_equipo">Serial del equipo</label>
                             </div>
                         </div>
-                        <!-- Puedes agregar más .carousel-item aquí si necesitas más pasos/campos -->
+                        <div class="col-md-4">
+                            <div class="form-floating mb-2">
+                                <input type="text" class="form-control" id="tipo_equipo" placeholder="Tipo de equipo" maxlength="45">
+                                <span id="stipo_equipo"></span>
+                                <label for="tipo_equipo">Tipo de equipo</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating mb-2">
+                                <select class="form-select" id="id_unidad_equipo">
+                                    <option value="default" selected disabled>Seleccione una unidad</option>
+                                </select>
+                                <span id="sid_unidad_equipo"></span>
+                                <label for="id_unidad_equipo">Unidad</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row justify-content-center" id="Fila1">
                     <div class="col-4">
                         <div class="form-floating mb-3 mt-4">
-                            <input placeholder="" class="form-control" name="codigo_bien" type="text" id="codigo_bien">
+                            <input placeholder="" class="form-control" name="codigo_bien" type="text" id="codigo_bien" maxlength="20">
                             <span id="scodigo_bien"></span>
                             <label for="codigo_bien" class="form-label">Código del Bien</label>
                         </div>
@@ -69,7 +66,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_categoria" id="id_categoria">
-                                <option value="default">Seleccione un tipo</option>
+                                <option value="default" selected disabled>Seleccione un tipo</option>
 
                             </select>
                             <span id="sid_categoria"></span>
@@ -79,7 +76,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_marca" id="id_marca">
-                                <option value="default">Seleccione una marca</option>
+                                <option value="default" selected disabled>Seleccione una marca</option>
 
                             </select>
                             <span id="sid_marca"></span>
@@ -91,7 +88,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="estado" id="estado">
-                                <option value="default">Seleccione un estado</option>
+                                <option value="default" selected disabled>Seleccione un estado</option>
                                 <option value="Nuevo">Nuevo</option>
                                 <option value="Usado">Usado</option>
                                 <option value="Dañado">Dañado</option>
@@ -105,7 +102,7 @@
                     <div class="col-6">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_oficina" id="id_oficina">
-                                <option value="default">Seleccione una oficina</option>
+                                <option value="default" selected disabled>Seleccione una oficina</option>
                             </select>
                             <span id="sid_oficina"></span>
                             <label for="id_oficina" class="form-label">Oficina</label>
@@ -116,7 +113,7 @@
                     <div class="col-12">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="cedula_empleado" id="cedula_empleado">
-                                <option value="default">Seleccione un empleado</option>
+                                <option value="default" selected disabled>Seleccione un empleado</option>
                             </select>
                             <span id="scedula_empleado"></span>
                             <label for="cedula_empleado" class="form-label">Empleado Asignado</label>
