@@ -20,7 +20,7 @@
           <div class="col-6">
             <div class="form-floating mb-3 mt-4">
               <select class="form-select" name="ubicacion" id="ubicacion">
-                <option value="default" selected disabled>Seleccione una ubicación</option>
+                <option value="" selected disabled hidden>Seleccione una ubicación</option>
                 <?php foreach($oficinas as $oficina): ?>
                   <option value="<?= $oficina['id_oficina'] ?>"><?= $oficina['nombre_oficina'] ?></option>
                 <?php endforeach; ?>

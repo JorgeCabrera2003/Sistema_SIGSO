@@ -13,7 +13,7 @@
             <div class="mb-3"> <!-- class="form-floating mb-3" -->
 
               <select class="form-select" name="codigo_bien" id="codigo_bien" title="Seleccionar el Código del Bien del Switch">
-                <option selected value="default" disabled>Seleccione un Código de Bien</option>
+                <option selected value="" disabled hidden>Seleccione un Código de Bien</option>
                 <?php foreach ($bien as $bien): ?>
                   <option value="<?= $bien['codigo_bien'] ?>">
                     <?= $bien['codigo_bien'] . " - " .  $bien['descripcion'] ?>
@@ -29,7 +29,7 @@
             <div class="form-floating mb-3">
                 <select class="form-select" name="cantidad_puertos" id="cantidad_puertos" title="Ingresar Cantidad de Puertos del Switch">
 
-                    <option selected value="default" disabled>Seleccione la Cantidad de Puertos</option>
+                    <option selected value="" disabled hidden>Seleccione la Cantidad de Puertos</option>
 
                     <option value="8">8</option>
                     <option value="10">10</option>

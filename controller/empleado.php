@@ -60,11 +60,12 @@ if (is_file("view/" . $page . ".php")) {
 	}
 
 	if (isset($_POST["cargar_dependencia"])) {
-		if (isset($_POST["id_ente"])) {
+		if (isset($_POST["id_ente"]) && $_POST["id_ente"] !== '' && $_POST["id_ente"] !== 'default' && $_POST["id_ente"] !== 'null') {
+			// Evitar pasar valores literales como 'default' o 'null' al modelo
 			$dependencia->set_id_ente($_POST["id_ente"]);
 			$resultado = $dependencia->Transaccion(['peticion' => 'consultar_por_ente']);
 		} else {
-			$resultado = ['resultado' => 'error', 'mensaje' => 'ID de ente no proporcionado'];
+			$resultado = ['resultado' => 'error', 'mensaje' => 'ID de ente no proporcionado o no válido'];
 		}
 		echo json_encode($resultado);
 		exit;

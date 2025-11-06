@@ -20,7 +20,7 @@
           <div class="col-sm-6">
             <div class="form-floating mb-3">
               <input placeholder="Cédula de Identidad" class="form-control" name="cedula" type="text" id="cedula"
-                maxlength="45">
+                maxlength="8">
               <label for="cedula" class="form-label">Cédula de Identidad</label>
               <span id="scedula"></span>
             </div>
@@ -47,7 +47,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <input placeholder="Teléfono" class="form-control" name="telefono" type="text" id="telefono"
-                maxlength="15">
+                maxlength="12">
               <label for="telefono" class="form-label">Teléfono</label>
               <span id="stelefono"></span>
             </div>
@@ -62,7 +62,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="cargo" id="cargo">
-                <option selected value="default">Seleccione un Cargo</option>
+                <option value="" disabled selected hidden>Seleccione un Cargo</option>
               </select>
               <span id="scargo"></span>
               <label for="cargo">Cargo</label>
@@ -73,7 +73,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="ente" id="ente">
-                <option selected value="default">Seleccione un Ente</option>
+                <option value="" disabled selected hidden>Seleccione un Ente</option>
               </select>
               <span id="sente" class="invalid-feedback"></span>
               <label for="ente" class="form-label">Ente</label>
@@ -90,7 +90,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="unidad" id="unidad">
-                <option selected value="default">Seleccione una Unidad</option>
+                <option value="" disabled selected hidden>Seleccione una Unidad</option>
               </select>
               <span id="sunidad"></span>
               <label for="unidad">Unidad</label>
@@ -101,7 +101,7 @@
           <div class="col-md-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="servicio" id="servicio">
-                <option selected value="default">Seleccione un Área de Servicio</option>
+                <option value="" disabled selected hidden>Seleccione un Área de Servicio</option>
               </select>
               <span id="sservicio"></span>
               <label for="servicio">Área de Servicio</label>

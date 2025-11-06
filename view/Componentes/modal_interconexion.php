@@ -21,7 +21,7 @@
           <div class="col-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="codigo_switch" id="codigo_switch" title="Seleccionar el Switch">
-                <option selected value="default" disabled>Selecciona un Switch</option>
+                <option selected value="" disabled hidden>Selecciona un Switch</option>
                 
                 <?php foreach ($switches as $switch): ?>
                   <option value="<?= $switch['codigo_bien'] ?>">
@@ -37,7 +37,7 @@
           <div class="col-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="puerto_switch" id="puerto_switch" title="Seleccionar Puerto del Switch">
-                <option selected value="default" disabled>Selecciona un Puerto</option>
+                <option selected value="" disabled hidden>Selecciona un Puerto</option>
                 <!-- Opciones dinámicas -->
               </select>
               <span id="spuerto_switch"></span>
@@ -48,7 +48,7 @@
           <div class="col-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="codigo_patch_panel" id="codigo_patch_panel" title="Seleccionar el Patch Panel">
-                <option selected value="default" disabled>Selecciona un Patch Panel</option>
+                <option selected value="" disabled hidden>Selecciona un Patch Panel</option>
                 <?php foreach ($patch_panels as $patch_panel): ?>
                   <option value="<?= $patch_panel['codigo_bien'] ?>" data-cantidad="<?= $patch_panel['cantidad_puertos'] ?>">
                     <?= $patch_panel['codigo_bien'] . ' - ' . $patch_panel['cantidad_puertos'] . ' Puertos - ' . $patch_panel['tipo_patch_panel'] ?>
@@ -63,7 +63,7 @@
           <div class="col-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="puerto_patch_panel" id="puerto_patch_panel" title="Seleccionar Puerto del Patch Panel">
-                <option selected value="default" disabled>Selecciona un Puerto</option>
+                <option selected value="" disabled hidden>Selecciona un Puerto</option>
                 <!-- Opciones dinámicas -->
               </select>
               <span id="spuerto_patch_panel"></span>

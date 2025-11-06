@@ -37,7 +37,7 @@
           <div class="col-md-3">
             <div class="form-floating mb-3 mt-4">
               <select class="form-select" name="tipo_ente" id="tipo_ente">
-                <option value="default">Seleccione Tipo</option>
+                <option value="" selected disabled hidden>Seleccione Tipo</option>
                 <option value="Interno">Interno</option>
                 <option value="Externo">Externo</option>
               </select>

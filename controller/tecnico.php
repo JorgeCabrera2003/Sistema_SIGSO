@@ -339,8 +339,13 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST['cargar_dependencia'])) {
 		$peticion["peticion"] = "filtrar";
-		$dependencia->set_id_ente($_POST['id_ente']);
-		$json = $dependencia->Transaccion($peticion);
+		// Validar id_ente recibido para evitar pasar literales inválidos al modelo
+		if (isset($_POST['id_ente']) && $_POST['id_ente'] !== '' && $_POST['id_ente'] !== 'default' && $_POST['id_ente'] !== 'null' && $_POST['id_ente'] !== 'undefined') {
+			$dependencia->set_id_ente($_POST['id_ente']);
+			$json = $dependencia->Transaccion($peticion);
+		} else {
+			$json = ['resultado' => 'error', 'mensaje' => 'ID de ente no proporcionado o no válido'];
+		}
 		$json["resultado"] = "cargar_dependencia";
 		echo json_encode($json);
 		exit;
@@ -348,8 +353,13 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST['cargar_unidad'])) {
 		$peticion["peticion"] = "filtrar";
-		$unidad->set_id_dependencia($_POST['id_dependencia']);
-		$json = $unidad->Transaccion($peticion);
+		// Validar id_dependencia antes de pasarlo al modelo
+		if (isset($_POST['id_dependencia']) && $_POST['id_dependencia'] !== '' && $_POST['id_dependencia'] !== 'default' && $_POST['id_dependencia'] !== 'null' && $_POST['id_dependencia'] !== 'undefined') {
+			$unidad->set_id_dependencia($_POST['id_dependencia']);
+			$json = $unidad->Transaccion($peticion);
+		} else {
+			$json = ['resultado' => 'error', 'mensaje' => 'ID de dependencia no proporcionado o no válido'];
+		}
 		$json["resultado"] = "cargar_unidad";
 		echo json_encode($json);
 		exit;

@@ -26,7 +26,7 @@
             <div class="form-floating mb-3">
 
               <select class="form-select" name="id_equipo" id="id_equipo" title="Seleccionar el Equipo">
-                <option selected value="default" disabled>Seleciona un Equipo</option>
+                <option selected value="" disabled hidden>Seleciona un Equipo</option>
                  
                 <?php foreach ($equipos as $equipo): ?>
                       <option value="<?= $equipo['id_equipo'] ?>">
@@ -46,7 +46,7 @@
             <div class="form-floating mb-3">
 
               <select class="form-select" name="codigo_patch_panel" id="codigo_patch_panel" title="Seleccionar el Patch Panel">
-                <option selected value="default" disabled>Seleciona un Patch Panel</option>
+                <option selected value="" disabled hidden>Seleciona un Patch Panel</option>
                  
                 <?php foreach ($patch_panels as $patch_panel): ?>
                       <option value="<?= $patch_panel['codigo_bien'] ?>" data-cantidad="<?= $patch_panel['cantidad_puertos'] ?>">
@@ -67,7 +67,7 @@
             <div class="form-floating mb-3 ">
 
               <select class="form-select" name="puerto_patch_panel" id="puerto_patch_panel" title="Seleccionar Puerto del Patch Panel">
-                <option selected value="default" disabled>Selecciona un Puerto</option>
+                <option selected value="" disabled hidden>Selecciona un Puerto</option>
                 <!-- Opciones dinámicas -->
               </select>
               <span id="spuerto_patch_panel"></span>

@@ -13,7 +13,7 @@
             <div class="mb-3">
               <select class="form-select w-100" name="codigo_bien" id="codigo_bien"
                 title="Seleccionar el Código del Bien del Patch Panel" style="min-width: 100%">
-                <option selected value="default" disabled>Seleciones un Código de Bien</option>
+                <option selected value="" disabled hidden>Seleciones un Código de Bien</option>
                 <?php foreach ($bien['datos'] as $bien): ?>
                   <option value="<?= $bien['codigo_bien'] ?>">
                     <?= $bien['codigo_bien'] . " - " .  $bien['descripcion'] ?>
@@ -41,7 +41,7 @@
             <div class="form-floating mb-3 ">
 
               <select class="form-select" name="cantidad_puertos" id="cantidad_puertos" title="Ingresar Cantidad de Puertos del Patch Panel">
-                <option selected value="default" disabled>Seleccione la Cantidad de Puertos</option>
+                <option selected value="" disabled hidden>Seleccione la Cantidad de Puertos</option>
                 <option value="8">8</option>
                 <option value="12">12</option>
                 <option value="16">16</option>
@@ -62,7 +62,7 @@
 
               <select class="form-select" name="tipo_patch_panel" id="tipo_patch_panel" maxlength="45" title="Ingresar Tipo de Patch Panel">
 
-                <option selected value="default" disabled>Seleccione el Tipo de Patch Panel</option>
+                <option selected value="" disabled hidden>Seleccione el Tipo de Patch Panel</option>
 
                 <option value="Red">Patch Panel de Red</option>
                 <option value="Telefonía">Patch Panel de Telefonía</option>

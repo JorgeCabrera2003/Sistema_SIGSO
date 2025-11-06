@@ -6,12 +6,6 @@
 
   <div class="pagetitle">
     <h1>Gestionar Empleados</h1>
-    <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="?page=home">Inicio</a></li>
-        <li class="breadcrumb-item active">Empleados</li>
-      </ol>
-    </nav>
   </div><!-- End Page Title -->
 
   <section class="section">

@@ -48,14 +48,8 @@ function habilitarCampoProgresivo(campoActual, siguienteCampo = null) {
 
 // Función para deshabilitar campos siguientes en cadena
 function deshabilitarCamposSiguientes(campoInicio) {
+	// Solo mantener dependencia -> unidad (y ente -> dependencia) como dependencia progresiva
 	const camposSiguientes = {
-		'#particle': '#cedula',
-		'#cedula': '#nombre',
-		'#nombre': '#apellido',
-		'#apellido': '#telefono',
-		'#telefono': '#correo',
-		'#correo': '#cargo',
-		'#cargo': '#ente',
 		'#ente': '#dependencia',
 		'#dependencia': '#unidad'
 	};
@@ -123,14 +117,14 @@ $(document).ready(function () {
 	// Validar estado inicial del formulario
 	manejarCambioEstadoEmpleado(false);
 
-	// Deshabilitar todos los campos excepto el primero al inicio
+	// Mantener campos personales activos por defecto; solo dependencia y unidad permanecen deshabilitados
 	setTimeout(() => {
-		$('#cedula').prop('disabled', true).prop('readOnly', true);
-		$('#nombre').prop('disabled', true).prop('readOnly', true);
-		$('#apellido').prop('disabled', true).prop('readOnly', true);
-		$('#telefono').prop('disabled', true).prop('readOnly', true);
-		$('#correo').prop('disabled', true).prop('readOnly', true);
-		$('#cargo').prop('disabled', true);
+		$('#cedula').prop('disabled', false).prop('readOnly', false);
+		$('#nombre').prop('disabled', false).prop('readOnly', false);
+		$('#apellido').prop('disabled', false).prop('readOnly', false);
+		$('#telefono').prop('disabled', false).prop('readOnly', false);
+		$('#correo').prop('disabled', false).prop('readOnly', false);
+		$('#cargo').prop('disabled', false);
 		$('#dependencia').prop('disabled', true);
 		$('#unidad').prop('disabled', true);
 	}, 100);
@@ -149,13 +143,13 @@ $(document).ready(function () {
 		setTimeout(() => {
 			limpiarValidacionVisual();
 
-			// Deshabilitar campos progresivos al abrir modal
-			$('#cedula').prop('disabled', true).prop('readOnly', true);
-			$('#nombre').prop('disabled', true).prop('readOnly', true);
-			$('#apellido').prop('disabled', true).prop('readOnly', true);
-			$('#telefono').prop('disabled', true).prop('readOnly', true);
-			$('#correo').prop('disabled', true).prop('readOnly', true);
-			$('#cargo').prop('disabled', true);
+			// Mantener campos personales activos; solo dependencia/unidad deshabilitadas
+			$('#cedula').prop('disabled', false).prop('readOnly', false);
+			$('#nombre').prop('disabled', false).prop('readOnly', false);
+			$('#apellido').prop('disabled', false).prop('readOnly', false);
+			$('#telefono').prop('disabled', false).prop('readOnly', false);
+			$('#correo').prop('disabled', false).prop('readOnly', false);
+			$('#cargo').prop('disabled', false);
 			$('#dependencia').prop('disabled', true);
 			$('#unidad').prop('disabled', true);
 		}, 100);
@@ -475,7 +469,7 @@ async function cargarEnte() {
 
 		if (respuesta.resultado === "consultar") {
 			const selectEnte = $('#ente');
-			selectEnte.empty().append('<option value="default" selected>Seleccione un ente</option>');
+			selectEnte.empty().append('<option value="" selected disabled hidden>Seleccione un ente</option>');
 
 			respuesta.datos.forEach(ente => {
 				selectEnte.append(`<option value="${ente.id}">${ente.nombre}</option>`);
@@ -503,7 +497,7 @@ async function cargarCargo() {
 
 		if (respuesta.resultado === "consultar") {
 			const selectCargo = $('#cargo');
-			selectCargo.empty().append('<option value="default" selected>Seleccione un cargo</option>');
+			selectCargo.empty().append('<option value="" selected disabled hidden>Seleccione un cargo</option>');
 
 			respuesta.datos.forEach(cargo => {
 				selectCargo.append(`<option value="${cargo.id_cargo}">${cargo.nombre_cargo}</option>`);
@@ -532,7 +526,7 @@ async function cargarDependencia(idEnte) {
 
 		if (respuesta.resultado === "consultar_por_ente") {
 			const selectDependencia = $('#dependencia');
-			selectDependencia.empty().append('<option value="default" selected>Seleccione una dependencia</option>');
+			selectDependencia.empty().append('<option value="" selected disabled hidden>Seleccione una dependencia</option>');
 
 			respuesta.datos.forEach(dep => {
 				selectDependencia.append(`<option value="${dep.id}">${dep.nombre}</option>`);
@@ -543,7 +537,7 @@ async function cargarDependencia(idEnte) {
 
 			// Limpiar y deshabilitar unidad cuando cambia la dependencia
 			const selectUnidad = $('#unidad');
-			selectUnidad.empty().append('<option value="default" selected>Seleccione una unidad</option>');
+			selectUnidad.empty().append('<option value="" selected disabled hidden>Seleccione una unidad</option>');
 			selectUnidad.prop('disabled', true);
 
 			console.log("Dependencias cargadas:", respuesta.datos.length);
@@ -575,7 +569,7 @@ async function cargarUnidad(idDependencia) {
 
 		if (respuesta.resultado === "consultar_por_dependencia") {
 			const selectUnidad = $('#unidad');
-			selectUnidad.empty().append('<option value="default" selected>Seleccione una unidad</option>');
+			selectUnidad.empty().append('<option value="" selected disabled hidden>Seleccione una unidad</option>');
 
 			respuesta.datos.forEach(unidad => {
 				selectUnidad.append(`<option value="${unidad.id_unidad}">${unidad.nombre_unidad}</option>`);
@@ -600,23 +594,23 @@ async function cargarUnidad(idDependencia) {
 // Evento cuando cambia el ente
 $(document).on('change', '#ente', function () {
 	const idEnte = $(this).val();
-	if (idEnte && idEnte !== "default") {
+	if (idEnte) {
 		cargarDependencia(idEnte);
 	} else {
 		// Si no hay ente seleccionado, deshabilitar y limpiar dependencia y unidad
-		$('#dependencia').empty().append('<option value="default" selected>Seleccione una dependencia</option>').prop('disabled', true);
-		$('#unidad').empty().append('<option value="default" selected>Seleccione una unidad</option>').prop('disabled', true);
+		$('#dependencia').empty().append('<option value="" selected disabled hidden>Seleccione una dependencia</option>').prop('disabled', true);
+		$('#unidad').empty().append('<option value="" selected disabled hidden>Seleccione una unidad</option>').prop('disabled', true);
 	}
 });
 
 // Evento cuando cambia la dependencia
 $(document).on('change', '#dependencia', function () {
 	const idDependencia = $(this).val();
-	if (idDependencia && idDependencia !== "default") {
+	if (idDependencia) {
 		cargarUnidad(idDependencia);
 	} else {
 		// Si no hay dependencia seleccionada, deshabilitar y limpiar unidad
-		$('#unidad').empty().append('<option value="default" selected>Seleccione una unidad</option>').prop('disabled', true);
+		$('#unidad').empty().append('<option value="" selected disabled hidden>Seleccione una unidad</option>').prop('disabled', true);
 	}
 });
 
@@ -742,7 +736,7 @@ function TablaEliminados(datos) {
 			}
 		],
 		language: lenguajeEspanol,
-		dom: '<"row"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6"f>>' +
+		dom: '<"row"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6 text-end"f>>' +
 			'<"row"<"col-sm-12"tr>>' +
 			'<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
 		buttons: [
@@ -826,7 +820,7 @@ function Tabla(datos) {
 			}
 		],
 		language: lenguajeEspanol,
-		dom: '<"row"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6"f>>' +
+		dom: '<"row"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6 text-end"f>>' +
 			'<"row"<"col-sm-12"tr>>' +
 			'<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
 		buttons: [
@@ -1106,17 +1100,17 @@ function buscarSelect(id, valor, tipo) {
 	});
 
 	if (!encontrado) {
-		console.log(`No encontrado en ${id}, usando default`);
-		select.val('default').trigger('change');
+		console.log(`No encontrado en ${id}, usando placeholder`);
+		select.val('').trigger('change');
 
 		// Si es ente, limpiar dependencia y unidad
 		if (id === '#ente') {
-			$('#dependencia').val('default').trigger('change');
-			$('#unidad').val('default').trigger('change');
+			$('#dependencia').val('').trigger('change');
+			$('#unidad').val('').trigger('change');
 		}
 		// Si es dependencia, limpiar unidad
 		else if (id === '#dependencia') {
-			$('#unidad').val('default').trigger('change');
+			$('#unidad').val('').trigger('change');
 		}
 	}
 }
@@ -1136,7 +1130,7 @@ function limpia() {
 	$("#apellido").val('').prop('readOnly', false);
 	$("#telefono").val('').prop('readOnly', false);
 	$("#correo").val('').prop('readOnly', false);
-	$("#cargo").val('default').trigger('change').prop('disabled', true);
+	$("#cargo").val('default').trigger('change').prop('disabled', false);
 	$("#ente").val('default').trigger('change').prop('disabled', false);
 	$("#dependencia").val('default').trigger('change').prop('disabled', true);
 	$("#unidad").val('default').trigger('change').prop('disabled', true);
@@ -1152,14 +1146,8 @@ function limpia() {
 	// Restaurar placeholder de cédula
 	$("#cedula").attr("placeholder", "00000000");
 
-	// Deshabilitar campos progresivos
+	// Mantener campos personales activos; sólo dependencia y unidad deben permanecer deshabilitadas
 	setTimeout(() => {
-		$('#cedula').prop('disabled', true).prop('readOnly', true);
-		$('#nombre').prop('disabled', true).prop('readOnly', true);
-		$('#apellido').prop('disabled', true).prop('readOnly', true);
-		$('#telefono').prop('disabled', true).prop('readOnly', true);
-		$('#correo').prop('disabled', true).prop('readOnly', true);
-		$('#cargo').prop('disabled', true);
 		$('#dependencia').prop('disabled', true);
 		$('#unidad').prop('disabled', true);
 	}, 100);
@@ -1273,9 +1261,6 @@ function capaValidar() {
 		if (typeof SistemaValidacion !== 'undefined') {
 			$(this).data('touched', true);
 			SistemaValidacion.validarCampo.call(this);
-
-			// Habilitar/deshabilitar cédula según validación
-			habilitarCampoProgresivo(this, '#cedula');
 		}
 	});
 
@@ -1292,9 +1277,6 @@ function capaValidar() {
 
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-
-			// Habilitar/deshabilitar nombre según validación
-			habilitarCampoProgresivo(this, '#nombre');
 		}
 
 		// Actualizar placeholder según estado de validación
@@ -1319,9 +1301,6 @@ function capaValidar() {
 
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-
-			// Habilitar/deshabilitar apellido según validación
-			habilitarCampoProgresivo(this, '#apellido');
 		}
 	});
 
@@ -1351,9 +1330,6 @@ function capaValidar() {
 
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-
-			// Habilitar/deshabilitar teléfono según validación
-			habilitarCampoProgresivo(this, '#telefono');
 		}
 	});
 
@@ -1383,7 +1359,6 @@ function capaValidar() {
 		formatearTelefonoConGuion($(this));
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-			habilitarCampoProgresivo(this, '#correo');
 		}
 	});
 
@@ -1392,8 +1367,7 @@ function capaValidar() {
 		formatearTelefonoConGuion($(this));
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-			// Habilitar/deshabilitar correo según validación
-			habilitarCampoProgresivo(this, '#correo');
+			// Nota: no se habilitan campos personales progresivamente; solo dependencias lo hacen
 		}
 	});
 
@@ -1406,9 +1380,7 @@ function capaValidar() {
 	$("#correo").on("input", function () {
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-
-			// Habilitar/deshabilitar cargo según validación
-			habilitarCampoProgresivo(this, '#cargo');
+			// No habilitar cargo de forma progresiva; los campos personales están disponibles
 		}
 	});
 
@@ -1417,9 +1389,7 @@ function capaValidar() {
 		if (typeof SistemaValidacion !== 'undefined') {
 			$(this).data('touched', true);
 			SistemaValidacion.validarCampo.call(this);
-
-			// Habilitar/deshabilitar ente según validación
-			habilitarCampoProgresivo(this, '#ente');
+			// El ente no depende del cargo en esta versión; dejarlo libre
 		}
 	});
 
@@ -1475,8 +1445,8 @@ function validarKeyPress(patron, e) {
 // AGREGAR PATRONES ESPECÍFICOS PARA EMPLEADO AL OBJETO PATRONES EXISTENTE
 // Solo si el objeto patrones ya existe (definido en utils.js)
 if (typeof patrones !== 'undefined') {
-	// Cédula: exactamente 8 dígitos
-	patrones.cedulaNumeros = /^\d{8}$/;
+	// Cédula: 7 u 8 dígitos (acepta ambas longitudes)
+	patrones.cedulaNumeros = /^\d{7,8}$/;
 	// Nombre y apellido: entre 3 y 45 letras/espacios
 	patrones.nombrePersona = /^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{3,45}$/;
 	patrones.apellidoPersona = /^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{3,45}$/;
@@ -1506,17 +1476,17 @@ if (typeof SistemaValidacion !== 'undefined') {
 		switch (id) {
 			case 'cedula':
 				esValido = patrones.cedulaNumeros.test(valor);
-				mensajeError = 'La cédula debe tener entre 7 y 10 dígitos numéricos';
+				mensajeError = 'La cédula debe tener 7 u 8 dígitos numéricos';
 				break;
 
 			case 'nombre':
 				esValido = patrones.nombrePersona.test(valor);
-				mensajeError = 'El nombre debe tener entre 4 y 45 caracteres (solo letras y espacios)';
+				mensajeError = 'El nombre debe tener entre 3 y 45 caracteres (solo letras y espacios)';
 				break;
 
 			case 'apellido':
 				esValido = patrones.apellidoPersona.test(valor);
-				mensajeError = 'El apellido debe tener entre 4 y 45 caracteres (solo letras y espacios)';
+				mensajeError = 'El apellido debe tener entre 3 y 45 caracteres (solo letras y espacios)';
 				break;
 
 			case 'telefono':

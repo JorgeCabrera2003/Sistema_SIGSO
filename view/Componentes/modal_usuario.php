@@ -62,7 +62,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="cargo" id="cargo">
-                <option selected value="default">Seleccione un Cargo</option>
+                <option selected value="" disabled hidden>Seleccione un Cargo</option>
               </select>
               <span id="scargo"></span>
               <label for="cargo">Cargo</label>
@@ -73,7 +73,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="ente" id="ente">
-                <option selected value="default">Seleccione un Ente</option>
+                <option selected value="" disabled hidden>Seleccione un Ente</option>
               </select>
               <span id="sente" class="invalid-feedback"></span>
               <label for="ente" class="form-label">Ente</label>
@@ -82,7 +82,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="dependencia" id="dependencia">
-                <option selected value="default">Seleccione una Dependencia</option>
+                <option selected value="" disabled hidden>Seleccione una Dependencia</option>
               </select>
               <span id="sdependencia"></span>
               <label for="dependencia">Dependencia</label>
@@ -91,7 +91,7 @@
           <div class="col-md-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="unidad" id="unidad">
-                <option selected value="default">Seleccione una Unidad</option>
+                <option selected value="" disabled hidden>Seleccione una Unidad</option>
               </select>
               <span id="sunidad"></span>
               <label for="unidad">Unidad</label>
@@ -138,7 +138,7 @@
           <div class="col-md-6">
             <div class="form-floating mb-3">
               <select class="form-select" name="rol" id="rol">
-                <option selected value="default">Seleccione un Rol</option>
+                <option selected value="" disabled hidden>Seleccione un Rol</option>
               </select>
               <span id="srol"></span>
               <label for="rol">Rol</label>

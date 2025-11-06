@@ -893,6 +893,30 @@ $(document).ready(function() {
     }
   });
 
+  // Marcar selects como "touched" en focus (interacción del usuario)
+  $('body').on('focus', 'select', function () {
+    $(this).data('touched', true);
+  });
+
+  // Manejar cambios en selects: ignorar cambios programáticos si el usuario
+  // no ha interactuado (evita mostrar errores al abrir modal y al inicializar)
+  $('body').on('change', 'select', function (e) {
+    try {
+      // Si el cambio NO proviene de una interacción (no tiene originalEvent)
+      // y el select no ha sido marcado como touched, limpiar estilos y salir
+      if (!(e && e.originalEvent) && !$(this).data('touched')) {
+        SistemaValidacion.limpiarEstilosCampo($(this));
+        return;
+      }
+
+      // Si es una interacción del usuario o ya fue marcado como touched,
+      // validar el campo para aplicar estilos correspondientes
+      SistemaValidacion.validarCampo.call(this);
+    } catch (err) {
+      console.error('Error en manejador global de select change:', err);
+    }
+  });
+
   // Mensaje de carga completada
   console.log("Utils cargado completamente - Validaciones unificadas activas");
 });
