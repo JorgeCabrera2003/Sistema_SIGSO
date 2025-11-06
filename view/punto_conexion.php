@@ -53,6 +53,15 @@
             color: #856404;
         }
 
+        /* NUEVO ESTILO PARA PUERTO SELECCIONADO */
+        .puerto.seleccionado {
+            border: 3px solid #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            transform: scale(1.1);
+            z-index: 10;
+            position: relative;
+        }
+
         .dispositivo-card {
             transition: transform 0.3s ease;
         }
@@ -675,6 +684,13 @@
         let patchSeleccionado = null;
 
         function seleccionarPuerto(codigoDispositivo, numeroPuerto, ocupado, tipoDispositivo) {
+            // Remover la clase 'seleccionado' de todos los puertos primero
+            $('.puerto').removeClass('seleccionado');
+            
+            // Agregar la clase 'seleccionado' al puerto clickeado
+            const puertoElement = $(`.puerto[onclick*="${codigoDispositivo}"][onclick*="${numeroPuerto}"]`);
+            puertoElement.addClass('seleccionado');
+
             puertoSeleccionado = {
                 codigo: codigoDispositivo,
                 numero: numeroPuerto,
@@ -1003,6 +1019,8 @@
             puertoSeleccionado = null;
             dispositivoSeleccionado = null;
             $('.equipo-item').removeClass('selected');
+            // NUEVO: Remover la clase 'seleccionado' de todos los puertos
+            $('.puerto').removeClass('seleccionado');
         }
 
         function mostrarDetallesPuerto(codigoDispositivo, numeroPuerto, tipoDispositivo) {

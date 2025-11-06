@@ -13,7 +13,7 @@ class Equipo extends Conexion
     protected $hoja_servicio;
 
     // CONSTANTES DE VALIDACIÓN - UNIFICADAS CON EL CONTROLADOR
-    const REGEX_ID_EQUIPO = '/^[a-zA-Z0-9]{1,30}$/'; // CORREGIDO: igual al controlador
+    const REGEX_ID_EQUIPO = '/^[a-zA-Z0-9]{1,30}$/';
     const REGEX_CODIGO_BIEN = '/^[0-9a-zA-Z\-]{1,20}$/';
     const REGEX_SERIAL = '/^[0-9a-zA-ZáéíóúüñÑçÇ.\-\s]{1,45}$/';
     const REGEX_TIPO_EQUIPO = '/^[0-9a-zA-ZáéíóúüñÑçÇ\s\-.]{1,45}$/';
@@ -121,6 +121,108 @@ class Equipo extends Conexion
     private function DestruirHojaServicio()
     {
         $this->hoja_servicio = NULL;
+    }
+
+    // === CONSULTAR EQUIPOS POR EMPLEADO (CORREGIDO) ===
+    private function ConsultarPorEmpleado($cedula_empleado)
+    {
+        $con = null;
+        $stm = null;
+        
+        try {
+            $con = new Conexion("sistema");
+            $con = $con->Conex();
+            $con->beginTransaction();
+            
+            $query = "SELECT 
+                        e.id_equipo,
+                        e.tipo_equipo,
+                        e.serial,
+                        b.descripcion,
+                        c.nombre_categoria,
+                        m.nombre_marca
+                    FROM equipo e
+                    JOIN bien b ON e.codigo_bien = b.codigo_bien
+                    JOIN categoria c ON b.id_categoria = c.id_categoria
+                    LEFT JOIN marca m ON b.id_marca = m.id_marca
+                    WHERE b.cedula_empleado = :cedula_empleado 
+                    AND e.estatus = 1
+                    AND b.estatus = 1
+                    -- EXCLUIR EQUIPOS QUE ESTÁN EN SERVICIOS ACTIVOS
+                    AND e.id_equipo NOT IN (
+                        SELECT s.id_equipo 
+                        FROM solicitud s 
+                        WHERE s.id_equipo IS NOT NULL 
+                        AND s.estado_solicitud IN ('Pendiente', 'En proceso')
+                        AND s.estatus = 1
+                    )
+                    ORDER BY e.tipo_equipo, e.serial";
+                    
+            $stm = $con->prepare($query);
+            $stm->bindParam(":cedula_empleado", $cedula_empleado);
+            $stm->execute();
+            $con->commit();
+            
+            $datos = $stm->fetchAll(PDO::FETCH_ASSOC);
+            
+            return [
+                'resultado' => "equipos_por_empleado",
+                'datos' => $datos
+            ];
+        } catch (PDOException $e) {
+            if ($con && $con->inTransaction()) {
+                $con->rollBack();
+            }
+            return [
+                'resultado' => "error",
+                'mensaje' => $e->getMessage(),
+                'datos' => []
+            ];
+        } finally {
+            $this->Cerrar_Conexion($con, $stm);
+        }
+    }
+
+    // === OBTENER TIPO SERVICIO POR EQUIPO ===
+    private function obtenerTipoServicioPorEquipo($idEquipo)
+    {
+        $con = null;
+        $stm = null;
+        
+        try {
+            $con = new Conexion("sistema");
+            $con = $con->Conex();
+            $con->beginTransaction();
+
+            $query = "SELECT id_tipo_servicio FROM equipo WHERE id_equipo = :id_equipo AND estatus = 1";
+
+            $stm = $con->prepare($query);
+            $stm->bindParam(":id_equipo", $idEquipo);
+            $stm->execute();
+            $con->commit();
+
+            $resultado = $stm->fetch(PDO::FETCH_ASSOC);
+
+            if ($resultado) {
+                $dato['id_tipo_servicio'] = $resultado['id_tipo_servicio'] ?? 1;
+                $dato['resultado'] = 'success';
+            } else {
+                $dato['id_tipo_servicio'] = 1;
+                $dato['resultado'] = 'warning';
+                $dato['mensaje'] = 'Equipo no encontrado, usando valor por defecto';
+            }
+        } catch (PDOException $e) {
+            if ($con && $con->inTransaction()) {
+                $con->rollBack();
+            }
+            $dato['id_tipo_servicio'] = 1;
+            $dato['resultado'] = 'error';
+            $dato['mensaje'] = $e->getMessage();
+        } finally {
+            $this->Cerrar_Conexion($con, $stm);
+        }
+
+        return $dato;
     }
 
     // VALIDACIÓN COMPLETA ANTES DE OPERACIONES
@@ -332,7 +434,7 @@ class Equipo extends Conexion
             if ($result['count'] > 0) {
                 // Cambiar el código de resultado para indicar que es un warning
                 return [
-                    'estado' => 2, // Código especial para warning
+                    'estado' => 2,
                     'resultado' => "warning",
                     'mensaje' => "No se puede eliminar el equipo porque tiene solicitudes activas"
                 ];
@@ -347,7 +449,7 @@ class Equipo extends Conexion
 
             if ($result_punto['count'] > 0) {
                 return [
-                    'estado' => 2, // Código especial para warning
+                    'estado' => 2,
                     'resultado' => "warning",
                     'mensaje' => "No se puede eliminar el equipo porque está en uso en la red"
                 ];
@@ -492,7 +594,7 @@ class Equipo extends Conexion
         }
     }
 
-    // reactivar EQUIPO ELIMINADO
+    // REACTIVAR EQUIPO ELIMINADO
     private function reactivar()
     {
         $con = null;
@@ -722,6 +824,18 @@ class Equipo extends Conexion
                 case "historial":
                     $resultado = $this->Historial();
                     break;
+
+                case "equipos_por_empleado":
+                    if (!isset($peticion['cedula_empleado'])) {
+                        return ['resultado' => 'error', 'mensaje' => 'Cédula de empleado no proporcionada'];
+                    }
+                    return $this->ConsultarPorEmpleado($peticion['cedula_empleado']);
+
+                case "obtener_tipo_servicio":
+                    if (!isset($peticion['id_equipo'])) {
+                        return ['resultado' => 'error', 'mensaje' => 'ID de equipo no proporcionado'];
+                    }
+                    return $this->obtenerTipoServicioPorEquipo($peticion['id_equipo']);
 
                 default:
                     $resultado = ['estado' => 0, 'mensaje' => 'Petición no reconocida'];

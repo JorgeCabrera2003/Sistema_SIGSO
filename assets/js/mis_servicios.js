@@ -54,7 +54,7 @@ $(document).ready(function () {
                     );
                 });
             } else {
-                $select.append('<option value="">No tiene equipos asignados</option>');
+                $select.append('<option value="">No tiene equipos asignados disponibles</option>');
             }
 
             $select.select2({
@@ -125,94 +125,105 @@ $(document).ready(function () {
     }
 
     function enviaAjax(datos) {
-    $.ajax({
-        async: true,
-        url: "",
-        type: "POST",
-        contentType: false,
-        data: datos,
-        processData: false,
-        cache: false,
-        beforeSend: function () { },
-        timeout: 10000,
-        success: function (respuesta) {
-            console.log(respuesta);
-            try {
-                var lee = JSON.parse(respuesta);
-                if (lee.resultado === "success") {
-                    $("#modal1").modal("hide");
-                    
-                    // Mostrar SweetAlert de éxito
-                    Swal.fire({
-                        title: '¡Solicitud creada!',
-                        text: lee.mensaje,
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    }).then((result) => {
-                        // Recargar la tabla después de cerrar el alert
-                        consultar();
-                    });
-                    
-                    // Limpiar el formulario
-                    limpia();
-                } else if (lee.resultado === "consultar") {
-                    iniciarTabla(lee.datos);
-                } else if (lee.resultado === "entrada") {
-                    // No hacer nada específico
-                } else if (lee.resultado === "error") {
-                    // Mostrar SweetAlert de error
+        $.ajax({
+            async: true,
+            url: "",
+            type: "POST",
+            contentType: false,
+            data: datos,
+            processData: false,
+            cache: false,
+            beforeSend: function () { },
+            timeout: 10000,
+            success: function (respuesta) {
+                console.log(respuesta);
+                try {
+                    var lee = JSON.parse(respuesta);
+                    if (lee.resultado === "success") {
+                        $("#modal1").modal("hide");
+                        
+                        // Mostrar SweetAlert de éxito
+                        Swal.fire({
+                            title: '¡Solicitud creada!',
+                            text: lee.mensaje,
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                        }).then((result) => {
+                            // Recargar la tabla después de cerrar el alert
+                            consultar();
+                        });
+                        
+                        // Limpiar el formulario
+                        limpia();
+                    } else if (lee.resultado === "consultar") {
+                        iniciarTabla(lee.datos);
+                    } else if (lee.resultado === "entrada") {
+                        // No hacer nada específico
+                    } else if (lee.resultado === "error") {
+                        // Mostrar SweetAlert de error
+                        Swal.fire({
+                            title: 'Error',
+                            text: lee.mensaje,
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }
+                } catch (e) {
                     Swal.fire({
                         title: 'Error',
-                        text: lee.mensaje,
+                        html: `Error en JSON Tipo: ${e.name}<br>Mensaje: ${e.message}`,
                         icon: 'error',
                         confirmButtonText: 'Aceptar'
                     });
                 }
-            } catch (e) {
+            },
+            error: function (request, status, err) {
+                let errorMsg = "Servidor ocupado. Intente de nuevo";
+                if (status !== "timeout") {
+                    errorMsg = `Ocurrió un error: ${status} - ${err}`;
+                }
+                
                 Swal.fire({
                     title: 'Error',
-                    html: `Error en JSON Tipo: ${e.name}<br>Mensaje: ${e.message}`,
+                    text: errorMsg,
                     icon: 'error',
                     confirmButtonText: 'Aceptar'
                 });
             }
-        },
-        error: function (request, status, err) {
-            let errorMsg = "Servidor ocupado. Intente de nuevo";
-            if (status !== "timeout") {
-                errorMsg = `Ocurrió un error: ${status} - ${err}`;
-            }
-            
-            Swal.fire({
-                title: 'Error',
-                text: errorMsg,
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            });
-        }
-    });
-}
+        });
+    }
+
     function capaValidar() {
         $("#motivo").on("keypress", function (e) {
-            validarKeyPress(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
+            validarKeyPress(/^[0-9a-zA-ZáéíóúüñÑçÇÁÉÍÓÚÜ ,.\-()\b]*$/, e);
         });
 
         $("#motivo").on("keyup", function () {
-            validarKeyUp(
-                /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{5,200}$/,
-                $(this),
-                $("#smotivo"),
-                "El motivo debe tener entre 5 y 200 caracteres"
-            );
+            const motivo = $(this).val().trim();
+            if (motivo.length >= 5 && motivo.length <= 200 && 
+                /^[0-9a-zA-ZáéíóúüñÑçÇÁÉÍÓÚÜ ,.\-()]{5,200}$/.test(motivo)) {
+                $(this).removeClass("is-invalid").addClass("is-valid");
+                $("#smotivo").text("");
+            } else {
+                $(this).removeClass("is-valid").addClass("is-invalid");
+                $("#smotivo").text("El motivo debe tener entre 5 y 200 caracteres válidos");
+            }
         });
     }
 
     function validarenvio() {
-        if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{5,200}$/, $("#motivo"),
-            $("#smotivo"), "El motivo debe de tener 5 letras minimo") == 0) {
+        const motivo = $("#motivo").val().trim();
+        
+        if (motivo.length < 5 || motivo.length > 200) {
             mensajes("error", 10000, "Verifica", "El motivo debe tener entre 5 y 200 caracteres");
             return false;
         }
+        
+        if (!/^[0-9a-zA-ZáéíóúüñÑçÇÁÉÍÓÚÜ ,.\-()]{5,200}$/.test(motivo)) {
+            mensajes("error", 10000, "Verifica", "El motivo contiene caracteres no permitidos");
+            return false;
+        }
+        
         return true;
     }
 
@@ -232,7 +243,7 @@ $(document).ready(function () {
         tabla = $('#tabla1').DataTable({
             data: arreglo,
             columns: [
-                { data: 'ID' },
+                { data: 'ID', visible: false },
                 { data: 'Motivo' },
                 { data: 'Inicio' },
                 {
