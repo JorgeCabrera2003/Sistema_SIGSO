@@ -14,7 +14,44 @@
     />
     <!-- Custom Ya estoy en esta wea!!!!! -->
     
-    <?php echo $tema ?? "<link rel='stylesheet' href='assets/css/temas/default.css' />"?>
+    <?php
+      // Determinar href del tema actual (utileria.php define $tema_actual)
+      $theme_href = 'assets/css/temas/default.css';
+      if (isset($tema_actual)) {
+        switch ($tema_actual) {
+          case 1: $theme_href = 'assets/css/temas/rosa.css'; break;
+          case 2: $theme_href = 'assets/css/temas/azul.css'; break;
+          case 3: $theme_href = 'assets/css/temas/verde.css'; break;
+          case 4: $theme_href = 'assets/css/temas/rojo.css'; break;
+          case 5: $theme_href = 'assets/css/temas/morado.css'; break;
+          default: $theme_href = 'assets/css/temas/default.css'; break;
+        }
+      }
+    ?>
+    <link id="theme-stylesheet" rel="stylesheet" href="<?php echo $theme_href; ?>" />
+    <script>
+      // Aplicar tema guardado en localStorage si existe (permite persistencia inmediata entre vistas)
+      (function(){
+        try {
+          const map = {
+            0: 'assets/css/temas/default.css',
+            1: 'assets/css/temas/rosa.css',
+            2: 'assets/css/temas/azul.css',
+            3: 'assets/css/temas/verde.css',
+            4: 'assets/css/temas/rojo.css',
+            5: 'assets/css/temas/morado.css'
+          };
+          const sel = localStorage.getItem('selectedTheme');
+          if (sel !== null && typeof sel !== 'undefined') {
+            const id = parseInt(sel, 10);
+            if (!isNaN(id) && map[id]) {
+              var link = document.getElementById('theme-stylesheet');
+              if (link) link.href = map[id];
+            }
+          }
+        } catch(e) {}
+      })();
+    </script>
     <link rel="stylesheet" href="assets/css/main.css" />
     <!-- Font Awesome for icons -->
     <link
@@ -176,5 +213,35 @@
         transition: none !important;
       }
     </style>
+
+    <!-- Estilo para botones de confirmación consistentes -->
+    <style>
+      .btn-confirm {
+        background-color: #3085d6 !important; /* mismo color que usamos en confirm dialogs */
+        border-color: #2774b8 !important;
+        color: #fff !important;
+      }
+      .btn-confirm:hover, .btn-confirm:focus {
+        background-color: #2774b8 !important;
+        border-color: #1f5f98 !important;
+        color: #fff !important;
+      }
+    </style>
     
   </head>
+  <script>
+    // Eliminador del loader (incluido en head para páginas que no cargan footer, p.ej. login)
+    (function(){
+      function setPageReady(){
+        try{ document.documentElement.classList.add('page-ready'); }catch(e){}
+      }
+      if (document.readyState === 'complete'){
+        setPageReady();
+      } else {
+        document.addEventListener('DOMContentLoaded', setPageReady);
+        window.addEventListener('pageshow', setPageReady);
+        window.addEventListener('load', setPageReady);
+      }
+      setTimeout(function(){ if (!document.documentElement.classList.contains('page-ready')) setPageReady(); }, 4000);
+    })();
+  </script>

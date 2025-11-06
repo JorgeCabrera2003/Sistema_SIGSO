@@ -366,3 +366,451 @@ POST_KEYS: []
 FILES_KEYS: []
 RAW_POST: []
 ----------------------------------------
+
+---- 2025-11-06 02:07:23 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:10:20 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:18:54 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:19:13 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Adriana","Apellido":"Winsss","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:19:13 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:19:21 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:19:39 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Yasss","Apellido":"Vasss","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:19:39 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:25:40 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:25:52 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Marsi","Apellido":"Bokor","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:25:52 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:26:04 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:26:15 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Jajajja","Apellido":"Bokor","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:26:15 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:28:35 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:28:46 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Bbbbbbbbv","Apellido":"Bokor","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:28:46 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:28:56 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Bbbbbbbbv","Apellido":"Ppppp","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:28:56 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:29:16 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Marys Carls","Apellido":"Kraf Val","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:29:17 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:29:30 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"5"}
+----------------------------------------
+
+---- 2025-11-06 02:29:30 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:29:35 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"2"}
+----------------------------------------
+
+---- 2025-11-06 02:29:35 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:30:06 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["newpassword","renewpassword"]
+FILES_KEYS: []
+RAW_POST: {"newpassword":"987654321","renewpassword":"987654321"}
+----------------------------------------
+
+---- 2025-11-06 02:30:06 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:36:30 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:36:32 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"5"}
+----------------------------------------
+
+---- 2025-11-06 02:36:32 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:36:36 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:36:38 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:36:39 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:36:41 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:39:00 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:39:07 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"1"}
+----------------------------------------
+
+---- 2025-11-06 02:39:07 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:39:40 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:39:43 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"5"}
+----------------------------------------
+
+---- 2025-11-06 02:39:43 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:40:32 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:41:40 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:41:46 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"2"}
+----------------------------------------
+
+---- 2025-11-06 02:41:46 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:42:06 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:42:11 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["cambiTema"]
+FILES_KEYS: []
+RAW_POST: {"cambiTema":"5"}
+----------------------------------------
+
+---- 2025-11-06 02:42:11 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:47:05 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:48:09 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Mariangel","Apellido":"Bokor","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:48:09 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:48:11 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:48:31 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Mariangeles","Apellido":"Bokor","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088"}
+----------------------------------------
+
+---- 2025-11-06 02:48:31 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:48:33 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------
+
+---- 2025-11-06 02:51:47 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: ["Nombre","Apellido","Correo","Telefono","eliminarF"]
+FILES_KEYS: ["foto_perfil"]
+RAW_POST: {"Nombre":"Mariangeles","Apellido":"Bokor","Correo":"bokorarcangel447@gmail.com","Telefono":"0424-5319088","eliminarF":"1"}
+----------------------------------------
+
+---- 2025-11-06 02:51:47 ----
+REMOTE_ADDR: ::1
+SESSION_USER_PRESENT: yes
+POST_KEYS: []
+FILES_KEYS: []
+RAW_POST: []
+----------------------------------------

@@ -1,4 +1,26 @@
 $(document).ready(function() {
+  // Mapa local de temas (id -> archivo css)
+  const THEME_MAP = {
+    0: 'assets/css/temas/default.css',
+    1: 'assets/css/temas/rosa.css',
+    2: 'assets/css/temas/azul.css',
+    3: 'assets/css/temas/verde.css',
+    4: 'assets/css/temas/rojo.css',
+    5: 'assets/css/temas/morado.css'
+  };
+
+  function applyThemeImmediate(id) {
+    const href = THEME_MAP[id] || THEME_MAP[0];
+    let link = document.getElementById('theme-stylesheet');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.id = 'theme-stylesheet';
+      document.head.appendChild(link);
+    }
+    link.href = href;
+    try { localStorage.setItem('selectedTheme', id); } catch(e) {}
+  }
 
   document.querySelectorAll(".theme-card").forEach(card => {
     card.addEventListener("click", function() {
@@ -11,6 +33,9 @@ $(document).ready(function() {
 
       // Guardar valor en el input hidden
       document.getElementById("cambiTema").value = this.dataset.tema;
+
+      // Aplicar tema de inmediato en cliente
+      applyThemeImmediate(parseInt(this.dataset.tema, 10));
     });
   });
 

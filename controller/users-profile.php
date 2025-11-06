@@ -49,7 +49,16 @@ if (is_file("view/" . $page . ".php")) {
                     $usuario->set_cedula($datos['cedula']);
                 }
                 $usuario->set_foto('assets/img/default-profile.jpg');
-                if ($usuario->Transaccion(['peticion' => 'actualizarFoto'])) {
+                $res = $usuario->Transaccion(['peticion' => 'actualizarFoto']);
+                // Comprobar resultado según esquema del modelo
+                $ok = false;
+                if (is_array($res)) {
+                    if (isset($res['estado'])) $ok = (bool)$res['estado'];
+                    if (!$ok && isset($res['bool'])) $ok = (bool)$res['bool'];
+                } elseif ($res === true) {
+                    $ok = true;
+                }
+                if ($ok) {
                     $_SESSION['alert'] = [
                         'type' => 'success',
                         'title' => 'Foto eliminada',
@@ -57,6 +66,14 @@ if (is_file("view/" . $page . ".php")) {
                     ];
                     header("Location: ?page=users-profile");
                     exit();
+                } else {
+                    try {
+                        $dbg = fopen(__DIR__ . '/../logs/profile_debug.log', 'a');
+                        if ($dbg) {
+                            fwrite($dbg, "actualizarFoto failed (eliminarF) -> " . json_encode($res) . "\n");
+                            fclose($dbg);
+                        }
+                    } catch (Exception $e) {}
                 }
             } else {
                 $_SESSION['alert'] = [
@@ -90,14 +107,32 @@ if (is_file("view/" . $page . ".php")) {
                     $usuario->set_cedula($datos['cedula']);
                 }
                 $usuario->set_foto($targetFile);
-                $usuario->Transaccion(['peticion' => 'actualizarFoto']);
-                $_SESSION['alert'] = [
-                    'type' => 'success',
-                    'title' => 'Foto actualizada',
-                    'message' => 'La foto de perfil se ha actualizado correctamente'
-                ];
-                header("Location: ?page=users-profile");
-                exit();
+                $res = $usuario->Transaccion(['peticion' => 'actualizarFoto']);
+                $ok = false;
+                if (is_array($res)) {
+                    if (isset($res['estado'])) $ok = (bool)$res['estado'];
+                    if (!$ok && isset($res['bool'])) $ok = (bool)$res['bool'];
+                } elseif ($res === true) {
+                    $ok = true;
+                }
+                if ($ok) {
+                    $_SESSION['alert'] = [
+                        'type' => 'success',
+                        'title' => 'Foto actualizada',
+                        'message' => 'La foto de perfil se ha actualizado correctamente'
+                    ];
+                    header("Location: ?page=users-profile");
+                    exit();
+                } else {
+                    try {
+                        $dbg = fopen(__DIR__ . '/../logs/profile_debug.log', 'a');
+                        if ($dbg) {
+                            fwrite($dbg, "actualizarFoto failed (upload) -> " . json_encode($res) . "\n");
+                            fwrite($dbg, "targetFile: " . $targetFile . "\n");
+                            fclose($dbg);
+                        }
+                    } catch (Exception $e) {}
+                }
             }
 
             // Log resultado de subida de archivo para debugging
@@ -117,18 +152,28 @@ if (is_file("view/" . $page . ".php")) {
         $correo = $_POST['Correo'];
         $tlf = $_POST['Telefono'];
 
-        $usuario->set_nombres($nombre);
-        $usuario->set_apellidos($apellido);
-        $usuario->set_correo($correo);
-        $usuario->set_telefono($tlf);
-        $peticion['peticion'] = 'modificar';
+    $usuario->set_nombres($nombre);
+    $usuario->set_apellidos($apellido);
+    $usuario->set_correo($correo);
+    $usuario->set_telefono($tlf);
+    // Usar la variante para empleados que actualiza por cedula y evita tocar rol/nombre_usuario
+    $peticion['peticion'] = 'modificar_empleado';
 
         // asegurar que el objeto usuario tenga la cédula establecida
         if (isset($datos['cedula'])) {
             $usuario->set_cedula($datos['cedula']);
         }
 
-        if ($usuario->Transaccion($peticion)) {
+        $res = $usuario->Transaccion($peticion);
+        $ok = false;
+        if (is_array($res)) {
+            if (isset($res['bool'])) $ok = (bool)$res['bool'];
+            if (!$ok && isset($res['estado'])) $ok = (bool)$res['estado'];
+        } elseif ($res === true) {
+            $ok = true;
+        }
+
+        if ($ok) {
             $_SESSION['alert'] = [
                 'type' => 'success',
                 'title' => 'Perfil actualizado',
@@ -139,14 +184,14 @@ if (is_file("view/" . $page . ".php")) {
             header("Location: ?page=users-profile");
             exit();
         } else {
-            // Log fallo de actualización
             try {
                 $dbg = fopen(__DIR__ . '/../logs/profile_debug.log', 'a');
                 if ($dbg) {
-                    fwrite($dbg, "ModificarUsuario failed for cedula: " . ($datos['cedula'] ?? 'unknown') . "\n");
+                    fwrite($dbg, "ModificarUsuario failed -> " . json_encode($res) . "\n");
                     fclose($dbg);
                 }
             } catch (Exception $e) {}
+            // Log fallo de actualización
             $_SESSION['alert'] = [
                 'type' => 'error',
                 'title' => 'Error',
@@ -160,7 +205,16 @@ if (is_file("view/" . $page . ".php")) {
         if ($_POST['newpassword'] == $_POST['renewpassword']) {
             $clave = password_hash($_POST['renewpassword'], PASSWORD_BCRYPT);
             $usuario->set_clave($clave);
-            if ($usuario->Transaccion(['peticion' => 'ActualizarClave'])) {
+            $res = $usuario->Transaccion(['peticion' => 'ActualizarClave']);
+            $ok = false;
+            if (is_array($res)) {
+                if (isset($res['bool'])) $ok = (bool)$res['bool'];
+                if (!$ok && isset($res['estado'])) $ok = (bool)$res['estado'];
+            } elseif ($res === true) {
+                $ok = true;
+            }
+
+            if ($ok) {
                 $_SESSION['alert'] = [
                     'type' => 'success',
                     'title' => 'Contraseña actualizada',
@@ -169,6 +223,13 @@ if (is_file("view/" . $page . ".php")) {
                 header("Location: ?page=users-profile");
                 exit();
             } else {
+                try {
+                    $dbg = fopen(__DIR__ . '/../logs/profile_debug.log', 'a');
+                    if ($dbg) {
+                        fwrite($dbg, "ActualizarClave failed -> " . json_encode($res) . "\n");
+                        fclose($dbg);
+                    }
+                } catch (Exception $e) {}
                 $_SESSION['alert'] = [
                     'type' => 'error',
                     'title' => 'Error',
@@ -194,7 +255,16 @@ if (is_file("view/" . $page . ".php")) {
             $usuario->set_cedula($datos['cedula']);
         }
 
-        if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
+        $res = $usuario->Transaccion(['peticion' => 'actualizarTema']);
+        $ok = false;
+        if (is_array($res)) {
+            if (isset($res['bool'])) $ok = (bool)$res['bool'];
+            if (!$ok && isset($res['estado'])) $ok = (bool)$res['estado'];
+        } elseif ($res === true) {
+            $ok = true;
+        }
+
+        if ($ok) {
             // Guardar datos importantes de la sesión actual
             $old_session_data = $_SESSION;
 

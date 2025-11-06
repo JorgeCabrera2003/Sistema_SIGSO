@@ -196,8 +196,16 @@ class Usuario extends Conexion
             }
             $stm->execute();
             $this->conexion->commit();
-            $dato['mensaje'] = "Se modificó el usuario exitosamente";
-            $dato['bool'] = 1;
+            // Verificar si la actualización afectó filas
+            if ($stm->rowCount() > 0) {
+                $dato['mensaje'] = "Se modificó el usuario exitosamente";
+                $dato['bool'] = 1;
+            } else {
+                $dato['mensaje'] = "No se modificaron datos (posiblemente sin cambios)";
+                $dato['bool'] = 0;
+            }
+            $dato['resultado'] = "modificar";
+            $dato['estado'] = 1;
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";

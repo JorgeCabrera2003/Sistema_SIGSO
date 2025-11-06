@@ -17,11 +17,24 @@
         <div class="col-xl-4">
 
           <div class="card">
-            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
               <img src="<?php echo $foto; ?>" alt="Profile" class="rounded-circle"
                 style="width: 200px; height: 200px; object-fit: cover;">
-              <h2><?php echo $datos["nombres"]; ?></h2>
+              <?php
+                // Mostrar 1er nombre y 1er apellido
+                $primerNombre = '';
+                $primerApellido = '';
+                if (!empty($datos['nombres'])) {
+                  $nParts = preg_split('/\s+/', trim($datos['nombres']));
+                  $primerNombre = $nParts[0];
+                }
+                if (!empty($datos['apellidos'])) {
+                  $aParts = preg_split('/\s+/', trim($datos['apellidos']));
+                  $primerApellido = $aParts[0];
+                }
+              ?>
+              <h2><?php echo htmlspecialchars($primerNombre . ($primerApellido ? ' ' . $primerApellido : '')); ?></h2>
               <h3><?php // echo $datos["unidad"]; 
                   ?></h3>
             </div>
@@ -139,9 +152,9 @@
 
                     <!-- ... resto de tus campos existentes ... -->
 
-                    <div class="text-center">
-                      <button type="submit" class="btn btn-primary cambio" name="cambiar">Guardar cambios</button>
-                    </div>
+                                    <div class="text-center">
+                                      <button type="submit" class="btn btn-confirm cambio" name="cambiar">Guardar cambios</button>
+                                    </div>
                   </form><!-- End Profile Edit Form -->
                 </div>
 
@@ -171,7 +184,7 @@
                     </div>
 
                     <div class="text-center">
-                      <button type="submit" name="passw" class="btn btn-primary cc" data-bs-toggle="tooltip"
+                      <button type="submit" name="passw" class="btn btn-confirm cc" data-bs-toggle="tooltip"
                         data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"
                         data-bs-title="Confirmar y cambiar la contraseña" id="">Cambiar contraseña</button>
                     </div>
@@ -212,9 +225,7 @@
       </div>
       <?php endforeach; ?>
     </div>
-    <div class="text-center mt-3">
-      <button type="submit" name="cambiarTema" class="btn btn-primary">Aplicar Tema</button>
-    </div>
+    <!-- Eliminado botón Aplicar Tema porque la selección se aplica inmediatamente -->
   </form>
 </div>
 

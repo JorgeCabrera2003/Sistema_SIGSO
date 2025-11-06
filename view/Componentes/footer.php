@@ -1,13 +1,30 @@
 <!-- ======= Footer ======= -->
 <script>
-    // Quitar la pantalla de carga cuando la página está completamente cargada
-    window.addEventListener('load', function() {
-        try {
-            document.documentElement.classList.add('page-ready');
-        } catch (e) {
-            // no hacer nada si falla
+    // Quitar la pantalla de carga de forma robusta:
+    // - en load, DOMContentLoaded y pageshow
+    // - y con un fallback a los 5s por si algo impide que los eventos se disparen (p. ej. redirecciones)
+    (function(){
+        function setPageReady(){
+            try{
+                document.documentElement.classList.add('page-ready');
+            }catch(e){}
         }
-    });
+
+        if (document.readyState === 'complete'){
+            setPageReady();
+        } else {
+            window.addEventListener('load', setPageReady);
+            document.addEventListener('DOMContentLoaded', setPageReady);
+            window.addEventListener('pageshow', setPageReady);
+        }
+
+        // Fallback: si pasados 5s la clase no se añadió, forzarlo para evitar loader infinito
+        setTimeout(function(){
+            if (!document.documentElement.classList.contains('page-ready')){
+                setPageReady();
+            }
+        }, 5000);
+    })();
 </script>
 <script>$(document).ready(function() {
 
