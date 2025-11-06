@@ -14,7 +14,7 @@ function manejarCambioEstado(formularioValido) {
   
   if (accion === "Eliminar") {
     // Para eliminar solo validamos el ID
-    const idValido = $("#id_ente").length && $("#id_ente").hasClass("is-valid");
+    const idValido = validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_ente"), null, '');
     $('#enviar').prop('disabled', !idValido);
   } else {
     // Para registrar y modificar validamos todos los campos
@@ -84,7 +84,7 @@ $(document).ready(function () {
 
       case "Eliminar":
         // Validar solo el ID para eliminar
-        if ($("#id_ente").length && SistemaValidacion.validarCampo.call(document.getElementById('id_ente'))) {
+        if (validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_ente"), $("#sid_ente"), '')) {
           confirmacion = await confirmarAccion("Se eliminará un Ente", "¿Está seguro de realizar la acción?", "warning");
 
           if (confirmacion) {
@@ -93,6 +93,7 @@ $(document).ready(function () {
             datos.append('id_ente', $("#id_ente").val());
             enviaAjax(datos);
             envio = true;
+            
           }
         } else {
           envio = false;
