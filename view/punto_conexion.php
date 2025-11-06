@@ -178,7 +178,7 @@
                             <div class="col-md-3">
                                 <label for="pisoFiltro" class="form-label">Piso</label>
                                 <select class="form-select" id="pisoFiltro" name="pisoFiltro">
-                                    <option value="0">Seleccione un piso</option>
+                                    <option value="0" selected disabled>-Elegir Piso-</option>
                                     <?php foreach ($pisos as $pisoItem) : ?>
                                         <option value="<?= $pisoItem['id_piso'] ?>">
                                             <?= $pisoItem['tipo_piso'] . ' ' . $pisoItem['nro_piso'] ?>
@@ -198,7 +198,8 @@
                                 </select>
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary" onclick="cargarInfraestructura()">
+                                <!-- Por defecto el botón está deshabilitado y con estilo gris -->
+                                <button type="button" id="btnBuscarInfraestructura" class="btn btn-secondary" onclick="cargarInfraestructura()" disabled>
                                     <i class="bi bi-search"></i> Buscar
                                 </button>
                             </div>
@@ -421,13 +422,9 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            // Seleccionar por defecto el piso 1 si existe
-            $('#pisoFiltro').val(6);
-
-            // Cargar infraestructura por defecto
-            setTimeout(function() {
-                cargarInfraestructura();
-            }, 500);
+            // Inicialmente no cargar nada: el select de piso tiene placeholder "Elegir piso"
+            // Por defecto mostrar tipo 'patch'
+            $('#tipoDispositivo').val('patch');
 
             // Evento para seleccionar equipo
             $(document).on('click', '.equipo-item', function() {
@@ -522,6 +519,17 @@
                     cargarEquiposPorOficina(idOficina);
                 }
             });
+
+            // Habilitar/Deshabilitar botón Buscar según selección de piso
+            $('#pisoFiltro').on('change', function() {
+                const val = $(this).val();
+                const btn = $('#btnBuscarInfraestructura');
+                if (val && val !== '0') {
+                    btn.prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
+                } else {
+                    btn.prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
+                }
+            });
         });
 
         function cargarInfraestructura() {
@@ -576,6 +584,12 @@
             paginaActualDispositivo = 1;
             renderDispositivosPaginados(dispositivosOriginal, paginaActualDispositivo, tipo);
             actualizarPaginacionDispositivos(dispositivosOriginal);
+            // Si estamos mostrando switches, ocultar la columna de equipos disponibles
+            if (tipo === 'switch') {
+                $('#contenedorEquipos').closest('.col-md-4').hide();
+            } else {
+                $('#contenedorEquipos').closest('.col-md-4').show();
+            }
         }
 
         function generarPuertos(puertos, codigoDispositivo, tipoDispositivo) {
@@ -654,6 +668,9 @@
             return html;
         }
 
+        let modoInterconexion = false; // cuando true, el modal gestionará interconexiones switch<->patch
+        let patchSeleccionado = null;
+
         function seleccionarPuerto(codigoDispositivo, numeroPuerto, ocupado, tipoDispositivo) {
             puertoSeleccionado = {
                 codigo: codigoDispositivo,
@@ -664,12 +681,169 @@
 
             dispositivoSeleccionado = codigoDispositivo;
 
+            // Si es un switch queremos conectar con un punto de patch panel (interconexión)
+            if (tipoDispositivo === 'switch') {
+                abrirModalInterconexionParaSwitch(codigoDispositivo, numeroPuerto);
+                return;
+            }
+
             // Si hay un equipo seleccionado, mostrar modal de conexión
             if (equipoSeleccionado) {
                 mostrarModalGestionPuerto();
             } else {
                 mostrarDetallesPuerto(codigoDispositivo, numeroPuerto, tipoDispositivo);
             }
+        }
+
+        // Abre modal para elegir un puerto de patch panel no conectado al switch
+        function abrirModalInterconexionParaSwitch(codigoSwitch, numeroPuerto) {
+            modoInterconexion = true;
+            patchSeleccionado = null;
+
+            // Obtener patch panels del piso seleccionado
+            const idPiso = $('#pisoFiltro').val();
+            if (!idPiso || idPiso === '0') {
+                mostrarAlerta('warning', 'Seleccione un piso antes de realizar la interconexión');
+                modoInterconexion = false;
+                return;
+            }
+
+            $('#modalDetallesTitulo').text(`Interconexión - Switch ${codigoSwitch} Puerto #${numeroPuerto}`);
+            $('#modalDetallesCuerpo').html('<div class="text-center py-4"><div class="spinner-border" role="status"></div><div class="mt-2">Cargando patch panels...</div></div>');
+            $('#btnGestionarPuerto').text('Conectar Switch');
+            $('#modalDetalles').modal('show');
+
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    peticion: 'obtener_infraestructura_grafica',
+                    tipo: 'patch',
+                    id_piso: idPiso
+                },
+                success: function(respuesta) {
+                    try {
+                        const data = JSON.parse(respuesta);
+                        if (data.resultado === 'success') {
+                            const patchPanels = data.datos || [];
+                            if (patchPanels.length === 0) {
+                                $('#modalDetallesCuerpo').html('<div class="alert alert-info">No se encontraron patch panels en este piso</div>');
+                                return;
+                            }
+
+                            // Para cada patch panel pedir puertos disponibles para interconexión
+                            let pendientes = patchPanels.length;
+                            const listaPatchConPuertos = [];
+
+                            patchPanels.forEach(function(pp) {
+                                $.ajax({
+                                    url: '?page=interconexion',
+                                    type: 'POST',
+                                    data: { get_puertos_patch_panel: true, codigo_patch_panel: pp.codigo_bien },
+                                    success: function(resPatch) {
+                                        try {
+                                            const puertosDisponibles = JSON.parse(resPatch);
+                                            if (Array.isArray(puertosDisponibles) && puertosDisponibles.length > 0) {
+                                                listaPatchConPuertos.push({ patch: pp, puertos: puertosDisponibles });
+                                            }
+                                        } catch (e) {
+                                            // ignorar
+                                        }
+                                    },
+                                    complete: function() {
+                                        pendientes--;
+                                        if (pendientes === 0) {
+                                            renderModalInterconexion(listaPatchConPuertos, codigoSwitch, numeroPuerto);
+                                        }
+                                    }
+                                });
+                            });
+                        } else {
+                            $('#modalDetallesCuerpo').html('<div class="alert alert-danger">Error al obtener patch panels</div>');
+                        }
+                    } catch (e) {
+                        $('#modalDetallesCuerpo').html('<div class="alert alert-danger">Respuesta inválida del servidor</div>');
+                    }
+                },
+                error: function() {
+                    $('#modalDetallesCuerpo').html('<div class="alert alert-danger">Error de conexión al obtener patch panels</div>');
+                }
+            });
+        }
+
+        function renderModalInterconexion(listaPatchConPuertos, codigoSwitch, puertoSwitch) {
+            if (!listaPatchConPuertos || listaPatchConPuertos.length === 0) {
+                $('#modalDetallesCuerpo').html('<div class="alert alert-info">No hay puertos de patch panel disponibles para interconexión en este piso.</div>');
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            listaPatchConPuertos.forEach(function(item) {
+                html += `<div class="mb-3">`;
+                html += `<h6>${item.patch.nombre || item.patch.codigo_bien} <small class="text-muted">(${item.patch.codigo_bien})</small></h6>`;
+                html += '<div class="d-flex flex-wrap gap-2">';
+                item.puertos.forEach(function(nro) {
+                    html += `<button type="button" class="btn btn-outline-primary btn-sm btn-puerto-patch" data-codigo="${item.patch.codigo_bien}" data-puerto="${nro}">${nro}</button>`;
+                });
+                html += '</div></div>';
+            });
+            html += '</div>';
+
+            $('#modalDetallesCuerpo').html(html);
+
+            // seleccionar puerto de patch panel
+            $('.btn-puerto-patch').on('click', function() {
+                $('.btn-puerto-patch').removeClass('active');
+                $(this).addClass('active');
+                patchSeleccionado = {
+                    codigo_patch: $(this).data('codigo'),
+                    puerto_patch: $(this).data('puerto')
+                };
+            });
+
+            // Reasignar acción del botón principal para realizar la interconexión
+            $('#btnGestionarPuerto').off('click').on('click', function() {
+                if (!patchSeleccionado) {
+                    mostrarAlerta('warning', 'Seleccione un puerto de patch panel para conectar');
+                    return;
+                }
+
+                // Llamar al controlador de interconexion para registrar
+                $.ajax({
+                    url: '?page=interconexion',
+                    type: 'POST',
+                    data: {
+                        registrar: true,
+                        codigo_switch: codigoSwitch,
+                        puerto_switch: puertoSwitch,
+                        codigo_patch_panel: patchSeleccionado.codigo_patch,
+                        puerto_patch_panel: patchSeleccionado.puerto_patch
+                    },
+                    success: function(res) {
+                        try {
+                            const data = JSON.parse(res);
+                            if (data.estado === 1) {
+                                mostrarAlerta('success', data.mensaje);
+                                $('#modalDetalles').modal('hide');
+                                cargarInfraestructura();
+                            } else {
+                                mostrarAlerta('error', data.mensaje);
+                            }
+                        } catch (e) {
+                            mostrarAlerta('error', 'Respuesta inválida del servidor');
+                        }
+                    },
+                    error: function() {
+                        mostrarAlerta('error', 'Error al conectar con el servidor');
+                    },
+                    complete: function() {
+                        modoInterconexion = false;
+                        patchSeleccionado = null;
+                        // Restaurar handler original
+                        $('#btnGestionarPuerto').off('click').on('click', function() { gestionarPuerto(); });
+                    }
+                });
+            });
         }
 
         function mostrarModalGestionPuerto() {
@@ -1052,11 +1226,16 @@
                         </div>`;
             } else {
                 dispositivosPagina.forEach(dispositivo => {
+                    // Mostrar tipo (red / telefonia) para patch panels cuando esté disponible
+                    const tipoEtiqueta = dispositivo.tipo_patch_panel || dispositivo.tipo || '';
                     html += `<div class="col-md-12 col-lg-12 mb-4">
                                 <div class="card h-100 dispositivo-card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">${dispositivo.nombre || 'Dispositivo'}</h6>
-                                        <small class="text-muted">Serial: ${dispositivo.serial || 'N/A'}</small>
+                                    <div class="card-header d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="card-title mb-0">${dispositivo.nombre || 'Dispositivo'}</h6>
+                                            <small class="text-muted">Serial: ${dispositivo.serial || 'N/A'}</small>
+                                            ${tipoEtiqueta ? `<br><small class="text-muted">${tipoEtiqueta}</small>` : ''}
+                                        </div>
                                     </div>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between mb-4">

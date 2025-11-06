@@ -60,7 +60,9 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     if (isset($_POST['conectar_equipo'])) {
-        $punto_conexion->set_id_equipo($_POST["id_equipo"]);
+        // Normalizar id_equipo: si viene vacío, convertir a NULL para evitar violación de FK
+        $id_equipo_post = isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== '' ? $_POST["id_equipo"] : null;
+        $punto_conexion->set_id_equipo($id_equipo_post);
         $punto_conexion->set_codigo_patch_panel($_POST["codigo_patch_panel"]);
         $punto_conexion->set_puerto_patch_panel($_POST["puerto_patch_panel"]);
 

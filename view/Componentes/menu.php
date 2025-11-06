@@ -39,7 +39,7 @@
         $permiso_hoja_servicio = isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1";
         $permiso_solicitud = isset($permisos['solicitud']['ver_solicitud']['estado']) && $permisos['solicitud']['ver_solicitud']['estado'] == "1";
         if ($permiso_solicitud || $permiso_hoja_servicio) { ?>
-          <br/>
+          <hr/>
         <?php } ?>
         <?php if (isset($permisos['hoja_servicio']['ver']['estado']) && $permisos['hoja_servicio']['ver']['estado'] == "1") { ?>
           <li class="menu-item <?php echo ($page == "servicios") ? "active" : "" ?>" title="Servicios">
@@ -68,7 +68,7 @@
         if ($permiso_equipo || $permiso_bien || $permiso_material) { ?>
           <!-- CATEGORÍA: EQUIPOS -->
           <li class="menu-title">
-            <br/>
+            <hr/>
           </li>
 
           <li class="menu-item <?php echo in_array($page, ["bien", "equipo", "material"]) ? "active" : "" ?>"
@@ -117,7 +117,7 @@
         if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion || $permiso_piso || $permiso_oficina) { ?>
           <!-- CATEGORÍA: INFRAESTRUCTURA -->
           <li class="menu-title">
-           <br/>
+           <hr/>
           </li>
           <?php if ($permiso_switch || $permiso_interconexion || $permiso_patch_panel || $permiso_punto_conexion) { ?>
             <li
@@ -132,20 +132,12 @@
             <ul id="redes-submenu" style="margin-left: 1em"
               class="nav-content collapse<?php echo in_array($page, ["switch_", "interconexion", "patch_panel", "punto_conexion"]) ? " show" : "" ?>"
               data-bs-parent="#sidebar-nav">
-              <?php if (isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "switch_") ? "active" : "" ?>" title="Gestión de Switches">
-                  <a href="?page=switch_">
-                    <i class="fa-solid fa-server"></i>
-                    <span class="ms-2 me-2 menu-text">Switches</span>
-                  </a>
-                </li>
-              <?php } ?>
-              <?php if (isset($permisos['interconexion']['ver']['estado']) && $permisos['interconexion']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "interconexion") ? "active" : "" ?>"
-                  title="Gestión de Interconexiones">
-                  <a href="?page=interconexion">
-                    <i class="fa-solid fa-network-wired"></i>
-                    <span class="ms-2 me-2 menu-text">Interconexiones</span>
+              <?php if (isset($permisos['punto_conexion']['ver']['estado']) && $permisos['punto_conexion']['ver']['estado'] == "1") { ?>
+                <li class="menu-item <?php echo ($page == "punto_conexion") ? "active" : "" ?>"
+                  title="Gestión de Puntos de Conexión">
+                  <a href="?page=punto_conexion">
+                    <i class="fa-solid fa-ethernet"></i>
+                    <span class="ms-2 me-2 menu-text">Puntos de Conexión</span>
                   </a>
                 </li>
               <?php } ?>
@@ -157,12 +149,11 @@
                   </a>
                 </li>
               <?php } ?>
-              <?php if (isset($permisos['punto_conexion']['ver']['estado']) && $permisos['punto_conexion']['ver']['estado'] == "1") { ?>
-                <li class="menu-item <?php echo ($page == "punto_conexion") ? "active" : "" ?>"
-                  title="Gestión de Puntos de Conexión">
-                  <a href="?page=punto_conexion">
-                    <i class="fa-solid fa-ethernet"></i>
-                    <span class="ms-2 me-2 menu-text">Puntos de Conexión</span>
+              <?php if (isset($permisos['switch']['ver']['estado']) && $permisos['switch']['ver']['estado'] == "1") { ?>
+                <li class="menu-item <?php echo ($page == "switch_") ? "active" : "" ?>" title="Gestión de Switches">
+                  <a href="?page=switch_">
+                    <i class="fa-solid fa-server"></i>
+                    <span class="ms-2 me-2 menu-text">Switches</span>
                   </a>
                 </li>
               <?php } ?>
@@ -204,7 +195,7 @@
         if ($permiso_empleado || $permiso_tecnico) { ?>
           <!-- CATEGORÍA: PERSONAL -->
           <li class="menu-title">
-          <br/>
+          <hr/>
           </li>
 
           <li class="menu-item <?php echo in_array($page, ["empleado", "tecnico"]) ? "active" : "" ?>"
@@ -247,7 +238,7 @@
         if ($permiso_unidad || $permiso_dependencia || $permiso_ente || $permiso_marca || $permiso_tipo_servicio || $permiso_cargo || $permiso_tipo_bien) { ?>
           <!-- CATEGORÍA: CONFIGURACIÓN (SOLO SUPERUSUARIO/ADMIN) -->
           <li class="menu-title">
-           <br/>
+           <hr/>
           </li>
 
           <li
@@ -330,7 +321,7 @@
         if ($permiso_usuario || $permiso_rol || $permiso_modulo || $permiso_bitacora || $permiso_mantenimiento || $datos['nombre_usuario'] == "root") { ?>
           <!-- CATEGORÍA: SEGURIDAD (SOLO SUPERUSUARIO/ADMIN) -->
           <li class="menu-title">
-            <br/>
+            <hr/>
           </li>
 
           <li

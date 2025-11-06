@@ -226,7 +226,7 @@ class punto_conexion extends Conexion
         if ($bool['bool'] == 0 && $this->id_punto_conexion != "") {
 
             try {
-var_dump($this->id_punto_conexion, $this->codigo_patch_panel, $this->id_equipo, $this->puerto_patch_panel);4
+                // debug removed: no var_dump in production
                 $this->conex->beginTransaction();
 
                 $query = "INSERT INTO punto_conexion(id_punto_conexion, codigo_patch_panel, id_equipo,  puerto_patch_panel) VALUES 
@@ -236,7 +236,14 @@ var_dump($this->id_punto_conexion, $this->codigo_patch_panel, $this->id_equipo, 
 
                 $stm->bindParam(":id_punto_conexion", $this->id_punto_conexion);
                 $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
-                $stm->bindParam(":id_equipo", $this->id_equipo);
+
+                // Asegurar que si no hay equipo se inserte NULL (no cadena vacía)
+                if ($this->id_equipo === "" || $this->id_equipo === null) {
+                    $stm->bindValue(":id_equipo", null, PDO::PARAM_NULL);
+                } else {
+                    $stm->bindValue(":id_equipo", $this->id_equipo, PDO::PARAM_INT);
+                }
+
                 $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
                 $stm->execute();
 
@@ -288,7 +295,13 @@ var_dump($this->id_punto_conexion, $this->codigo_patch_panel, $this->id_equipo, 
 
                 $stm = $this->conex->prepare($query);
                 $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
-                $stm->bindParam(":id_equipo", $this->id_equipo);
+
+                if ($this->id_equipo === "" || $this->id_equipo === null) {
+                    $stm->bindValue(":id_equipo", null, PDO::PARAM_NULL);
+                } else {
+                    $stm->bindValue(":id_equipo", $this->id_equipo, PDO::PARAM_INT);
+                }
+
                 $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
                 $stm->bindParam(":id_punto_conexion", $this->id_punto_conexion);
                 $stm->execute();

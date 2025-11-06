@@ -111,20 +111,42 @@ class interconexion extends Conexion {
             $this->conex = $this->conex->Conex();
             $this->conex->beginTransaction();
 
-            $query = "SELECT * FROM punto_conexion WHERE codigo_patch_panel = :codigo_patch_panel AND puerto_patch_panel = :puerto_patch_panel";
-
-            $stm = $this->conex->prepare($query);
-            $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
-            $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
+            // 1) Verificar que el patch_panel exista y obtener su cantidad de puertos
+            $queryInfo = "SELECT cantidad_puertos FROM patch_panel WHERE codigo_bien = :codigo";
+            $stm = $this->conex->prepare($queryInfo);
+            $stm->bindParam(":codigo", $this->codigo_patch_panel);
             $stm->execute();
+            $info = $stm->fetch(PDO::FETCH_ASSOC);
 
-            $this->conex->commit();
-
-            if ($stm->rowCount() > 0) {
-                $dato['arreglo'] = $stm->fetch(PDO::FETCH_ASSOC);
-                $dato['bool'] = 1;
-            } else {
+            if (!$info) {
+                // Patch panel no existe
+                $this->conex->commit();
                 $dato['bool'] = 0;
+            } else {
+                $cantidad = intval($info['cantidad_puertos']);
+                $puerto = intval($this->puerto_patch_panel);
+
+                if ($puerto < 1 || $puerto > $cantidad) {
+                    // Puerto fuera de rango
+                    $this->conex->commit();
+                    $dato['bool'] = 0;
+                } else {
+                    // 2) Verificar que el puerto del patch panel no esté ya usado en interconexión
+                    $queryUsed = "SELECT * FROM interconexion WHERE codigo_patch_panel = :codigo_patch_panel AND puerto_patch_panel = :puerto_patch_panel";
+                    $stm = $this->conex->prepare($queryUsed);
+                    $stm->bindParam(":codigo_patch_panel", $this->codigo_patch_panel);
+                    $stm->bindParam(":puerto_patch_panel", $this->puerto_patch_panel);
+                    $stm->execute();
+                    $this->conex->commit();
+
+                    if ($stm->rowCount() > 0) {
+                        // Ya existe interconexión en ese puerto
+                        $dato['bool'] = 0;
+                    } else {
+                        // Puerto válido y disponible para interconexión
+                        $dato['bool'] = 1;
+                    }
+                }
             }
 
         } catch (PDOException $e) {
