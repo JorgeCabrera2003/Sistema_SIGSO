@@ -53,7 +53,6 @@ class Unidad extends Conexion
         if ($this->dependencia == NULL) {
 
             $this->dependencia = new Dependencia();
-
         }
 
         return $this->dependencia;
@@ -87,11 +86,39 @@ class Unidad extends Conexion
                 $dato['bool'] = 0;
             }
             $this->conexion->commit();
-
         } catch (PDOException $e) {
             $this->rollBack();
             $dato['error'] = $e->getMessage();
             $dato['bool'] = -1;
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
+    private function ConsultarPorDependencia()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+
+            $query = "SELECT id_unidad, nombre_unidad 
+                  FROM unidad 
+                  WHERE id_dependencia = :id_dependencia AND estatus = 1 
+                  ORDER BY nombre_unidad";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":id_dependencia", $this->id_dependencia);
+            $stm->execute();
+
+            $dato['resultado'] = "consultar_por_dependencia";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
         }
         $this->Cerrar_Conexion($this->conexion, $stm);
         return $dato;
@@ -124,7 +151,6 @@ class Unidad extends Conexion
                     $dato['estado'] = 1;
                     $dato['mensaje'] = "Se registró el unidad exitosamente";
                     $this->conexion->commit();
-
                 } else {
 
                     $this->conexion->rollBack();
@@ -132,7 +158,6 @@ class Unidad extends Conexion
                     $dato['estado'] = -1;
                     $dato['mensaje'] = "Error, Dependencia no existe";
                 }
-
             } catch (PDOException $e) {
                 $this->conexion->rollBack();
                 $dato['resultado'] = "error";
@@ -180,7 +205,6 @@ class Unidad extends Conexion
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = "Error, Dependencia no existe";
-
             }
         } catch (PDOException $e) {
             $this->conexion->rollBack();
@@ -274,7 +298,6 @@ class Unidad extends Conexion
             $stm->execute();
             $dato['resultado'] = "consultar_eliminados";
             $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
 
             $this->conexion->commit();
@@ -301,8 +324,9 @@ class Unidad extends Conexion
             $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Ente restaurado exitosamente";
-            $this->conexion->commit();
+        } catch (PDOException $e) {
 
+            $this->conexion->commit();
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['resultado'] = "error";
@@ -340,38 +364,27 @@ class Unidad extends Conexion
 
     public function Transaccion($peticion)
     {
-
         switch ($peticion['peticion']) {
-
             case 'registrar':
                 return $this->Registrar();
-
             case 'validar':
                 return $this->Validar();
-
             case 'consultar':
                 return $this->Consultar();
-
             case 'consultar_eliminadas':
                 return $this->ConsultarEliminados();
-
             case 'filtrar':
                 return $this->FiltrarUnidad_Dependencia();
-
             case 'actualizar':
                 return $this->Actualizar();
-
             case 'eliminar':
                 return $this->Eliminar();
-
             case 'reactivar':
                 return $this->Reactivar();
-
+            case 'consultar_por_dependencia': // NUEVO CASO
+                return $this->ConsultarPorDependencia();
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
-
         }
-
     }
 }
-?>

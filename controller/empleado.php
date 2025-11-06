@@ -12,7 +12,7 @@ if (is_file("view/" . $page . ".php")) {
 	require_once "model/unidad.php";
 	require_once "model/dependencia.php";
 	require_once "model/ente.php";
-
+	require_once "model/usuario.php";
 
 	$titulo = "Gestionar Empleados";
 	$cabecera = array('Cédula', "Nombre", "Apellido", "Teléfono", "Correo", "Dependencia", "Unidad", "Cargo", "Modificar/Eliminar");
@@ -22,7 +22,7 @@ if (is_file("view/" . $page . ".php")) {
 	$unidad = new Unidad();
 	$dependencia = new Dependencia();
 	$ente = new Ente();
-
+	$usuario = new Usuario();
 
 	if (!isset($permisos['empleado']['ver']['estado']) || $permisos['empleado']['ver']['estado'] == "0") {
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó entrar al Módulo de Empleado";
@@ -35,8 +35,49 @@ if (is_file("view/" . $page . ".php")) {
 		$json['resultado'] = "entrada";
 		echo json_encode($json);
 		$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Ingresó al Módulo de Empleado";
-
 		Bitacora($msg, "Empleado");
+		exit;
+	}
+
+	if (isset($_POST['permisos_modulo'])) {
+		$json['resultado'] = 'permisos_modulo';
+		$json['permisos'] = $permisos;
+		echo json_encode($json);
+		exit;
+	}
+
+	// === NUEVAS PETICIONES PARA CARGAR DATOS INICIALES ===
+	if (isset($_POST["cargar_ente"])) {
+		$resultado = $ente->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["cargar_cargo"])) {
+		$resultado = $cargo->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["cargar_dependencia"])) {
+		if (isset($_POST["id_ente"])) {
+			$dependencia->set_id_ente($_POST["id_ente"]);
+			$resultado = $dependencia->Transaccion(['peticion' => 'consultar_por_ente']);
+		} else {
+			$resultado = ['resultado' => 'error', 'mensaje' => 'ID de ente no proporcionado'];
+		}
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["cargar_unidad"])) {
+		if (isset($_POST["id_dependencia"])) {
+			$unidad->set_id_dependencia($_POST["id_dependencia"]);
+			$resultado = $unidad->Transaccion(['peticion' => 'consultar_por_dependencia']);
+		} else {
+			$resultado = ['resultado' => 'error', 'mensaje' => 'ID de dependencia no proporcionado'];
+		}
+		echo json_encode($resultado);
 		exit;
 	}
 
@@ -46,107 +87,87 @@ if (is_file("view/" . $page . ".php")) {
 			if (isset($_POST["cedula"]) && isset($_POST["particle"])) {
 				$cedula = $_POST["particle"] . "" . $_POST["cedula"];
 			}
+
+			// Validaciones mejoradas adaptadas del módulo de bien
 			if (preg_match(c_regex['Cedula'], $cedula) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else if (!isset($_POST["apellido"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["apellido"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Apellido no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if (!isset($_POST["correo"]) || preg_match(c_regex['Correo'], $_POST["correo"]) == 0) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Correo no válido";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else if (!isset($_POST["telefono"]) || preg_match(c_regex['Telefono'], $_POST["telefono"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Teléfono no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if (!isset($_POST["unidad"]) || preg_match(c_regex['ID_Generado'], $_POST["unidad"]) == 0) {
+			} else if (!isset($_POST["correo"]) || preg_match(c_regex['Correo'], $_POST["correo"]) == 0) {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Id de la Unidad no válido";
+				$json['mensaje'] = "Error, Correo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if (!isset($_POST["cargo"]) || preg_match(c_regex['ID_Generado'], $_POST["cargo"]) == 0) {
+			} else if (!isset($_POST["cargo"]) || $_POST["cargo"] == "default") {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Id del Cargo no válido";
+				$json['mensaje'] = "Error, Cargo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
+			} else if (!isset($_POST["unidad"]) || $_POST["unidad"] == "default") {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Unidad no válida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 			} else {
-				$empleado->set_correo($_POST["correo"]);
-				$usuario->set_correo($_POST["correo"]);
-
-				$usuario->set_cedula($cedula);
-				$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
-
-
 				$empleado->set_cedula($cedula);
-				$validarEmpleado = $empleado->Transaccion(['peticion' => 'validar']);
+				$empleado->set_nombre($_POST["nombre"]);
+				$empleado->set_apellido($_POST["apellido"]);
+				$empleado->set_telefono($_POST["telefono"]);
+				$empleado->set_correo($_POST["correo"]);
+				$empleado->set_id_cargo($_POST["cargo"]);
+				$empleado->set_id_unidad($_POST["unidad"]);
 
-				if ($validarUsuario['bool'] == 0 && $validarEmpleado['bool'] == 0) {
+				$resultado = $empleado->Transaccion(['peticion' => 'registrar']);
 
-					$empleado->set_nombre($_POST["nombre"]);
-					$empleado->set_apellido($_POST["apellido"]);
-					$empleado->set_telefono($_POST["telefono"]);
-					$empleado->set_id_unidad($_POST["unidad"]);
-					$empleado->set_id_cargo($_POST["cargo"]);
-
-					$clave = password_hash($cedula, PASSWORD_DEFAULT);
+				if ($resultado['estado'] == 1) {
+					// CORRECCIÓN COMPLETA: Crear usuario automáticamente para el empleado
+					$usuario->set_cedula($cedula);
 					$usuario->set_nombre_usuario($cedula);
-					$usuario->set_rol('SOLIC00520251001');
-					$usuario->set_nombres($_POST["nombre"]);
-					$usuario->set_apellidos($_POST["apellido"]);
-					$usuario->set_correo($_POST["correo"]);
-					$usuario->set_telefono($_POST["telefono"]);
-					$usuario->set_clave($clave);
+					$usuario->set_nombres($_POST["nombre"]); // AÑADIDO: Establecer nombres
+					$usuario->set_apellidos($_POST["apellido"]); // AÑADIDO: Establecer apellidos
+					$usuario->set_telefono($_POST["telefono"]); // AÑADIDO: Establecer teléfono
+					$usuario->set_correo($_POST["correo"]); // AÑADIDO: Establecer correo
+					$usuario->set_clave(password_hash($cedula, PASSWORD_DEFAULT)); // Contraseña inicial = cédula
+					$usuario->set_rol('SOLIC00520251001'); // Rol por defecto
+					$usuario->set_tema(0);
 
-					$peticion["peticion"] = "registrar";
-					$json = $empleado->Transaccion($peticion);
+					$crearUsuario = $usuario->Transaccion(['peticion' => 'registrar']);
 
-					if ($json['estado'] == 1) {
-						$usuario->Transaccion(['peticion' => 'registrar']);
+					// DEBUG: Verificar qué devuelve la creación del usuario
+					error_log("Resultado creación usuario: " . print_r($crearUsuario, true));
+
+					if (isset($crearUsuario['estado']) && $crearUsuario['estado'] == 1) {
 						$json['resultado'] = "registrar";
-						$json['mensaje'] = "Se registró el empleado exitosamente";
-						$msgN = "Se registró un Nuevo Empleado";
-						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se registró un nuevo empleado";
-
-						NotificarUsuarios($msgN, "Empleado", ['modulo' => 'EMPLE00520251001', 'accion' => 'ver']);
+						$json['mensaje'] = $resultado['mensaje'] . " y se creó su usuario automáticamente";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), registró al empleado " . $cedula . " y creó su usuario";
 					} else {
-						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al registrar un nuevo empleado";
+						// Si no se pudo crear el usuario, igualmente se registró el empleado
+						$json['resultado'] = "registrar";
+						$json['mensaje'] = $resultado['mensaje'];
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), registró al empleado " . $cedula . " pero falló la creación del usuario: " . ($crearUsuario['mensaje'] ?? 'Error desconocido');
 					}
-
 				} else {
 					$json['resultado'] = "error";
-					$json['mensaje'] = "Error, Empleado ya registrado";
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), empleado y/o empleado registrado";
+					$json['mensaje'] = $resultado['mensaje'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó registrar al empleado " . $cedula;
 				}
 			}
 		} else {
 			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, No tienes permiso para registrar Empleado";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'registrar' denegado";
+			$json['mensaje'] = "No tiene permisos para registrar empleados";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó registrar un empleado sin permisos";
 		}
-		echo json_encode($json);
-		Bitacora($msg, "Empleado");
-		exit;
-	}
 
-	if (isset($_POST['consultar'])) {
-		$peticion["peticion"] = "consultar";
-		// Si la petición viene del módulo técnico, agrega el filtro
-		if (isset($_POST['rol']) && $_POST['rol'] == 'tecnico') {
-			$peticion['rol'] = 'tecnico';
-		}
-		$json = $empleado->Transaccion($peticion);
+		Bitacora($msg, "Empleado");
 		echo json_encode($json);
 		exit;
 	}
@@ -157,83 +178,63 @@ if (is_file("view/" . $page . ".php")) {
 			if (isset($_POST["cedula"]) && isset($_POST["particle"])) {
 				$cedula = $_POST["particle"] . "" . $_POST["cedula"];
 			}
+
+			// Validaciones mejoradas
 			if (preg_match(c_regex['Cedula'], $cedula) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else if (!isset($_POST["nombre"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["nombre"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Nombre no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else if (!isset($_POST["apellido"]) || preg_match(c_regex['Nombre_NaturalCorto'], $_POST["apellido"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Apellido no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if (!isset($_POST["correo"]) || preg_match(c_regex['Correo'], $_POST["correo"]) == 0) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Correo no válido";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else if (!isset($_POST["telefono"]) || preg_match(c_regex['Telefono'], $_POST["telefono"]) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Teléfono no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if (!isset($_POST["unidad"]) || preg_match(c_regex['ID_Generado'], $_POST["unidad"]) == 0) {
+			} else if (!isset($_POST["correo"]) || preg_match(c_regex['Correo'], $_POST["correo"]) == 0) {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Id de la Unidad no válido";
+				$json['mensaje'] = "Error, Correo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if (!isset($_POST["cargo"]) || preg_match(c_regex['ID_Generado'], $_POST["cargo"]) == 0) {
+			} else if (!isset($_POST["cargo"]) || $_POST["cargo"] == "default") {
 				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, Id del Cargo no válido";
+				$json['mensaje'] = "Error, Cargo no válido";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
+			} else if (!isset($_POST["unidad"]) || $_POST["unidad"] == "default") {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Unidad no válida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
 			} else {
-
-				$usuario->set_cedula($_POST["cedula"]);
-				$validarUsuario = $usuario->Transaccion(['peticion' => 'validar']);
-
-				$empleado->set_cedula($_POST["cedula"]);
+				$empleado->set_cedula($cedula);
 				$empleado->set_nombre($_POST["nombre"]);
 				$empleado->set_apellido($_POST["apellido"]);
-				$empleado->set_correo($_POST["correo"]);
 				$empleado->set_telefono($_POST["telefono"]);
-				$empleado->set_id_unidad($_POST["unidad"]);
+				$empleado->set_correo($_POST["correo"]);
 				$empleado->set_id_cargo($_POST["cargo"]);
-				$peticion["peticion"] = "modificar";
-				$json = $empleado->Transaccion($peticion);
+				$empleado->set_id_unidad($_POST["unidad"]);
 
-				if ($json['estado'] == 1) {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó del empleado con la CI: " . $_POST['cedula'];
+				$resultado = $empleado->Transaccion(['peticion' => 'modificar']);
 
-					if ($validarUsuario['bool'] == 1) {
-						$usuario->set_nombres($_POST["nombre"]);
-						$usuario->set_apellidos($_POST["apellido"]);
-						$usuario->set_correo($_POST["correo"]);
-						$usuario->set_telefono($_POST["telefono"]);
-						$estado = $usuario->Transaccion(['peticion' => 'modificar_empleado']);
-
-						if ($estado) {
-							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se modificó el registro del usuario empleado con la CI: " . $_POST['cedula'];
-							$msgN = "Se modificó un Empleado con la Cédula: " . $_POST['cedula'];
-							NotificarUsuarios($msgN, "Empleado", ['modulo' => 'EMPLE00520251001', 'accion' => 'ver']);
-						} else {
-							$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar al usuario empleado";
-						}
-					}
+				if ($resultado['estado'] == 1) {
+					$json['resultado'] = "modificar";
+					$json['mensaje'] = $resultado['mensaje'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), modificó al empleado " . $cedula;
 				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al modificar empleado";
+					$json['resultado'] = "error";
+					$json['mensaje'] = $resultado['mensaje'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó modificar al empleado " . $cedula;
 				}
 			}
 		} else {
 			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, No tienes permiso para modificar Empleado";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'modificar' denegado";
+			$json['mensaje'] = "No tiene permisos para modificar empleados";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó modificar un empleado sin permisos";
 		}
+
 		Bitacora($msg, "Empleado");
 		echo json_encode($json);
 		exit;
@@ -241,116 +242,163 @@ if (is_file("view/" . $page . ".php")) {
 
 	if (isset($_POST["eliminar"])) {
 		if (isset($permisos['empleado']['eliminar']['estado']) && $permisos['empleado']['eliminar']['estado'] == '1') {
-			$cedula = "";
-			if (isset($_POST["cedula"]) && isset($_POST["particle"])) {
-				$cedula = $_POST["particle"] . "" . $_POST["cedula"];
-			}
-			if (preg_match("/^[VE]{1}[-]{1}[0-9]{7,10}$/", $cedula) == 0) {
+			$cedula = $_POST["cedula"];
+
+			if (preg_match(c_regex['Cedula'], $cedula) == 0) {
 				$json['resultado'] = "error";
 				$json['mensaje'] = "Error, Cédula no válida";
 				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
-			} else if ($_SESSION['user']['cedula'] == $cedula) {
-				$json['resultado'] = "error";
-				$json['mensaje'] = "Error, No puede eliminarse el empleado actual";
-				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
-
 			} else {
-
 				$empleado->set_cedula($cedula);
-				$peticion["peticion"] = "eliminar";
-				$json = $empleado->Transaccion($peticion);
-				if ($json['estado'] == 1) {
+				$resultado = $empleado->Transaccion(['peticion' => 'eliminar']);
+
+				if ($resultado['estado'] == 1) {
+					// CORRECCIÓN: Eliminar usuario asociado (eliminación lógica)
 					$usuario->set_cedula($cedula);
-					$usuario->Transaccion(['peticion' => 'eliminar']);
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), Se eliminó un empleado con la CI: " . $_POST['cedula'];
-					$msgN = "Se eliminó un Empleado con la Cédula: " . $_POST['cedula'];
-					NotificarUsuarios($msgN, "Empleado", ['modulo' => 'EMPLE00520251001', 'accion' => 'ver']);
+					$eliminarUsuario = $usuario->Transaccion(['peticion' => 'eliminar']);
+
+					if (isset($eliminarUsuario['estado']) && $eliminarUsuario['estado'] == 1) {
+						$json['resultado'] = "eliminar";
+						$json['mensaje'] = $resultado['mensaje'] . " y se eliminó su usuario automáticamente";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), eliminó al empleado " . $cedula . " y su usuario";
+					} else {
+						$json['resultado'] = "eliminar";
+						$json['mensaje'] = $resultado['mensaje'] . " (pero no se pudo eliminar el usuario: " . ($eliminarUsuario['mensaje'] ?? 'Error desconocido') . ")";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), eliminó al empleado " . $cedula . " pero falló la eliminación del usuario: " . ($eliminarUsuario['mensaje'] ?? 'Error desconocido');
+					}
 				} else {
-					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), error al eliminar un empleado";
+					$json['resultado'] = "error";
+					$json['mensaje'] = $resultado['mensaje'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó eliminar al empleado " . $cedula;
 				}
 			}
 		} else {
 			$json['resultado'] = "error";
-			$json['mensaje'] = "Error, No tienes permiso para eliminar Empleado";
-			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), permiso 'eliminar' denegado";
+			$json['mensaje'] = "No tiene permisos para eliminar empleados";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó eliminar un empleado sin permisos";
 		}
 
-		echo json_encode($json);
 		Bitacora($msg, "Empleado");
+		echo json_encode($json);
 		exit;
 	}
 
-	if (isset($_POST['buscar_usuario'])) {
-		if (!isset($_POST["cedula"]) || preg_match(c_regex['Cedula'], $_POST["cedula"]) == 0) {
-			$json["resultado"] = "error";
-			$json["mensaje"] = "Cédula no válida";
-		} else {
-			$peticion["peticion"] = "validar";
-			$empleado->set_cedula($_POST["cedula"]);
-			$json['empleado'] = $empleado->Transaccion($peticion);
-			$json['unidad'] = NULL;
-			$json['dependencia'] = NULL;
-			$json['ente'] = NULL;
+	if (isset($_POST["reactivar"])) {
+		if (isset($permisos['empleado']['reactivar']['estado']) && $permisos['empleado']['reactivar']['estado'] == '1') {
+			$cedula = $_POST["cedula"];
 
-			if ($json['empleado']['bool'] == 1) {
-				$unidad->set_id($json['empleado']['arreglo']['id_unidad']);
-				$json['unidad'] = $unidad->Transaccion($peticion);
-				if ($json['unidad']['bool'] == 1) {
-					$dependencia->set_id($json['unidad']['arreglo']['id_dependencia']);
-					$json['dependencia'] = $dependencia->Transaccion($peticion);
-					if ($json['dependencia']['bool'] == 1) {
-						$ente->set_id($json['dependencia']['arreglo']['id_ente']);
-						$json['ente'] = $ente->Transaccion($peticion);
+			if (preg_match(c_regex['Cedula'], $cedula) == 0) {
+				$json['resultado'] = "error";
+				$json['mensaje'] = "Error, Cédula no válida";
+				$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió datos no válidos";
+			} else {
+				$empleado->set_cedula($cedula);
+				$resultado = $empleado->Transaccion(['peticion' => 'reactivar']);
+
+				if ($resultado['estado'] == 1) {
+					// CORRECCIÓN: Reactivar usuario asociado
+					$usuario->set_cedula($cedula);
+					$reactivarUsuario = $usuario->Transaccion(['peticion' => 'reactivar']);
+
+					if (isset($reactivarUsuario['estado']) && $reactivarUsuario['estado'] == 1) {
+						$json['resultado'] = "reactivar";
+						$json['mensaje'] = $resultado['mensaje'] . " y se reactivó su usuario automáticamente";
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), reactivó al empleado " . $cedula . " y su usuario";
+					} else {
+						$json['resultado'] = "reactivar";
+						$json['mensaje'] = $resultado['mensaje'] ;
+						$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), reactivó al empleado " . $cedula . ($reactivarUsuario['mensaje'] ?? 'Error desconocido');
 					}
+				} else {
+					$json['resultado'] = "error";
+					$json['mensaje'] = $resultado['mensaje'];
+					$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó reactivar al empleado " . $cedula;
 				}
 			}
-			$json["resultado"] = "buscar_usuario";
+		} else {
+			$json['resultado'] = "error";
+			$json['mensaje'] = "No tiene permisos para reactivar empleados";
+			$msg = "(" . $_SESSION['user']['nombre_usuario'] . "), intentó reactivar un empleado sin permisos";
 		}
 
+		Bitacora($msg, "Empleado");
 		echo json_encode($json);
 		exit;
 	}
 
-	if (isset($_POST['cargar_ente'])) {
-		$peticion["peticion"] = "filtrar";
-		$json = $ente->Transaccion($peticion);
-		$json["resultado"] = "cargar_ente";
-		echo json_encode($json);
+	if (isset($_POST["consultar"])) {
+		$resultado = $empleado->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
 		exit;
 	}
 
-	if (isset($_POST['cargar_dependencia'])) {
-		$peticion["peticion"] = "filtrar";
-		$dependencia->set_id_ente($_POST['id_ente']);
-		$json = $dependencia->Transaccion($peticion);
-		$json["resultado"] = "cargar_dependencia";
-		echo json_encode($json);
+	if (isset($_POST["consultar_eliminadas"])) {
+		$resultado = $empleado->Transaccion(['peticion' => 'consultar_eliminadas']);
+		echo json_encode($resultado);
 		exit;
 	}
 
-	if (isset($_POST['cargar_unidad'])) {
-		$peticion["peticion"] = "filtrar";
-		$unidad->set_id_dependencia($_POST['id_dependencia']);
-		$json = $unidad->Transaccion($peticion);
-		$json["resultado"] = "cargar_unidad";
-		echo json_encode($json);
+	if (isset($_POST["consultar_cargos"])) {
+		$resultado = $cargo->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
 		exit;
 	}
 
-	if (isset($_POST['cargar_cargo'])) {
-		$peticion["peticion"] = "consultar";
-		$json = $cargo->Transaccion($peticion);
-		$json["resultado"] = "cargar_cargo";
-		echo json_encode($json);
+	if (isset($_POST["consultar_unidades"])) {
+		$resultado = $unidad->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
 		exit;
 	}
 
-	if (isset($_POST["reporte"])) {
+	if (isset($_POST["consultar_dependencias"])) {
+		$resultado = $dependencia->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
+		exit;
+	}
 
+	if (isset($_POST["consultar_entes"])) {
+		$resultado = $ente->Transaccion(['peticion' => 'consultar']);
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["consultar_empleado"])) {
+		$cedula = $_POST["cedula"];
+		$empleado->set_cedula($cedula);
+		$resultado = $empleado->Transaccion(['peticion' => 'validar']);
+
+		// CORRECCIÓN: Incluir datos de ente, dependencia y unidad
+		if ($resultado['bool'] == 1) {
+			$datosCompletos = $empleado->Transaccion(['peticion' => 'consultar_por_cedula', 'cedula' => $cedula]);
+			if (isset($datosCompletos['datos'][0])) {
+				$resultado['arreglo'] = array_merge($resultado['arreglo'], $datosCompletos['datos'][0]);
+			}
+		}
+
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["listar_tecnicos"])) {
+		$resultado = $empleado->Transaccion(['peticion' => 'listar_tecnicos']);
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["contar_empleados"])) {
+		$resultado = $empleado->Transaccion(['peticion' => 'contar_empleados']);
+		echo json_encode($resultado);
+		exit;
+	}
+
+	if (isset($_POST["tecnicos_por_area_rendimiento"])) {
+		$area_id = $_POST["area_id"];
+		$resultado = $empleado->Transaccion(['peticion' => 'tecnicos_por_area_rendimiento', 'area_id' => $area_id]);
+		echo json_encode($resultado);
+		exit;
 	}
 
 	require_once "view/" . $page . ".php";
 } else {
-	require_once "view/404.php";
+	echo "Página no encontrada";
 }

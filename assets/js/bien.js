@@ -781,9 +781,6 @@ function selectEmpleado(arreglo) {
         $("#cedula_empleado").append(
             new Option('Seleccione un Empleado', 'default')
         );
-        $("#cedula_empleado").append(
-            new Option('No asignar Bien', '')
-        );
         arreglo.forEach(item => {
             $("#cedula_empleado").append(
                 new Option(item.nombre + " " + item.apellido + " - " + item.cedula, item.cedula)

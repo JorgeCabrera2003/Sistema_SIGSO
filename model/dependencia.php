@@ -64,7 +64,6 @@ class Dependencia extends Conexion
         if ($this->ente == NULL) {
 
             $this->ente = new Ente();
-
         }
 
         return $this->ente;
@@ -179,17 +178,44 @@ class Dependencia extends Conexion
                 $dato['estado'] = 1;
                 $dato['mensaje'] = "Se modificaron los datos de la dependencia exitosamente";
                 $this->conexion->commit();
-
             } else {
                 $this->conexion->rollBack();
                 $dato['resultado'] = "error";
                 $dato['estado'] = -1;
                 $dato['mensaje'] = "No existe el Ente seleccionado";
             }
-
         } catch (PDOException $e) {
             $this->conexion->rollBack();
             $dato['estado'] = -1;
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conexion, $stm);
+        return $dato;
+    }
+
+    private function ConsultarPorEnte()
+    {
+        $dato = [];
+        try {
+            $this->conexion = new Conexion("sistema");
+            $this->conexion = $this->conexion->Conex();
+            $this->conexion->beginTransaction();
+
+            $query = "SELECT id, nombre 
+                  FROM dependencia 
+                  WHERE id_ente = :id_ente AND estatus = 1 
+                  ORDER BY nombre";
+
+            $stm = $this->conexion->prepare($query);
+            $stm->bindParam(":id_ente", $this->id_ente);
+            $stm->execute();
+
+            $dato['resultado'] = "consultar_por_ente";
+            $dato['datos'] = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $this->conexion->commit();
+        } catch (PDOException $e) {
+            $this->conexion->rollBack();
             $dato['resultado'] = "error";
             $dato['mensaje'] = $e->getMessage();
         }
@@ -333,7 +359,6 @@ class Dependencia extends Conexion
             $dato['resultado'] = "reactivar";
             $dato['estado'] = 1;
             $dato['mensaje'] = "Dependecia restaurada exitosamente";
-
         } catch (PDOException $e) {
 
             $this->conexion->commit();
@@ -367,38 +392,29 @@ class Dependencia extends Conexion
 
     public function Transaccion($peticion)
     {
-
         switch ($peticion['peticion']) {
-
             case 'registrar':
                 return $this->Registrar();
-
             case 'validar':
                 $validar = $this->Validar();
                 $this->Cerrar_Conexion($this->conexion, $none);
                 return $validar;
-
             case 'consultar':
                 return $this->Consultar();
-
             case 'consultar_eliminadas':
                 return $this->ConsultarEliminados();
-
             case 'reactivar':
                 return $this->Reactivar();
-
             case 'consultar_areas':
                 return $this->ConsultarAreas();
-
             case 'actualizar':
                 return $this->Actualizar();
-
             case 'eliminar':
                 return $this->Eliminar();
-
             case 'filtrar':
                 return $this->FiltradoDependencia();
-
+            case 'consultar_por_ente': // NUEVO CASO
+                return $this->ConsultarPorEnte();
             default:
                 return "Operacion: " . $peticion['peticion'] . " no valida";
         }
