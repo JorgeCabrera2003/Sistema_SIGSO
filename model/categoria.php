@@ -31,9 +31,10 @@ class Categoria extends Conexion
     public function set_id_servicio($tipo_servicio)
     {
         if (preg_match('/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/', $tipo_servicio) == 0) {
-            throw new ValueError("Nombre no válido");
+            $this->id_tipo_servicio = NULL;
+        } else {
+            $this->id_tipo_servicio = $tipo_servicio;
         }
-        $this->id_tipo_servicio = $tipo_servicio;
     }
 
     public function set_nombre($nombre)
@@ -115,13 +116,17 @@ class Categoria extends Conexion
                 $this->conexion = new Conexion("sistema");
                 $this->conexion = $this->conexion->Conex();
 
-                $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-                $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+                if (preg_match('/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/', $this->get_id_servicio()) == 0) {
+                    $dato['servicio_asignado'] = 0;
+                    $this->set_id_servicio(NULL);
+                } else {
+                    $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
+                    $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+                }
 
-                if ($boolServicio['bool'] == 1) {
+                if (isset($boolServicio['bool']) && $boolServicio['bool'] == 1) {
                     $dato['servicio_asignado'] = 1;
                 } else {
-                    $this->set_id_servicio(NULL);
                     $dato['servicio_asignado'] = 0;
                 }
 
@@ -159,15 +164,20 @@ class Categoria extends Conexion
             $this->conexion = new Conexion("sistema");
             $this->conexion = $this->conexion->Conex();
 
-            $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
-            $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+            if (preg_match('/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/', $this->get_id_servicio()) == 0) {
+                $dato['servicio_asignado'] = 0;
+                $this->set_id_servicio(NULL);
+            } else {
+                $this->LlamarTipoServicio()->set_codigo($this->get_id_servicio());
+                $boolServicio = $this->LlamarTipoServicio()->Transaccion(['peticion' => 'validar']);
+            }
 
-            if ($boolServicio['bool'] == 1) {
+            if (isset($boolServicio['bool']) && $boolServicio['bool'] == 1) {
                 $dato['servicio_asignado'] = 1;
             } else {
-                $this->set_id_servicio(NULL);
                 $dato['servicio_asignado'] = 0;
             }
+
             $query = "UPDATE categoria SET nombre_categoria = :nombre, id_tipo_servicio = :tipo_servicio WHERE id_categoria = :id";
 
             $stm = $this->conexion->prepare($query);
@@ -312,7 +322,7 @@ class Categoria extends Conexion
 
             case 'eliminar':
                 return $this->Eliminar();
-            
+
             case 'reactivar':
                 return $this->Reactivar();
 

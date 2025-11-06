@@ -12,7 +12,7 @@ function manejarCambioEstadoMarca(formularioValido) {
 
 	if (accion === "Eliminar") {
 		// Para eliminar solo validamos el ID
-		const idValido = $("#id_marca").length && $("#id_marca").hasClass("is-valid");
+		const idValido = validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_marca"), $("#sid_marca"), '');
 		$('#enviar').prop('disabled', !idValido);
 	} else {
 		// Para registrar y modificar validamos todos los campos requeridos
@@ -62,7 +62,7 @@ $(document).ready(function () {
 
 			case "Eliminar":
 				// Validar solo el ID para eliminar
-				if ($("#id_marca").length && $("#id_marca").val().trim() !== "") {
+				if (validarKeyUp(/^[A-Z0-9]{3,5}[A-Z0-9]{3}[0-9]{8}[0-9]{0,6}[0-9]{0,2}$/, $("#id_marca"), $("#sid_marca"), '')) {
 					confirmacion = await confirmarAccion("Se eliminará una Marca", "¿Está seguro de realizar la acción?", "warning");
 					if (confirmacion) {
 						enviarFormulario('eliminar');

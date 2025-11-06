@@ -50,7 +50,6 @@ if (is_file("view/" . $page . ".php")) {
                 $categoria->set_id(generarID($_POST["nombre"]));
                 $categoria->set_nombre($_POST["nombre"]);
                 $categoria->set_id_servicio($_POST['id_tipoServicio']);
-                $tipo_servicio->set_codigo($_POST['id_tipoServicio']);
                 $peticion["peticion"] = "registrar";
                 $json = $categoria->Transaccion($peticion);
 
@@ -172,7 +171,7 @@ if (is_file("view/" . $page . ".php")) {
 
     if (isset($_POST["eliminar"])) {
         if (isset($permisos['categoria']['eliminar']['estado']) && $permisos['categoria']['eliminar']['estado'] == '1') {
-            if (preg_match("/^[A-Z0-9]{1,2}[A-Z0-9]{1,2}[0-9]{4}[0-9]{8}$/", $_POST["id_categoria"]) == 0) {
+            if (!isset($_POST["id_categoria"]) || preg_match(c_regex['ID_Generado'], $_POST["id_categoria"]) == 0) {
                 $json['resultado'] = "error";
                 $json['mensaje'] = "Error, Id del Categoria no válido";
                 $msg = "(" . $_SESSION['user']['nombre_usuario'] . "), envió solicitud no válida";
