@@ -2,14 +2,13 @@ $(document).ready(function () {
     // Verificar que userCedula esté definido
     if (typeof userCedula === 'undefined') {
         console.error('userCedula no está definido. Asegúrate de establecer esta variable globalmente.');
-        userCedula = ''; // Asignar valor por defecto para evitar errores
+        userCedula = '';
     }
 
     consultar();
     registrarEntrada();
     capaValidar();
 
-    // Inicializar select2 para equipos con dropdownParent igual que en bien.js
     $("#select_equipos").select2({
         dropdownParent: $('#modal1'),
         width: '100%',
@@ -26,7 +25,6 @@ $(document).ready(function () {
         $("#modal1").modal("show");
     });
 
-    // Función robusta para cargar equipos asociados al empleado
     async function cargarEquiposSolicitante() {
         const $select = $('#select_equipos');
         $select.empty().append('<option value="">Cargando equipos...</option>');
@@ -59,7 +57,6 @@ $(document).ready(function () {
                 $select.append('<option value="">No tiene equipos asignados</option>');
             }
 
-            // Re-inicializa select2 para refrescar opciones (igual que en bien.js)
             $select.select2({
                 dropdownParent: $('#modal1'),
                 width: '100%',
@@ -91,7 +88,6 @@ $(document).ready(function () {
                     datos.append('solicitud', '');
                     datos.append('motivo', $("#motivo").val());
 
-                    // Agregar el id del equipo seleccionado si existe
                     const idEquipo = $("#select_equipos").val();
                     if (idEquipo && idEquipo !== "") {
                         datos.append('id_equipo', idEquipo);
@@ -203,18 +199,18 @@ $(document).ready(function () {
 
         $("#motivo").on("keyup", function () {
             validarKeyUp(
-                /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/,
+                /^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{5,200}$/,
                 $(this),
                 $("#smotivo"),
-                "El motivo debe tener entre 3 y 30 caracteres"
+                "El motivo debe tener entre 5 y 200 caracteres"
             );
         });
     }
 
     function validarenvio() {
-        if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/, $("#motivo"),
-            $("#smotivo"), "El motivo debe de tener 3 letras minimo") == 0) {
-            mensajes("error", 10000, "Verifica", "El motivo debe tener entre 3 y 30 caracteres");
+        if (validarKeyUp(/^[0-9 a-zA-ZáéíóúüñÑçÇ -.]{5,200}$/, $("#motivo"),
+            $("#smotivo"), "El motivo debe de tener 5 letras minimo") == 0) {
+            mensajes("error", 10000, "Verifica", "El motivo debe tener entre 5 y 200 caracteres");
             return false;
         }
         return true;

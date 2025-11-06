@@ -352,6 +352,7 @@ function validarenvio() {
 
     return valido;
 }
+
 function cargarEquiposDisponibles(equipo_actual = "") {
     $.ajax({
         url: "",
@@ -373,6 +374,7 @@ function cargarEquiposDisponibles(equipo_actual = "") {
         }
     });
 }
+
 function limpia() {
 
 	$("#id_punto_conexion").val(""); 

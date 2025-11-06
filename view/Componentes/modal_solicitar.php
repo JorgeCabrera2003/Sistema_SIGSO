@@ -8,8 +8,7 @@
       </div>
       <div class="modal-body">
         <div class="form-floating mb-3 mt-4">
-          <input placeholder="" class="form-control" name="motivo" type="text"
-            id="motivo" maxlength="200">
+          <textarea placeholder="" class="form-control" name="motivo" id="motivo" maxlength="200"></textarea>
           <span id="smotivo"></span>
           <label for="motivo" class="form-label">Describa su Solicitud</label>
         </div>

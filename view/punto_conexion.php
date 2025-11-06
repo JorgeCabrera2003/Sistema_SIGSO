@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <?php require_once("Componentes/head.php"); ?>
     <style>
@@ -97,10 +98,11 @@
             border-left-color: #dc3545 !important;
             border-color: #dc3545 !important;
         }
+
         .equipo-card.equipo-conectado:hover {
             background-color: #ffd6d6 !important;
         }
-        
+
         /* Estilos para el panel de filtros */
         #filtrosEquipos .card-body {
             padding: 1rem;
@@ -138,7 +140,7 @@
 
         .equipo-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-left-color: #0d6efd;
         }
 
@@ -149,13 +151,14 @@
         }
     </style>
 </head>
+
 <body>
     <?php require_once("Componentes/menu.php"); ?>
 
     <div class="pagetitle mb-4">
         <h1>Gestión de Puntos de Conexión</h1>
         <nav>
-            
+
         </nav>
     </div><!-- End Page Title -->
 
@@ -164,7 +167,7 @@
         <div class="col-md-12 mb-4">
             <div class="card">
                 <div class="card-header">
-                 </div>
+                </div>
                 <div class="card-body">
                     <form id="filtrosConexion">
                         <div class="row">
@@ -493,7 +496,7 @@
             // Inicializar paginación de equipos
             renderEquiposPaginados(equiposOriginal, paginaActual);
             actualizarPaginacionEquipos(equiposOriginal);
-            
+
             // Inicializar contador
             actualizarContadorEquipos($('.equipo-item:visible').length, $('.equipo-item').length);
 
@@ -739,12 +742,18 @@
                                 $.ajax({
                                     url: '?page=interconexion',
                                     type: 'POST',
-                                    data: { get_puertos_patch_panel: true, codigo_patch_panel: pp.codigo_bien },
+                                    data: {
+                                        get_puertos_patch_panel: true,
+                                        codigo_patch_panel: pp.codigo_bien
+                                    },
                                     success: function(resPatch) {
                                         try {
                                             const puertosDisponibles = JSON.parse(resPatch);
                                             if (Array.isArray(puertosDisponibles) && puertosDisponibles.length > 0) {
-                                                listaPatchConPuertos.push({ patch: pp, puertos: puertosDisponibles });
+                                                listaPatchConPuertos.push({
+                                                    patch: pp,
+                                                    puertos: puertosDisponibles
+                                                });
                                             }
                                         } catch (e) {
                                             // ignorar
@@ -840,7 +849,9 @@
                         modoInterconexion = false;
                         patchSeleccionado = null;
                         // Restaurar handler original
-                        $('#btnGestionarPuerto').off('click').on('click', function() { gestionarPuerto(); });
+                        $('#btnGestionarPuerto').off('click').on('click', function() {
+                            gestionarPuerto();
+                        });
                     }
                 });
             });
@@ -899,69 +910,77 @@
         }
 
         function gestionarPuerto() {
-            if (!puertoSeleccionado || !equipoSeleccionado) return;
+    if (!puertoSeleccionado || !equipoSeleccionado) return;
 
-            const accion = puertoSeleccionado.ocupado ? 'desconectar' : 'conectar';
+    const accion = puertoSeleccionado.ocupado ? 'desconectar' : 'conectar';
 
-            // Verificación adicional para evitar conectar un equipo ya conectado
-            if (puertoSeleccionado.ocupado === false) {
-                // Verificar si el equipo ya está conectado en otro puerto
-                let equipoYaConectado = false;
-                <?php
-                // Generar array JS de equipos conectados desde PHP
-                $jsEquiposConectados = json_encode($equiposConectados);
-                ?>
-                let equiposConectados = <?php echo $jsEquiposConectados; ?>;
-                if (equiposConectados.includes(equipoSeleccionado.id)) {
-                    equipoYaConectado = true;
-                }
-                
-                if (equipoYaConectado) {
-                    mostrarAlerta('error', 'Este equipo ya está conectado a otro puerto');
-                    return;
-                }
-            }
-
-            $.ajax({
-                url: "",
-                type: "POST",
-                data: {
-                    conectar_equipo: true,
-                    accion: accion,
-                    codigo_patch_panel: puertoSeleccionado.codigo,
-                    puerto_patch_panel: puertoSeleccionado.numero,
-                    id_equipo: equipoSeleccionado.id
-                },
-                success: function(respuesta) {
-                    try {
-                        const data = JSON.parse(respuesta);
-                        if (data.estado === 1) {
-                            mostrarAlerta('success', data.mensaje);
-                            $('#modalDetalles').modal('hide');
-                            cargarInfraestructura(); // Recargar la vista de dispositivos
-                            resetSelecciones();
-                            // Recargar equipos para actualizar badges
-                            recargarEquipos();
-                        } else {
-                            mostrarAlerta('error', data.mensaje);
-                        }
-                    } catch (e) {
-                        console.error("Error parsing JSON: ", e);
-                        mostrarAlerta('error', 'Error al procesar la respuesta del servidor');
-                    }
-                },
-                error: function() {
-                    mostrarAlerta('error', 'Error de conexión con el servidor');
-                }
-            });
+    // Verificación adicional para evitar conectar un equipo ya conectado
+    if (puertoSeleccionado.ocupado === false) {
+        // Verificar si el equipo ya está conectado en otro puerto
+        let equipoYaConectado = false;
+        <?php
+        // Generar array JS de equipos conectados desde PHP
+        $jsEquiposConectados = json_encode($equiposConectados);
+        ?>
+        let equiposConectados = <?php echo $jsEquiposConectados; ?>;
+        if (equiposConectados.includes(equipoSeleccionado.id)) {
+            equipoYaConectado = true;
         }
+        
+        if (equipoYaConectado) {
+            mostrarAlerta('error', 'Este equipo ya está conectado a otro puerto');
+            return;
+        }
+    }
+
+    // Mostrar loading
+    $('#btnGestionarPuerto').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...');
+
+    $.ajax({
+        url: "",
+        type: "POST",
+        data: {
+            conectar_equipo: true,
+            accion: accion,
+            codigo_patch_panel: puertoSeleccionado.codigo,
+            puerto_patch_panel: puertoSeleccionado.numero,
+            id_equipo: equipoSeleccionado.id
+        },
+        success: function(respuesta) {
+            $('#btnGestionarPuerto').prop('disabled', false).text(puertoSeleccionado.ocupado ? 'Desconectar' : 'Conectar');
+            
+            try {
+                const data = JSON.parse(respuesta);
+                if (data.estado === 1) {
+                    mostrarAlerta('success', data.mensaje);
+                    $('#modalDetalles').modal('hide');
+                    cargarInfraestructura(); // Recargar la vista de dispositivos
+                    resetSelecciones();
+                    // Recargar equipos para actualizar badges
+                    recargarEquipos();
+                } else {
+                    mostrarAlerta('error', data.mensaje);
+                }
+            } catch (e) {
+                console.error("Error parsing JSON: ", e);
+                mostrarAlerta('error', 'Error al procesar la respuesta del servidor');
+            }
+        },
+        error: function() {
+            $('#btnGestionarPuerto').prop('disabled', false).text(puertoSeleccionado.ocupado ? 'Desconectar' : 'Conectar');
+            mostrarAlerta('error', 'Error de conexión con el servidor');
+        }
+    });
+}
 
         // Nueva función para recargar equipos y actualizar la vista
         function recargarEquipos() {
             $.ajax({
                 url: "",
                 type: "POST",
-                data: { peticion: "consultar_equipos_estado" },
+                data: {
+                    peticion: "consultar_equipos_estado"
+                },
                 success: function(respuesta) {
                     try {
                         const data = JSON.parse(respuesta);
@@ -1296,4 +1315,5 @@
         });
     </script>
 </body>
+
 </html>

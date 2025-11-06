@@ -15,8 +15,6 @@ if (is_file("view/" . $page . ".php")) {
     require_once "model/patch_panel.php";
     require_once "model/estadistica.php";
 
-
-
     $titulo = "Gestionar Punto de Conexión";
     $cabecera = array('ID', "Patch Panel", "Equipo", "Puerto", "Modificar / Eliminar");
 
@@ -28,8 +26,6 @@ if (is_file("view/" . $page . ".php")) {
     $peticion_equipos["peticion"] = "consultar";
     $equipos = $equipo->Transaccion($peticion_equipos);
     $equipos = isset($equipos['datos']) ? $equipos['datos'] : [];
-    // Ahora cada equipo tiene el campo 'ocupado' (1 si está asignado, 0 si no)
-
 
     $peticion_patch["peticion"] = "consultar";
     $patch_panels = $patch_panel->Transaccion($peticion_patch);
@@ -62,6 +58,23 @@ if (is_file("view/" . $page . ".php")) {
     if (isset($_POST['conectar_equipo'])) {
         // Normalizar id_equipo: si viene vacío, convertir a NULL para evitar violación de FK
         $id_equipo_post = isset($_POST["id_equipo"]) && $_POST["id_equipo"] !== '' ? $_POST["id_equipo"] : null;
+        
+        // VERIFICAR QUE EL EQUIPO EXISTA ANTES DE CONTINUAR
+        if ($id_equipo_post) {
+            $peticion_check = ["peticion" => "detalle"];
+            $equipo->set_id_equipo($id_equipo_post);
+            $equipo_check = $equipo->Transaccion($peticion_check);
+            
+            if ($equipo_check['resultado'] !== "detalle") {
+                echo json_encode([
+                    'estado' => -1,
+                    'resultado' => 'error',
+                    'mensaje' => 'El equipo seleccionado no existe o está inactivo'
+                ]);
+                exit;
+            }
+        }
+        
         $punto_conexion->set_id_equipo($id_equipo_post);
         $punto_conexion->set_codigo_patch_panel($_POST["codigo_patch_panel"]);
         $punto_conexion->set_puerto_patch_panel($_POST["puerto_patch_panel"]);
