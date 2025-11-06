@@ -142,6 +142,27 @@ class Notificacion extends Conexion
         return $dato;
     }
 
+    private function MarcarTodasLeidas(){
+        $dato = [];
+        try {
+            $this->conex->beginTransaction();
+            $query = "UPDATE notificacion SET estado = 'Leído' WHERE usuario = :usuario AND estado = 'Nuevo'";
+
+            $stm = $this->conex->prepare($query);
+            $stm->bindParam(":usuario", $this->usuario);
+            $stm->execute();
+            $dato['resultado'] = "actualizar";
+            $dato['mensaje'] = "Todas las notificaciones fueron marcadas como leídas";
+            $this->conex->commit();
+        } catch (PDOException $e) {
+            $this->conex->rollBack();
+            $dato['resultado'] = "error";
+            $dato['mensaje'] = $e->getMessage();
+        }
+        $this->Cerrar_Conexion($this->conex, $stm);
+        return $dato;
+    }
+
     private function ContarNuevas(){
         $dato = [];
         try {
@@ -172,6 +193,8 @@ class Notificacion extends Conexion
                 return $this->Consultar();
             case 'marcar_leido':
                 return $this->MarcarLeido();
+            case 'marcar_todas':
+                return $this->MarcarTodasLeidas();
             case 'contar_nuevas':
                 return $this->ContarNuevas();
             default:

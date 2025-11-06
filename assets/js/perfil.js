@@ -33,12 +33,12 @@ $(document).ready(function() {
     habilitarBotonRegistrar1();
   });
 
-  // Validaciones para el campo "apellido"
-  $("#apellido").on("keypress", function(e) {
+  // Validaciones para el campo "Apellido"
+  $("#Apellido").on("keypress", function(e) {
     validarKeyPress(/^[a-zA-ZáéíóúüñÑçÇ -.\b]*$/, e);
   });
 
-  $("#apellido").on("keyup", function() {
+  $("#Apellido").on("keyup", function() {
     validarKeyUp(
       /^[a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/,
       $(this),
@@ -48,12 +48,12 @@ $(document).ready(function() {
     habilitarBotonRegistrar1();
   });
 
-  // Validaciones para el campo "telefono"
-  $("#telefono").on("keypress", function(e) {
+  // Validaciones para el campo "Telefono"
+  $("#Telefono").on("keypress", function(e) {
     validarKeyPress(/^[0-9-.\b]*$/, e);
   });
 
-  $("#telefono").on("keyup", function() {
+  $("#Telefono").on("keyup", function() {
     validarKeyUp(
       /^[0-9]{3,4}[-]{1}[0-9]{7,15}$/,
       $(this),
@@ -86,8 +86,8 @@ $(document).ready(function() {
     habilitarBotonRegistrar3();
   });
 
-  // Validaciones para el campo "correo"
-  $("#correo").on("keyup", function() {
+  // Validaciones para el campo "Correo"
+  $("#Correo").on("keyup", function() {
     validarCorreo(
       /^[a-zA-ZáéíóúüñÑçÇ0-9._-]+@[a-zA-ZáéíóúüñÑçÇ0-9.-]+\.[a-zA-ZáéíóúüñÑçÇ]{2,6}$/,
       $(this),
@@ -119,7 +119,12 @@ $(document).ready(function() {
       // Mostrar vista previa
       const reader = new FileReader();
       reader.onload = function(event) {
+        // Actualizar tanto el avatar grande como el pequeño
         $(".rounded-circle").attr("src", event.target.result);
+        // también actualizar si existe un id específico
+        if (document.getElementById('avatarSmall')) {
+          document.getElementById('avatarSmall').src = event.target.result;
+        }
         $("#nombre-archivo").text(file.name);
       };
       reader.readAsDataURL(file);
@@ -138,9 +143,9 @@ $(document).ready(function() {
       // Agregar un campo hidden para indicar que se debe eliminar la foto
       $('<input>').attr({
         type: 'hidden',
-        name: 'eliminar_foto',
+        name: 'eliminarF',
         value: '1'
-      }).appendTo('form');
+      }).appendTo('#profileForm');
       
       // Habilitar botón de guardar cambios
       $(".cambio").prop("disabled", false);
@@ -168,7 +173,7 @@ function validarenvio() {
 
   if (validarKeyUp(
     /^[a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/,
-    $("#apellido"),
+    $("#Apellido"),
     $("#sapellido"),
     "El apellido debe tener al menos 3 letras"
   ) == 0) {
@@ -234,7 +239,7 @@ function habilitarBotonRegistrar1() {
   
   const apellidoValido = validarKeyUp(
     /^[a-zA-ZáéíóúüñÑçÇ -.]{3,30}$/,
-    $("#apellido"),
+    $("#Apellido"),
     $("#sapellido"),
     ""
   );
@@ -245,14 +250,14 @@ function habilitarBotonRegistrar1() {
 function habilitarBotonRegistrar2() {
   const telefonoValido = validarKeyUp(
     /^[0-9]{3,4}[-]{1}[0-9]{7,15}$/,
-    $("#telefono"),
+    $("#Telefono"),
     $("#stelefono"),
     ""
   );
   
   const correoValido = validarCorreo(
     /^[a-zA-ZáéíóúüñÑçÇ0-9._-]+@[a-zA-ZáéíóúüñÑçÇ0-9.-]+\.[a-zA-ZáéíóúüñÑçÇ]{2,6}$/,
-    $("#correo"),
+    $("#Correo"),
     $("#scorreo"),
     ""
   );

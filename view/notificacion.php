@@ -11,12 +11,17 @@
       </nav>
     </div><!-- End Page Title -->
 
+    <!-- Botón movido dentro de la tarjeta (más cercano a la tabla) y con estilo menos agresivo -->
+
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
 
           <div class="card">
             <div class="card-body">
+                <div class="d-flex justify-content-end mb-3">
+                  <button id="marcar-todas-page" class="btn btn-sm btn-outline-secondary">Marcar todas como leídas</button>
+                </div>
                <div class="table-responsive">
                   <table class="table" id="tabla1">
                       <thead>

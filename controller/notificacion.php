@@ -49,6 +49,14 @@ if (is_file("view/".$page.".php")) {
         exit;
     }
 
+    if (isset($_POST['marcar_todas'])) {
+        $notificacion->set_usuario($_SESSION['user']['nombre_usuario']);
+        $peticion["peticion"] = "marcar_todas";
+        $json = $notificacion->Transaccion($peticion);
+        echo json_encode($json);
+        exit;
+    }
+
     if (isset($_POST['contar_nuevas'])) {
         $notificacion->set_usuario($_SESSION['user']['nombre_usuario']);
         $peticion["peticion"] = "contar_nuevas";

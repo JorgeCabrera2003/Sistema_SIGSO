@@ -82,11 +82,11 @@
                 </div>
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
                   <!-- Profile Edit Form -->
-                  <form method="POST" action="?page=users-profile" autocomplete="off" enctype="multipart/form-data">
+                  <form id="profileForm" method="POST" action="?page=users-profile" autocomplete="off" enctype="multipart/form-data">
                     <div class="row mb-3">
                       <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Foto de Perfil</label>
                       <div class="col-md-8 col-lg-9">
-                        <img src="<?php echo $foto; ?>" alt="Profile"
+                        <img src="<?php echo $foto; ?>" alt="Profile" class="rounded-circle" id="avatarSmall"
                           style="width: 100px; height: 100px; object-fit: cover;">
                         <div class="pt-2">
                           <input type="file" name="foto_perfil" id="foto_perfil" class="d-none" accept="image/*">
@@ -151,7 +151,7 @@
 
                 <div class="tab-pane fade <?php echo $active4; ?> pt-3" id="profile-change-password">
                   <!-- Change Password Form -->
-                  <form method="POST" action="" autocomplete="off">
+                  <form id="passwordForm" method="POST" action="" autocomplete="off">
 
                     <div class="row mb-3">
                       <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">Contraseña Nueva</label>
@@ -187,7 +187,7 @@
       <?php 
       $temas = [
         0 => ['nombre' => 'Tema por defecto', 'colores' => ['#f8f9fa','#8fd16f','#7c1d21']],
-        1 => ['nombre' => 'Scarly - Rosa', 'colores' => ['#ff69b4','#ffb6c1','#ffe4e1']],
+  1 => ['nombre' => 'Scarly - Rosa', 'colores' => ['#d63384','#ffb6db','#fff7fb']],
         2 => ['nombre' => 'Azul', 'colores' => ['#007bff','#66b2ff','#cce5ff']],
         3 => ['nombre' => 'Verde', 'colores' => ['#28a745','#71d48a','#d4edda']],
         4 => ['nombre' => 'Rojo', 'colores' => ['#dc3545','#f28b82','#f8d7da']],
@@ -339,7 +339,8 @@
     }
 
     // Confirmación para cambiar contraseña
-    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    if (document.getElementById('passwordForm')) {
+      document.getElementById('passwordForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const newPassword = document.getElementById('newPassword').value;
@@ -369,11 +370,13 @@
           this.submit();
         }
       });
-    });
+      });
+    }
 
     // Confirmación para guardar cambios en el perfil
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    if (document.getElementById('profileForm')) {
+      document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
       Swal.fire({
         title: '¿Guardar cambios?',
@@ -389,7 +392,8 @@
           this.submit();
         }
       });
-    });
+      });
+    }
 
     // Mostrar nombre del archivo seleccionado
     document.getElementById('foto_perfil').addEventListener('change', function(e) {

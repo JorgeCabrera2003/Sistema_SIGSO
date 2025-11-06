@@ -425,11 +425,15 @@
                 class="badge badge-notificacion position-absolute top-0 start-100 translate-middle bg-danger"></span>
               </button>
               <div class="dropdown-menu notification-menu">
-                <div class="dropdown-header">
-                  <h6>Notificaciones</h6>
-                  <button class="close-dropdown">
-                    <i class="fas fa-times"></i>
-                  </button>
+                <div class="dropdown-header d-flex align-items-center justify-content-between">
+                  <div>
+                    <h6 class="mb-0">Notificaciones</h6>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <button class="close-dropdown">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
                 </div>
                 <div class="dropdown-body" id="notificaciones-container">
 

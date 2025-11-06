@@ -12,6 +12,23 @@ ob_start();
 if (is_file("view/" . $page . ".php")) {
     require_once "controller/utileria.php";
     $titulo = "Mi Perfil";
+    // DEBUG: registrar POST/FILE/session para diagnosticar problemas del módulo Perfil
+    try {
+        $debugPath = __DIR__ . '/../logs/profile_debug.log';
+        $dbg = fopen($debugPath, 'a');
+        if ($dbg) {
+            fwrite($dbg, "\n---- " . date('Y-m-d H:i:s') . " ----\n");
+            fwrite($dbg, "REMOTE_ADDR: " . ($_SERVER['REMOTE_ADDR'] ?? 'cli') . "\n");
+            fwrite($dbg, "SESSION_USER_PRESENT: " . (isset($_SESSION['user']) ? 'yes' : 'no') . "\n");
+            fwrite($dbg, "POST_KEYS: " . json_encode(array_keys($_POST)) . "\n");
+            fwrite($dbg, "FILES_KEYS: " . json_encode(array_keys($_FILES)) . "\n");
+            fwrite($dbg, "RAW_POST: " . json_encode($_POST) . "\n");
+            fwrite($dbg, str_repeat('-',40) . "\n");
+            fclose($dbg);
+        }
+    } catch (Exception $e) {
+        // no interrumpir la ejecución si falla el log
+    }
     if (is_file($datos['foto'])) {
         $foto = $datos['foto'];
     }
@@ -27,6 +44,10 @@ if (is_file("view/" . $page . ".php")) {
 
         if (file_exists($ruta_archivo)) {
             if (unlink($ruta_archivo)) {
+                // asegurar que el objeto usuario tenga la cédula establecida
+                if (isset($datos['cedula'])) {
+                    $usuario->set_cedula($datos['cedula']);
+                }
                 $usuario->set_foto('assets/img/default-profile.jpg');
                 if ($usuario->Transaccion(['peticion' => 'actualizarFoto'])) {
                     $_SESSION['alert'] = [
@@ -53,7 +74,8 @@ if (is_file("view/" . $page . ".php")) {
         }
     }
 
-    if (isset($_POST['cambiar'])) {
+    // Procesamiento de actualización de perfil (nombre, apellido, correo, teléfono, foto)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['Nombre']) || isset($_FILES['foto_perfil']) || isset($_POST['eliminarF']))) {
         // Procesamiento de foto de perfil
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] == 0) {
             $targetDir = "assets/img/foto-perfil/";
@@ -63,6 +85,10 @@ if (is_file("view/" . $page . ".php")) {
             $targetFile = $targetDir . $nuevoNombre;
 
             if (move_uploaded_file($_FILES["foto_perfil"]["tmp_name"], $targetFile)) {
+                // asegurar que el objeto usuario tenga la cédula establecida
+                if (isset($datos['cedula'])) {
+                    $usuario->set_cedula($datos['cedula']);
+                }
                 $usuario->set_foto($targetFile);
                 $usuario->Transaccion(['peticion' => 'actualizarFoto']);
                 $_SESSION['alert'] = [
@@ -73,6 +99,16 @@ if (is_file("view/" . $page . ".php")) {
                 header("Location: ?page=users-profile");
                 exit();
             }
+
+            // Log resultado de subida de archivo para debugging
+            try {
+                $dbg = fopen(__DIR__ . '/../logs/profile_debug.log', 'a');
+                if ($dbg) {
+                    fwrite($dbg, "move_uploaded_file_result: " . (file_exists($targetFile) ? 'exists' : 'missing') . "\n");
+                    fwrite($dbg, "targetFile: " . $targetFile . "\n");
+                    fclose($dbg);
+                }
+            } catch (Exception $e) {}
         }
 
         // Actualización de datos del perfil
@@ -87,6 +123,11 @@ if (is_file("view/" . $page . ".php")) {
         $usuario->set_telefono($tlf);
         $peticion['peticion'] = 'modificar';
 
+        // asegurar que el objeto usuario tenga la cédula establecida
+        if (isset($datos['cedula'])) {
+            $usuario->set_cedula($datos['cedula']);
+        }
+
         if ($usuario->Transaccion($peticion)) {
             $_SESSION['alert'] = [
                 'type' => 'success',
@@ -98,6 +139,14 @@ if (is_file("view/" . $page . ".php")) {
             header("Location: ?page=users-profile");
             exit();
         } else {
+            // Log fallo de actualización
+            try {
+                $dbg = fopen(__DIR__ . '/../logs/profile_debug.log', 'a');
+                if ($dbg) {
+                    fwrite($dbg, "ModificarUsuario failed for cedula: " . ($datos['cedula'] ?? 'unknown') . "\n");
+                    fclose($dbg);
+                }
+            } catch (Exception $e) {}
             $_SESSION['alert'] = [
                 'type' => 'error',
                 'title' => 'Error',
@@ -106,7 +155,8 @@ if (is_file("view/" . $page . ".php")) {
         }
     }
 
-    if (isset($_POST['passw'])) {
+    // Procesamiento de cambio de contraseña
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newpassword']) && isset($_POST['renewpassword'])) {
         if ($_POST['newpassword'] == $_POST['renewpassword']) {
             $clave = password_hash($_POST['renewpassword'], PASSWORD_BCRYPT);
             $usuario->set_clave($clave);
@@ -135,9 +185,14 @@ if (is_file("view/" . $page . ".php")) {
     }
 
     // Manejo de cambio de tema
-    if (isset($_POST['cambiarTema'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cambiTema'])) {
         $tema = $_POST['cambiTema'];
         $usuario->set_tema($tema);
+
+        // asegurar que el objeto usuario tenga la cédula establecida
+        if (isset($datos['cedula'])) {
+            $usuario->set_cedula($datos['cedula']);
+        }
 
         if ($usuario->Transaccion(['peticion' => 'actualizarTema'])) {
             // Guardar datos importantes de la sesión actual
@@ -154,7 +209,7 @@ if (is_file("view/" . $page . ".php")) {
             $_SESSION = $old_session_data;
 
             // Actualizar el tema en la nueva sesión
-            $_SESSION['user']['user']['tema'] = 5;
+            $_SESSION['user']['user']['tema'] = $tema;
 
             // Configurar la alerta
             $_SESSION['alert'] = [

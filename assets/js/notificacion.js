@@ -3,12 +3,19 @@ $(document).ready(function () {
     consultar();
     actualizarContador();
     setInterval(actualizarContador, 30000); // Actualizar contador cada 30 segundos
+    
+    // Marcar todas desde la página de notificaciones
+    $('#marcar-todas-page').click(function() {
+        var formData = new FormData();
+        formData.append('marcar_todas', true);
+        enviaAjax(formData);
+    });
 });
 
 function enviaAjax(datos) {
     $.ajax({
         async: true,
-        url: "",
+        url: '?page=notificacion',
         type: "POST",
         contentType: false,
         data: datos,

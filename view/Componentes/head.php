@@ -143,5 +143,38 @@
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
     }
     </style>
+
+    <!-- Loader styles: pantalla de carga global (funciona sin internet) -->
+    <style>
+      /* Overlay + spinner usando pseudo-elementos de body */
+      html:not(.page-ready) > body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: #ffffff;
+        z-index: 2000;
+      }
+      html:not(.page-ready) > body::after {
+        content: "";
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 64px;
+        height: 64px;
+        margin-left: -32px;
+        margin-top: -32px;
+        border-radius: 50%;
+        border: 8px solid #e9ecef;
+        border-top-color: #8b1d21; /* color acorde al tema */
+        animation: _sys_spin 1s linear infinite;
+        z-index: 2001;
+      }
+      @keyframes _sys_spin { to { transform: rotate(360deg); } }
+
+      /* Evita que se muestren transiciones o flashes en elementos hasta que la página esté lista */
+      html:not(.page-ready) body * {
+        transition: none !important;
+      }
+    </style>
     
   </head>

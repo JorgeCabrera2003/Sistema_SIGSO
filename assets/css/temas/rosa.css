@@ -1,66 +1,66 @@
 :root {
-  /* Light theme variables - Estilo Barbie */
-  --background: #fff0f5;
-  --background: linear-gradient(152deg, rgba(255, 240, 245, 1) 0%, rgba(255, 214, 229, 1) 67%, rgba(255, 192, 203, 1) 100%);
-  --foreground: #d81b60; /* Rosa oscuro para texto */
-  --light: #ff69b4; /* Rosa fuerte */
-  --mate: #ffc0cb; /* Rosa claro */
-  --muted: #ffebf1;
-  --muted-foreground: #e83e8c;
-  --popover: #fff0f5;
-  --popover-foreground: #d81b60;
-  --card: #fff0f5;
-  --card-foreground: #d81b60;
-  --border: #ffb6c1;
-  --input: #ffd7e5;
-  --primary: #d81b60; /* Rosa oscuro */
+  /* Paleta rosa suavizada y armoniosa */
+  --background: #fff7fb;
+  --background: linear-gradient(152deg, rgba(255,247,251,1) 0%, rgba(255,236,246,1) 67%, rgba(255,243,250,1) 100%);
+  --foreground: #6b1640; /* texto principal: fucsia oscuro pero menos saturado */
+  --light: #ff85c1; /* rosa suave para acentos */
+  --mate: #ffdff2; /* rosa pálido */
+  --muted: #fff5f9;
+  --muted-foreground: #b83b6f;
+  --popover: #ffffff;
+  --popover-foreground: #6b1640;
+  --card: #fff7fb;
+  --card-foreground: #6b1640;
+  --border: #f4c2da;
+  --input: #fff0f6;
+  --primary: #d63384; /* fucsia equilibrado (no tan chillón) */
   --primary-foreground: #ffffff;
-  --update: #c71585; /* Rosa violeta */
+  --update: #b4226d;
   --update-foreground: #ffffff;
-  --secondary: #ff69b4; /* Rosa fuerte */
-  --secondary-foreground: #ffffff;
-  --accent: #ffc0cb; /* Rosa claro */
-  --accent-foreground: #d81b60;
-  --destructive: #ff4d6d;
+  --secondary: #ffb6db; /* rosa medio */
+  --secondary-foreground: #6b1640;
+  --accent: #ffdced; /* acento muy suave */
+  --accent-foreground: #6b1640;
+  --destructive: #ff6b81;
   --destructive-foreground: #ffffff;
-  --ring: #ffb6c1;
+  --ring: #f7c6e3;
   --radius: 0.5rem;
   --sidebar-width: 16rem;
   --sidebar-collapsed-width: 4.5rem;
-  --bg-switch: #ffb6c1;
-  --sidebar-bg: #d81b60; /* Rosa oscuro */
+  --bg-switch: #f4c2da;
+  --sidebar-bg: #a52b5a; /* sidebar ligeramente más oscuro para contraste */
   --sidebar-foreground: #ffffff;
-  --sidebar-hover-bg: #e83e8c; /* Rosa medio */
+  --sidebar-hover-bg: #c23e74; /* hover más vivo */
 }
 
 .dark {
-  /* Dark theme variables - Versión oscura del estilo Barbie */
-  --background: #2a0a1a;
-  --background: linear-gradient(152deg, rgba(42, 10, 26, 1) 0%, rgba(70, 20, 45, 1) 67%, rgba(100, 30, 60, 1) 100%);
-  --foreground: #ffb6c1; /* Rosa claro para texto */
-  --light: #e83e8c; /* Rosa medio */
-  --mate: #2a0a1a;
-  --muted: #3a1a2a;
-  --muted-foreground: #ffb6c1;
-  --popover: #3a1a2a;
-  --popover-foreground: #ffb6c1;
-  --card: #3a1a2a;
-  --card-foreground: #ffb6c1;
-  --border: #5a2a4a;
-  --input: #4a2a3a;
-  --primary: #e83e8c; /* Rosa medio */
-  --primary-foreground: #ffffff;
-  --update: #d94d9d;
-  --update-foreground: #ffffff;
-  --secondary: #ff69b4; /* Rosa fuerte */
-  --secondary-foreground: #ffffff;
-  --accent: #d81b60; /* Rosa oscuro */
-  --accent-foreground: #ffb6c1;
-  --destructive: #ff4d6d;
+  /* Versión oscura suavizada */
+  --background: #1a0b12;
+  --background: linear-gradient(152deg, rgba(26,11,18,1) 0%, rgba(48,17,30,1) 67%, rgba(72,24,44,1) 100%);
+  --foreground: #ffd6ea; /* rosa claro para texto en oscuro */
+  --light: #e89abf;
+  --mate: #12060a;
+  --muted: #29141d;
+  --muted-foreground: #ffd6ea;
+  --popover: #2a121b;
+  --popover-foreground: #ffd6ea;
+  --card: #2a121b;
+  --card-foreground: #ffd6ea;
+  --border: #4a1f2e;
+  --input: #371826;
+  --primary: #e89abf; /* tono rosa para elementos principales en oscuro */
+  --primary-foreground: #1a0b12;
+  --update: #c25a8f;
+  --update-foreground: #1a0b12;
+  --secondary: #dca3c9;
+  --secondary-foreground: #1a0b12;
+  --accent: #b54b88;
+  --accent-foreground: #ffd6ea;
+  --destructive: #ff6b81;
   --destructive-foreground: #ffffff;
-  --ring: #5a2a4a;
-  --bg-switch: #5a2a4a;
-  --sidebar-bg: #d81b60; /* Rosa oscuro */
+  --ring: #5a2438;
+  --bg-switch: #5a2438;
+  --sidebar-bg: #8a2048;
   --sidebar-foreground: #ffffff;
-  --sidebar-hover-bg: #e83e8c; /* Rosa medio */
+  --sidebar-hover-bg: #b84577;
 }
