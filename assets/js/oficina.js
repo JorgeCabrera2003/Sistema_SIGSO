@@ -22,7 +22,7 @@ function manejarCambioEstadoOficina(formularioValido) {
 }
 
 // Función de validación personalizada para Oficina
-function validarOficina() {
+function validarOficina(mostrarErrores = true) {
     let esValido = true;
     let mensajeError = '';
 
@@ -37,12 +37,21 @@ function validarOficina() {
     }
 
     // Validar nombre
+    const nombreTouched = $("#nombre").data('touched');
     if (!nombre || nombre.length < 3 || nombre.length > 45) {
-        SistemaValidacion.aplicarEstilos($("#nombre"), false, "El nombre debe tener entre 3 y 45 caracteres");
+        if (mostrarErrores && nombreTouched) {
+            SistemaValidacion.aplicarEstilos($("#nombre"), false, "El nombre debe tener entre 3 y 45 caracteres");
+        } else {
+            SistemaValidacion.limpiarEstilosCampo($("#nombre"));
+        }
         esValido = false;
         mensajeError = "El nombre de la oficina debe tener de 3 a 45 caracteres";
     } else if (!patrones.letrasConNumeros.test(nombre)) {
-        SistemaValidacion.aplicarEstilos($("#nombre"), false, "El nombre solo puede contener letras, números y espacios");
+        if (mostrarErrores && nombreTouched) {
+            SistemaValidacion.aplicarEstilos($("#nombre"), false, "El nombre solo puede contener letras, números y espacios");
+        } else {
+            SistemaValidacion.limpiarEstilosCampo($("#nombre"));
+        }
         esValido = false;
         mensajeError = "El nombre contiene caracteres no válidos";
     } else {
@@ -50,8 +59,14 @@ function validarOficina() {
     }
 
     // Validar piso
-    if (idPiso === 'default' || idPiso === '' || idPiso === null) {
-        estadoSelect('#id_piso', '#sid_piso', "Debe seleccionar un piso", 0);
+    const pisoTouched = $("#id_piso").data('touched');
+    if (idPiso === '' || idPiso === null) {
+        if (mostrarErrores && pisoTouched) {
+            estadoSelect('#id_piso', '#sid_piso', "Debe seleccionar un piso", 0);
+        } else {
+            SistemaValidacion.limpiarEstilosCampo($("#id_piso"));
+            $("#sid_piso").text("");
+        }
         esValido = false;
         if (!mensajeError) mensajeError = "Debe seleccionar un piso";
     } else {
@@ -165,7 +180,7 @@ $(document).ready(function () {
         $("#modalEliminadas").modal("show");
     });
 
-    // Forzar validación cuando se abre el modal
+    // Forzar validación cuando se abre el modal (no mostrar errores inmediatamente)
     $('#modal1').on('shown.bs.modal', function () {
         setTimeout(() => {
             const accion = $("#enviar").text();
@@ -174,7 +189,7 @@ $(document).ready(function () {
                 const idValido = $("#id_oficina").length && $("#id_oficina").val().trim() !== "";
                 $('#enviar').prop('disabled', !idValido);
             } else {
-                const validacion = validarOficina();
+                const validacion = validarOficina(false); // no mostrar errores aún
                 manejarCambioEstadoOficina(validacion.esValido);
             }
         }, 100);
@@ -363,11 +378,18 @@ function capaValidar() {
     });
 
     // Validación en tiempo real para el piso
-    $("#id_piso").on("change blur", function () {
+    $("#id_piso").on("change focus blur", function () {
+        // marcar que el usuario interactuó
+        $(this).data('touched', true);
         setTimeout(() => {
             const validacion = validarOficina();
             manejarCambioEstadoOficina(validacion.esValido);
         }, 100);
+    });
+
+    // Nombre: marcar touched cuando el usuario lo toca
+    $("#nombre").on("focus input blur", function () {
+        $(this).data('touched', true);
     });
 }
 
@@ -395,14 +417,19 @@ function vistaPermiso(permisos = null) {
 function selectPiso(arreglo) {
     $("#id_piso").empty();
     if (Array.isArray(arreglo) && arreglo.length > 0) {
-        $("#id_piso").append(new Option('Seleccione un Piso', 'default'));
+        // Agregar opción placeholder no seleccionable
+        const placeholder = new Option('Seleccione un Piso', '');
+        $(placeholder).prop('disabled', true).prop('selected', true).attr('hidden', true);
+        $("#id_piso").append(placeholder);
         arreglo.forEach(item => {
             $("#id_piso").append(
                 new Option(item.tipo_piso + " " + item.nro_piso, item.id_piso)
             );
         });
     } else {
-        $("#id_piso").append(new Option('No Hay Pisos', 'default'));
+        const noHay = new Option('No Hay Pisos', '');
+        $(noHay).prop('disabled', true).prop('selected', true).attr('hidden', true);
+        $("#id_piso").append(noHay);
     }
 }
 
@@ -547,8 +574,13 @@ function limpia() {
     SistemaValidacion.limpiarValidacion(elementosOficina);
 
     $("#nombre").val("").prop("readOnly", false);
-    $("#id_piso").val("default").prop("disabled", false);
+    // Reset to placeholder (empty value) and enable
+    $("#id_piso").val("").prop("disabled", false);
     $("#id_oficina").val("");
+
+    // Reset touched flags
+    $("#nombre").data('touched', false);
+    $("#id_piso").data('touched', false);
 
     // Deshabilitar el botón al limpiar
     $('#enviar').prop('disabled', true);

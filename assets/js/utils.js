@@ -488,7 +488,7 @@ function validarKeyUp(er, etiqueta, etiquetamensaje, mensaje) {
     $(etiqueta).addClass("is-valid")
     $(etiquetamensaje).removeClass("invalid-feedback");
     $(etiquetamensaje).addClass("valid-feedback")
-    etiquetamensaje.text("");
+    etiquetamensaje.text("✓ Correcto");
     return 1;
   } else {
     $(etiqueta).removeClass("is-valid");
@@ -506,7 +506,7 @@ function estadoSelect(input, span, mensaje, estado) {
     $(input).removeClass("is-invalid");
     $(span).removeClass("invalid-feedback");
     $(span).addClass("valid-feedback");
-    $(span).text("");
+    $(span).text("✓ Correcto");
   } else {
     $(input).addClass("is-invalid");
     $(input).removeClass("is-valid");

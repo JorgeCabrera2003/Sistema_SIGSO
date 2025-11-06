@@ -27,6 +27,7 @@
                     <div class="col-12">
                         <div class="form-floating mb-3 mt-4">
                             <select class="form-select" name="id_piso" id="id_piso">
+                                <option value="" disabled selected hidden>Seleccione un Piso</option>
                             </select>
                             <span id="sid_piso"></span>
                             <label for="id_piso" class="form-label">Piso</label>

@@ -99,8 +99,11 @@ function capitalizarTextoCompleto(texto) {
 function formatearTelefonoConGuion($campo) {
 	let valor = $campo.val().replace(/[^0-9]/g, '');
 
+	// Limitar a 11 dígitos numéricos
+	if (valor.length > 11) valor = valor.substring(0, 11);
+
 	if (valor.length > 4) {
-		valor = valor.substring(0, 4) + '-' + valor.substring(4, 11);
+		valor = valor.substring(0, 4) + '-' + valor.substring(4);
 	}
 
 	$campo.val(valor);
@@ -1366,17 +1369,29 @@ function capaValidar() {
 		}
 	});
 
-	// Validación con formato en tiempo real para teléfono (solo números y guion) - habilita correo
+	// Validación con formato en tiempo real para teléfono (solo números; guión se inserta automáticamente) - habilita correo
 	$("#telefono").on("keypress", function (e) {
-		validarKeyPress(/^[0-9\b-]*$/, e);
+		validarKeyPress(/^[0-9\b]*$/, e);
 	});
 
-	// Formato automático CORREGIDO para teléfono (0412-1234567) - habilita correo
+	// Manejar pegado en teléfono: sanitizar y formatear
+	$("#telefono").on("paste", function (e) {
+		e.preventDefault();
+		const texto = (e.originalEvent || e).clipboardData.getData('text') || '';
+		const soloNumeros = texto.replace(/[^0-9]/g, '').substring(0, 11);
+		$(this).val(soloNumeros);
+		formatearTelefonoConGuion($(this));
+		if (typeof SistemaValidacion !== 'undefined') {
+			SistemaValidacion.validarCampo.call(this);
+			habilitarCampoProgresivo(this, '#correo');
+		}
+	});
+
+	// Formato automático para teléfono en input (inserta guion) - habilita correo
 	$("#telefono").on("input", function () {
 		formatearTelefonoConGuion($(this));
 		if (typeof SistemaValidacion !== 'undefined') {
 			SistemaValidacion.validarCampo.call(this);
-
 			// Habilitar/deshabilitar correo según validación
 			habilitarCampoProgresivo(this, '#correo');
 		}
@@ -1460,11 +1475,15 @@ function validarKeyPress(patron, e) {
 // AGREGAR PATRONES ESPECÍFICOS PARA EMPLEADO AL OBJETO PATRONES EXISTENTE
 // Solo si el objeto patrones ya existe (definido en utils.js)
 if (typeof patrones !== 'undefined') {
-	patrones.cedulaNumeros = /^[0-9]{7,10}$/;
-	patrones.nombrePersona = /^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{4,45}$/;
-	patrones.apellidoPersona = /^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{4,45}$/;
-	patrones.correoEmpleado = /^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[com]{3}$/;
-	patrones.telefonoEmpleado = /^[0-9]{4}[-]{1}[0-9]{7}$/;
+	// Cédula: exactamente 8 dígitos
+	patrones.cedulaNumeros = /^\d{8}$/;
+	// Nombre y apellido: entre 3 y 45 letras/espacios
+	patrones.nombrePersona = /^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{3,45}$/;
+	patrones.apellidoPersona = /^[a-zA-ZÁÉÍÓÚáéíóúüñÑçÇ ]{3,45}$/;
+	// Correo: mantener validación existente (puede mejorarse más adelante)
+	patrones.correoEmpleado = /^[-0-9a-zç_]{6,36}[@]{1}[0-9a-z]{5,25}[.]{1}[a-z]{2,4}$/i;
+	// Teléfono: debe empezar en 0, 4 dígitos antes del guion y 7 después -> 11 dígitos numéricos
+	patrones.telefonoEmpleado = /^0\d{3}-\d{7}$/;
 }
 
 // Extender SistemaValidacion para campos de empleado

@@ -22,12 +22,12 @@ function manejarCambioEstadoPiso(formularioValido) {
 }
 
 // Función de validación personalizada para Piso
-function validarPiso() {
+function validarPiso(mostrarErrores = true) {
     let esValido = true;
     let mensajeError = '';
 
-    const tipoPiso = $("#tipo_piso").val();
-    const nroPiso = $("#nro_piso").val();
+    const tipoPiso = $("#tipo_piso").length ? $("#tipo_piso").val() : '';
+    const nroPiso = $("#nro_piso").length ? $("#nro_piso").val() : '';
     const accion = $("#enviar").text();
 
     // Si es eliminar, solo necesitamos el ID
@@ -37,8 +37,15 @@ function validarPiso() {
     }
 
     // Validar que se haya seleccionado un tipo de piso
-    if (tipoPiso === 'default' || tipoPiso === '') {
-        estadoSelect('#tipo_piso', '#stipo_piso', "Seleccione un tipo de Piso", 0);
+    const tipoTouched = $("#tipo_piso").data('touched');
+    if (tipoPiso === '' || tipoPiso === null) {
+        if (mostrarErrores && tipoTouched) {
+            estadoSelect('#tipo_piso', '#stipo_piso', "Seleccione un tipo de Piso", 0);
+        } else {
+            // limpiar estilos si no mostrar errores aun
+            SistemaValidacion.limpiarEstilosCampo($("#tipo_piso"));
+            $("#stipo_piso").text("");
+        }
         esValido = false;
         mensajeError = "Seleccione un tipo de Piso";
     } else {
@@ -46,8 +53,14 @@ function validarPiso() {
     }
 
     // Validar que se haya seleccionado un número de piso
-    if (nroPiso === 'default' || nroPiso === '') {
-        estadoSelect('#nro_piso', '#snro_piso', "Seleccione un número de Piso", 0);
+    const nroTouched = $("#nro_piso").data('touched');
+    if (nroPiso === '' || nroPiso === null) {
+        if (mostrarErrores && nroTouched) {
+            estadoSelect('#nro_piso', '#snro_piso', "Seleccione un número de Piso", 0);
+        } else {
+            SistemaValidacion.limpiarEstilosCampo($("#nro_piso"));
+            $("#snro_piso").text("");
+        }
         esValido = false;
         mensajeError = "Seleccione un número de Piso";
     } else {
@@ -57,13 +70,17 @@ function validarPiso() {
     // Validar reglas específicas de negocio
     if (esValido) {
         if (nroPiso === '0' && tipoPiso !== 'Planta Baja') {
-            estadoSelect('#nro_piso', '#snro_piso', "", 0);
-            estadoSelect('#tipo_piso', '#stipo_piso', "Solo Planta Baja empieza en 0", 0);
+            if (mostrarErrores) {
+                estadoSelect('#nro_piso', '#snro_piso', "", 0);
+                estadoSelect('#tipo_piso', '#stipo_piso', "Solo Planta Baja empieza en 0", 0);
+            }
             esValido = false;
             mensajeError = "Solo Planta Baja empieza en 0";
         } else if (nroPiso !== '0' && tipoPiso === 'Planta Baja') {
-            estadoSelect('#nro_piso', '#snro_piso', "", 0);
-            estadoSelect('#tipo_piso', '#stipo_piso', "Solo Planta Baja empieza en 0", 0);
+            if (mostrarErrores) {
+                estadoSelect('#nro_piso', '#snro_piso', "", 0);
+                estadoSelect('#tipo_piso', '#stipo_piso', "Solo Planta Baja empieza en 0", 0);
+            }
             esValido = false;
             mensajeError = "Solo Planta Baja empieza en 0";
         }
@@ -157,7 +174,7 @@ $(document).ready(function () {
         $("#modalEliminadas").modal("show");
     });
 
-    // Forzar validación cuando se abre el modal
+    // Forzar validación cuando se abre el modal (no mostrar errores inmediatamente)
     $('#modal1').on('shown.bs.modal', function () {
         setTimeout(() => {
             const accion = $("#enviar").text();
@@ -166,7 +183,8 @@ $(document).ready(function () {
                 const idValido = $("#id_piso").length && $("#id_piso").val().trim() !== "";
                 $('#enviar').prop('disabled', !idValido);
             } else {
-                validarPiso();
+                const validacion = validarPiso(false); // no mostrar errores aún
+                manejarCambioEstadoPiso(validacion.esValido);
             }
         }, 100);
     });
@@ -304,13 +322,12 @@ function enviaAjax(datos) {
 
 function capaValidar() {
     // Validación en tiempo real para los selects
-    $("#tipo_piso, #nro_piso").on("change blur", function () {
+    $("#tipo_piso, #nro_piso").on("change focus blur", function () {
+        // marcar que el usuario interactuó con el campo
+        $(this).data('touched', true);
         const accion = $("#enviar").text();
-        
+
         if (accion !== "Eliminar") {
-            validarPiso();
-            
-            // Verificar estado del formulario después de la validación
             const validacion = validarPiso();
             manejarCambioEstadoPiso(validacion.esValido);
         }
@@ -479,13 +496,17 @@ async function reactivarPiso(boton) {
 
 function limpia() {
     SistemaValidacion.limpiarValidacion(elementosPiso);
-
-    $("#tipo_piso").val("default");
-    $("#nro_piso").val("default");
+    // Reset selects to placeholder (empty value)
+    $("#tipo_piso").val("");
+    $("#nro_piso").val("");
     $("#id_piso").val("");
 
     $("#tipo_piso").prop("disabled", false);
     $("#nro_piso").prop("disabled", false);
+
+    // Reset touched flags
+    $("#tipo_piso").data('touched', false);
+    $("#nro_piso").data('touched', false);
 
     // Deshabilitar el botón al limpiar
     $('#enviar').prop('disabled', true);

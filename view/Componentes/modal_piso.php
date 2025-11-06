@@ -14,7 +14,7 @@
           <div class="col-8">
             <div class="form-floating mb-3">
               <select class="form-select" name="tipo_piso" id="tipo_piso">
-                <option selected value="default">Seleccione el Tipo de Piso</option>
+                <option value="" disabled selected hidden>Seleccione el Tipo de Piso</option>
                 <option value="Sótano">Sótano</option>
                 <option value="Planta Baja">Planta Baja</option>
                 <option value="Piso">Piso</option>
@@ -27,7 +27,7 @@
           <div class="col-4">
             <div class="form-floating mb-3">
               <select class="form-select" name="nro_piso" id="nro_piso">
-              <option selected value="default">Seleccione un Nro de Piso</option>
+              <option value="" disabled selected hidden>Seleccione un Nro de Piso</option>
               <option value="0">0</option>
               <option value="1">1</option>
               <option value="2">2</option>
